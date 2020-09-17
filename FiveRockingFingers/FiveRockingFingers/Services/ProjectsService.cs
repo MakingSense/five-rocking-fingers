@@ -10,16 +10,25 @@ namespace FiveRockingFingers.Services
     public class ProjectsService : IProjectsService
     {
         public IConfiguration Configuration { get; set; }
-        public DataAccessContext Context { get; set; }
-        public ProjectsService(IConfiguration configuration, DataAccessContext context)
+        public DataAccessContext DataContext { get; set; }
+        public ProjectsService(IConfiguration configuration, DataAccessContext dataContext)
         {
             Configuration = configuration;
-            Context = context;
+            DataContext = dataContext;
         }
 
         public List<Project> GetAll()
         {
-            return Context.Projects.ToList();
+            return DataContext.Projects.ToList();
+        }
+
+        public Project Save(Project project)
+        {
+            var result = DataContext.Projects.Add(project);
+            DataContext.SaveChanges();
+            return project;
+
         }
     }
+}
 }
