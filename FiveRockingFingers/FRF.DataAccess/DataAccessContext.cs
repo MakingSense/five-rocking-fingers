@@ -1,11 +1,7 @@
-﻿using FiveRockingFingers.Entities;
+﻿using FRF.Core.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace FiveRockingFingers
+namespace FRF.DataAccess
 {
     public class DataAccessContext : DbContext
     {

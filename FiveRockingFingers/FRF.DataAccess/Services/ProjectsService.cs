@@ -1,11 +1,11 @@
-﻿using FiveRockingFingers.Entities;
+﻿using FRF.Core.Entities;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace FiveRockingFingers.Services
+namespace FRF.DataAccess.Services
 {
     public class ProjectsService : IProjectsService
     {

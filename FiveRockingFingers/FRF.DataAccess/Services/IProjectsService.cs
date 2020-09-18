@@ -1,7 +1,7 @@
-﻿using FiveRockingFingers.Entities;
+﻿using FRF.Core.Entities;
 using System.Collections.Generic;
 
-namespace FiveRockingFingers.Services
+namespace FRF.DataAccess.Services
 {
     public interface IProjectsService
     {
