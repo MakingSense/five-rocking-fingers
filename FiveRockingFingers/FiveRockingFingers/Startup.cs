@@ -37,7 +37,7 @@ namespace FiveRockingFingers
 
             services.AddDbContext<DataAccessContext>(c =>
             {
-                c.UseSqlServer(Configuration.GetConnectionString("Development"));
+                c.UseSqlServer(Configuration.GetConnectionString("FiveRockingFingers"));
             });
 
             // In production, the React files will be served from this directory

@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faHome } from '@fortawesome/free-solid-svg-icons'
 import './NavMenu.css';
+import axios from 'axios'
 
 const FaHome = () => (
     <div>
@@ -12,12 +13,26 @@ const FaHome = () => (
     </div>
 );
 
-export default class NavMenu extends React.PureComponent<{}, { isOpen: boolean }> {
-    public state = {
-        isOpen: false
-    };    
+interface IProps {
+}
 
-    public render() {
+interface IProjects {
+    projects: undefined[];
+}
+
+export default class NavMenu extends React.PureComponent<IProps,IProjects> {
+    
+    constructor(props: IProps) {
+        super(props);
+        this.state = { projects: [] };
+    }
+
+    
+    componentDidMount() {
+        this.getProjectList();
+    }
+
+    public render() {        
         return (
             <ProSidebar>
                <SidebarHeader>
@@ -25,20 +40,7 @@ export default class NavMenu extends React.PureComponent<{}, { isOpen: boolean }
                     <Link to="/" />
                 </SidebarHeader>
                 <SidebarContent>
-                    <Menu iconShape="circle">
-                        <SubMenu title="Projects">
-                            <MenuItem>Project 1</MenuItem>
-                            <SubMenu title="Infraestructure">
-                            </SubMenu>
-                        </SubMenu>
-                    </Menu>
-                    <Menu iconShape="circle">
-                        <SubMenu title="Projects">
-                            <MenuItem>Project 2</MenuItem>
-                            <SubMenu title="Infraestructure">
-                            </SubMenu>
-                        </SubMenu>
-                    </Menu>
+                    { this.state.projects }
                 </SidebarContent>
                 <SidebarFooter>
                     Hola
@@ -47,9 +49,16 @@ export default class NavMenu extends React.PureComponent<{}, { isOpen: boolean }
         );
     }
 
-    private toggle = () => {
-        this.setState({
-            isOpen: !this.state.isOpen
-        });
+    async getProjectList() {
+        this.setState({ projects: [] });
+        const response = await axios.get("https://localhost:44346/api/Projects/Get");
+        let projectsMenuRender;
+        projectsMenuRender = response.data.map((project: any) =>
+            <Menu iconShape="circle">
+                <SubMenu title={project.name}>
+                </SubMenu>
+            </Menu>
+        );
+        this.setState({ projects: projectsMenuRender });
     }
 }
