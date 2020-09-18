@@ -12,3 +12,12 @@ code {
   background-color: #1b6ec2;
   border-color: #1861ac;
 }
+
+.contenido {
+    height: 100%;
+    display: flex;
+}
+
+html, body, #app, #app > div {
+    height: 100%
+}

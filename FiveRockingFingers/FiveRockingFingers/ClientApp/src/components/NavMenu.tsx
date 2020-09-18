@@ -4,6 +4,7 @@ import 'react-pro-sidebar/dist/css/styles.css';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faHome } from '@fortawesome/free-solid-svg-icons'
+import './NavMenu.css';
 
 const FaHome = () => (
     <div>
@@ -31,8 +32,16 @@ export default class NavMenu extends React.PureComponent<{}, { isOpen: boolean }
                             </SubMenu>
                         </SubMenu>
                     </Menu>
+                    <Menu iconShape="circle">
+                        <SubMenu title="Projects">
+                            <MenuItem>Project 2</MenuItem>
+                            <SubMenu title="Infraestructure">
+                            </SubMenu>
+                        </SubMenu>
+                    </Menu>
                 </SidebarContent>
                 <SidebarFooter>
+                    Hola
                 </SidebarFooter>
             </ProSidebar>                            
         );
