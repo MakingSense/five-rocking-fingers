@@ -1,7 +1,7 @@
-﻿using FRF.Core.Entities;
+﻿using FRF.Core.Models;
 using System.Collections.Generic;
 
-namespace FRF.DataAccess.Services
+namespace FRF.Core.Services
 {
     public interface IProjectsService
     {

@@ -1,5 +1,5 @@
+using FRF.Core.Services;
 using FRF.DataAccess;
-using FRF.DataAccess.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;

@@ -1,11 +1,10 @@
-﻿using FRF.Core.Entities;
+﻿using FRF.Core.Models;
+using FRF.DataAccess;
 using Microsoft.Extensions.Configuration;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
-namespace FRF.DataAccess.Services
+namespace FRF.Core.Services
 {
     public class ProjectsService : IProjectsService
     {
@@ -19,12 +18,16 @@ namespace FRF.DataAccess.Services
 
         public List<Project> GetAll()
         {
-            return DataContext.Projects.ToList();
+            //Create Mapper
+            DataContext.Projects.ToList();
+            return new List<Project>(); 
         }
 
         public Project Save(Project project)
         {
-            var result = DataContext.Projects.Add(project);
+            //Add mapper
+
+            var result = DataContext.Projects.Add(new DataAccess.EntityModels.Project());
             DataContext.SaveChanges();
             return project;
 

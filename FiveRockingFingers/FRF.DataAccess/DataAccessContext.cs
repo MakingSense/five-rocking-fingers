@@ -1,4 +1,4 @@
-﻿using FRF.Core.Entities;
+﻿using FRF.DataAccess.EntityModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace FRF.DataAccess

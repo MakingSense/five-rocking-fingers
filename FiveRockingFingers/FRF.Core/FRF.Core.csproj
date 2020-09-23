@@ -4,4 +4,8 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\FRF.DataAccess\FRF.DataAccess.csproj" />
+  </ItemGroup>
+
 </Project>

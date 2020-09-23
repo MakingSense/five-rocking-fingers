@@ -26,7 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FRF.Core\FRF.Core.csproj" />
-    <ProjectReference Include="..\FRF.DataAccess\FRF.DataAccess.csproj" />
+    <ProjectReference Include="..\FRF.Web.Dtos\FRF.Web.Dtos.csproj" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
