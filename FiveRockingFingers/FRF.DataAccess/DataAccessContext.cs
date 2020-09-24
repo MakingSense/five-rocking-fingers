@@ -6,6 +6,7 @@ namespace FRF.DataAccess
     public class DataAccessContext : DbContext
     {
         public DbSet<Project> Projects { get; set; }
+        public DbSet<ProjectCategory> ProjectCategories { get; set; }
 
         public DataAccessContext(DbContextOptions<DataAccessContext> options) : base(options)
         {
