@@ -13,6 +13,8 @@ namespace FRF.Core
         {
             CreateMap<DataAccess.EntityModels.Project, Models.Project>()
                 .ReverseMap();
+            CreateMap<DataAccess.EntityModels.Category, Models.Category>()
+                .ReverseMap();
             CreateMap<DataAccess.EntityModels.ProjectCategory, Models.ProjectCategory>()
                 .ReverseMap();
         }
