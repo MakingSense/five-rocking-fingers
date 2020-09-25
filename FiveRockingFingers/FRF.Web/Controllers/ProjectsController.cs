@@ -27,8 +27,6 @@ namespace FiveRockingFingers.Controllers
             {
                 var projects = ProjectService.GetAll();
 
-                Console.WriteLine("LLegue hasta acá");
-
                 var projectsDto = mapper.Map<IEnumerable<ProjectDto>>(projects);
 
                 return Ok(projectsDto);
