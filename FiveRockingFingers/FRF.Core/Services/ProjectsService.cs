@@ -12,18 +12,18 @@ namespace FRF.Core.Services
     {
         public IConfiguration Configuration { get; set; }
         public DataAccessContext DataContext { get; set; }
-        private readonly IMapper _mapper;
+        private readonly IMapper Mapper;
         public ProjectsService(IConfiguration configuration, DataAccessContext dataContext, IMapper mapper)
         {
             Configuration = configuration;
             DataContext = dataContext;
-            _mapper = mapper;
+            Mapper = mapper;
         }
 
         public List<Project> GetAll()
         {
-            var result = DataContext.Projects.Include(p => p.ProjectCategory).ToList();
-            return _mapper.Map<List<Project>>(result); 
+            var result = DataContext.Projects.Include(p => p.ProjectCategories).ThenInclude(pc => pc.Category).ToList();
+            return Mapper.Map<List<Project>>(result); 
         }
 
         public Project Save(Project project)
