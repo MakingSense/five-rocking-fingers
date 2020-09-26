@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.Linq;
+using AutoMapper;
 using FRF.Core.Services;
 using FRF.DataAccess;
 using Microsoft.AspNetCore.Builder;
@@ -13,6 +16,10 @@ namespace FiveRockingFingers
 {
     public class Startup
     {
+        public static readonly IEnumerable<Profile> AutoMapperProfiles = new Profile[]
+        {
+            new FRF.Web.Dtos.AutoMapperProfile(),
+        };
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -28,7 +35,9 @@ namespace FiveRockingFingers
             services.AddCors();
 
             services.AddTransient<IProjectsService, ProjectsService>();
-            
+            services.AddTransient<ISignUpService, SignUpService>();
+            services.AddTransient<ISignInService, SignInService>();
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Five Rocking Fingers", Version = "v1" });
@@ -44,6 +53,9 @@ namespace FiveRockingFingers
             {
                 configuration.RootPath = "ClientApp/build";
             });
+
+            var autoMapperProfileTypes = AutoMapperProfiles.Select(p => p.GetType()).ToArray();
+            services.AddAutoMapper(autoMapperProfileTypes);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

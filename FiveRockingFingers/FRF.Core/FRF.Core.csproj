@@ -1,8 +1,15 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Amazon.Extensions.CognitoAuthentication" Version="1.0.4" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.0.1" />
+    <PackageReference Include="AWSSDK.CognitoIdentity" Version="3.5.0.18" />
+    <PackageReference Include="AWSSDK.CognitoIdentityProvider" Version="3.5.0.18" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\FRF.DataAccess\FRF.DataAccess.csproj" />
