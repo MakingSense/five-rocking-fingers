@@ -16,10 +16,12 @@ namespace FiveRockingFingers
 {
     public class Startup
     {
-        public static readonly IEnumerable<Profile> AutoMapperProfiles = new Profile[]
+
+
+
+	public static readonly IEnumerable<Profile> AutoMapperProfiles = new Profile[]
         {
             new FRF.Core.AutoMapperProfile(),
-            new FRF.Web.Dtos.AutoMapperProfile(),
         };
         public Startup(IConfiguration configuration)
         {

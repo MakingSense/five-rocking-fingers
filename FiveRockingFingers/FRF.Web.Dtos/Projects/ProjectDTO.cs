@@ -1,4 +1,6 @@
-﻿using System;
+﻿using FRF.Web.Dtos.Projects;
+using System;
+using System.Collections.Generic;
 
 namespace FRF.Web.Dtos
 {
@@ -11,17 +13,7 @@ namespace FRF.Web.Dtos
         public int Budget { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime ModifiedDate { get; set; }
-        public int CategoryId { get; set; }
-        public ProjectCategoryDTO ProjectCategoryDTO { get; set; }
-        public bool isActive { get; set; }
-        public DateTime StartDate { get; set; }
+        public IList<ProjectCategoryDTO> ProjectCategories { get; set; }
 
-    }
-
-    public class ProjectCategoryDTO
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
     }
 }

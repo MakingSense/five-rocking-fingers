@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FRF.Core.Models;
+using FRF.Web.Dtos.Projects;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,6 +14,8 @@ namespace FRF.Web.Dtos
             CreateMap<Core.Models.Project, ProjectDto>()
                 .ReverseMap();
             CreateMap<Core.Models.Project, ProjectCategoryDTO>()
+                .ReverseMap();
+            CreateMap<Core.Models.Category, CategoryDTO>()
                 .ReverseMap();
         }
     }
