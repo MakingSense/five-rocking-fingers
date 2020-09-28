@@ -1,5 +1,6 @@
-using System.Collections.Generic;
-using System.Linq;
+using Amazon;
+using Amazon.CognitoIdentityProvider;
+using Amazon.Extensions.CognitoAuthentication;
 using AutoMapper;
 using FRF.Core.Services;
 using FRF.DataAccess;
@@ -11,6 +12,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace FiveRockingFingers
 {
@@ -20,6 +23,7 @@ namespace FiveRockingFingers
         {
             new FRF.Web.Dtos.AutoMapperProfile(),
         };
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -34,13 +38,38 @@ namespace FiveRockingFingers
 
             services.AddCors();
 
+            //Start Cognito Authorization and Identity
+            var provider = new AmazonCognitoIdentityProviderClient(Configuration.GetValue<string>("AWS:AwsId"),
+                Configuration.GetValue<string>("AWS:AwsKey"),
+                RegionEndpoint.USWest2);
+            var cognitoUserPool = new CognitoUserPool(Configuration.GetValue<string>("AWS:UserPoolId"),
+                Configuration.GetValue<string>("AWS:ClientId"), provider);
+
+            services.AddSingleton<IAmazonCognitoIdentityProvider>(provider);
+            services.AddSingleton(cognitoUserPool);
+
+            services.AddCognitoIdentity();
+            //End Cognito 
+
+            //Authorization : pendiente realizado login page 
+            /*
+            services.AddAuthorization(opt =>
+            {
+                opt.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+                
+            });
+            
+            services.ConfigureApplicationCookie(options => options.LoginPath = "/api/SignIn/login"); //<-cambiar por login page.
+            */
             services.AddTransient<IProjectsService, ProjectsService>();
             services.AddTransient<ISignUpService, SignUpService>();
             services.AddTransient<ISignInService, SignInService>();
+            services.AddTransient<IUserService, UserService>();
+
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Five Rocking Fingers", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo {Title = "Five Rocking Fingers", Version = "v1"});
             });
 
             services.AddDbContext<DataAccessContext>(c =>
@@ -49,10 +78,7 @@ namespace FiveRockingFingers
             });
 
             // In production, the React files will be served from this directory
-            services.AddSpaStaticFiles(configuration =>
-            {
-                configuration.RootPath = "ClientApp/build";
-            });
+            services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/build"; });
 
             var autoMapperProfileTypes = AutoMapperProfiles.Select(p => p.GetType()).ToArray();
             services.AddAutoMapper(autoMapperProfileTypes);
@@ -79,12 +105,12 @@ namespace FiveRockingFingers
             app.UseCors();
 
             app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Five Rocking Fingers");
-            });
+            app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "Five Rocking Fingers"); });
+
 
             app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

@@ -1,12 +1,14 @@
 ﻿using Amazon;
 using Amazon.CognitoIdentityProvider;
 using Amazon.CognitoIdentityProvider.Model;
+using Amazon.Extensions.CognitoAuthentication;
+using FRF.Core.Base;
 using FRF.Core.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using FRF.Core.Base;
 
 namespace FRF.Core.Services
 {
@@ -14,13 +16,15 @@ namespace FRF.Core.Services
     {
         public IConfiguration Configuration { get; set; }
         private readonly UserBase UserBase;
+        private readonly SignInManager<CognitoUser> SignInManager;
 
-        public SignUpService(IConfiguration configuration)
+        public SignUpService(IConfiguration configuration, SignInManager<CognitoUser> signInManager)
         {
             UserBase = new UserBase(configuration);
+            SignInManager = signInManager;
         }
 
-        public async Task<string> SignUp(User newUser)
+        public async Task SignUp(User newUser)
         {
             try
             {
@@ -53,11 +57,19 @@ namespace FRF.Core.Services
                     Username = response.UserSub,
                     UserPoolId = UserBase.UserPoolId
                 });
-                return response.UserSub;
+
+
+                var result = await SignInManager.PasswordSignInAsync(newUser.Email, newUser.Password,
+                    false, lockoutOnFailure: false);
+
+                if (!result.Succeeded)
+                {
+                    throw new Exception("Account created but sign in failed. Contact your system administrator");
+                }
             }
             catch (Exception e)
             {
-                throw new Exception("Sign up fail: " + e.Message);
+                throw new Exception("Sign up failed: " + e.Message);
             }
         }
     }

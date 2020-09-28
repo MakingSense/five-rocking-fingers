@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
 using FRF.Core.Models;
@@ -24,18 +25,17 @@ namespace FRF.Web.Controllers
         [HttpPost]
         public async Task<ActionResult<string>> SignUp(SignUpDTO signUpDto)
         {
+            if (!ModelState.IsValid) return BadRequest();
             var userSignUp = Mapper.Map<User>(signUpDto);
             try
             {
-                var userID = await SignUpService.SignUp(userSignUp);
-                userSignUp.Id = new Guid(userID);
+                await SignUpService.SignUp(userSignUp);
                 return Ok();
             }
             catch (Exception e)
             {
                 return StatusCode(500, e.Message);
             }
-            
         }
     }
 }

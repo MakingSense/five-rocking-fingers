@@ -5,6 +5,6 @@ namespace FRF.Core.Services
 {
     public interface ISignInService
     {
-        Task<string> SignIn(UserSignIn userSignIn);
+        Task SignIn(UserSignIn userSignIn);
     }
 }

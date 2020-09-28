@@ -5,9 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using AutoMapper;
 using FRF.Web.Dtos.Users;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FRF.Web.Controllers
-{
+{ 
+    [AllowAnonymous]
     [Route("api/[controller]")]
     [ApiController]
     public class SignInController : ControllerBase
@@ -21,20 +23,19 @@ namespace FRF.Web.Controllers
             Mapper = mapper;
         }
 
-        [HttpPost]
+        [HttpPost("login")]
         public async Task<ActionResult<string>> SignIn(SignInDTO signInDto)
         {
             var userSignIn = Mapper.Map<UserSignIn>(signInDto);
             try
             {
-                var token =await SignInService.SignIn(userSignIn);
+                await SignInService.SignIn(userSignIn);
                 return Ok();
             }
             catch (Exception e)
             {
                 return StatusCode(500, e.Message);
             }
-            
         }
     }
 }
