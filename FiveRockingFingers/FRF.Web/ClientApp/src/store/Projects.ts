@@ -57,8 +57,8 @@ export const actionCreators = {
         // Only load data if it's something we don't already have (and are not already loading)
         const appState = getState();
         if (appState && appState.projects) {
-            let response = await axios.get("https://localhost:44346/api/Projects/Get");
-            response = response.json() as Promise<Project[]>;
+            const response = await axios.get("https://localhost:44346/api/Projects/Get");
+            const responseJson = response.json() as Promise<Project[]>;
             dispatch({ type: 'RECEIVE_PROJECTS', projects: response });
             dispatch({ type: 'REQUEST_PROJECTS'});
         }
@@ -89,8 +89,7 @@ export const reducer: Reducer<ProjectsState> = (state: ProjectsState | undefined
                 projects: action.projects,
                 isLoading: false
             };
-            break;
+        default:
+            return state;
     }
-
-    return state;
 };
