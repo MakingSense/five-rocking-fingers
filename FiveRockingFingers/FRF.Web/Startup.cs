@@ -37,23 +37,26 @@ namespace FiveRockingFingers
         {
             services.AddControllersWithViews();
 
+            services.AddDbContext<DataAccessContext>(c =>
+            {
+                c.UseSqlServer(Configuration.GetConnectionString("FiveRockingFingers"));
+            });
             services.AddCors();
 
             //Start Cognito Authorization and Identity
-            var provider = new AmazonCognitoIdentityProviderClient(Configuration.GetValue<string>("AWS:AwsId"),
-                Configuration.GetValue<string>("AWS:AwsKey"),
+            services.AddScoped<IConfigurationService, ConfigurationService>();
+            var CognitoCredencials = services.BuildServiceProvider().GetService<IConfigurationService>().GetConfigurationSettings();
+            var provider = new AmazonCognitoIdentityProviderClient(CognitoCredencials.AccessKeyId,
+                CognitoCredencials.SecretAccKey,
                 RegionEndpoint.USWest2);
-            var cognitoUserPool = new CognitoUserPool(Configuration.GetValue<string>("AWS:UserPoolId"),
-                Configuration.GetValue<string>("AWS:ClientId"), provider);
-
+            var cognitoUserPool = new CognitoUserPool(CognitoCredencials.UserPoolId, CognitoCredencials.ClientId, provider);
             services.AddSingleton<IAmazonCognitoIdentityProvider>(provider);
             services.AddSingleton(cognitoUserPool);
 
             services.AddCognitoIdentity();
             //End Cognito 
 
-            //Authorization : pendiente realizado login page 
-            /*
+            /*Authorization : pendiente realizado login page 
             services.AddAuthorization(opt =>
             {
                 opt.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
@@ -66,23 +69,15 @@ namespace FiveRockingFingers
             services.AddTransient<ISignUpService, SignUpService>();
             services.AddTransient<ISignInService, SignInService>();
             services.AddTransient<IUserService, UserService>();
-            services.AddTransient<IConfigurationService, ConfigurationService>();
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Five Rocking Fingers", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo {Title = "Five Rocking Fingers", Version = "v1"});
             });
 
-            services.AddDbContext<DataAccessContext>(c =>
-            {
-                c.UseSqlServer(Configuration.GetConnectionString("FiveRockingFingers"));
-            });
 
             // In production, the React files will be served from this directory
-            services.AddSpaStaticFiles(configuration =>
-            {
-                configuration.RootPath = "ClientApp/build";
-            });
+            services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/build"; });
 
             var autoMapperProfileTypes = AutoMapperProfiles.Select(p => p.GetType()).ToArray();
             services.AddAutoMapper(autoMapperProfileTypes);
@@ -101,6 +96,7 @@ namespace FiveRockingFingers
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
