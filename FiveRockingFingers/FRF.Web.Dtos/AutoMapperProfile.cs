@@ -11,11 +11,11 @@ namespace FRF.Web.Dtos
     {
         public AutoMapperProfile()
         {
-            CreateMap<Core.Models.Project, ProjectDto>()
+            CreateMap<Project, ProjectDto>()
                 .ReverseMap();
-            CreateMap<Core.Models.Project, ProjectCategoryDTO>()
+            CreateMap<ProjectCategory, ProjectCategoryDTO>()
                 .ReverseMap();
-            CreateMap<Core.Models.Category, CategoryDTO>()
+            CreateMap<Category, CategoryDTO>()
                 .ReverseMap();
         }
     }

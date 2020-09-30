@@ -76,9 +76,9 @@ namespace FiveRockingFingers.Controllers
 
             try
             {
-                ProjectService.Save(project);
+                var projectCreated = mapper.Map<ProjectDto>(ProjectService.Save(project));
 
-                return CreatedAtRoute("DefaultApi", new { id = project.Id }, project);
+                return Ok(projectCreated);
             }
             catch
             {
@@ -87,8 +87,8 @@ namespace FiveRockingFingers.Controllers
             
         }
         
-        [HttpPut("{id}")]
-        override public IActionResult Update(int id, ProjectDto projectDto)
+        [HttpPut]
+        override public IActionResult Update(ProjectDto projectDto)
         {
             if(projectDto == null)
             {
@@ -102,7 +102,7 @@ namespace FiveRockingFingers.Controllers
 
             try
             {
-                var project = ProjectService.Get(id);
+                var project = ProjectService.Get(projectDto.Id);
 
                 if(project == null)
                 {

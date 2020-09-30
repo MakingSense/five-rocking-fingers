@@ -21,7 +21,9 @@ namespace FiveRockingFingers
 
 	public static readonly IEnumerable<Profile> AutoMapperProfiles = new Profile[]
         {
+            new FRF.Web.Dtos.AutoMapperProfile(),
             new FRF.Core.AutoMapperProfile(),
+            
         };
         public Startup(IConfiguration configuration)
         {

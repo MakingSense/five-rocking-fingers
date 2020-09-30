@@ -13,7 +13,7 @@ namespace FRF.Web.Controllers
         public abstract IActionResult Get(int id);
         public abstract IActionResult GetAll();
         public abstract IActionResult Save(T entity);
-        public abstract IActionResult Update(int id, T entity);
+        public abstract IActionResult Update(T entity);
         public abstract IActionResult Delete(int id);
     }
 }
