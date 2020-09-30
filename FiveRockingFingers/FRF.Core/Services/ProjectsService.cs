@@ -3,7 +3,6 @@ using FRF.Core.Models;
 using FRF.DataAccess;
 using EntityModels = FRF.DataAccess.EntityModels;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -61,6 +60,7 @@ namespace FRF.Core.Services
                 var mappedProject = Mapper.Map<EntityModels.Project>(project);
                 mappedProject.ProjectCategories = new List<EntityModels.ProjectCategory>();
                 mappedProject.CreatedDate = DateTime.Now;
+                mappedProject.ModifiedDate = null;
 
                 // Adds the project to the database, generating a unique Id for it
                 DataContext.Projects.Add(mappedProject);
@@ -106,6 +106,11 @@ namespace FRF.Core.Services
 
         public Project Update(Project project)
         {
+            if (String.IsNullOrWhiteSpace(project.Name))
+            {
+                throw new System.ArgumentException("The project needs a name", "project.Name");
+            }
+
             try
             {
                 var categoryList = new List<EntityModels.Category>();
