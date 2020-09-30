@@ -23,34 +23,14 @@ namespace FRF.Web.Controllers
         /// TEST: Gets the current user fullname searching by email.
         /// </summary>
         /// <returns>A <see cref="String"/> whit the fullname.</returns>
-        [HttpGet("getfullnamebyemail")]
+        [HttpGet("getfullname")]
         [Authorize]
-        public async Task<IActionResult> GetFullNamebyEmail()
+        public async Task<IActionResult> GetFullName()
         {
             try
             {
                 var email = HttpContext.User.FindFirst(ClaimTypes.Email).Value;
-                var fullname = await UserService.GetFullnameByEmail(email);
-                return Ok(fullname);
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, e.Message);
-            }
-        }
-
-        /// <summary>
-        /// TEST: Gets the current user fullname searching by id.
-        /// </summary>
-        /// <returns>A <see cref="String"/> whit the fullname.</returns>
-        [HttpGet("getfullnamebyid")]
-        [Authorize]
-        public async Task<IActionResult> GetFullNamebyId()
-        {
-            try
-            {
-                var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
-                var fullname = await UserService.GetFullnameByID(userId);
+                var fullname = await UserService.GetFullname(email);
                 return Ok(fullname);
             }
             catch (Exception e)

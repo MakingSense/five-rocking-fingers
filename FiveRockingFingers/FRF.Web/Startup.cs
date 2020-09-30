@@ -66,7 +66,7 @@ namespace FiveRockingFingers
             services.AddTransient<ISignUpService, SignUpService>();
             services.AddTransient<ISignInService, SignInService>();
             services.AddTransient<IUserService, UserService>();
-
+            services.AddTransient<IConfigurationService, ConfigurationService>();
 
             services.AddSwaggerGen(c =>
             {

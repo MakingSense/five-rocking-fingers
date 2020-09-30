@@ -7,8 +7,7 @@ namespace FRF.Core.Services
 {
     public interface IUserService
     {
-        Task<string> GetFullnameByEmail(string email);
-        Task<string> GetFullnameByID(string userId);
+        Task<string> GetFullname(string email);
         Task Logout();
     }
 }

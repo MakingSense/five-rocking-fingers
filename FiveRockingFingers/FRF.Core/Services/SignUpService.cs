@@ -5,7 +5,6 @@ using Amazon.Extensions.CognitoAuthentication;
 using FRF.Core.Base;
 using FRF.Core.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -14,25 +13,26 @@ namespace FRF.Core.Services
 {
     public class SignUpService : ISignUpService
     {
-        public IConfiguration Configuration { get; set; }
-        private readonly UserBase UserBase;
+        private readonly CognitoConfigurationBase CognitoBase;
         private readonly SignInManager<CognitoUser> SignInManager;
+        private readonly IConfigurationService ConfigurationService;
 
-        public SignUpService(IConfiguration configuration, SignInManager<CognitoUser> signInManager)
+        public SignUpService(SignInManager<CognitoUser> signInManager, IConfigurationService configurationService)
         {
-            UserBase = new UserBase(configuration);
             SignInManager = signInManager;
+            ConfigurationService = configurationService;
+            CognitoBase = configurationService.GetConfigurationSettings();
         }
 
         public async Task SignUp(User newUser)
         {
             try
             {
-                var provider = new AmazonCognitoIdentityProviderClient(UserBase.AccessKeyId,
-                    UserBase.SecretAccKey, RegionEndpoint.USWest2);
+                var provider = new AmazonCognitoIdentityProviderClient(CognitoBase.AccessKeyId,
+                    CognitoBase.SecretAccKey, RegionEndpoint.USWest2);
                 var response = await provider.SignUpAsync(new SignUpRequest
                 {
-                    ClientId = UserBase.ClientId,
+                    ClientId = CognitoBase.ClientId,
                     Username = newUser.Email,
                     Password = newUser.Password,
                     UserAttributes = new List<AttributeType>
@@ -49,13 +49,13 @@ namespace FRF.Core.Services
                         new AttributeType {Name = "email_verified", Value = "true"}
                     },
                     Username = response.UserSub,
-                    UserPoolId = UserBase.UserPoolId
+                    UserPoolId = CognitoBase.UserPoolId
                 });
 
                 await provider.AdminConfirmSignUpAsync(new AdminConfirmSignUpRequest
                 {
                     Username = response.UserSub,
-                    UserPoolId = UserBase.UserPoolId
+                    UserPoolId = CognitoBase.UserPoolId
                 });
 
 

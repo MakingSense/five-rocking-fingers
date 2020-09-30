@@ -1,8 +1,6 @@
 ﻿using Amazon.Extensions.CognitoAuthentication;
-using FRF.Core.Base;
 using FRF.Core.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Threading.Tasks;
 
