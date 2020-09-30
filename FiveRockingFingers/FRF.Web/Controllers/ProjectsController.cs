@@ -31,7 +31,7 @@ namespace FiveRockingFingers.Controllers
 
                 return Ok(projectsDto);
             }
-            catch
+            catch (Exception e)
             {
                 return StatusCode(500, "Internal Server Error");
             }
@@ -53,7 +53,7 @@ namespace FiveRockingFingers.Controllers
 
                 return Ok(projectDto);
             }
-            catch
+            catch (Exception e)
             {
                 return StatusCode(500, "Internal Server Error");
             }
@@ -80,7 +80,7 @@ namespace FiveRockingFingers.Controllers
 
                 return Ok(projectCreated);
             }
-            catch
+            catch (Exception e)
             {
                 return StatusCode(500, "Internal Server Error");
             }
@@ -113,9 +113,9 @@ namespace FiveRockingFingers.Controllers
 
                 ProjectService.Update(project);
 
-                return NoContent();
+                return Ok(projectDto);
             }
-            catch
+            catch (Exception e)
             {
                 return StatusCode(500, "Internal Server Error");
             }
@@ -137,7 +137,7 @@ namespace FiveRockingFingers.Controllers
 
                 return NoContent();
             }
-            catch
+            catch (Exception e)
             {
                 return StatusCode(500, "Internal Server Error");
             }
