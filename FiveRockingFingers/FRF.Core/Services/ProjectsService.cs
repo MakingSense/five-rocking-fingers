@@ -157,9 +157,7 @@ namespace FRF.Core.Services
         {
             try
             {
-                var projectCategoriesToDelete = DataContext.ProjectCategories.Where(pc => pc.ProjectId == id).ToList();
-                DataContext.ProjectCategories.RemoveRange(projectCategoriesToDelete);
-                var projectToDelete = DataContext.Projects.Include(p => p.ProjectCategories).ThenInclude(pc => pc.Category).Single(p => p.Id == id);
+                var projectToDelete = DataContext.Projects.Include(p => p.ProjectCategories).Single(p => p.Id == id);
                 DataContext.Projects.Remove(projectToDelete);
                 DataContext.SaveChanges();
                 return;
