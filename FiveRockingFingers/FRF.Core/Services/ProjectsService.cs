@@ -61,6 +61,7 @@ namespace FRF.Core.Services
                 var mappedProject = Mapper.Map<EntityModels.Project>(project);
                 mappedProject.ProjectCategories = new List<EntityModels.ProjectCategory>();
                 mappedProject.CreatedDate = DateTime.Now;
+                mappedProject.ModifiedDate = null;
 
                 // Adds the project to the database, generating a unique Id for it
                 DataContext.Projects.Add(mappedProject);
@@ -106,6 +107,11 @@ namespace FRF.Core.Services
 
         public Project Update(Project project)
         {
+            if (String.IsNullOrWhiteSpace(project.Name))
+            {
+                throw new System.ArgumentException("The project needs a name", "project.Name");
+            }
+
             try
             {
                 var categoryList = new List<EntityModels.Category>();
@@ -152,9 +158,7 @@ namespace FRF.Core.Services
         {
             try
             {
-                var projectCategoriesToDelete = DataContext.ProjectCategories.Where(pc => pc.ProjectId == id).ToList();
-                DataContext.ProjectCategories.RemoveRange(projectCategoriesToDelete);
-                var projectToDelete = DataContext.Projects.Include(p => p.ProjectCategories).ThenInclude(pc => pc.Category).Single(p => p.Id == id);
+                var projectToDelete = DataContext.Projects.Include(p => p.ProjectCategories).Single(p => p.Id == id);
                 DataContext.Projects.Remove(projectToDelete);
                 DataContext.SaveChanges();
                 return;

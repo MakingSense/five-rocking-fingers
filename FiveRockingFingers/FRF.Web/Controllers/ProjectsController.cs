@@ -111,9 +111,9 @@ namespace FiveRockingFingers.Controllers
 
                 mapper.Map(projectDto, project);
 
-                ProjectService.Update(project);
+                var updatedProject = mapper.Map<ProjectDto>(ProjectService.Update(project));
 
-                return Ok(projectDto);
+                return Ok(updatedProject);
             }
             catch (Exception e)
             {

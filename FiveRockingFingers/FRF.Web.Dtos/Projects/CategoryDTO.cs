@@ -8,6 +8,8 @@ namespace FRF.Web.Dtos.Projects
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public string Description { get; set; }
+        #nullable enable
+        public string? Description { get; set; }
+        #nullable disable
     }
 }
