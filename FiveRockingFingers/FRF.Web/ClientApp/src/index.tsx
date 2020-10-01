@@ -15,13 +15,11 @@ const baseUrl = document.getElementsByTagName('base')[0].getAttribute('href') as
 const history = createBrowserHistory({ basename: baseUrl });
 
 // Get the application-wide store instance, prepopulating with state from the server where available.
-const store = configureStore(history);
+const store = configureStore();
 
 ReactDOM.render(
     <Provider store={store}>
-        <ConnectedRouter history={history}>
             <App />
-        </ConnectedRouter>
     </Provider>,
     document.getElementById('root'));
 

@@ -55,15 +55,40 @@ type KnownAction = RequestProjectsAction | ReceiveProjectsAction;
 export const actionCreators = {
     requestProjects: (): AppThunkAction<KnownAction> => async (dispatch, getState) => {
         // Only load data if it's something we don't already have (and are not already loading)
-        const appState = getState();
-        if (appState && appState.projects) {
-            const response = await axios.get("https://localhost:44346/api/Projects/Get");
-            const responseJson = response.json() as Promise<Project[]>;
-            dispatch({ type: 'RECEIVE_PROJECTS', projects: response });
+        
+            const response = await axios.get("http://localhost:4000/projects");
+            console.log(response);
+            dispatch({ type: 'RECEIVE_PROJECTS', projects: response.data });
             dispatch({ type: 'REQUEST_PROJECTS'});
-        }
+        
     }
 };
+
+export function getProjectsAction() {
+    return async (dispach: Function) => {
+        dispach(requestProjectsAction());
+
+        try {
+            const response = await axios.get("http://localhost:4000/projects");
+            dispach(loadProjectsOkAction(response.data));
+        } catch {
+            dispach(loadProjectsErrorAction());
+        }
+    }
+}
+
+const requestProjectsAction = () => ({
+
+})
+
+const loadProjectsOkAction = (projects: Project[]) => ({
+    type: 'START_LOADING_PROJECTS',
+    payload: true
+})
+
+const loadProjectsErrorAction = () => ({
+
+})
 
 // ----------------
 // REDUCER - For a given state and action, returns the new state. To support time travel, this must not mutate the old state.
