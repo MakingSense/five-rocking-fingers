@@ -14,10 +14,7 @@ code {
 }
 
 .contenido {
-    height: 100%;
     display: flex;
+    
 }
 
-html, body, #app, #app > div {
-    height: 100%
-}

@@ -23,7 +23,7 @@ namespace FRF.Web.Controllers
             Mapper = mapper;
         }
 
-        [HttpPost("login")]
+        [HttpPost()]
         public async Task<ActionResult<string>> SignIn(SignInDTO signInDto)
         {
             var userSignIn = Mapper.Map<UserSignIn>(signInDto);

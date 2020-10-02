@@ -5,6 +5,7 @@ import * as ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 import { createBrowserHistory } from 'history';
+import { BrowserRouter } from 'react-router-dom'
 import configureStore from './store/configureStore';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
@@ -18,11 +19,13 @@ const history = createBrowserHistory({ basename: baseUrl });
 const store = configureStore(history);
 
 ReactDOM.render(
-    <Provider store={store}>
-        <ConnectedRouter history={history}>
-            <App />
-        </ConnectedRouter>
-    </Provider>,
+    <BrowserRouter>
+        <Provider store={store}>
+            <ConnectedRouter history={history}>
+                <App/>
+            </ConnectedRouter>
+        </Provider>
+    </BrowserRouter>,
     document.getElementById('root'));
 
 registerServiceWorker();

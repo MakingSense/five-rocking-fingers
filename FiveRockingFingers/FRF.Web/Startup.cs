@@ -14,6 +14,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FiveRockingFingers
 {
@@ -43,30 +44,41 @@ namespace FiveRockingFingers
             {
                 c.UseSqlServer(Configuration.GetConnectionString("FiveRockingFingers"));
             });
-            services.AddCors();
+            services.AddCors(opt =>
+            {
+                opt.AddPolicy("CorsPolicy",
+                    policy => { policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000/"); });
+            });
 
             //Start Cognito Authorization and Identity
             services.AddScoped<IConfigurationService, ConfigurationService>();
-            var CognitoCredencials = services.BuildServiceProvider().GetService<IConfigurationService>().GetConfigurationSettings();
+            var CognitoCredencials = services.BuildServiceProvider().GetService<IConfigurationService>()
+                .GetConfigurationSettings();
             var provider = new AmazonCognitoIdentityProviderClient(CognitoCredencials.AccessKeyId,
                 CognitoCredencials.SecretAccKey,
                 RegionEndpoint.USWest2);
-            var cognitoUserPool = new CognitoUserPool(CognitoCredencials.UserPoolId, CognitoCredencials.ClientId, provider);
+            var cognitoUserPool =
+                new CognitoUserPool(CognitoCredencials.UserPoolId, CognitoCredencials.ClientId, provider);
             services.AddSingleton<IAmazonCognitoIdentityProvider>(provider);
             services.AddSingleton(cognitoUserPool);
 
             services.AddCognitoIdentity();
             //End Cognito 
 
-            /*Authorization : pendiente realizado login page 
-            services.AddAuthorization(opt =>
+            //Authorization : pendiente realizado login page 
+            /*services.AddAuthorization(opt =>
             {
                 opt.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
                 
             });
             
-            services.ConfigureApplicationCookie(options => options.LoginPath = "/api/SignIn/login"); //<-cambiar por login page.
-            */
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/login";
+                options.AccessDeniedPath = "/login";
+                
+            }); //<-cambiar por login page.*/
+
             services.AddTransient<IProjectsService, ProjectsService>();
             services.AddTransient<ISignUpService, SignUpService>();
             services.AddTransient<ISignInService, SignInService>();
@@ -104,7 +116,7 @@ namespace FiveRockingFingers
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
 
-            app.UseCors();
+            app.UseCors("CorsPolicy");
 
             app.UseSwagger();
             app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "Five Rocking Fingers"); });
