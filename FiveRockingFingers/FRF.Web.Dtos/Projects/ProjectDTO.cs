@@ -12,8 +12,6 @@ namespace FRF.Web.Dtos
         public string? Owner { get; set; }
         public string? Client { get; set; }
         public int? Budget { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public DateTime? ModifiedDate { get; set; }
         #nullable disable
         public IList<ProjectCategoryDTO> ProjectCategories { get; set; }
 
