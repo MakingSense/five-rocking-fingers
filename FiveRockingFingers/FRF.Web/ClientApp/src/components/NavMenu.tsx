@@ -8,40 +8,32 @@ import './NavMenu.css';
 import axios from 'axios';
 
 import NavMenuItem from './NavMenuItem';
+import { type } from 'os';
 
-import { useSelector, useDispatch } from 'react-redux';
-import { actionCreators, ProjectsState, Project } from '../store/Projects';
-
-const FaHome = () => (
-    <div>
-        <FontAwesomeIcon icon={faHome} />
-    </div>
-);
-
-interface IProps {
+type Project = {
+    id: number;
+    name: string;
+    owner: string;
+    client: string;
+    budget: number;
+    createdDate: Date;
+    modifiedDate: Date;
+    projectCategories: ProjectCategory[];
 }
 
-interface IProjects {
-    projects: undefined[];
+type ProjectCategory = {
+    projectCategory: Category;
 }
 
-interface NavMenuProps {
-    key: number,
-    project: Project
+type Category = {
+    id: number;
+    name: string;
+    description: string;
 }
 
 
 
-const NavMenu  = () => {
-
-    const dispatch = useDispatch();
-
-    React.useEffect(() => {
-        const loadProjects = () => dispatch(actionCreators);
-        loadProjects();
-    }, []);
-
-    const projects = useSelector((state: ProjectsState) => state.projects)
+const NavMenu = (props: { projects: Project[] }) => {
 
     return (
         <ProSidebar>
@@ -50,13 +42,12 @@ const NavMenu  = () => {
                     <Link to="/" />
             </SidebarHeader>
             <SidebarContent>
-                {projects? projects.map((project) => (
-                    <NavMenuItem project={project}/>
-                )) : "No hay projectos"}
+                <Menu>
+                    {props.projects ? props.projects.map((project) => (
+                        <NavMenuItem key={project.id} project={project} />
+                    )) : "No hay projectos"}
+                </Menu>                
             </SidebarContent>
-            <SidebarFooter>
-                Hola
-                </SidebarFooter>
         </ProSidebar>
     );
 };

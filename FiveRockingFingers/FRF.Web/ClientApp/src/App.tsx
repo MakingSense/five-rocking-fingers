@@ -1,17 +1,22 @@
 import * as React from 'react';
-import { Route } from 'react-router';
+import { Route, Router, Switch } from 'react-router';
 import Layout from './components/Layout';
 import Home from './components/Home';
-
-import { Provider } from 'react-redux';
 import configureStore from './store/configureStore';
+import { createBrowserHistory } from 'history';
+
+import ProjectPreview from './components/ProjectPreview';
 
 import './custom.css'
 
-let store = configureStore();
+const history = createBrowserHistory();
 
 export default () => (
-    <Layout>
-        <Route exact path='/' component={Home} />
-    </Layout>
+    <Router history={history}>
+        <Switch>
+            <Route path='/preview/:id' component={ProjectPreview} />
+            <Route exact path='/' component={Home} />
+        </Switch>
+    </Router>
+    
 );

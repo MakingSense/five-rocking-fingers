@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <None Remove="ClientApp\src\components\NavMenuItem.tsx" />
+    <None Remove="ClientApp\src\components\ProjectPreview.tsx" />
   </ItemGroup>
 
   <ItemGroup>
@@ -36,6 +37,7 @@
 
   <ItemGroup>
     <TypeScriptCompile Include="ClientApp\src\components\NavMenuItem.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\components\ProjectPreview.tsx" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
