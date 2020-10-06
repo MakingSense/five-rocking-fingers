@@ -3,7 +3,6 @@ using FRF.Core.Models;
 using FRF.DataAccess;
 using EntityModels = FRF.DataAccess.EntityModels;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
