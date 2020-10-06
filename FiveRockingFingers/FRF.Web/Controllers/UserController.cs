@@ -40,7 +40,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpGet("logout")]
-        [Authorize]
+        [AllowAnonymous]
         public async Task<IActionResult> Logout()
         {
             try

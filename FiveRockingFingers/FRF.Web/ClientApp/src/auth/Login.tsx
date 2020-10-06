@@ -1,107 +1,122 @@
-import React, { FormEvent, useState } from "react";
-import { Form, FormGroup, Label, Col, Input, Row } from "reactstrap";
-import { Paper, Button, FormControlLabel, Checkbox } from "@material-ui/core";
+import React from "react";
+import { Form, FormGroup, Label, Col, Row } from "reactstrap";
+import { Paper, Button, FormControlLabel, Checkbox, TextField } from "@material-ui/core";
 import { useHistory } from "react-router-dom";
 import { useAppContext } from "../libs/contextLib";
 import axios from "axios"
-import "./authStyle.css"
+import { useForm } from "react-hook-form";
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from "yup";
 
-interface Props {
+import "./authStyle.css"
+import {LoadingButton} from "../components/LoadingButton"
+import {SnackbarError} from "../components/SnackbarError"
+
+interface userLogin {
+    email: string;
+    password: string;
+    rememberMe: boolean;
 }
 
+const UserLoginSchema = yup.object().shape({
+    email: yup.string()
+        .trim()
+        .required('Required.').email('Must be a valid email.'),
+    password: yup.string()
+        .trim()
+        .min(8, 'Must be at least 8 characters.')
+        .max(20, 'Can be no longer than 20 characters')
+        .required('Required.'),
+});
 
-const buttonStyle = {
-    border: "3px solid #16181a",
-    width: "225px"
-};
-
-
-const Login: React.FC<Props> = ({}) => {
+const Login: React.FC<userLogin> = () => {
     const history = useHistory();
     const { userHasAuthenticated } = useAppContext();
+    const { register, handleSubmit, errors, reset } = useForm<userLogin>({ resolver: yupResolver(UserLoginSchema) });
+    const [loading, setLoading] = React.useState(false);
+    const [errorLogin, setErrorLogin] = React.useState<string>("");
 
-
-    //State
-    const [user, saveUser] = useState({
-        email: "",
-        password: "",
-        rememberMe: false
-    });
-    const handleCheckClick = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const isRemember = !rememberMe;
-        user.rememberMe = isRemember;
-    };
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        saveUser({
-            ...user,
-            [e.target.name]: e.target.value
-        });
-        console.log(user);
-    };
-    ///
-
-    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        console.log(user);
+    const onSumit = (e: userLogin) => {
+        console.log(e);
+        setLoading(true);
         axios.post("https://localhost:44346/api/SignIn",
-                {
-                    email: user.email,
-                    password: user.password,
-                    rememberMe: user.rememberMe
-                })
+            {
+                email: e.email,
+                password: e.password,
+                rememberMe: e.rememberMe
+            })
             .then(response => {
                 if (response.status == 200) {
                     userHasAuthenticated(true);
-                    history.push("/Home");
+                    sessionStorage.setItem('currentUser', JSON.stringify(response.data));
+                    history.push("/home");
                 }
             })
             .catch(error => {
-                console.log(error.response.request._response);
+                if (error.response) {
+                    setErrorLogin(error.response.data);
+                    setLoading(false);
+                }
+                else { 
+                    setErrorLogin("Login Failed!"); 
+                    setLoading(false); }
+                reset();
             });
+
     };
 
-    const { email, password, rememberMe } = user;
-
     return (
-        <Paper className="paperForm" elevation={6}>
-
+        <Paper className="paperForm" elevation={9}>
             <h2 className="contenedor-form text-center">
                 <strong>Log In</strong>
             </h2>
-            <br/>
-            <Form className=" d-flex flex-column" autoComplete="off" Validate onSubmit={handleSubmit}>
+           
+            <Form className=" d-flex flex-column" id="loginForm" autoComplete="off" noValidate onSubmit={handleSubmit(onSumit)}>
 
                 <FormGroup className="campo-form">
-                    <Label for="userEmail" md={4}>Email</Label>
+                    <Label for="email" md={4}>Email</Label>
                     <Col sm={9}>
-                        <Input className="border border-secondary" type="email" name="email" id="userEmail" onChange={
-handleChange} value={email}/>
+                        <TextField
+                            inputRef={register}
+                            type="email"
+                            name="email"
+                            size="small"
+                            error={!!errors.email}
+                            helperText={errors.email ? errors.email.message : ''} />
                     </Col>
                 </FormGroup>
                 <FormGroup className="campo-form">
-                    <Label for="userPassword" md={4}>Password</Label>
+                    <Label for="password" md={4}>Password</Label>
                     <Col sm={9}>
-                        <Input className="border border-secondary" type="password" name="password" id="userPassword" onChange={
-handleChange} value={password}/>
+                        <TextField
+                            inputRef={register}
+                            type="password"
+                            name="password"
+                            size="small"
+                            error={!!errors.password}
+                            helperText={errors.password ? errors.password.message : ''} />
                     </Col>
                 </FormGroup>
                 <FormControlLabel className="alinea-centro"
-                                  control={
+                    control={
                         <Checkbox
-                            onChange={handleCheckClick}
-                            color="default"/>
+                            inputRef={register({ required: 'This is required' })}
+                            color="primary" name="rememberMe"
+                        />
                     }
-                                  label="Remember Me"/>
+                    label="Remember Me" />
                 <Row className="alinea-centro">
-                    <Button className="buttonStyle" variant="outlined" size="medium" type="submit" value="Sign In">Sign In</Button>
+                    <LoadingButton buttonText="Sign In" loading={loading} />
                 </Row>
             </Form >
             <Row className="alinea-centro">
-                <Button className="buttonStyle" variant="outlined" href="/signup" size="medium" value="Sign In">Sign Up</Button>
+                <Button className="buttonStyle" variant="outlined" href="/signup" size="small">Sign Up</Button>
             </Row>
-            <br/>
-            <br/>
-        </Paper>
+            <br />
+            <br />
+                <SnackbarError error={errorLogin}/>
+            </Paper>
+
     );
 
 };

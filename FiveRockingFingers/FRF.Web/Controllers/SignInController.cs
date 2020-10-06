@@ -29,8 +29,8 @@ namespace FRF.Web.Controllers
             var userSignIn = Mapper.Map<UserSignIn>(signInDto);
             try
             {
-                await SignInService.SignIn(userSignIn);
-                return Ok();
+                var result = await SignInService.SignIn(userSignIn);
+                return Ok(result);
             }
             catch (Exception e)
             {

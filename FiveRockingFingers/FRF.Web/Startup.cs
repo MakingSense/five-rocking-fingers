@@ -4,6 +4,7 @@ using Amazon.Extensions.CognitoAuthentication;
 using AutoMapper;
 using FRF.Core.Services;
 using FRF.DataAccess;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
@@ -14,7 +15,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.AspNetCore.Authorization;
+using System.Threading.Tasks;
 
 namespace FiveRockingFingers
 {
@@ -52,6 +53,7 @@ namespace FiveRockingFingers
 
             //Start Cognito Authorization and Identity
             services.AddScoped<IConfigurationService, ConfigurationService>();
+
             var CognitoCredencials = services.BuildServiceProvider().GetService<IConfigurationService>()
                 .GetConfigurationSettings();
             var provider = new AmazonCognitoIdentityProviderClient(CognitoCredencials.AccessKeyId,
@@ -64,20 +66,6 @@ namespace FiveRockingFingers
 
             services.AddCognitoIdentity();
             //End Cognito 
-
-            //Authorization : pendiente realizado login page 
-            /*services.AddAuthorization(opt =>
-            {
-                opt.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
-                
-            });
-            
-            services.ConfigureApplicationCookie(options =>
-            {
-                options.LoginPath = "/login";
-                options.AccessDeniedPath = "/login";
-                
-            }); //<-cambiar por login page.*/
 
             services.AddTransient<IProjectsService, ProjectsService>();
             services.AddTransient<ISignUpService, SignUpService>();
@@ -92,6 +80,31 @@ namespace FiveRockingFingers
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/build"; });
+
+            services.ConfigureApplicationCookie(option =>
+            {
+                option.Events = new CookieAuthenticationEvents()
+                {
+                    OnRedirectToLogin = (ctx) =>
+                    {
+                        if (ctx.Request.Path.StartsWithSegments("/api") && ctx.Response.StatusCode == 200)
+                        {
+                            ctx.Response.StatusCode = 401;
+                        }
+
+                        return Task.CompletedTask;
+                    },
+                    OnRedirectToAccessDenied = (ctx) =>
+                    {
+                        if (ctx.Request.Path.StartsWithSegments("/api") && ctx.Response.StatusCode == 200)
+                        {
+                            ctx.Response.StatusCode = 403;
+                        }
+
+                        return Task.CompletedTask;
+                    }
+                };
+            });
 
             var autoMapperProfileTypes = AutoMapperProfiles.Select(p => p.GetType()).ToArray();
             services.AddAutoMapper(autoMapperProfileTypes);

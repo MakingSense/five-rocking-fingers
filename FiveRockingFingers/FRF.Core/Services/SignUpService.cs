@@ -24,7 +24,7 @@ namespace FRF.Core.Services
             CognitoBase = configurationService.GetConfigurationSettings();
         }
 
-        public async Task SignUp(User newUser)
+        public async Task<string> SignUp(User newUser)
         {
             try
             {
@@ -61,11 +61,13 @@ namespace FRF.Core.Services
 
                 var result = await SignInManager.PasswordSignInAsync(newUser.Email, newUser.Password,
                     false, lockoutOnFailure: false);
-
+                
+                
                 if (!result.Succeeded)
                 {
                     throw new Exception("Account created but sign in failed. Contact your system administrator");
                 }
+                return response.UserSub.ToString();
             }
             catch (Exception e)
             {

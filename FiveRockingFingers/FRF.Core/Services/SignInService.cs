@@ -9,13 +9,15 @@ namespace FRF.Core.Services
     public class SignInService : ISignInService
     {
         private readonly SignInManager<CognitoUser> SignInManager;
+        private readonly UserManager<CognitoUser> UserManager;
 
-        public SignInService(SignInManager<CognitoUser> signInManager)
+        public SignInService(SignInManager<CognitoUser> signInManager, UserManager<CognitoUser> userManager)
         {
             SignInManager = signInManager;
+            UserManager = userManager;
         }
 
-        public async Task SignIn(UserSignIn userSignIn)
+        public async Task<string> SignIn(UserSignIn userSignIn)
         {
             var userEmail = userSignIn.Email.Trim();
             var userPassword = userSignIn.Password.Trim();
@@ -28,11 +30,13 @@ namespace FRF.Core.Services
                 {
                     throw new Exception("Login failed. Contact your system administrator");
                 }
+                var user = await UserManager.FindByEmailAsync(userEmail);
+                return user.ClientID;
             }
 
             catch (Exception e)
             {
-                throw new Exception("Login failed:" + e.Message + "\n");
+                throw new Exception(e.Message);
             }
         }
     }

@@ -1,102 +1,173 @@
-import React, { FormEvent, useState } from 'react';
-import { Form, FormGroup, Label, Col, Input, Row } from 'reactstrap';
-import { Paper, Button } from '@material-ui/core';
-import { Link, useHistory } from 'react-router-dom';
+import React from 'react';
+import { Form, FormGroup, Label, Row } from 'reactstrap';
+import { Paper, Button, TextField } from '@material-ui/core';
+import { useHistory } from 'react-router-dom';
 import { useAppContext } from "../libs/contextLib";
 import axios from 'axios'
-import "./authStyle.css"
+import { useForm } from "react-hook-form";
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from "yup";
 
-interface Props {
+import "./authStyle.css"
+import { LoadingButton } from "../components/LoadingButton"
+import { SnackbarError } from "../components/SnackbarError"
+
+interface userSignUp {
+    firstName: string;
+    familyName: string;
+    email: string;
+    password: string;
+    confirm: string;
 }
 
-const Signup: React.FC<Props> = ({}) => {
+const UserSignupSchema = yup.object().shape({
+    firstName: yup.string()
+        .trim()
+        .required('Required.'),
+    familyName: yup.string()
+        .trim()
+        .required('Required.'),
+    email: yup.string()
+        .trim()
+        .required('Required.').email('Must be a valid email.'),
+    password: yup.string()
+        .trim()
+        .min(8, 'Must be at least 8 characters.')
+        .max(20, 'Can be no longer than 20 characters')
+        .required('Required.'),
+    confirm: yup.string()
+        .oneOf([yup.ref('password'), ''], 'Passwords must match')
+});
+
+const Signup: React.FC<userSignUp> = ({ }) => {
     const history = useHistory();
     const { userHasAuthenticated } = useAppContext();
+    const { register, handleSubmit, errors, reset } = useForm<userSignUp>({ resolver: yupResolver(UserSignupSchema) });
+    const [loading, setLoading] = React.useState(false);
+    const [errorLogin, setErrorLogin] = React.useState<string>("");
 
-    //State
-    const [user, saveUser] = useState({
-        firstName: '',
-        familyName: '',
-        email: '',
-        password: '',
-        confirm: '',
-    });
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        saveUser({
-            ...user,
-            [e.target.name]: e.target.value
-        })
-    };
-    ///
-
-    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        //validar vacios
-
-        console.log(user);
+    const onSubmit = (e: userSignUp) => {
+        setLoading(true);
         axios.post('https://localhost:44346/api/SignUp',
-                {
-                    confirmPassword: user.confirm,
-                    name: user.firstName,
-                    familyName: user.familyName,
-                    email: user.email,
-                    password: user.password
-                })
+            {
+                confirmPassword: e.confirm,
+                name: e.firstName,
+                familyName: e.familyName,
+                email: e.email,
+                password: e.password
+            })
             .then(response => {
                 if (response.status == 200) {
                     userHasAuthenticated(true);
+                    sessionStorage.setItem('currentUser', JSON.stringify(response.data));
                     history.push("/Home");
                 }
             })
             .catch(error => {
-                console.log(error.response.request._response)
+                if (error.response) {
+                    setErrorLogin(error.response.data);
+                    setLoading(false);
+                }
+                else {
+                    setErrorLogin("Sign Up Failed!");
+                    setLoading(false);
+                }
+                reset();
             });
     }
 
-    const { firstName, familyName, email, password, confirm } = user;
-
     return (
-        <Paper className="paperForm" elevation={6}>
-            <br></br>
+        <Paper className="paperForm" elevation={9}>
             <h2 className="text-center">
                 <strong>Sign Up</strong>
             </h2>
 
-            <Form className=" d-flex flex-column" autoComplete="off" Validate onSubmit={handleSubmit}>
+            <Form className=" d-flex flex-column" autoComplete="off" noValidate onSubmit={handleSubmit(onSubmit)}>
                 <FormGroup className="campo-form">
                     <Label for="firstName">Name</Label>
-                    <Input className="border border-secondary" type="text" name="firstName" id="firstName" onChange={
-handleChange} value={firstName}/>
+                    <TextField
+                        inputRef={register}
+                        type="text"
+                        name="firstName"
+                        inputProps={{
+                            style: {
+                                height: '2.188em',
+                                padding: '0 14px',
+                            },
+                        }}
+                        error={!!errors.firstName}
+                        helperText={errors.firstName ? errors.firstName.message : ''} />
                 </FormGroup>
                 <FormGroup className="campo-form">
-                    <Label for="familyName">Family name</Label>
-                    <Input className="border border-secondary" type="text" name="familyName" id="familyName" onChange={
-handleChange} value={familyName}/>
+                    <Label for="familyName">Last name</Label>
+                    <TextField
+                        inputRef={register}
+                        type="text"
+                        name="familyName"
+                        inputProps={{
+                            style: {
+                                height: '2.188em',
+                                padding: '0 14px',
+                            },
+                        }}
+                        error={!!errors.familyName}
+                        helperText={errors.familyName ? errors.familyName.message : ''} />
                 </FormGroup>
                 <FormGroup className="campo-form">
                     <Label for="userEmail">Email</Label>
-                    <Input className="border border-secondary" type="email" name="email" id="userEmail" onChange={
-handleChange} value={email}/>
+                    <TextField
+                        inputRef={register}
+                        type="email"
+                        name="email"
+                        inputProps={{
+                            style: {
+                                height: '2.188em',
+                                padding: '0 14px',
+                            },
+                        }}
+                        error={!!errors.email}
+                        helperText={errors.email ? errors.email.message : ''} />
                 </FormGroup>
                 <FormGroup className="campo-form">
                     <Label for="userPassword">Password</Label>
-                    <Input className="border border-secondary" type="password" name="password" id="userPassword" onChange={
-handleChange} value={password}/>
+                    <TextField
+                        inputRef={register}
+                        type="password"
+                        name="password"
+                        inputProps={{
+                            style: {
+                                height: '2.188em',
+                                padding: '0 14px',
+                            },
+                        }}
+                        error={!!errors.password}
+                        helperText={errors.password ? errors.password.message : ''} />
                 </FormGroup>
                 <FormGroup className="campo-form">
                     <Label for="confirmPassword">Password</Label>
-                    <Input className="border border-secondary" type="password" name="confirm" id="confirmPassword" onChange={
-handleChange} value={confirm}/>
+                    <TextField
+                        inputRef={register}
+                        type="password"
+                        name="confirm"
+                        inputProps={{
+                            style: {
+                                height: '2.188em',
+                                padding: '0 14px',
+                            },
+                        }}
+                        error={!!errors.confirm}
+                        helperText={errors.confirm ? errors.confirm.message : ''} />
                 </FormGroup>
                 <Row className="alinea-centro">
-                    <Button className="buttonStyle" variant="outlined" size="medium" type="submit" value="Sign In">Sign In</Button>
+                    <LoadingButton buttonText="Sign Up" loading={loading} />
                 </Row>
             </Form >
             <Row className="alinea-centro">
-                <Button className="buttonStyle" variant="outlined" href="/" size="medium" value="Sign In">Return to sign In</Button>
+                <Button className="buttonStyle" variant="outlined" href="/" size="small" value="Sign In">Return to sign In</Button>
             </Row>
-            <br/>
-            <br/>
+            <br />
+            <br />
+            <SnackbarError error={errorLogin} />
         </Paper>
     );
 };

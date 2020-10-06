@@ -5,11 +5,13 @@ using AutoMapper;
 using FRF.Core.Models;
 using FRF.Core.Services;
 using FRF.Web.Dtos.Users;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FRF.Web.Controllers
 {
     [Route("api/[controller]")]
+    [AllowAnonymous]
     [ApiController]
     public class SignUpController : ControllerBase
     {
@@ -29,8 +31,8 @@ namespace FRF.Web.Controllers
             var userSignUp = Mapper.Map<User>(signUpDto);
             try
             {
-                await SignUpService.SignUp(userSignUp);
-                return Ok();
+                var result = await SignUpService.SignUp(userSignUp);
+                return Ok(result);
             }
             catch (Exception e)
             {
