@@ -16,8 +16,10 @@ namespace FiveRockingFingers
 {
     public class Startup
     {
-        public static readonly IEnumerable<Profile> AutoMapperProfiles = new Profile[]
+
+	public static readonly IEnumerable<Profile> AutoMapperProfiles = new Profile[]
         {
+            new FRF.Web.Dtos.AutoMapperProfile(),
             new FRF.Core.AutoMapperProfile(),
         };
         public Startup(IConfiguration configuration)
@@ -30,7 +32,9 @@ namespace FiveRockingFingers
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
+            services.AddControllersWithViews().AddNewtonsoftJson(options =>
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+            );
 
             services.AddCors();
 
