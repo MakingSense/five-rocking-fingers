@@ -1,28 +1,29 @@
 import React, { useState } from 'react';
-import Routes from "./Router/Routes";
-import { AppContext } from "./libs/contextLib";
-import { NavItem, Button } from 'reactstrap';
+import { UserContext } from "./auth/contextLib";
+import { Button } from 'reactstrap';
 import axios from 'axios'
 import { useHistory } from 'react-router-dom';
+import Routes from './router/Routes';
 
 function App() {
-    const history = useHistory();
+
+    const History = useHistory();
+
     function handleLogout() {
         axios.get("https://localhost:44346/api/User/logout");
-        history.push("/");
-        userHasAuthenticated(false);
-        sessionStorage.removeItem('currentUser');
+        History.push("/");
+        userHasAuthenticated(null);
     }
 
-    const [isAuthenticated, userHasAuthenticated] = useState(false);
+    const [isAuthenticated, userHasAuthenticated] = useState<string | null>(null);
     return (
-        <AppContext.Provider value={{ isAuthenticated, userHasAuthenticated }}>
+        <UserContext.Provider value={{ isAuthenticated, userHasAuthenticated }}>
             {isAuthenticated
                 ? <Button onClick={handleLogout}>Logout</Button>
                 : <></>
             }
-            <Routes />
-        </AppContext.Provider>
+            <Routes/>
+        </UserContext.Provider>
     );
 }
 

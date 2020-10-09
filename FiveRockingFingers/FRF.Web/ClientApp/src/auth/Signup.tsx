@@ -1,16 +1,15 @@
 import React from 'react';
 import { Form, FormGroup, Label, Row } from 'reactstrap';
-import { Paper, Button, TextField } from '@material-ui/core';
+import { Paper, Button, TextField, Box } from '@material-ui/core';
 import { useHistory } from 'react-router-dom';
-import { useAppContext } from "../libs/contextLib";
+import { useUserContext } from "./contextLib";
 import axios from 'axios'
 import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
-
-import "./authStyle.css"
 import { LoadingButton } from "../components/LoadingButton"
 import { SnackbarError } from "../components/SnackbarError"
+import "./authStyle.css"
 
 interface userSignUp {
     firstName: string;
@@ -39,9 +38,9 @@ const UserSignupSchema = yup.object().shape({
         .oneOf([yup.ref('password'), ''], 'Passwords must match')
 });
 
-const Signup: React.FC<userSignUp> = ({ }) => {
+const Signup: React.FC<userSignUp> = ({}) => {
     const history = useHistory();
-    const { userHasAuthenticated } = useAppContext();
+    const { userHasAuthenticated } = useUserContext();
     const { register, handleSubmit, errors, reset } = useForm<userSignUp>({ resolver: yupResolver(UserSignupSchema) });
     const [loading, setLoading] = React.useState(false);
     const [errorLogin, setErrorLogin] = React.useState<string>("");
@@ -49,17 +48,16 @@ const Signup: React.FC<userSignUp> = ({ }) => {
     const onSubmit = (e: userSignUp) => {
         setLoading(true);
         axios.post('https://localhost:44346/api/SignUp',
-            {
-                confirmPassword: e.confirm,
-                name: e.firstName,
-                familyName: e.familyName,
-                email: e.email,
-                password: e.password
-            })
+                {
+                    confirmPassword: e.confirm,
+                    name: e.firstName,
+                    familyName: e.familyName,
+                    email: e.email,
+                    password: e.password
+                })
             .then(response => {
                 if (response.status == 200) {
-                    userHasAuthenticated(true);
-                    sessionStorage.setItem('currentUser', JSON.stringify(response.data));
+                    userHasAuthenticated(response.data);
                     history.push("/Home");
                 }
             })
@@ -67,8 +65,7 @@ const Signup: React.FC<userSignUp> = ({ }) => {
                 if (error.response) {
                     setErrorLogin(error.response.data);
                     setLoading(false);
-                }
-                else {
+                } else {
                     setErrorLogin("Sign Up Failed!");
                     setLoading(false);
                 }
@@ -79,12 +76,12 @@ const Signup: React.FC<userSignUp> = ({ }) => {
     return (
         <Paper className="paperForm" elevation={9}>
             <h2 className="text-center">
-                <strong>Sign Up</strong>
+                <strong>Register</strong>
             </h2>
 
             <Form className=" d-flex flex-column" autoComplete="off" noValidate onSubmit={handleSubmit(onSubmit)}>
                 <FormGroup className="campo-form">
-                    <Label for="firstName">Name</Label>
+                    <Label className="text-center" for="firstName">Name</Label>
                     <TextField
                         inputRef={register}
                         type="text"
@@ -96,10 +93,10 @@ const Signup: React.FC<userSignUp> = ({ }) => {
                             },
                         }}
                         error={!!errors.firstName}
-                        helperText={errors.firstName ? errors.firstName.message : ''} />
+                        helperText={errors.firstName ? errors.firstName.message : ''}/>
                 </FormGroup>
                 <FormGroup className="campo-form">
-                    <Label for="familyName">Last name</Label>
+                    <Label className="text-center" for="familyName">Last name</Label>
                     <TextField
                         inputRef={register}
                         type="text"
@@ -111,10 +108,10 @@ const Signup: React.FC<userSignUp> = ({ }) => {
                             },
                         }}
                         error={!!errors.familyName}
-                        helperText={errors.familyName ? errors.familyName.message : ''} />
+                        helperText={errors.familyName ? errors.familyName.message : ''}/>
                 </FormGroup>
                 <FormGroup className="campo-form">
-                    <Label for="userEmail">Email</Label>
+                    <Label className="text-center" for="userEmail">Email</Label>
                     <TextField
                         inputRef={register}
                         type="email"
@@ -126,10 +123,10 @@ const Signup: React.FC<userSignUp> = ({ }) => {
                             },
                         }}
                         error={!!errors.email}
-                        helperText={errors.email ? errors.email.message : ''} />
+                        helperText={errors.email ? errors.email.message : ''}/>
                 </FormGroup>
                 <FormGroup className="campo-form">
-                    <Label for="userPassword">Password</Label>
+                    <Label className="text-center" for="userPassword">Password</Label>
                     <TextField
                         inputRef={register}
                         type="password"
@@ -141,10 +138,10 @@ const Signup: React.FC<userSignUp> = ({ }) => {
                             },
                         }}
                         error={!!errors.password}
-                        helperText={errors.password ? errors.password.message : ''} />
+                        helperText={errors.password ? errors.password.message : ''}/>
                 </FormGroup>
                 <FormGroup className="campo-form">
-                    <Label for="confirmPassword">Password</Label>
+                    <Label className="text-center" for="confirmPassword">Password</Label>
                     <TextField
                         inputRef={register}
                         type="password"
@@ -156,20 +153,23 @@ const Signup: React.FC<userSignUp> = ({ }) => {
                             },
                         }}
                         error={!!errors.confirm}
-                        helperText={errors.confirm ? errors.confirm.message : ''} />
+                        helperText={errors.confirm ? errors.confirm.message : ''}/>
                 </FormGroup>
                 <Row className="alinea-centro">
-                    <LoadingButton buttonText="Sign Up" loading={loading} />
+                    <LoadingButton buttonText="Sign Up" loading={loading}/>
                 </Row>
             </Form >
-            <Row className="alinea-centro">
-                <Button className="buttonStyle" variant="outlined" href="/" size="small" value="Sign In">Return to sign In</Button>
-            </Row>
-            <br />
-            <br />
-            <SnackbarError error={errorLogin} />
+            
+            <Box display="flex" alignItems="baseline" justifyContent="space" mr="12.5rem">
+                   <p style={{ marginRight: "1rem"}}>Already have an Account?</p>
+                <Button className="buttonStyle" variant="outlined" href="/" size="small" value="Sign In">Log in</Button></Box>
+
+            
+            <br/>
+            <br/>
+            <SnackbarError error={errorLogin}/>
         </Paper>
-    );
+);
 };
 
 export default Signup;

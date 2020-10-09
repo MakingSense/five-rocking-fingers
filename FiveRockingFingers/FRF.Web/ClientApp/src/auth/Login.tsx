@@ -2,15 +2,14 @@ import React from "react";
 import { Form, FormGroup, Label, Col, Row } from "reactstrap";
 import { Paper, Button, FormControlLabel, Checkbox, TextField } from "@material-ui/core";
 import { useHistory } from "react-router-dom";
-import { useAppContext } from "../libs/contextLib";
+import { useUserContext } from "./contextLib";
 import axios from "axios"
 import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
-
+import { LoadingButton } from "../components/LoadingButton"
+import { SnackbarError } from "../components/SnackbarError"
 import "./authStyle.css"
-import {LoadingButton} from "../components/LoadingButton"
-import {SnackbarError} from "../components/SnackbarError"
 
 interface userLogin {
     email: string;
@@ -31,7 +30,7 @@ const UserLoginSchema = yup.object().shape({
 
 const Login: React.FC<userLogin> = () => {
     const history = useHistory();
-    const { userHasAuthenticated } = useAppContext();
+    const { userHasAuthenticated } = useUserContext();
     const { register, handleSubmit, errors, reset } = useForm<userLogin>({ resolver: yupResolver(UserLoginSchema) });
     const [loading, setLoading] = React.useState(false);
     const [errorLogin, setErrorLogin] = React.useState<string>("");
@@ -47,8 +46,7 @@ const Login: React.FC<userLogin> = () => {
             })
             .then(response => {
                 if (response.status == 200) {
-                    userHasAuthenticated(true);
-                    sessionStorage.setItem('currentUser', JSON.stringify(response.data));
+                    userHasAuthenticated(response.data);
                     history.push("/home");
                 }
             })
@@ -57,12 +55,12 @@ const Login: React.FC<userLogin> = () => {
                     setErrorLogin(error.response.data);
                     setLoading(false);
                 }
-                else { 
-                    setErrorLogin("Login Failed!"); 
-                    setLoading(false); }
+                else {
+                    setErrorLogin("Login Failed!");
+                    setLoading(false);
+                }
                 reset();
             });
-
     };
 
     return (
@@ -70,9 +68,7 @@ const Login: React.FC<userLogin> = () => {
             <h2 className="contenedor-form text-center">
                 <strong>Log In</strong>
             </h2>
-           
             <Form className=" d-flex flex-column" id="loginForm" autoComplete="off" noValidate onSubmit={handleSubmit(onSumit)}>
-
                 <FormGroup className="campo-form">
                     <Label for="email" md={4}>Email</Label>
                     <Col sm={9}>
@@ -114,11 +110,9 @@ const Login: React.FC<userLogin> = () => {
             </Row>
             <br />
             <br />
-                <SnackbarError error={errorLogin}/>
-            </Paper>
-
+            <SnackbarError error={errorLogin} />
+        </Paper>
     );
-
 };
 
 export default Login;

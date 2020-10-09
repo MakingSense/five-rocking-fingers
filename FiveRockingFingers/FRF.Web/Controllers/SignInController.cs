@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using AutoMapper;
 using FRF.Web.Dtos.Users;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 
 namespace FRF.Web.Controllers
@@ -29,8 +30,9 @@ namespace FRF.Web.Controllers
             var userSignIn = Mapper.Map<UserSignIn>(signInDto);
             try
             {
-                var result = await SignInService.SignIn(userSignIn);
-                return Ok(result);
+                await SignInService.SignIn(userSignIn);
+                var token = await HttpContext.GetTokenAsync("id_token");
+                return Ok(token);
             }
             catch (Exception e)
             {
