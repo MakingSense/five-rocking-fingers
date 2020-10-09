@@ -1,11 +1,8 @@
 import * as React from 'react';
 import NavMenu from '../commons/NavMenu';
 
-import axios from 'axios';
-
 const Home = () => {
     return (
-
         <div className='content'>
             <NavMenu />
             <div>
@@ -14,5 +11,4 @@ const Home = () => {
         </div>
     );
 }
-
 export default Home;
