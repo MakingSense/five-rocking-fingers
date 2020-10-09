@@ -4,46 +4,42 @@ import 'react-pro-sidebar/dist/css/styles.css';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faHome } from '@fortawesome/free-solid-svg-icons'
-import './NavMenu.css';
+import '../styles/NavMenu.css';
 import axios from 'axios';
 
 import NavMenuItem from './NavMenuItem';
-import { type } from 'os';
+import Project from '../interfaces/Project';
 
-type Project = {
-    id: number;
-    name: string;
-    owner: string;
-    client: string;
-    budget: number;
-    createdDate: Date;
-    modifiedDate: Date;
-    projectCategories: ProjectCategory[];
-}
+const FaHome = () => (
+    <div className='d-inline-block m-2'>
+        <FontAwesomeIcon icon={faHome} />
+    </div>
+);
 
-type ProjectCategory = {
-    projectCategory: Category;
-}
+const NavMenu = () => {
 
-type Category = {
-    id: number;
-    name: string;
-    description: string;
-}
+    const [projects, setProjects] = React.useState<Project[]>([]);
 
+    React.useEffect(() => {
+        getProjects();
+    }, [projects.length]);
 
-
-const NavMenu = (props: { projects: Project[] }) => {
+    const getProjects = async () => {
+        const response = await axios.get("https://localhost:44346/api/Projects/GetAll");
+        setProjects(response.data);
+        console.log(response.data);
+    }
 
     return (
         <ProSidebar>
             <SidebarHeader>
+                {FaHome()}
                 FiveRockingFingers
                     <Link to="/" />
             </SidebarHeader>
             <SidebarContent>
                 <Menu>
-                    {props.projects ? props.projects.map((project) => (
+                    {projects ? projects.map((project) => (
                         <NavMenuItem key={project.id} project={project} />
                     )) : "No hay projectos"}
                 </Menu>                
