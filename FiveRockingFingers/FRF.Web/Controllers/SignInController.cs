@@ -25,13 +25,12 @@ namespace FRF.Web.Controllers
         }
 
         [HttpPost()]
-        public async Task<ActionResult<string>> SignIn(SignInDTO signInDto)
+        public async Task<ActionResult> SignIn(SignInDTO signInDto)
         {
             var userSignIn = Mapper.Map<UserSignIn>(signInDto);
             try
             {
-                await SignInService.SignIn(userSignIn);
-                var token = await HttpContext.GetTokenAsync("id_token");
+                var token = await SignInService.SignIn(userSignIn);
                 return Ok(token);
             }
             catch (Exception e)

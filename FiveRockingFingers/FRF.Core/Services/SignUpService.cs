@@ -24,7 +24,7 @@ namespace FRF.Core.Services
             CognitoBase = configurationService.GetConfigurationSettings();
         }
 
-        public async Task SignUp(User newUser)
+        public async Task<string> SignUp(User newUser)
         {
             try
             {
@@ -58,9 +58,8 @@ namespace FRF.Core.Services
                     UserPoolId = CognitoBase.UserPoolId
                 });
 
-
-                var result = await SignInManager.PasswordSignInAsync(newUser.Email, newUser.Password,
-                    false, lockoutOnFailure: false);
+                var token = await SignInManager.UserManager.FindByEmailAsync(newUser.Email);
+                var result = await SignInManager.PasswordSignInAsync(token, newUser.Password, false, lockoutOnFailure: false);
                 
                 
                 if (!result.Succeeded)
@@ -68,6 +67,7 @@ namespace FRF.Core.Services
                     throw new Exception("Account created but sign in failed. Contact your system administrator");
                 }
 
+                return token.SessionTokens.IdToken;
             }
             catch (Exception e)
             {

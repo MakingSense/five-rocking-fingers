@@ -31,8 +31,8 @@ namespace FRF.Web.Controllers
             var userSignUp = Mapper.Map<User>(signUpDto);
             try
             {
-                await SignUpService.SignUp(userSignUp);
-                var token = await HttpContext.GetTokenAsync("id_token");
+                
+                var token = await SignUpService.SignUp(userSignUp);
                 return Ok(token);
             }
             catch (Exception e)

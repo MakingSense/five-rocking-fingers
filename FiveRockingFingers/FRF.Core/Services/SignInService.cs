@@ -15,19 +15,22 @@ namespace FRF.Core.Services
             SignInManager = signInManager;
         }
 
-        public async Task SignIn(UserSignIn userSignIn)
+        public async Task<string> SignIn(UserSignIn userSignIn)
         {
             var userEmail = userSignIn.Email.Trim();
             var userPassword = userSignIn.Password.Trim();
 
             try
             {
-                var result = await SignInManager.PasswordSignInAsync(userEmail, userPassword,
+                var token = await SignInManager.UserManager.FindByEmailAsync(userEmail);
+                var result = await SignInManager.PasswordSignInAsync(token, userPassword,
                     userSignIn.RememberMe, lockoutOnFailure: false);
                 if (!result.Succeeded)
                 {
                     throw new Exception("Login failed. Contact your system administrator");
                 }
+
+                return token.SessionTokens.IdToken;
             }
 
             catch (Exception e)
