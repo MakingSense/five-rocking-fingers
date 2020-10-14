@@ -6,7 +6,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
 
 namespace FRF.Core.Services
