@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { UserContext } from "./auth/contextLib";
+import { UserContext } from "./components/auth/contextLib";
 import { Button } from 'reactstrap';
 import axios from 'axios'
 import { useHistory } from 'react-router-dom';
 import Routes from './router/Routes';
-
+import './custom.css';
 function App() {
 
     const History = useHistory();
@@ -19,7 +19,7 @@ function App() {
     return (
         <UserContext.Provider value={{ isAuthenticated, userHasAuthenticated }}>
             {isAuthenticated
-                ? <Button onClick={handleLogout}>Logout</Button>
+                ? <Button display= "flex" flexDirection="row-reverse" onClick={handleLogout}>Logout</Button>
                 : <></>
             }
             <Routes/>

@@ -1,12 +1,9 @@
-* {
-    list-style: none;
-}
-
 .contenedor-form {
-    padding: 5rem 3rem;
+    padding: 4rem 3rem;
     max-width: 500px;
     width: 95%;
     border-radius: 1rem;
+   
 }
 
 .contenedor-form-signup {

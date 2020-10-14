@@ -1,9 +1,14 @@
-import React from 'react';
-const Home = () => {
-  return (
-    <div className="container">
-      <h1>Let's Estimate some projects!!</h1>
-    </div>);
-};
+import * as React from 'react';
+import NavMenu from '../commons/NavMenu';
 
+const Home = () => {
+    return (
+        <div className='content'>
+            <NavMenu />
+            <div>
+                <h1>{"Lets estimate some projects"}</h1>
+            </div>
+        </div>
+    );
+}
 export default Home;

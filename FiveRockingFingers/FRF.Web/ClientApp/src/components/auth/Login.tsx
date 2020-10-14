@@ -7,8 +7,8 @@ import axios from "axios"
 import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
-import { LoadingButton } from "../components/LoadingButton"
-import { SnackbarError } from "../components/SnackbarError"
+import { LoadingButton } from "../../commons/LoadingButton"
+import { SnackbarError } from "../../commons/SnackbarError"
 import "./authStyle.css"
 
 interface userLogin {
@@ -64,7 +64,7 @@ const Login: React.FC<userLogin> = () => {
     };
 
     return (
-        <Paper className="paperForm" elevation={9}>
+        <Paper className="paperForm" elevation={9} id="login">
             <h2 className="contenedor-form text-center">
                 <strong>Iniciar sesión</strong>
             </h2>
