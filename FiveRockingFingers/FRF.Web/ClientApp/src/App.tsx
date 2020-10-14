@@ -1,12 +1,14 @@
 import * as React from 'react';
-import { Route } from 'react-router';
-import Layout from './components/Layout';
-import Home from './components/Home';
+import { Route, Router, Switch } from 'react-router';
+import { createBrowserHistory } from 'history';
+import './custom.css';
+import Routes from './router/Routes';
 
-import './custom.css'
+const history = createBrowserHistory();
 
 export default () => (
-    <Layout>
-        <Route exact path='/' component={Home} />
-    </Layout>
+    <Router history={history}>
+        <Routes />
+    </Router>
+    
 );
