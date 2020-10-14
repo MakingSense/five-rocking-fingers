@@ -64,12 +64,31 @@ namespace FRF.Core.Services
                 throw new System.ArgumentException("The artifact needs a name", "artifact.Name");
             }
 
+            //Gets the project associated to it from the database
+            var project = DataContext.Projects.Include(p => p.ProjectCategories).ThenInclude(pc => pc.Category).Single(p => p.Id == artifact.ProjectId);
+            if (project == null)
+            {
+                throw new System.ArgumentException("There is no project with Id = " + artifact.ProjectId, "artifact.ProjectId");
+            }
+
+            //Gets the artifactType associated to it from the database
+            var artifactType = DataContext.ArtifactType.Single(at => at.Id == artifact.ArtifactTypeId);
+            if (artifactType == null)
+            {
+                throw new System.ArgumentException("There is no ArtifactType with Id = " + artifact.ArtifactTypeId, "artifact.ArtifactTypeId");
+            }
+
             try
             {
                 // Maps the artifact into an EntityModel, deleting the Id if there was one, and setting the CreatedDate field
                 var mappedArtifact = Mapper.Map<EntityModels.Artifact>(artifact);
                 mappedArtifact.CreatedDate = DateTime.Now;
                 mappedArtifact.ModifiedDate = null;
+                mappedArtifact.ProjectId = artifact.ProjectId;
+                mappedArtifact.Project = project;
+                mappedArtifact.ArtifactTypeId = artifact.ArtifactTypeId;
+                mappedArtifact.ArtifactType = artifactType;
+
 
                 // Adds the artifact to the database, generating a unique Id for it
                 DataContext.Artifacts.Add(mappedArtifact);
@@ -94,13 +113,25 @@ namespace FRF.Core.Services
 
             try
             {
-                //Gets the artifact and the project associated to it from the database
-                var result = DataContext.Artifacts.Include(a => a.ArtifactType).Include(a => a.Project).Single(a => a.Id == artifact.Id);
-                var project = DataContext.Projects.Include(p => p.ProjectCategories).ThenInclude(pc => pc.Category).Single(p => p.Id == artifact.ProjectId);
-
+                //Gets the artifact associated to it from the database
+                var result = DataContext.Artifacts.Include(a => a.ArtifactType).Include(a => a.Project).Single(a => a.Id == artifact.Id);    
                 if (result == null)
                 {
                     throw new System.ArgumentException("There is no artifact with Id = " + artifact.Id, "artifact,Id");
+                }
+                
+                //Gets the project associated to it from the database
+                var project = DataContext.Projects.Include(p => p.ProjectCategories).ThenInclude(pc => pc.Category).Single(p => p.Id == artifact.ProjectId);
+                if (project == null)
+                {
+                    throw new System.ArgumentException("There is no project with Id = " + artifact.ProjectId, "artifact.ProjectId");
+                }
+
+                //Gets the artifactType associated to it from the database
+                var artifactType = DataContext.ArtifactType.Single(at => at.Id == artifact.ArtifactTypeId);
+                if (artifactType == null)
+                {
+                    throw new System.ArgumentException("There is no ArtifactType with Id = " + artifact.ArtifactTypeId, "artifact.ArtifactTypeId");
                 }
 
                 //Updates the artifact
@@ -109,9 +140,9 @@ namespace FRF.Core.Services
                 result.Settings = artifact.Settings;
                 result.ModifiedDate = DateTime.Now;
                 result.ProjectId = project.Id;
-                result.Project = DataContext.Projects.Single(p => p.Id == project.Id);
+                result.Project = project;
                 result.ArtifactTypeId = artifact.ArtifactTypeId;
-                result.ArtifactType = DataContext.ArtifactType.Single(at => at.Id == artifact.ArtifactTypeId);
+                result.ArtifactType = artifactType;
 
                 //Saves the updated aritfact in the database
                 DataContext.SaveChanges();
