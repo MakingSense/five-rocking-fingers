@@ -66,7 +66,7 @@ const Login: React.FC<userLogin> = () => {
     return (
         <Paper className="paperForm" elevation={9}>
             <h2 className="contenedor-form text-center">
-                <strong>Log In</strong>
+                <strong>Iniciar sesión</strong>
             </h2>
             <Form className=" d-flex flex-column" id="loginForm" autoComplete="off" noValidate onSubmit={handleSubmit(onSumit)}>
                 <FormGroup className="campo-form">
@@ -100,13 +100,13 @@ const Login: React.FC<userLogin> = () => {
                             color="primary" name="rememberMe"
                         />
                     }
-                    label="Remember Me" />
+                    label="Recuerdame" />
                 <Row className="alinea-centro">
-                    <LoadingButton buttonText="Sign In" loading={loading} />
+                    <LoadingButton buttonText="Acceder" loading={loading} />
                 </Row>
             </Form >
             <Row className="alinea-centro">
-                <Button className="buttonStyle" variant="outlined" href="/signup" size="small">Sign Up</Button>
+                <Button className="buttonStyle" variant="outlined" href="/signup" size="small">Registrarse</Button>
             </Row>
             <br />
             <br />

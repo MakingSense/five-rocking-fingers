@@ -38,7 +38,7 @@ const UserSignupSchema = yup.object().shape({
         .oneOf([yup.ref('password'), ''], 'Passwords must match')
 });
 
-const Signup: React.FC<userSignUp> = ({}) => {
+const Signup: React.FC<userSignUp> = ({ }) => {
     const history = useHistory();
     const { userHasAuthenticated } = useUserContext();
     const { register, handleSubmit, errors, reset } = useForm<userSignUp>({ resolver: yupResolver(UserSignupSchema) });
@@ -48,13 +48,13 @@ const Signup: React.FC<userSignUp> = ({}) => {
     const onSubmit = (e: userSignUp) => {
         setLoading(true);
         axios.post('https://localhost:44346/api/SignUp',
-                {
-                    confirmPassword: e.confirm,
-                    name: e.firstName,
-                    familyName: e.familyName,
-                    email: e.email,
-                    password: e.password
-                })
+            {
+                confirmPassword: e.confirm,
+                name: e.firstName,
+                familyName: e.familyName,
+                email: e.email,
+                password: e.password
+            })
             .then(response => {
                 if (response.status == 200) {
                     userHasAuthenticated(response.data);
@@ -76,12 +76,12 @@ const Signup: React.FC<userSignUp> = ({}) => {
     return (
         <Paper className="paperForm" elevation={9}>
             <h2 className="text-center">
-                <strong>Register</strong>
+                <strong>Registrarse</strong>
             </h2>
 
             <Form className=" d-flex flex-column" autoComplete="off" noValidate onSubmit={handleSubmit(onSubmit)}>
                 <FormGroup className="campo-form">
-                    <Label className="text-center" for="firstName">Name</Label>
+                    <Label className="text-center" for="firstName">Nombre</Label>
                     <TextField
                         inputRef={register}
                         type="text"
@@ -93,10 +93,10 @@ const Signup: React.FC<userSignUp> = ({}) => {
                             },
                         }}
                         error={!!errors.firstName}
-                        helperText={errors.firstName ? errors.firstName.message : ''}/>
+                        helperText={errors.firstName ? errors.firstName.message : ''} />
                 </FormGroup>
                 <FormGroup className="campo-form">
-                    <Label className="text-center" for="familyName">Last name</Label>
+                    <Label className="text-center" for="familyName">Apellido</Label>
                     <TextField
                         inputRef={register}
                         type="text"
@@ -108,7 +108,7 @@ const Signup: React.FC<userSignUp> = ({}) => {
                             },
                         }}
                         error={!!errors.familyName}
-                        helperText={errors.familyName ? errors.familyName.message : ''}/>
+                        helperText={errors.familyName ? errors.familyName.message : ''} />
                 </FormGroup>
                 <FormGroup className="campo-form">
                     <Label className="text-center" for="userEmail">Email</Label>
@@ -123,7 +123,7 @@ const Signup: React.FC<userSignUp> = ({}) => {
                             },
                         }}
                         error={!!errors.email}
-                        helperText={errors.email ? errors.email.message : ''}/>
+                        helperText={errors.email ? errors.email.message : ''} />
                 </FormGroup>
                 <FormGroup className="campo-form">
                     <Label className="text-center" for="userPassword">Password</Label>
@@ -138,7 +138,7 @@ const Signup: React.FC<userSignUp> = ({}) => {
                             },
                         }}
                         error={!!errors.password}
-                        helperText={errors.password ? errors.password.message : ''}/>
+                        helperText={errors.password ? errors.password.message : ''} />
                 </FormGroup>
                 <FormGroup className="campo-form">
                     <Label className="text-center" for="confirmPassword">Password</Label>
@@ -153,23 +153,23 @@ const Signup: React.FC<userSignUp> = ({}) => {
                             },
                         }}
                         error={!!errors.confirm}
-                        helperText={errors.confirm ? errors.confirm.message : ''}/>
+                        helperText={errors.confirm ? errors.confirm.message : ''} />
                 </FormGroup>
                 <Row className="alinea-centro">
-                    <LoadingButton buttonText="Sign Up" loading={loading}/>
+                    <LoadingButton buttonText="Registrarse" loading={loading} />
                 </Row>
             </Form >
-            
-            <Box display="flex" alignItems="baseline" justifyContent="space" mr="12.5rem">
-                   <p style={{ marginRight: "1rem"}}>Already have an Account?</p>
-                <Button className="buttonStyle" variant="outlined" href="/" size="small" value="Sign In">Log in</Button></Box>
 
-            
-            <br/>
-            <br/>
-            <SnackbarError error={errorLogin}/>
+            <Box display="flex" alignItems="baseline" justifyContent="space" mr="12.5rem">
+                <p style={{ marginRight: "2.5rem" }}>¿Ya tienes una cuenta?</p>
+                <Button className="buttonStyle" variant="outlined" href="/" size="small" value="Sign In">Acceder</Button></Box>
+
+
+            <br />
+            <br />
+            <SnackbarError error={errorLogin} />
         </Paper>
-);
+    );
 };
 
 export default Signup;
