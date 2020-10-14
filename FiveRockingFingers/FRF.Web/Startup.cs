@@ -39,7 +39,9 @@ namespace FiveRockingFingers
             services.AddCors();
 
             services.AddTransient<IProjectsService, ProjectsService>();
-            
+
+            services.AddTransient<IArtifactsService, ArtifactsService>();
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Five Rocking Fingers", Version = "v1" });
