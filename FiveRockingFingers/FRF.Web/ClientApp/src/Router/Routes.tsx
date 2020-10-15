@@ -1,9 +1,9 @@
 import React from 'react';
 import { Route, Switch, Redirect } from "react-router-dom";
-import Layout from '../components/Layout';
-import Login from '../auth/Login';
-import Signup from '../auth/Signup';
-import PrivateRoute from "../auth/authService"
+import Home from '../components/Home';
+import Login from '../components/auth/Login';
+import Signup from '../components/auth/Signup';
+import PrivateRoute from "../components/auth/authService"
 
 export default function Routes() {
     return (
@@ -11,7 +11,8 @@ export default function Routes() {
             <Redirect exact from="/" to="/home" />
             <Route exact path="/login" component={Login} />
             <Route exact path="/signup" component={Signup} />
-            <PrivateRoute exact path="/home" component={Layout} />
+            <PrivateRoute exact path="/home" component={Home} />
         </Switch>
     );
 }
+

@@ -20,12 +20,12 @@ interface userLogin {
 const UserLoginSchema = yup.object().shape({
     email: yup.string()
         .trim()
-        .required('Required.').email('Must be a valid email.'),
+        .required('Requerido.').email('Debe ser un email valido.'),
     password: yup.string()
         .trim()
-        .min(8, 'Must be at least 8 characters.')
-        .max(20, 'Can be no longer than 20 characters')
-        .required('Required.'),
+        .min(8, 'Debe tener al menos 8 caracteres.')
+        .max(20, 'No puede ser mayor a 20 caracteres.')
+        .required('Requerido.'),
 });
 
 const Login: React.FC<userLogin> = () => {
