@@ -13,8 +13,14 @@ code {
   border-color: #1861ac;
 }
 
-.contenido {
-    display: flex;
-    
+.content {
+  height: 100%;
+  display: flex;
 }
 
+html, body, #app, #root {
+  height: 100%
+}
+#login, #signup {
+  height: 85%;
+}

@@ -10,6 +10,7 @@ const NavMenuItem = (props: { project: Project }) => {
                 <Box><MenuItem active={false}>
                     <p>{`Creador: ${props.project.owner}`}</p>
                     <p>{`Cliente: ${props.project.client}`}</p>
+                    <p>{`Presupuesto: $${props.project.budget}`}</p>
                     <p>{`Fecha Inicio: ${props.project.createdDate}`}</p>
                     <p>{`Fecha Finalizacion: ${props.project.modifiedDate}`}</p>
                 </MenuItem></Box>
