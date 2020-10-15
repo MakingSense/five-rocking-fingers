@@ -7,9 +7,10 @@ import axios from 'axios'
 import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
-import { LoadingButton } from "../components/LoadingButton"
-import { SnackbarError } from "../components/SnackbarError"
+import { LoadingButton } from '../../commons/LoadingButton';
+import { SnackbarError } from '../../commons/SnackbarError';
 import "./authStyle.css"
+
 
 interface userSignUp {
     firstName: string;
