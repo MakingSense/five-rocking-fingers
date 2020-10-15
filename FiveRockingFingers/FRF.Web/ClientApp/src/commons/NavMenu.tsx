@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ProSidebar, Menu, MenuItem, SubMenu, SidebarHeader, SidebarFooter, SidebarContent } from 'react-pro-sidebar';
+import { ProSidebar, Menu, SidebarHeader, SidebarContent } from 'react-pro-sidebar';
 import 'react-pro-sidebar/dist/css/styles.css';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -19,9 +19,10 @@ const FaHome = () => (
 const NavMenu = () => {
 
     const [projects, setProjects] = React.useState<Project[]>([]);
-
+    const [user, setUser] = React.useState<string|null>("");
     React.useEffect(() => {
         getProjects();
+        getUser();
     }, [projects.length]);
 
     const getProjects = async () => {
@@ -29,12 +30,15 @@ const NavMenu = () => {
         setProjects(response.data);
         console.log(response.data);
     }
-
+    const getUser = async () => {
+        const response = await axios.get("https://localhost:44346/api/User/getfullname");
+        setUser(response.data);
+    }
     return (
         <ProSidebar>
             <SidebarHeader>
                 {FaHome()}
-                FiveRockingFingers
+                {user}
                     <Link to="/" />
             </SidebarHeader>
             <SidebarContent>

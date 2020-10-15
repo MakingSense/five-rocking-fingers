@@ -23,6 +23,10 @@ namespace FRF.Core.Services
             try
             {
                 var token = await SignInManager.UserManager.FindByEmailAsync(userEmail);
+                if (token==null)
+                {
+                    throw new Exception("The email account that you tried to reach does not exist");
+                }
                 var result = await SignInManager.PasswordSignInAsync(token, userPassword,
                     userSignIn.RememberMe, lockoutOnFailure: false);
                 if (!result.Succeeded)
