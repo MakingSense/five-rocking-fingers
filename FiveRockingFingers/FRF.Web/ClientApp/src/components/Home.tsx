@@ -1,10 +1,14 @@
 import * as React from 'react';
-import { connect } from 'react-redux';
+import NavMenu from '../commons/NavMenu';
 
-const Home = () => (
-  <div>
-    <h1>Let's Estimate some projects!!</h1>
-  </div>
-);
-
-export default connect()(Home);
+const Home = () => {
+    return (
+        <div className='content'>
+            <NavMenu />
+            <div>
+                <h1>{"Lets estimate some projects"}</h1>
+            </div>
+        </div>
+    );
+}
+export default Home;
