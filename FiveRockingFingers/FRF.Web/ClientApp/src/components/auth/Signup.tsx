@@ -7,9 +7,10 @@ import axios from 'axios'
 import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
-import { LoadingButton } from "../../commons/LoadingButton"
-import { SnackbarError } from "../../commons/SnackbarError"
+import { LoadingButton } from '../../commons/LoadingButton';
+import { SnackbarError } from '../../commons/SnackbarError';
 import "./authStyle.css"
+
 
 interface userSignUp {
     firstName: string;
@@ -60,15 +61,15 @@ const Signup: React.FC<userSignUp> = ({ }) => {
                     userHasAuthenticated(response.data);
                     history.push("/Home");
                 }
-            })
-            .catch(error => {
-                if (error.response) {
-                    setErrorLogin(error.response.data);
-                    setLoading(false);
-                } else {
+                if (response.status == 400) {
                     setErrorLogin("Sign Up Failed!");
                     setLoading(false);
+                    reset();
                 }
+            })
+            .catch(error => {
+                setErrorLogin("Sign Up Failed!");
+                setLoading(false);
                 reset();
             });
     }
@@ -163,8 +164,6 @@ const Signup: React.FC<userSignUp> = ({ }) => {
             <Box display="flex" alignItems="baseline" justifyContent="space" mr="12.5rem">
                 <p style={{ marginRight: "2.5rem" }}>¿Ya tienes una cuenta?</p>
                 <Button className="buttonStyle" variant="outlined" href="/" size="small" value="Sign In">Acceder</Button></Box>
-
-
             <br />
             <br />
             <SnackbarError error={errorLogin} />

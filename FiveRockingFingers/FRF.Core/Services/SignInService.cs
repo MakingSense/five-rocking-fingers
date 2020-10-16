@@ -15,7 +15,7 @@ namespace FRF.Core.Services
             SignInManager = signInManager;
         }
 
-        public async Task<string> SignIn(UserSignIn userSignIn)
+        public async Task<Tuple<bool, string>> SignIn(UserSignIn userSignIn)
         {
             var userEmail = userSignIn.Email.Trim();
             var userPassword = userSignIn.Password.Trim();
@@ -23,22 +23,17 @@ namespace FRF.Core.Services
             try
             {
                 var token = await SignInManager.UserManager.FindByEmailAsync(userEmail);
-                if (token==null)
-                {
-                    throw new Exception("The email account that you tried to reach does not exist");
-                }
+                if (token == null) return new Tuple<bool, string>(false, "");
+
                 var result = await SignInManager.PasswordSignInAsync(token, userPassword,
                     userSignIn.RememberMe, lockoutOnFailure: false);
-                if (!result.Succeeded)
-                {
-                    throw new Exception("Login failed. Contact your system administrator");
-                }
-
-                return token.SessionTokens.IdToken;
+                return result.Succeeded
+                    ? new Tuple<bool, string>(true, token.SessionTokens.IdToken)
+                    : new Tuple<bool, string>(false, "");
             }
-
             catch (Exception e)
             {
+                //throw message exception from Cognito User Pool
                 throw new Exception(e.Message);
             }
         }
