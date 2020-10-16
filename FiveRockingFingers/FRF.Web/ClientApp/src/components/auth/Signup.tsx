@@ -61,15 +61,15 @@ const Signup: React.FC<userSignUp> = ({}) => {
                     userHasAuthenticated(response.data);
                     history.push("/Home");
                 }
-            })
-            .catch(error => {
-                if (error.response) {
-                    setErrorLogin(error.response.data);
-                    setLoading(false);
-                } else {
+                if (response.status == 400) {
                     setErrorLogin("Sign Up Failed!");
                     setLoading(false);
+                    reset();
                 }
+            })
+            .catch(error => {
+                setErrorLogin("Sign Up Failed!");
+                setLoading(false);
                 reset();
             });
     }
@@ -160,17 +160,18 @@ const Signup: React.FC<userSignUp> = ({}) => {
                     <LoadingButton buttonText="Sign Up" loading={loading}/>
                 </Row>
             </Form >
-            
-            <Box display="flex" alignItems="baseline" justifyContent="space" mr="12.5rem">
-                   <p style={{ marginRight: "1rem"}}>Already have an Account?</p>
-                <Button className="buttonStyle" variant="outlined" href="/" size="small" value="Sign In">Log in</Button></Box>
 
-            
+            <Box display="flex" alignItems="baseline" justifyContent="space" mr="12.5rem">
+                <p style={{ marginRight: "1rem" }}>Already have an Account?</p>
+                <Button className="buttonStyle" variant="outlined" href="/" size="small" value="Sign In">Log in</Button>
+            </Box>
+
+
             <br/>
             <br/>
             <SnackbarError error={errorLogin}/>
         </Paper>
-);
+    );
 };
 
 export default Signup;

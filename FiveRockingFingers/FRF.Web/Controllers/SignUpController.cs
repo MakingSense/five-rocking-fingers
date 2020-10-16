@@ -2,7 +2,6 @@
 using FRF.Core.Models;
 using FRF.Core.Services;
 using FRF.Web.Dtos.Users;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -15,30 +14,23 @@ namespace FRF.Web.Controllers
     [ApiController]
     public class SignUpController : ControllerBase
     {
+        private readonly ISignUpService SignUpService;
+        private readonly IMapper Mapper;
+
         public SignUpController(ISignUpService signUpService, IMapper mapper)
         {
             SignUpService = signUpService;
             Mapper = mapper;
         }
 
-        public ISignUpService SignUpService { get; set; }
-        public IMapper Mapper { get; set; }
-
         [HttpPost]
         public async Task<ActionResult<string>> SignUp(SignUpDTO signUpDto)
         {
             if (!ModelState.IsValid) return BadRequest();
             var userSignUp = Mapper.Map<User>(signUpDto);
-            try
-            {
-                
-                var token = await SignUpService.SignUp(userSignUp);
-                return Ok(token);
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, e.Message);
-            }
+            var (isAuthorize, token) = await SignUpService.SignUp(userSignUp);
+            if (!isAuthorize) return BadRequest();
+            return Ok(token);
         }
     }
 }

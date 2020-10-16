@@ -49,16 +49,15 @@ const Login: React.FC<userLogin> = () => {
                     userHasAuthenticated(response.data);
                     history.push("/home");
                 }
+                if (response.status == 400) {
+                    setErrorLogin("Login Failed! Invalid email or password.");
+                    setLoading(false);
+                    reset();
+                }
             })
             .catch(error => {
-                if (error.response) {
-                    setErrorLogin(error.response.data);
-                    setLoading(false);
-                }
-                else {
-                    setErrorLogin("Login Failed!");
-                    setLoading(false);
-                }
+                setErrorLogin("Login Failed!");
+                setLoading(false);
                 reset();
             });
     };

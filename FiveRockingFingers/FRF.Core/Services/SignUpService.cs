@@ -7,6 +7,7 @@ using FRF.Core.Models;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace FRF.Core.Services
@@ -24,12 +25,13 @@ namespace FRF.Core.Services
             CognitoBase = configurationService.GetConfigurationSettings();
         }
 
-        public async Task<string> SignUp(User newUser)
+        public async Task<Tuple<bool, string>> SignUp(User newUser)
         {
             try
             {
                 var provider = new AmazonCognitoIdentityProviderClient(CognitoBase.AccessKeyId,
                     CognitoBase.SecretAccKey, RegionEndpoint.USWest2);
+
                 var response = await provider.SignUpAsync(new SignUpRequest
                 {
                     ClientId = CognitoBase.ClientId,
@@ -41,6 +43,9 @@ namespace FRF.Core.Services
                         new AttributeType {Name = "family_name", Value = newUser.FamilyName}
                     }
                 });
+
+                if (response.HttpStatusCode != HttpStatusCode.OK)
+                    return new Tuple<bool, string>(false, "");
 
                 await provider.AdminUpdateUserAttributesAsync(new AdminUpdateUserAttributesRequest
                 {
@@ -59,15 +64,13 @@ namespace FRF.Core.Services
                 });
 
                 var token = await SignInManager.UserManager.FindByEmailAsync(newUser.Email);
-                var result = await SignInManager.PasswordSignInAsync(token, newUser.Password, false, lockoutOnFailure: false);
-                
-                
-                if (!result.Succeeded)
-                {
-                    throw new Exception("Account created but sign in failed. Contact your system administrator");
-                }
+                if (token==null) return new Tuple<bool, string>(false, "");
 
-                return token.SessionTokens.IdToken;
+                var result =
+                    await SignInManager.PasswordSignInAsync(token, newUser.Password, false, lockoutOnFailure: false);
+                return result.Succeeded
+                    ? new Tuple<bool, string>(true, token.SessionTokens.IdToken)
+                    : new Tuple<bool, string>(false, "");
             }
             catch (Exception e)
             {

@@ -1,10 +1,11 @@
-﻿using FRF.Core.Models;
+﻿using System;
+using FRF.Core.Models;
 using System.Threading.Tasks;
 
 namespace FRF.Core.Services
 {
     public interface ISignInService
     {
-        Task<string> SignIn(UserSignIn userSignIn);
+        Task<Tuple<bool, string>> SignIn(UserSignIn userSignIn);
     }
 }

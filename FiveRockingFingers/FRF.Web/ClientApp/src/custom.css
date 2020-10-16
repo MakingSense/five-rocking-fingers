@@ -22,5 +22,5 @@ html, body, #app, #root {
   height: 100%
 }
 #login, #signup {
-  height: 85%;
+    height: auto;
 }
