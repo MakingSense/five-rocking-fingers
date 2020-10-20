@@ -45,11 +45,11 @@ const Login: React.FC<userLogin> = () => {
                 rememberMe: e.rememberMe
             })
             .then(response => {
-                if (response.status == 200) {
+                if (response.status === 200) {
                     userHasAuthenticated(response.data);
                     history.push("/home");
                 }
-                if (response.status == 400) {
+                if (response.status === 400) {
                     setErrorLogin("Login Failed! Invalid email or password.");
                     setLoading(false);
                     reset();
