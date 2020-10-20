@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FRF.Core.Models;
+using FRF.Web.Dtos.Artifacts;
 using FRF.Web.Dtos.Projects;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,12 @@ namespace FRF.Web.Dtos
             CreateMap<ProjectCategory, ProjectCategoryDTO>()
                 .ReverseMap();
             CreateMap<Category, CategoryDTO>()
+                .ReverseMap();
+            CreateMap<Artifact, ArtifactDTO>()
+                .ReverseMap()
+                .ForMember(dest=> dest.ArtifactTypeId, opt => opt.MapFrom(src => src.ArtifactType.Id))
+                .ForMember(dest => dest.ProjectId, opt => opt.MapFrom(src => src.Project.Id));
+            CreateMap<ArtifactType, ArtifactTypeDTO>()
                 .ReverseMap();
         }
     }
