@@ -57,11 +57,11 @@ const Signup: React.FC<userSignUp> = ({}) => {
                     password: e.password
                 })
             .then(response => {
-                if (response.status == 200) {
+                if (response.status === 200) {
                     userHasAuthenticated(response.data);
                     history.push("/Home");
                 }
-                if (response.status == 400) {
+                if (response.status === 400) {
                     setErrorLogin("Sign Up Failed!");
                     setLoading(false);
                     reset();

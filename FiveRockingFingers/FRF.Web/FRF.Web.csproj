@@ -30,8 +30,16 @@
   <ItemGroup>
     <!-- Don't publish the SPA source files, but do show them in the project files list -->
     <Content Remove="$(SpaRoot)**" />
+    <Content Remove="ClientApp\src\commons\NewFolder\**" />
     <None Remove="$(SpaRoot)**" />
+    <None Remove="ClientApp\src\commons\NewFolder\**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="ClientApp\src\commons\NewFolder\**" />
+    <EmbeddedResource Remove="ClientApp\src\commons\NewFolder\**" />
+    <TypeScriptCompile Remove="ClientApp\src\commons\NewFolder\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -42,10 +50,6 @@
   <ItemGroup>
     <ProjectReference Include="..\FRF.Core\FRF.Core.csproj" />
     <ProjectReference Include="..\FRF.Web.Dtos\FRF.Web.Dtos.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="ClientApp\src\commons\NewFolder\" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

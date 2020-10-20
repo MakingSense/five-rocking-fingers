@@ -69,7 +69,7 @@ namespace FRF.Core.Services
                 var result =
                     await SignInManager.PasswordSignInAsync(token, newUser.Password, false, lockoutOnFailure: false);
                 return result.Succeeded
-                    ? new Tuple<bool, string>(true, token.SessionTokens.IdToken)
+                    ? new Tuple<bool, string>(true, token.UserID)
                     : new Tuple<bool, string>(false, "");
             }
             catch (Exception e)
