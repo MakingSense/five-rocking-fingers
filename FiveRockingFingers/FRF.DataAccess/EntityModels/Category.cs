@@ -9,6 +9,7 @@ namespace FRF.DataAccess.EntityModels
     {
         [Key]
         public int Id { get; set; }
+        [Required(AllowEmptyStrings = false)]
         public string Name { get; set; }
         #nullable enable
         public string? Description { get; set; }

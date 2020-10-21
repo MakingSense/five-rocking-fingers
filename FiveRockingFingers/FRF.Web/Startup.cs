@@ -17,7 +17,7 @@ namespace FiveRockingFingers
     public class Startup
     {
 
-	public static readonly IEnumerable<Profile> AutoMapperProfiles = new Profile[]
+	    public static readonly IEnumerable<Profile> AutoMapperProfiles = new Profile[]
         {
             new FRF.Web.Dtos.AutoMapperProfile(),
             new FRF.Core.AutoMapperProfile(),
@@ -39,7 +39,8 @@ namespace FiveRockingFingers
             services.AddCors();
 
             services.AddTransient<IProjectsService, ProjectsService>();
-            
+            services.AddTransient<ICategoryService, CategoryService>();
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Five Rocking Fingers", Version = "v1" });

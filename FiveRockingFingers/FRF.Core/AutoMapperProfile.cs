@@ -14,7 +14,7 @@ namespace FRF.Core
             CreateMap<DataAccess.EntityModels.Project, Models.Project>()
                 .ReverseMap().ForMember(dest => dest.Id, act => act.Ignore()).ForMember(dest => dest.ProjectCategories, act => act.Ignore());
             CreateMap<DataAccess.EntityModels.Category, Models.Category>()
-                .ReverseMap();
+                .ReverseMap().ForMember(dest => dest.Id, act => act.Ignore()).ForMember(dest => dest.ProjectCategories, act => act.Ignore());
             CreateMap<DataAccess.EntityModels.ProjectCategory, Models.ProjectCategory>()
                 .ReverseMap();
         }
