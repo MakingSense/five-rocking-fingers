@@ -14,21 +14,21 @@ namespace FRF.Web.Controllers
     [ApiController]
     public class SignUpController : ControllerBase
     {
-        private readonly ISignUpService SignUpService;
-        private readonly IMapper Mapper;
+        private readonly ISignUpService _signUpService;
+        private readonly IMapper _mapper;
 
         public SignUpController(ISignUpService signUpService, IMapper mapper)
         {
-            SignUpService = signUpService;
-            Mapper = mapper;
+            _signUpService = signUpService;
+            _mapper = mapper;
         }
 
         [HttpPost]
         public async Task<ActionResult<string>> SignUp(SignUpDTO signUpDto)
         {
             if (!ModelState.IsValid) return BadRequest();
-            var userSignUp = Mapper.Map<User>(signUpDto);
-            var (isAuthorize, token) = await SignUpService.SignUp(userSignUp);
+            var userSignUp = _mapper.Map<User>(signUpDto);
+            var (isAuthorize, token) = await _signUpService.SignUp(userSignUp);
             if (!isAuthorize) return BadRequest();
             return Ok(token);
         }
