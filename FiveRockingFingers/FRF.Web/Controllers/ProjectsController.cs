@@ -5,18 +5,22 @@ using FRF.Web.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace FiveRockingFingers.Controllers
 {
     public class ProjectsController : BaseApiController<ProjectDto>
     {
-        private readonly IMapper mapper;
+        private readonly IMapper _mapper;
+        private readonly IProjectsService _projectService;
+        private readonly IUserService _userService;
 
-        public IProjectsService ProjectService { get; set; }
-        public ProjectsController(IProjectsService projectsService, IMapper mapper)
+        public ProjectsController(IProjectsService projectsService, IMapper mapper, IUserService userService)
         {
-            this.ProjectService = projectsService;
-            this.mapper = mapper;
+            this._projectService = projectsService;
+            this._mapper = mapper;
+            this._userService = userService;
+
         }
 
 
@@ -25,9 +29,9 @@ namespace FiveRockingFingers.Controllers
         {
             try
             {
-                var projects = ProjectService.GetAll();
+                var projects = _projectService.GetAll();
 
-                var projectsDto = mapper.Map<IEnumerable<ProjectDto>>(projects);
+                var projectsDto = _mapper.Map<IEnumerable<ProjectDto>>(projects);
 
                 return Ok(projectsDto);
             }
@@ -36,20 +40,40 @@ namespace FiveRockingFingers.Controllers
                 return StatusCode(500, "Internal Server Error");
             }
         }
-        
+
+        [HttpGet("{userId}")]
+        public async Task<IActionResult> GetAllByUserId(string userId)
+        {
+            try
+            {
+                var currentUserId = await _userService.GetCurrentUserId();
+                if (currentUserId != userId) return Unauthorized();
+
+                var projects =await _projectService.GetAllByUserId(userId);
+                if (projects == null) return NotFound();
+
+                var projectsDto = _mapper.Map<IEnumerable<ProjectDto>>(projects);
+                return Ok(projectsDto);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        }
+
         [HttpGet("{id}")]
         override public IActionResult Get(int id)
         {
             try
             {
-                var project = ProjectService.Get(id);
+                var project = _projectService.Get(id);
 
                 if (project == null)
                 {
                     return NotFound();
                 }
 
-                var projectDto = mapper.Map<ProjectDto>(project);
+                var projectDto = _mapper.Map<ProjectDto>(project);
 
                 return Ok(projectDto);
             }
@@ -72,11 +96,11 @@ namespace FiveRockingFingers.Controllers
                 return BadRequest("Invalid model object");
             }
 
-            var project = mapper.Map<FRF.Core.Models.Project>(projectDto);
+            var project = _mapper.Map<FRF.Core.Models.Project>(projectDto);
 
             try
             {
-                var projectCreated = mapper.Map<ProjectDto>(ProjectService.Save(project));
+                var projectCreated = _mapper.Map<ProjectDto>(_projectService.Save(project));
 
                 return Ok(projectCreated);
             }
@@ -102,16 +126,16 @@ namespace FiveRockingFingers.Controllers
 
             try
             {
-                var project = ProjectService.Get(projectDto.Id);
+                var project = _projectService.Get(projectDto.Id);
 
                 if(project == null)
                 {
                     return NotFound();
                 }
 
-                mapper.Map(projectDto, project);
+                _mapper.Map(projectDto, project);
 
-                var updatedProject = mapper.Map<ProjectDto>(ProjectService.Update(project));
+                var updatedProject = _mapper.Map<ProjectDto>(_projectService.Update(project));
 
                 return Ok(updatedProject);
             }
@@ -126,14 +150,14 @@ namespace FiveRockingFingers.Controllers
         {
             try
             {
-                var project = ProjectService.Get(id);
+                var project = _projectService.Get(id);
 
                 if(project == null)
                 {
                     return NotFound();
                 }
 
-                ProjectService.Delete(id);
+                _projectService.Delete(id);
 
                 return NoContent();
             }

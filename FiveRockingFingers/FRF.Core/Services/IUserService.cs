@@ -9,5 +9,6 @@ namespace FRF.Core.Services
     {
         Task<string> GetFullname(string email);
         Task Logout();
+        Task<string> GetCurrentUserId();
     }
 }

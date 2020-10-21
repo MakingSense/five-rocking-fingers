@@ -7,6 +7,8 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using ValidationContext = AutoMapper.ValidationContext;
 
 namespace FRF.Core.Services
 {
@@ -15,6 +17,7 @@ namespace FRF.Core.Services
         public IConfiguration Configuration { get; set; }
         public DataAccessContext DataContext { get; set; }
         private readonly IMapper Mapper;
+
         public ProjectsService(IConfiguration configuration, DataAccessContext dataContext, IMapper mapper)
         {
             Configuration = configuration;
@@ -26,18 +29,42 @@ namespace FRF.Core.Services
         {
             try
             {
-                var result = DataContext.Projects.Include(p => p.ProjectCategories).ThenInclude(pc => pc.Category).ToList();
+                var result = DataContext.Projects.Include(p => p.ProjectCategories).ThenInclude(pc => pc.Category)
+                    .ToList();
                 if (result == null)
                 {
                     return null;
                 }
+
                 return Mapper.Map<List<Project>>(result);
             }
             catch (Exception e)
             {
                 throw e;
             }
-            
+        }
+
+        public async Task<List<Project>> GetAllByUserId(string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return null;
+            }
+
+            try
+            {
+                var result =await DataContext.Projects.Where(p=>p.UserId == userId).Include(p => p.ProjectCategories).ThenInclude(pc => pc.Category).ToListAsync();
+                if (result == null)
+                {
+                    return null;
+                }
+
+                return Mapper.Map<List<Project>>(result);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
         public Project Save(Project project)
@@ -91,11 +118,13 @@ namespace FRF.Core.Services
         {
             try
             {
-                var project = DataContext.Projects.Include(p => p.ProjectCategories).ThenInclude(pc => pc.Category).SingleOrDefault(p => p.Id == id);
+                var project = DataContext.Projects.Include(p => p.ProjectCategories).ThenInclude(pc => pc.Category)
+                    .SingleOrDefault(p => p.Id == id);
                 if (project == null)
                 {
                     return null;
                 }
+
                 return Mapper.Map<Project>(project);
             }
             catch (Exception e)
@@ -119,7 +148,8 @@ namespace FRF.Core.Services
                     categoryList.Add(DataContext.Categories.Single(c => c.Id == category.Category.Id));
                 }
 
-                var result = DataContext.Projects.Include(p => p.ProjectCategories).ThenInclude(pc => pc.Category).Single(p => p.Id == project.Id);
+                var result = DataContext.Projects.Include(p => p.ProjectCategories).ThenInclude(pc => pc.Category)
+                    .Single(p => p.Id == project.Id);
 
                 if (result == null)
                 {

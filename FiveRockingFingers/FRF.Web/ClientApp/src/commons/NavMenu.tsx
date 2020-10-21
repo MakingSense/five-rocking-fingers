@@ -4,11 +4,7 @@ import 'react-pro-sidebar/dist/css/styles.css';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faHome } from '@fortawesome/free-solid-svg-icons'
-<<<<<<< HEAD
 import '../styles/NavMenu.css';
-=======
-
->>>>>>> origin/FIVE-4
 import axios from 'axios';
 
 import NavMenuItem from './NavMenuItem';
