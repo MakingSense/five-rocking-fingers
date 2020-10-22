@@ -56,7 +56,7 @@ namespace FRF.Web.Controllers
 
             if (!ModelState.IsValid)
             {
-                return BadRequest("Invalid model object");
+                return BadRequest(ModelState.Values);
             }
 
             var artifact = mapper.Map<FRF.Core.Models.Artifact>(artifactDto);
@@ -76,7 +76,7 @@ namespace FRF.Web.Controllers
 
             if (!ModelState.IsValid)
             {
-                return BadRequest("Invalid model object");
+                return BadRequest(ModelState.Values);
             }
 
             var artifact = ArtifactsService.Get(artifactDto.Id);
