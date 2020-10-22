@@ -13,5 +13,6 @@ namespace FRF.Web.Dtos.Projects
         #nullable enable
         public string? Description { get; set; }
         #nullable disable
+        public IList<ProjectCategoryDTO> ProjectCategories { get; set; }
     }
 }
