@@ -7,13 +7,14 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace FRF.Core.Services
 {
     public class ArtifactsService : IArtifactsService
     {
-        private IConfiguration _configuration;
-        private DataAccessContext _dataContext;
+        private readonly IConfiguration _configuration;
+        private readonly DataAccessContext _dataContext;
         private readonly IMapper _mapper;
 
         public ArtifactsService(IConfiguration configuration, DataAccessContext dataContext, IMapper mapper)
@@ -23,9 +24,9 @@ namespace FRF.Core.Services
             _mapper = mapper;
         }
 
-        public List<Artifact> GetAll()
+        public async Task<List<Artifact>> GetAll()
         {
-            var result = _dataContext.Artifacts.Include(a => a.ArtifactType).Include(a => a.Project).ThenInclude(p => p.ProjectCategories).ThenInclude(pc => pc.Category).ToList();
+            var result = await _dataContext.Artifacts.Include(a => a.ArtifactType).Include(a => a.Project).ThenInclude(p => p.ProjectCategories).ThenInclude(pc => pc.Category).ToListAsync();
             if (result == null)
             {
                 return null;
@@ -33,9 +34,9 @@ namespace FRF.Core.Services
             return _mapper.Map<List<Artifact>>(result);
         }
 
-        public Artifact Get(int id)
+        public async Task<Artifact> Get(int id)
         {
-            var artifact = _dataContext.Artifacts.Include(a => a.ArtifactType).Include(a => a.Project).ThenInclude(p => p.ProjectCategories).ThenInclude(pc => pc.Category).SingleOrDefault(a => a.Id == id);
+            var artifact = await _dataContext.Artifacts.Include(a => a.ArtifactType).Include(a => a.Project).ThenInclude(p => p.ProjectCategories).ThenInclude(pc => pc.Category).SingleOrDefaultAsync(a => a.Id == id);
             if (artifact == null)
             {
                 return null;
@@ -43,22 +44,17 @@ namespace FRF.Core.Services
             return _mapper.Map<Artifact>(artifact);
         }
 
-        public Artifact Save(Artifact artifact)
+        public async Task<Artifact> Save(Artifact artifact)
         {
-            if (String.IsNullOrWhiteSpace(artifact.Name))
-            {
-                throw new System.ArgumentException("The artifact needs a name", "artifact.Name");
-            }
-
             //Gets the project associated to it from the database
-            var project = _dataContext.Projects.Include(p => p.ProjectCategories).ThenInclude(pc => pc.Category).Single(p => p.Id == artifact.ProjectId);
+            var project = await _dataContext.Projects.Include(p => p.ProjectCategories).ThenInclude(pc => pc.Category).SingleAsync(p => p.Id == artifact.ProjectId);
             if (project == null)
             {
                 throw new System.ArgumentException("There is no project with Id = " + artifact.ProjectId, "artifact.ProjectId");
             }
 
             //Gets the artifactType associated to it from the database
-            var artifactType = _dataContext.ArtifactType.Single(at => at.Id == artifact.ArtifactTypeId);
+            var artifactType = await _dataContext.ArtifactType.SingleAsync(at => at.Id == artifact.ArtifactTypeId);
             if (artifactType == null)
             {
                 throw new System.ArgumentException("There is no ArtifactType with Id = " + artifact.ArtifactTypeId, "artifact.ArtifactTypeId");
@@ -75,37 +71,32 @@ namespace FRF.Core.Services
 
 
             // Adds the artifact to the database, generating a unique Id for it
-            _dataContext.Artifacts.Add(mappedArtifact);
+            await _dataContext.Artifacts.AddAsync(mappedArtifact);
 
             // Saves changes
-            _dataContext.SaveChanges();
+            await _dataContext.SaveChangesAsync();
 
             return _mapper.Map<Artifact>(mappedArtifact);
         }
 
-        public Artifact Update(Artifact artifact)
+        public async Task<Artifact> Update(Artifact artifact)
         {
-            if (String.IsNullOrWhiteSpace(artifact.Name))
-            {
-                throw new System.ArgumentException("The artifact needs a name", "artifact.Name");
-            }
-
             //Gets the artifact associated to it from the database
-            var result = _dataContext.Artifacts.Include(a => a.ArtifactType).Include(a => a.Project).Single(a => a.Id == artifact.Id);
+            var result = await _dataContext.Artifacts.Include(a => a.ArtifactType).Include(a => a.Project).SingleAsync(a => a.Id == artifact.Id);
             if (result == null)
             {
                 throw new System.ArgumentException("There is no artifact with Id = " + artifact.Id, "artifact,Id");
             }
 
             //Gets the project associated to it from the database
-            var project = _dataContext.Projects.Include(p => p.ProjectCategories).ThenInclude(pc => pc.Category).Single(p => p.Id == artifact.ProjectId);
+            var project = await _dataContext.Projects.Include(p => p.ProjectCategories).ThenInclude(pc => pc.Category).SingleAsync(p => p.Id == artifact.ProjectId);
             if (project == null)
             {
                 throw new System.ArgumentException("There is no project with Id = " + artifact.ProjectId, "artifact.ProjectId");
             }
 
             //Gets the artifactType associated to it from the database
-            var artifactType = _dataContext.ArtifactType.Single(at => at.Id == artifact.ArtifactTypeId);
+            var artifactType = await _dataContext.ArtifactType.SingleAsync(at => at.Id == artifact.ArtifactTypeId);
             if (artifactType == null)
             {
                 throw new System.ArgumentException("There is no ArtifactType with Id = " + artifact.ArtifactTypeId, "artifact.ArtifactTypeId");
@@ -122,16 +113,16 @@ namespace FRF.Core.Services
             result.ArtifactType = artifactType;
 
             //Saves the updated aritfact in the database
-            _dataContext.SaveChanges();
+            await _dataContext.SaveChangesAsync();
 
             return _mapper.Map<Artifact>(result);
         }
 
-        public void Delete(int id)
+        public async void Delete(int id)
         {
-            var artifactToDelete = _dataContext.Artifacts.Include(a => a.ArtifactType).SingleOrDefault(a => a.Id == id); ;
+            var artifactToDelete = await _dataContext.Artifacts.Include(a => a.ArtifactType).SingleOrDefaultAsync(a => a.Id == id); ;
             _dataContext.Artifacts.Remove(artifactToDelete);
-            _dataContext.SaveChanges();
+            await _dataContext.SaveChangesAsync();
             return;
         }
     }
