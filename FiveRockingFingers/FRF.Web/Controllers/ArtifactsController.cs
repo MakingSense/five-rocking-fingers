@@ -103,7 +103,7 @@ namespace FRF.Web.Controllers
                 return NotFound();
             }
 
-            _artifactsService.Delete(id);
+            await _artifactsService.Delete(id);
 
             return NoContent();
         }
