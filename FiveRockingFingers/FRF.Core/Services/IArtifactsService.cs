@@ -9,7 +9,7 @@ namespace FRF.Core.Services
         Task<List<Artifact>> GetAll();
         Task<Artifact> Get(int id);
         Task<Artifact> Update(Artifact artifact);
-        void Delete(int id);
+        Task Delete(int id);
         Task<Artifact> Save(Artifact artifact);
     }
 }

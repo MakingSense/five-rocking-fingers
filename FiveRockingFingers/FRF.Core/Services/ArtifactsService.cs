@@ -118,7 +118,7 @@ namespace FRF.Core.Services
             return _mapper.Map<Artifact>(result);
         }
 
-        public async void Delete(int id)
+        public async Task Delete(int id)
         {
             var artifactToDelete = await _dataContext.Artifacts.Include(a => a.ArtifactType).SingleOrDefaultAsync(a => a.Id == id); ;
             _dataContext.Artifacts.Remove(artifactToDelete);
