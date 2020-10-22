@@ -4,12 +4,8 @@ using FRF.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using EntityModels = FRF.DataAccess.EntityModels;
 using Microsoft.Extensions.Configuration;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace FRF.Core.Services
 {
@@ -25,9 +21,9 @@ namespace FRF.Core.Services
             _mapper = mapper;
         }
 
-        public List<Category> GetAll()
+        public async Task<List<Category>> GetAll()
         {
-            var result = _dataContext.Categories.Include(c => c.ProjectCategories).ThenInclude(pc => pc.Project).ToList();
+            var result = await _dataContext.Categories.Include(c => c.ProjectCategories).ThenInclude(pc => pc.Project).ToListAsync();
             if (result == null)
             {
                 return null;
@@ -35,9 +31,9 @@ namespace FRF.Core.Services
             return _mapper.Map<List<Category>>(result);
         }
 
-        public Category Get(int id)
+        public async Task<Category> Get(int id)
         {
-            var category = _dataContext.Categories.Include(c => c.ProjectCategories).ThenInclude(pc => pc.Project).SingleOrDefault(c => c.Id == id);
+            var category = await _dataContext.Categories.Include(c => c.ProjectCategories).ThenInclude(pc => pc.Project).SingleOrDefaultAsync(c => c.Id == id);
             if (category == null)
             {
                 return null;
@@ -45,28 +41,23 @@ namespace FRF.Core.Services
             return _mapper.Map<Category>(category);
         }
 
-        public Category Save(Category category)
+        public async Task<Category> Save(Category category)
         {
-            // Maps the project into an EntityModel, deleting the Id if there was one, and the list projectCategories
+            // Maps the category into an EntityModel, deleting the Id if there was one.
             var mappedCategory = _mapper.Map<EntityModels.Category>(category);            
 
-            // Adds the project to the database, generating a unique Id for it
-            _dataContext.Categories.Add(mappedCategory);
+            // Adds the category to the database, generating a unique Id for it
+            await _dataContext.Categories.AddAsync(mappedCategory);
 
             // Saves changes
-            _dataContext.SaveChanges();
+            await _dataContext.SaveChangesAsync();
 
             return _mapper.Map<Category>(mappedCategory);
         }
 
-        public Category Update(Category category)
+        public async Task<Category> Update(Category category)
         {
-            if (String.IsNullOrWhiteSpace(category.Name))
-            {
-                throw new System.ArgumentException("The category needs a name", "category.Name");
-            }
-
-            var result = _dataContext.Categories.Include(c => c.ProjectCategories).Single(c => c.Id == category.Id);
+            var result = await _dataContext.Categories.Include(c => c.ProjectCategories).SingleAsync(c => c.Id == category.Id);
 
             if (result == null)
             {
@@ -76,16 +67,16 @@ namespace FRF.Core.Services
             result.Name = category.Name;
             result.Description = category.Description;
 
-            _dataContext.SaveChanges();
+            await _dataContext.SaveChangesAsync();
 
             return _mapper.Map<Category>(result);
         }
 
-        public void Delete(int id)
+        public async Task Delete(int id)
         {
-            var categoryToDelete = _dataContext.Categories.Include(c => c.ProjectCategories).Single(c => c.Id == id);
+            var categoryToDelete = await _dataContext.Categories.Include(c => c.ProjectCategories).SingleAsync(c => c.Id == id);
             _dataContext.Categories.Remove(categoryToDelete);
-            _dataContext.SaveChanges();
+            await _dataContext.SaveChangesAsync();
             return;
         }
 

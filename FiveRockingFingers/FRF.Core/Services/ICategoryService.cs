@@ -2,15 +2,16 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace FRF.Core.Services
 {
     public interface ICategoryService
     {
-        List<Category> GetAll();
-        Category Get(int id);
-        Category Update(Category category);
-        void Delete(int id);
-        Category Save(Category category);
+        Task<List<Category>> GetAll();
+        Task<Category> Get(int id);
+        Task<Category> Update(Category category);
+        Task Delete(int id);
+        Task<Category> Save(Category category);
     }
 }
