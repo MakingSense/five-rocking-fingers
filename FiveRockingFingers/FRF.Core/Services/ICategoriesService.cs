@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FRF.Core.Services
 {
-    public interface ICategoryService
+    public interface ICategoriesService
     {
         Task<List<Category>> GetAll();
         Task<Category> Get(int id);

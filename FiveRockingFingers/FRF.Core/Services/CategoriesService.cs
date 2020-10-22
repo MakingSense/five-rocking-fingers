@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 
 namespace FRF.Core.Services
 {
-    public class CategoryService : ICategoryService
+    public class CategoriesService : ICategoriesService
     {
         private readonly IConfiguration _configuration;
         private readonly DataAccessContext _dataContext;
         private readonly IMapper _mapper;
-        public CategoryService(IConfiguration configuration, DataAccessContext dataContext, IMapper mapper)
+        public CategoriesService(IConfiguration configuration, DataAccessContext dataContext, IMapper mapper)
         {
             _configuration = configuration;
             _dataContext = dataContext;

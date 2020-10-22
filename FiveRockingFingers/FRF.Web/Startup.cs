@@ -39,7 +39,7 @@ namespace FiveRockingFingers
             services.AddCors();
 
             services.AddTransient<IProjectsService, ProjectsService>();
-            services.AddTransient<ICategoryService, CategoryService>();
+            services.AddTransient<ICategoriesService, CategoriesService>();
 
             services.AddSwaggerGen(c =>
             {
