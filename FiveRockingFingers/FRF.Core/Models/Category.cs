@@ -10,6 +10,7 @@ namespace FRF.Core.Models
         public string Name { get; set; }
         #nullable enable
         public string? Description { get; set; }
-        #nullable disable
+#nullable disable
+        public IList<ProjectCategory> ProjectCategories { get; set; }
     }
 }
