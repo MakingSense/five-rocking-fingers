@@ -10,44 +10,44 @@ using FRF.Web.Dtos.Artifacts;
 
 namespace FRF.Web.Controllers
 {
-    public class ArtifactsController : BaseApiController<ArtifactDTO>
+    public class ArtifactsController : BaseApiControllerAsync<ArtifactDTO>
     {
-        private readonly IMapper mapper;
-        public IArtifactsService ArtifactsService { get; set; }
+        private readonly IMapper _mapper;
+        private readonly IArtifactsService _artifactsService { get; set; }
 
         public ArtifactsController(IArtifactsService artifactsService, IMapper mapper)
         {
-            this.ArtifactsService = artifactsService;
-            this.mapper = mapper;
+            _artifactsService = artifactsService;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        public override IActionResult GetAll()
+        public override async Task<IActionResult> GetAll()
         {
-            var artifacts = ArtifactsService.GetAll();
+            var artifacts = await _artifactsService.GetAll();
 
-            var artifactsDto = mapper.Map<IEnumerable<ArtifactDTO>>(artifacts);
+            var artifactsDto = _mapper.Map<IEnumerable<ArtifactDTO>>(artifacts);
 
             return Ok(artifactsDto);
         }
 
         [HttpGet("{id}")]
-        public override IActionResult Get(int id)
+        public override async Task<IActionResult> Get(int id)
         {
-            var artifact = ArtifactsService.Get(id);
+            var artifact = await _artifactsService.Get(id);
 
             if (artifact == null)
             {
                 return NotFound();
             }
 
-            var artifactDto = mapper.Map<ArtifactDTO>(artifact);
+            var artifactDto = _mapper.Map<ArtifactDTO>(artifact);
 
             return Ok(artifactDto);
         }
 
         [HttpPost]
-        public override IActionResult Save(ArtifactDTO artifactDto)
+        public override async Task<IActionResult> Save(ArtifactDTO artifactDto)
         {
             if (artifactDto == null)
             {
@@ -59,15 +59,15 @@ namespace FRF.Web.Controllers
                 return BadRequest(ModelState.Values);
             }
 
-            var artifact = mapper.Map<FRF.Core.Models.Artifact>(artifactDto);
+            var artifact = _mapper.Map<FRF.Core.Models.Artifact>(artifactDto);
 
-            var artifactCreated = mapper.Map<ArtifactDTO>(ArtifactsService.Save(artifact));
+            var artifactCreated = await _mapper.Map<ArtifactDTO>(_artifactsService.Save(artifact));
 
             return Ok(artifactCreated);
         }
 
         [HttpPut]
-        public override IActionResult Update(ArtifactDTO artifactDto)
+        public override async Task<IActionResult> Update(ArtifactDTO artifactDto)
         {
             if (artifactDto == null)
             {
@@ -79,31 +79,31 @@ namespace FRF.Web.Controllers
                 return BadRequest(ModelState.Values);
             }
 
-            var artifact = ArtifactsService.Get(artifactDto.Id);
+            var artifact = await _artifactsService.Get(artifactDto.Id);
 
             if (artifact == null)
             {
                 return NotFound();
             }
 
-            mapper.Map(artifactDto, artifact);
+            _mapper.Map(artifactDto, artifact);
 
-            var updatedArtifact = mapper.Map<ArtifactDTO>(ArtifactsService.Update(artifact));
+            var updatedArtifact = await _mapper.Map<ArtifactDTO>(_artifactsService.Update(artifact));
 
             return Ok(updatedArtifact);
         }
 
         [HttpDelete("{id}")]
-        public override IActionResult Delete(int id)
+        public override async Task<IActionResult> Delete(int id)
         {
-            var artifact = ArtifactsService.Get(id);
+            var artifact = await _artifactsService.Get(id);
 
             if (artifact == null)
             {
                 return NotFound();
             }
 
-            ArtifactsService.Delete(id);
+            await _artifactsService.Delete(id);
 
             return NoContent();
         }
