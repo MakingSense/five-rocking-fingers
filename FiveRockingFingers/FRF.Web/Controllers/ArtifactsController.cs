@@ -13,7 +13,7 @@ namespace FRF.Web.Controllers
     public class ArtifactsController : BaseApiControllerAsync<ArtifactDTO>
     {
         private readonly IMapper _mapper;
-        private readonly IArtifactsService _artifactsService { get; set; }
+        private readonly IArtifactsService _artifactsService;
 
         public ArtifactsController(IArtifactsService artifactsService, IMapper mapper)
         {
@@ -61,7 +61,7 @@ namespace FRF.Web.Controllers
 
             var artifact = _mapper.Map<FRF.Core.Models.Artifact>(artifactDto);
 
-            var artifactCreated = await _mapper.Map<ArtifactDTO>(_artifactsService.Save(artifact));
+            var artifactCreated = _mapper.Map<ArtifactDTO>(await _artifactsService.Save(artifact));
 
             return Ok(artifactCreated);
         }
@@ -88,7 +88,7 @@ namespace FRF.Web.Controllers
 
             _mapper.Map(artifactDto, artifact);
 
-            var updatedArtifact = await _mapper.Map<ArtifactDTO>(_artifactsService.Update(artifact));
+            var updatedArtifact = _mapper.Map<ArtifactDTO>(await _artifactsService.Update(artifact));
 
             return Ok(updatedArtifact);
         }
@@ -103,7 +103,7 @@ namespace FRF.Web.Controllers
                 return NotFound();
             }
 
-            await _artifactsService.Delete(id);
+            _artifactsService.Delete(id);
 
             return NoContent();
         }
