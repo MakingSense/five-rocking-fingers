@@ -27,6 +27,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\src\components\ManageProjects.tsx" />
+    <None Remove="ClientApp\src\components\ManageProjectsComponents\ConfirmationDialog.tsx" />
+    <None Remove="ClientApp\src\components\ManageProjectsComponents\EditProject.tsx" />
+    <None Remove="ClientApp\src\components\ManageProjectsComponents\ListElement.tsx" />
+    <None Remove="ClientApp\src\components\ManageProjectsComponents\Navbar.tsx" />
+    <None Remove="ClientApp\src\components\ManageProjectsComponents\NewProjectDialog.tsx" />
+    <None Remove="ClientApp\src\components\ManageProjectsComponents\ProjectsList.tsx" />
+    <None Remove="ClientApp\src\components\ManageProjectsComponents\ViewProject.tsx" />
     <None Remove="ClientApp\src\components\NavMenuItem.tsx" />
     <None Remove="ClientApp\src\interfaces\Category.ts" />
     <None Remove="ClientApp\src\interfaces\Project.ts" />
@@ -41,6 +49,14 @@
 
   <ItemGroup>
     <TypeScriptCompile Include="ClientApp\src\commons\NavMenuItem.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\components\ManageProjects.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\components\ManageProjectsComponents\ConfirmationDialog.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\components\ManageProjectsComponents\EditProject.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\components\ManageProjectsComponents\ListElement.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\components\ManageProjectsComponents\Navbar.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\components\ManageProjectsComponents\NewProjectDialog.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\components\ManageProjectsComponents\ProjectsList.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\components\ManageProjectsComponents\ViewProject.tsx" />
     <TypeScriptCompile Include="ClientApp\src\interfaces\Category.ts" />
     <TypeScriptCompile Include="ClientApp\src\interfaces\Project.ts" />
     <TypeScriptCompile Include="ClientApp\src\interfaces\ProjectCategory.ts" />

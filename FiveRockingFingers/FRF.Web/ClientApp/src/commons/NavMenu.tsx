@@ -44,6 +44,9 @@ const NavMenu = () => {
                     )) : "No hay projectos"}
                 </Menu>                
             </SidebarContent>
+            <SidebarFooter>
+                <Link to="/administrarProyectos">Administrar proyectos</Link>
+            </SidebarFooter>
         </ProSidebar>
     );
 };
