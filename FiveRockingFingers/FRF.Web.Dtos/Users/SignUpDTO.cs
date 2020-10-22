@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.Extensions.Configuration;
 
 namespace FRF.Web.Dtos.Users
 {

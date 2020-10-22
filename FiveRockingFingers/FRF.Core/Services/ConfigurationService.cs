@@ -1,7 +1,5 @@
 ﻿using FRF.Core.Base;
 using FRF.DataAccess;
-using Microsoft.Extensions.Configuration;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,26 +7,18 @@ namespace FRF.Core.Services
 {
     public class ConfigurationService : IConfigurationService
     {
-        public DataAccessContext DataContext { get; set; }
+        private readonly DataAccessContext _dataContext;
 
         public ConfigurationService(DataAccessContext dataContext)
         {
-            DataContext = dataContext;
+            _dataContext = dataContext;
         }
-
         
         public CognitoConfigurationBase GetConfigurationSettings()
         {
-            try
-            {
-                var resultFromDb = DataContext.ConfigurationSettings.ToDictionary(k => k.Name, v => v.Value);
+            var resultFromDb = _dataContext.ConfigurationSettings.ToDictionary(k => k.Name, v => v.Value);
                 var result = ToObject<CognitoConfigurationBase>(resultFromDb);
                 return result ?? null;
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
         }
 
         public static T ToObject<T>(IDictionary<string, string> source)

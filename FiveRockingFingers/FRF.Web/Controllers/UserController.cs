@@ -12,17 +12,13 @@ namespace FRF.Web.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        public IUserService UserService { get; set; }
+        private readonly IUserService _userService;
 
         public UserController(IUserService userService)
         {
-            UserService = userService;
+            _userService = userService;
         }
 
-        /// <summary>
-        /// TEST: Gets the current user fullname searching by email.
-        /// </summary>
-        /// <returns>A <see cref="String"/> whit the fullname.</returns>
         [HttpGet("getfullname")]
         [Authorize]
         public async Task<IActionResult> GetFullName()
@@ -30,7 +26,7 @@ namespace FRF.Web.Controllers
             try
             {
                 var email = HttpContext.User.FindFirst(ClaimTypes.Email).Value;
-                var fullname = await UserService.GetFullname(email);
+                var fullname = await _userService.GetFullname(email);
                 return Ok(fullname);
             }
             catch (Exception e)
@@ -45,7 +41,7 @@ namespace FRF.Web.Controllers
         {
             try
             {
-                await UserService.Logout();
+                await _userService.Logout();
                 return Ok();
             }
             catch (Exception e)

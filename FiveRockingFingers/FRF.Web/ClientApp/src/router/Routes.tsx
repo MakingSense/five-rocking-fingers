@@ -1,9 +1,9 @@
 import React from 'react';
-import { Route, Switch, Redirect } from "react-router-dom";
-import Home from '../components/Home';
+import { Redirect, Route, Switch } from "react-router-dom";
+import PrivateRoute from "../components/auth/authService";
 import Login from '../components/auth/Login';
 import Signup from '../components/auth/Signup';
-import PrivateRoute from "../components/auth/authService"
+import Home from '../components/Home';
 
 export default function Routes() {
     return (

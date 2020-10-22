@@ -1,8 +1,7 @@
-﻿import React from "react";
-import Fade from "@material-ui/core/Fade";
-import Button from "@material-ui/core/Button";
+﻿import Button from "@material-ui/core/Button";
 import CircularProgress from "@material-ui/core/CircularProgress";
-
+import Fade from "@material-ui/core/Fade";
+import React from "react";
 
 export const LoadingButton: React.FC<{
     buttonText: string;

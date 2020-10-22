@@ -1,6 +1,6 @@
 ﻿using System;
-using FRF.Core.Models;
 using System.Threading.Tasks;
+using FRF.Core.Models;
 
 namespace FRF.Core.Services
 {
