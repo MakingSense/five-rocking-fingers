@@ -12,18 +12,18 @@ namespace FRF.Web.Controllers
     public class CategoriesController : BaseApiControllerAsync<CategoryDTO>
     {
         private readonly IMapper _mapper;
-        private readonly ICategoryService _categoryService;
+        private readonly ICategoriesService _categoriesService;
 
-        public CategoriesController(ICategoryService categoryService, IMapper mapper)
+        public CategoriesController(ICategoriesService categoryService, IMapper mapper)
         {
-            _categoryService = categoryService;
+            _categoriesService = categoryService;
             _mapper = mapper;
         }
 
         [HttpGet]
         public override async Task<IActionResult> GetAll()
         {
-            var categories = await _categoryService.GetAll();
+            var categories = await _categoriesService.GetAll();
 
             var categoriesDto = _mapper.Map<IEnumerable<CategoryDTO>>(categories);
 
@@ -33,7 +33,7 @@ namespace FRF.Web.Controllers
         [HttpGet("{id}")]
         public override async Task<IActionResult> Get(int id)
         {
-            var category = await _categoryService.Get(id);
+            var category = await _categoriesService.Get(id);
 
             if (category == null)
             {
@@ -60,7 +60,7 @@ namespace FRF.Web.Controllers
 
             var category = _mapper.Map<FRF.Core.Models.Category>(categoryDto);
 
-            var categoryCreated = _mapper.Map<CategoryDTO>(await _categoryService.Save(category));
+            var categoryCreated = _mapper.Map<CategoryDTO>(await _categoriesService.Save(category));
 
             return Ok(categoryCreated);
         }
@@ -78,7 +78,7 @@ namespace FRF.Web.Controllers
                 return BadRequest("Invalid model object");
             }
 
-            var category = await _categoryService.Get(categoryDto.Id);
+            var category = await _categoriesService.Get(categoryDto.Id);
 
             if (category == null)
             {
@@ -87,7 +87,7 @@ namespace FRF.Web.Controllers
 
             _mapper.Map(categoryDto, category);
 
-            var updatedCategory = _mapper.Map<CategoryDTO>(await _categoryService.Update(category));
+            var updatedCategory = _mapper.Map<CategoryDTO>(await _categoriesService.Update(category));
 
             return Ok(updatedCategory);
         }
@@ -95,14 +95,14 @@ namespace FRF.Web.Controllers
         [HttpDelete("{id}")]
         public override async Task<IActionResult> Delete(int id)
         {
-            var category = await _categoryService.Get(id);
+            var category = await _categoriesService.Get(id);
 
             if (category == null)
             {
                 return NotFound();
             }
 
-            await _categoryService.Delete(id);
+            await _categoriesService.Delete(id);
 
             return NoContent();
         }
