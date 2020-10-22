@@ -6,7 +6,7 @@ namespace FRF.Core.Services
 {
     public interface IArtifactsService
     {
-        List<Artifact> GetAll();
+        Task<List<Artifact>> GetAll();
         Task<Artifact> Get(int id);
         Task<Artifact> Update(Artifact artifact);
         void Delete(int id);
