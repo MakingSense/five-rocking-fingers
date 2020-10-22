@@ -1,14 +1,12 @@
+import { faHome } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import axios from 'axios';
 import * as React from 'react';
-import { ProSidebar, Menu, SidebarHeader, SidebarContent } from 'react-pro-sidebar';
+import { Menu, ProSidebar, SidebarContent, SidebarHeader } from 'react-pro-sidebar';
 import 'react-pro-sidebar/dist/css/styles.css';
 import { Link } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faHome } from '@fortawesome/free-solid-svg-icons'
-
-import axios from 'axios';
-
-import NavMenuItem from './NavMenuItem';
 import Project from '../interfaces/Project';
+import NavMenuItem from './NavMenuItem';
 
 const FaHome = () => (
     <div className='d-inline-block m-2'>

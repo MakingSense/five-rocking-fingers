@@ -1,10 +1,6 @@
-using Amazon;
-using Amazon.CognitoIdentityProvider;
-using Amazon.Extensions.CognitoAuthentication;
 using AutoMapper;
 using FRF.Core.Services;
 using FRF.DataAccess;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
@@ -15,20 +11,17 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace FiveRockingFingers
 {
     public class Startup
     {
 
-	public static readonly IEnumerable<Profile> AutoMapperProfiles = new Profile[]
-        {
+        public static readonly IEnumerable<Profile> AutoMapperProfiles = new Profile[]
+            {
             new FRF.Web.Dtos.AutoMapperProfile(),
             new FRF.Core.AutoMapperProfile(),
-            new FRF.Web.Dtos.AutoMapperProfile(),
-        };
-
+            };
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -43,69 +36,24 @@ namespace FiveRockingFingers
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
             );
 
+            services.AddCors();
+
+            services.AddTransient<IProjectsService, ProjectsService>();
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Five Rocking Fingers", Version = "v1" });
+            });
+
             services.AddDbContext<DataAccessContext>(c =>
             {
                 c.UseSqlServer(Configuration.GetConnectionString("FiveRockingFingers"));
             });
-            services.AddCors(opt =>
-            {
-                opt.AddPolicy("CorsPolicy",
-                    policy => { policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000/"); });
-            });
-
-            //Start Cognito Authorization and Identity
-            services.AddScoped<IConfigurationService, ConfigurationService>();
-
-            var CognitoCredencials = services.BuildServiceProvider().GetService<IConfigurationService>()
-                .GetConfigurationSettings();
-            var provider = new AmazonCognitoIdentityProviderClient(CognitoCredencials.AccessKeyId,
-                CognitoCredencials.SecretAccKey,
-                RegionEndpoint.USWest2);
-            var cognitoUserPool =
-                new CognitoUserPool(CognitoCredencials.UserPoolId, CognitoCredencials.ClientId, provider);
-            services.AddSingleton<IAmazonCognitoIdentityProvider>(provider);
-            services.AddSingleton(cognitoUserPool);
-
-            services.AddCognitoIdentity();
-            //End Cognito 
-
-            services.AddTransient<IProjectsService, ProjectsService>();
-            services.AddTransient<ISignUpService, SignUpService>();
-            services.AddTransient<ISignInService, SignInService>();
-            services.AddTransient<IUserService, UserService>();
-
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo {Title = "Five Rocking Fingers", Version = "v1"});
-            });
-
 
             // In production, the React files will be served from this directory
-            services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/build"; });
-
-            services.ConfigureApplicationCookie(option =>
+            services.AddSpaStaticFiles(configuration =>
             {
-                option.Events = new CookieAuthenticationEvents()
-                {
-                    OnRedirectToLogin = (ctx) =>
-                    {
-                        if (ctx.Request.Path.StartsWithSegments("/api") && ctx.Response.StatusCode == 200)
-                        {
-                            ctx.Response.StatusCode = 401;
-                        }
-
-                        return Task.CompletedTask;
-                    },
-                    OnRedirectToAccessDenied = (ctx) =>
-                    {
-                        if (ctx.Request.Path.StartsWithSegments("/api") && ctx.Response.StatusCode == 200)
-                        {
-                            ctx.Response.StatusCode = 403;
-                        }
-
-                        return Task.CompletedTask;
-                    }
-                };
+                configuration.RootPath = "ClientApp/build";
             });
 
             var autoMapperProfileTypes = AutoMapperProfiles.Select(p => p.GetType()).ToArray();
@@ -126,20 +74,19 @@ namespace FiveRockingFingers
                 app.UseHsts();
             }
 
-
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
 
-            app.UseCors("CorsPolicy");
+            app.UseCors();
 
             app.UseSwagger();
-            app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "Five Rocking Fingers"); });
-
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Five Rocking Fingers");
+            });
 
             app.UseRouting();
-            app.UseAuthentication();
-            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
