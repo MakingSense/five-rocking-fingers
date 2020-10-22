@@ -1,4 +1,4 @@
-﻿import { Box } from '@material-ui/core';
+import { Box } from '@material-ui/core';
 import * as React from 'react';
 import { MenuItem, SubMenu } from 'react-pro-sidebar';
 import Project from '../interfaces/Project';
