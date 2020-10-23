@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using FRF.Core.Services;
-using FRF.Web.Dtos.Projects;
+using FRF.Web.Dtos.Categories;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;

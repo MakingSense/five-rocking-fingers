@@ -1,10 +1,10 @@
-﻿using FRF.Web.Dtos.Projects;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
-namespace FRF.Web.Dtos
+namespace FRF.Web.Dtos.Categories
 {
-    public class ProjectDto
+    public class ProjectDTO
     {
         public int Id { get; set; }
         #nullable enable
@@ -13,6 +13,5 @@ namespace FRF.Web.Dtos
         public string? Client { get; set; }
         public int? Budget { get; set; }
         #nullable disable
-        public IList<ProjectCategoryDTO> ProjectCategories { get; set; }
     }
 }

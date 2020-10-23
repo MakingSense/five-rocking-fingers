@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace FRF.Web.Dtos.Projects
+namespace FRF.Web.Dtos.Categories
 {
     public class ProjectCategoryDTO
     {
-        public CategoryDTO Category { get; set; }
+        public ProjectDTO Project { get; set; }
     }
 }

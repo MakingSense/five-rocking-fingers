@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace FRF.Web.Dtos.Projects
+namespace FRF.Web.Dtos.Categories
 {
     public class CategoryDTO
     {
@@ -13,5 +13,6 @@ namespace FRF.Web.Dtos.Projects
         #nullable enable
         public string? Description { get; set; }
         #nullable disable
+        public IList<ProjectCategoryDTO> ProjectCategories { get; set; }
     }
 }
