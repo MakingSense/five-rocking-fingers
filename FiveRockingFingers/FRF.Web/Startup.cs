@@ -43,6 +43,7 @@ namespace FiveRockingFingers
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Five Rocking Fingers", Version = "v1" });
+                c.CustomSchemaIds(i => i.FullName);
             });
 
             services.AddDbContext<DataAccessContext>(c =>
