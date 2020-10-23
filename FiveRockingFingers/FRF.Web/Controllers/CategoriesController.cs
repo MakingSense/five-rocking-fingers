@@ -48,16 +48,6 @@ namespace FRF.Web.Controllers
         [HttpPost]
         public override async Task<IActionResult> Save(CategoryDTO categoryDto)
         {
-            if (categoryDto == null)
-            {
-                return BadRequest("Project object is null");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest("Invalid model object");
-            }
-
             var category = _mapper.Map<FRF.Core.Models.Category>(categoryDto);
 
             var categoryCreated = _mapper.Map<CategoryDTO>(await _categoriesService.Save(category));
@@ -68,16 +58,6 @@ namespace FRF.Web.Controllers
         [HttpPut]
         public override async Task<IActionResult> Update(CategoryDTO categoryDto)
         {
-            if (categoryDto == null)
-            {
-                return BadRequest("Project object is null");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest("Invalid model object");
-            }
-
             var category = await _categoriesService.Get(categoryDto.Id);
 
             if (category == null)
