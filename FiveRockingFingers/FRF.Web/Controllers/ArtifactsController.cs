@@ -49,16 +49,6 @@ namespace FRF.Web.Controllers
         [HttpPost]
         public override async Task<IActionResult> Save(ArtifactDTO artifactDto)
         {
-            if (artifactDto == null)
-            {
-                return BadRequest("Artifact object is null");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState.Values);
-            }
-
             var artifact = _mapper.Map<FRF.Core.Models.Artifact>(artifactDto);
 
             var artifactCreated = _mapper.Map<ArtifactDTO>(await _artifactsService.Save(artifact));
@@ -69,16 +59,6 @@ namespace FRF.Web.Controllers
         [HttpPut]
         public override async Task<IActionResult> Update(ArtifactDTO artifactDto)
         {
-            if (artifactDto == null)
-            {
-                return BadRequest("Artifact object is null");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState.Values);
-            }
-
             var artifact = await _artifactsService.Get(artifactDto.Id);
 
             if (artifact == null)
