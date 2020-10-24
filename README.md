@@ -19,6 +19,15 @@ It consists on a [ASP.NET Web Development solution](https://visualstudio.microso
 
 ## Structure
 
+* **FiveRockingFingers:** Solution directory.
+    * **FiveRockingFingers:** Project directory.
+        * **ClientApp:**
+        * **Controllers:**
+        * **Entities:**
+        * **Pages:**
+        * **Properties:**
+        * **Services:**
+
 ## Project Documentation
 
 * Ramp Up document: https://docs.google.com/document/d/13Mov9mwQ1GcpQDYjRgYnb1HYqXSzPQBi/edit
