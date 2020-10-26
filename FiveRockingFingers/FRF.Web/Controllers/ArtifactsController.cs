@@ -56,9 +56,14 @@ namespace FRF.Web.Controllers
             return Ok(artifactCreated);
         }
 
-        [HttpPut]
-        public override async Task<IActionResult> Update(ArtifactDTO artifactDto)
+        [HttpPut("{id}")]
+        public override async Task<IActionResult> Update(int id, ArtifactDTO artifactDto)
         {
+            if(id != artifactDto.Id)
+            {
+                return BadRequest();
+            }
+
             var artifact = await _artifactsService.Get(artifactDto.Id);
 
             if (artifact == null)
