@@ -1,7 +1,7 @@
+import * as React from 'react';
 import { faHome } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
-import * as React from 'react';
 import { Menu, ProSidebar, SidebarContent, SidebarHeader } from 'react-pro-sidebar';
 import 'react-pro-sidebar/dist/css/styles.css';
 import { Link } from 'react-router-dom';
