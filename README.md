@@ -47,9 +47,6 @@ Developers:
 * [Gonzalo Perelstein](https://github.com/gperelstein)
 * [Martin Mena](https://github.com/martinmena)
 * [Gonzalo Romero](https://github.com/gonzalorom)
-* [Gonzalo Romero](https://github.com/gonzalorom)
-* [Matias Beckerle](https://github.com/matiasbeckerle)
-* [Fernando Mancuso](https://github.com/manquius)
 
 ## Workflow
 
