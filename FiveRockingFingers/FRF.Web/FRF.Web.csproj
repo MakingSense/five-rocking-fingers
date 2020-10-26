@@ -11,7 +11,6 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.0.1" />
-    <PackageReference Include="Amazon.AspNetCore.Identity.Cognito" Version="1.0.5" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.8" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.8" />
@@ -24,27 +23,13 @@
     </PackageReference>
     <PackageReference Include="StackifyMiddleware" Version="3.0.5.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.0" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.7.1" />
   </ItemGroup>
 
   <ItemGroup>
     <!-- Don't publish the SPA source files, but do show them in the project files list -->
     <Content Remove="$(SpaRoot)**" />
-    <Content Remove="ClientApp\src\commons\NewFolder\**" />
     <None Remove="$(SpaRoot)**" />
-    <None Remove="ClientApp\src\commons\NewFolder\**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="ClientApp\src\commons\NewFolder\**" />
-    <EmbeddedResource Remove="ClientApp\src\commons\NewFolder\**" />
-    <TypeScriptCompile Remove="ClientApp\src\commons\NewFolder\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="ClientApp\src\components\LoadingButton.tsx" />
-    <None Remove="ClientApp\src\components\Login.tsx" />
   </ItemGroup>
 
   <ItemGroup>

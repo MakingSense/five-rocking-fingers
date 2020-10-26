@@ -18,9 +18,5 @@ namespace FRF.DataAccess
         {
             builder.Entity<ProjectCategory>().HasKey(pc => new { pc.ProjectId, pc.CategoryID });
         }
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer("server=DESKTOP-28EG8E0;database=FiveRockingFingers;trusted_connection=true;");
-        }
     }
 }
