@@ -13,7 +13,7 @@ namespace FRF.Web.Controllers
         public abstract Task<IActionResult> Get(int id);
         public abstract Task<IActionResult> GetAll();
         public abstract Task<IActionResult> Save(T entity);
-        public abstract Task<IActionResult> Update(T entity);
+        public abstract Task<IActionResult> Update(int id, T entity);
         public abstract Task<IActionResult> Delete(int id);
     }
 }

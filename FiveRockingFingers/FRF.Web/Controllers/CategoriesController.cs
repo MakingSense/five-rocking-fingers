@@ -55,9 +55,14 @@ namespace FRF.Web.Controllers
             return Ok(categoryCreated);
         }
 
-        [HttpPut]
-        public override async Task<IActionResult> Update(CategoryDTO categoryDto)
+        [HttpPut("{id}")]
+        public override async Task<IActionResult> Update(int id, CategoryDTO categoryDto)
         {
+            if(id != categoryDto.Id)
+            {
+                return BadRequest();
+            }
+
             var category = await _categoriesService.Get(categoryDto.Id);
 
             if (category == null)
