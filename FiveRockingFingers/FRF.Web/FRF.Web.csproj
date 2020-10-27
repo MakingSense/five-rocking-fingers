@@ -27,7 +27,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\src\components\ArtifactsDatails.tsx" />
     <None Remove="ClientApp\src\components\NavMenuItem.tsx" />
+    <None Remove="ClientApp\src\interfaces\Artifact.ts" />
+    <None Remove="ClientApp\src\interfaces\ArtifactType.ts" />
     <None Remove="ClientApp\src\interfaces\Category.ts" />
     <None Remove="ClientApp\src\interfaces\Project.ts" />
     <None Remove="ClientApp\src\interfaces\ProjectCategory.ts" />
@@ -41,6 +44,9 @@
 
   <ItemGroup>
     <TypeScriptCompile Include="ClientApp\src\commons\NavMenuItem.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\components\ArtifactsDatails.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\interfaces\Artifact.ts" />
+    <TypeScriptCompile Include="ClientApp\src\interfaces\ArtifactType.ts" />
     <TypeScriptCompile Include="ClientApp\src\interfaces\Category.ts" />
     <TypeScriptCompile Include="ClientApp\src\interfaces\Project.ts" />
     <TypeScriptCompile Include="ClientApp\src\interfaces\ProjectCategory.ts" />
