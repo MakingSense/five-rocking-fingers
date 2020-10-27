@@ -57,4 +57,4 @@ Planned stories are managed on [Jira](https://makingsense.atlassian.net/secure/R
 Then, they can start working on [GitHub repository](https://github.com/MakingSense/five-rocking-fingers) following [Git-Flow](https://datasift.github.io/gitflow/IntroducingGitFlow.html).
 
 DAL
-DAL2
+DAL99
