@@ -9,6 +9,7 @@ namespace FRF.DataAccess
         public DbSet<Category> Categories { get; set; }
         public DbSet<ProjectCategory> ProjectCategories { get; set; }
         public DbSet<ConfigurationSettings> ConfigurationSettings { get; set; }
+        public DbSet<UsersByProject> UsersByProject { get; set; }
 
         public DataAccessContext(DbContextOptions<DataAccessContext> options) : base(options)
         {
