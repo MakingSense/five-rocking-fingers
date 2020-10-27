@@ -1,6 +1,6 @@
-import * as React from 'react';
-import { Route, Router, Switch } from 'react-router';
 import { createBrowserHistory } from 'history';
+import * as React from 'react';
+import { Router } from 'react-router';
 import './custom.css';
 import Routes from './router/Routes';
 

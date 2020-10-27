@@ -11,10 +11,15 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.0.1" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.8" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.1.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.8" />
+    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="4.0.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="StackifyMiddleware" Version="3.0.5.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.0" />
   </ItemGroup>
@@ -27,24 +32,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="ClientApp\src\components\NavMenuItem.tsx" />
-    <None Remove="ClientApp\src\interfaces\Category.ts" />
-    <None Remove="ClientApp\src\interfaces\Project.ts" />
-    <None Remove="ClientApp\src\interfaces\ProjectCategory.ts" />
-    <None Remove="ClientApp\src\router\Routes.tsx" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\FRF.Core\FRF.Core.csproj" />
     <ProjectReference Include="..\FRF.Web.Dtos\FRF.Web.Dtos.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <TypeScriptCompile Include="ClientApp\src\commons\NavMenuItem.tsx" />
-    <TypeScriptCompile Include="ClientApp\src\interfaces\Category.ts" />
-    <TypeScriptCompile Include="ClientApp\src\interfaces\Project.ts" />
-    <TypeScriptCompile Include="ClientApp\src\interfaces\ProjectCategory.ts" />
-    <TypeScriptCompile Include="ClientApp\src\router\Routes.tsx" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
