@@ -34,6 +34,16 @@ namespace FRF.Core.Services
             return _mapper.Map<List<Artifact>>(result);
         }
 
+        public async Task<List<Artifact>> GetAllByProjectId(int projectId)
+        {
+            var result = await _dataContext.Artifacts.Include(a => a.ArtifactType).Include(a => a.Project).ThenInclude(p => p.ProjectCategories).ThenInclude(pc => pc.Category).Where(a => a.ProjectId == projectId).ToListAsync();
+            if (result == null)
+            {
+                return null;
+            }
+            return _mapper.Map<List<Artifact>>(result);
+        }
+
         public async Task<Artifact> Get(int id)
         {
             var artifact = await _dataContext.Artifacts.Include(a => a.ArtifactType).Include(a => a.Project).ThenInclude(p => p.ProjectCategories).ThenInclude(pc => pc.Category).SingleOrDefaultAsync(a => a.Id == id);
