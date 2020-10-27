@@ -36,7 +36,7 @@ namespace FRF.Core.Services
 
         public async Task<List<Artifact>> GetAllByProjectId(int projectId)
         {
-            var project = await _dataContext.Projects.Include(p => p.ProjectCategories).ThenInclude(pc => pc.Category).SingleAsync(p => p.Id == projectId);
+            var project = await _dataContext.Projects.Include(p => p.ProjectCategories).ThenInclude(pc => pc.Category).SingleOrDefaultAsync(p => p.Id == projectId);
             if (project == null)
             {
                 throw new System.ArgumentException("There is no project with Id = " + projectId, "projectId");
@@ -63,7 +63,7 @@ namespace FRF.Core.Services
         public async Task<Artifact> Save(Artifact artifact)
         {
             //Gets the project associated to it from the database
-            var project = await _dataContext.Projects.Include(p => p.ProjectCategories).ThenInclude(pc => pc.Category).SingleAsync(p => p.Id == artifact.ProjectId);
+            var project = await _dataContext.Projects.Include(p => p.ProjectCategories).ThenInclude(pc => pc.Category).SingleOrDefaultAsync(p => p.Id == artifact.ProjectId);
             if (project == null)
             {
                 throw new System.ArgumentException("There is no project with Id = " + artifact.ProjectId, "artifact.ProjectId");
