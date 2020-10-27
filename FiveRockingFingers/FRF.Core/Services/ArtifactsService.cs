@@ -36,6 +36,12 @@ namespace FRF.Core.Services
 
         public async Task<List<Artifact>> GetAllByProjectId(int projectId)
         {
+            var project = await _dataContext.Projects.Include(p => p.ProjectCategories).ThenInclude(pc => pc.Category).SingleAsync(p => p.Id == projectId);
+            if (project == null)
+            {
+                throw new System.ArgumentException("There is no project with Id = " + projectId, "projectId");
+            }
+
             var result = await _dataContext.Artifacts.Include(a => a.ArtifactType).Include(a => a.Project).ThenInclude(p => p.ProjectCategories).ThenInclude(pc => pc.Category).Where(a => a.ProjectId == projectId).ToListAsync();
             if (result == null)
             {
