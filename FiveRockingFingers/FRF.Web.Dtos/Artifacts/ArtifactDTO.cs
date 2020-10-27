@@ -13,7 +13,7 @@ namespace FRF.Web.Dtos.Artifacts
         public string Name { get; set; }
         public string Provider { get; set; }
         public XElement Settings { get; set; }
-        public ProjectDto Project { get; set; }
+        public int ProjectId { get; set; }
         public ArtifactTypeDTO ArtifactType { get; set; }
     }
 }

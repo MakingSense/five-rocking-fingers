@@ -31,6 +31,16 @@ namespace FRF.Web.Controllers
             return Ok(artifactsDto);
         }
 
+        [HttpGet("{projectId}")]
+        public async Task<IActionResult> GetAllByProjectId(int projectId)
+        {
+            var artifacts = await _artifactsService.GetAllByProjectId(projectId);
+
+            var artifactsDto = _mapper.Map<IEnumerable<ArtifactDTO>>(artifacts);
+
+            return Ok(artifactsDto);
+        }
+
         [HttpGet("{id}")]
         public override async Task<IActionResult> Get(int id)
         {
