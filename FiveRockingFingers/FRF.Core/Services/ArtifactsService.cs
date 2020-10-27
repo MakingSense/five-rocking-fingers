@@ -70,7 +70,7 @@ namespace FRF.Core.Services
             }
 
             //Gets the artifactType associated to it from the database
-            var artifactType = await _dataContext.ArtifactType.SingleAsync(at => at.Id == artifact.ArtifactTypeId);
+            var artifactType = await _dataContext.ArtifactType.SingleOrDefaultAsync(at => at.Id == artifact.ArtifactTypeId);
             if (artifactType == null)
             {
                 throw new System.ArgumentException("There is no ArtifactType with Id = " + artifact.ArtifactTypeId, "artifact.ArtifactTypeId");
@@ -98,21 +98,21 @@ namespace FRF.Core.Services
         public async Task<Artifact> Update(Artifact artifact)
         {
             //Gets the artifact associated to it from the database
-            var result = await _dataContext.Artifacts.Include(a => a.ArtifactType).Include(a => a.Project).SingleAsync(a => a.Id == artifact.Id);
+            var result = await _dataContext.Artifacts.Include(a => a.ArtifactType).Include(a => a.Project).SingleOrDefaultAsync(a => a.Id == artifact.Id);
             if (result == null)
             {
                 throw new System.ArgumentException("There is no artifact with Id = " + artifact.Id, "artifact,Id");
             }
 
             //Gets the project associated to it from the database
-            var project = await _dataContext.Projects.Include(p => p.ProjectCategories).ThenInclude(pc => pc.Category).SingleAsync(p => p.Id == artifact.ProjectId);
+            var project = await _dataContext.Projects.Include(p => p.ProjectCategories).ThenInclude(pc => pc.Category).SingleOrDefaultAsync(p => p.Id == artifact.ProjectId);
             if (project == null)
             {
                 throw new System.ArgumentException("There is no project with Id = " + artifact.ProjectId, "artifact.ProjectId");
             }
 
             //Gets the artifactType associated to it from the database
-            var artifactType = await _dataContext.ArtifactType.SingleAsync(at => at.Id == artifact.ArtifactTypeId);
+            var artifactType = await _dataContext.ArtifactType.SingleOrDefaultAsync(at => at.Id == artifact.ArtifactTypeId);
             if (artifactType == null)
             {
                 throw new System.ArgumentException("There is no ArtifactType with Id = " + artifact.ArtifactTypeId, "artifact.ArtifactTypeId");
