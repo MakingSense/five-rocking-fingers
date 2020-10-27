@@ -7,7 +7,11 @@ const NavMenuItem = (props: { project: Project }) => {
     return (
         <div>
             <SubMenu title={`Proyecto: ${props.project.name}`}>
-                <MenuItem>Artefactos</MenuItem>
+                <Link to={`/project/${props.project.id}/artifact/1`}>
+                    <MenuItem>
+                            Artefactos
+                    </MenuItem>
+                </Link>
                 <MenuItem>Equipo</MenuItem>
                 <MenuItem>Presupuesto</MenuItem>
             </SubMenu>

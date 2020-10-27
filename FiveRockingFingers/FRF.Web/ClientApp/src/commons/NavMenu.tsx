@@ -25,7 +25,7 @@ const NavMenu = () => {
     }, [projects.length]);
 
     const getProjects = async () => {
-        const response = await axios.get("https://localhost:44346/api/Projects/GetAll");
+        const response = await axios.get("http://localhost:4000/projects");
         setProjects(response.data);
         console.log(response.data);
     }
