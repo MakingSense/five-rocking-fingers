@@ -55,3 +55,6 @@ Five Rocking Fingers follows [Scrum](https://www.scrum.org/) methodology, organi
 Planned stories are managed on [Jira](https://makingsense.atlassian.net/secure/RapidBoard.jspa?rapidView=73&projectKey=FIVE&view=planning.nodetail&selectedIssue=FIVE-153&issueLimit=100), where developers can task and estimate the stories.
 
 Then, they can start working on [GitHub repository](https://github.com/MakingSense/five-rocking-fingers) following [Git-Flow](https://datasift.github.io/gitflow/IntroducingGitFlow.html).
+
+DAL
+DAL99
