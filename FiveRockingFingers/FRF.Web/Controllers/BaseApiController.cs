@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FRF.Web.Controllers
 {
     [ApiController]
     [Route("api/[controller]/[action]")]
+    // [Authorize] TODO:Pending AWS Credentials. Login is bypassed!!! [FIVE-6]
     public abstract class BaseApiController<T> : ControllerBase where T : class
     {
         public abstract IActionResult Get(int id);

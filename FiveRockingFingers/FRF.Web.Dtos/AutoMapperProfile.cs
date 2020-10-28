@@ -2,6 +2,7 @@
 using FRF.Core.Models;
 using FRF.Web.Dtos.Artifacts;
 using FRF.Web.Dtos.Projects;
+using FRF.Web.Dtos.Users;
 
 namespace FRF.Web.Dtos
 {
@@ -9,6 +10,8 @@ namespace FRF.Web.Dtos
     {
         public AutoMapperProfile()
         {
+            CreateMap<UserSignIn, SignInDTO>().ReverseMap();
+            CreateMap<User, SignUpDTO>().ReverseMap();
             CreateMap<Project, ProjectDto>()
                 .ReverseMap();
             CreateMap<ProjectCategory, ProjectCategoryDTO>()
@@ -17,7 +20,7 @@ namespace FRF.Web.Dtos
                 .ReverseMap();
             CreateMap<Artifact, ArtifactDTO>()
                 .ReverseMap()
-                .ForMember(dest=> dest.ArtifactTypeId, opt => opt.MapFrom(src => src.ArtifactType.Id))
+                .ForMember(dest => dest.ArtifactTypeId, opt => opt.MapFrom(src => src.ArtifactType.Id))
                 .ForMember(dest => dest.ProjectId, opt => opt.MapFrom(src => src.ProjectId));
             CreateMap<ArtifactType, ArtifactTypeDTO>()
                 .ReverseMap();

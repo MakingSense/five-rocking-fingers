@@ -11,101 +11,156 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace FiveRockingFingers
 {
-    public class Startup
-    {
+	public class Startup
+	{
 
-        public static readonly IEnumerable<Profile> AutoMapperProfiles = new Profile[]
-            {
-            new FRF.Web.Dtos.AutoMapperProfile(),
-            new FRF.Core.AutoMapperProfile(),
-            };
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+	public static readonly IEnumerable<Profile> AutoMapperProfiles = new Profile[]
+		{
+			new FRF.Web.Dtos.AutoMapperProfile(),
+			new FRF.Core.AutoMapperProfile(),
+			new FRF.Web.Dtos.AutoMapperProfile(),
+		};
 
-        public IConfiguration Configuration { get; }
+		public Startup(IConfiguration configuration)
+		{
+			Configuration = configuration;
+		}
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddControllersWithViews().AddNewtonsoftJson(options =>
-                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
-            );
+		public IConfiguration Configuration { get; }
 
-            services.AddCors();
+		// This method gets called by the runtime. Use this method to add services to the container.
+		public void ConfigureServices(IServiceCollection services)
+		{
+			services.AddControllersWithViews().AddNewtonsoftJson(options =>
+				options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+			);
 
-            services.AddTransient<IProjectsService, ProjectsService>();
+			services.AddDbContext<DataAccessContext>(c =>
+			{
+				c.UseSqlServer(Configuration.GetConnectionString("FiveRockingFingers"));
+			});
+			services.AddCors(opt =>
+			{
+				opt.AddPolicy("CorsPolicy",
+					policy => { policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000/"); });
+			});
 
-            services.AddTransient<IArtifactsService, ArtifactsService>();
+			//Start Cognito Authorization and Identity
+			/* TODO:Pending AWS Credentials. AWS is bypassed![FIVE-6]
 
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Five Rocking Fingers", Version = "v1" });
-            });
+			services.AddScoped<IConfigurationService, ConfigurationService>();
 
-            services.AddDbContext<DataAccessContext>(c =>
-            {
-                c.UseSqlServer(Configuration.GetConnectionString("FiveRockingFingers"));
-            });
+			var CognitoCredencials = services.BuildServiceProvider().GetService<IConfigurationService>()
+				.GetConfigurationSettings();
+			var provider = new AmazonCognitoIdentityProviderClient(CognitoCredencials.AccessKeyId,
+				CognitoCredencials.SecretAccKey,
+				RegionEndpoint.USWest2);
+			var cognitoUserPool =
+				new CognitoUserPool(CognitoCredencials.UserPoolId, CognitoCredencials.ClientId, provider);
+			services.AddSingleton<IAmazonCognitoIdentityProvider>(provider);
+			services.AddSingleton(cognitoUserPool);
 
-            // In production, the React files will be served from this directory
-            services.AddSpaStaticFiles(configuration =>
-            {
-                configuration.RootPath = "ClientApp/build";
-            });
+			services.AddCognitoIdentity();
+			*/
+			//End Cognito 
 
-            var autoMapperProfileTypes = AutoMapperProfiles.Select(p => p.GetType()).ToArray();
-            services.AddAutoMapper(autoMapperProfileTypes);
-        }
+			services.AddTransient<IProjectsService, ProjectsService>();
+			services.AddTransient<ISignUpService, SignUpService>();
+			services.AddTransient<ISignInService, SignInService>();
+			services.AddTransient<IUserService, UserService>();
+			services.AddTransient<IArtifactsService, ArtifactsService>();
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-            }
+			services.AddSwaggerGen(c =>
+			{
+				c.SwaggerDoc("v1", new OpenApiInfo {Title = "Five Rocking Fingers", Version = "v1"});
+			});
 
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
-            app.UseSpaStaticFiles();
 
-            app.UseCors();
+			// In production, the React files will be served from this directory
+			services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/build"; });
 
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Five Rocking Fingers");
-            });
+			/* TODO:Pending AWS Credentials. AWS is bypassed![FIVE-6]
+			/*Uncomment this after do.*/
+			/*
+			services.ConfigureApplicationCookie(option =>
+			{
+				option.Events = new CookieAuthenticationEvents()
+				{
+					OnRedirectToLogin = (ctx) =>
+					{
+						if (ctx.Request.Path.StartsWithSegments("/api") && ctx.Response.StatusCode == 200)
+						{
+							ctx.Response.StatusCode = 401;
+						}
 
-            app.UseRouting();
+						return Task.CompletedTask;
+					},
+					OnRedirectToAccessDenied = (ctx) =>
+					{
+						if (ctx.Request.Path.StartsWithSegments("/api") && ctx.Response.StatusCode == 200)
+						{
+							ctx.Response.StatusCode = 403;
+						}
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller}/{action=Index}/{id?}");
-            });
+						return Task.CompletedTask;
+					}
+				};
+			});*/
 
-            app.UseSpa(spa =>
-            {
-                spa.Options.SourcePath = "ClientApp";
+			var autoMapperProfileTypes = AutoMapperProfiles.Select(p => p.GetType()).ToArray();
+			services.AddAutoMapper(autoMapperProfileTypes);
+		}
 
-                if (env.IsDevelopment())
-                {
-                    spa.UseReactDevelopmentServer(npmScript: "start");
-                }
-            });
-        }
-    }
+		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+		{
+			if (env.IsDevelopment())
+			{
+				app.UseDeveloperExceptionPage();
+			}
+			else
+			{
+				app.UseExceptionHandler("/Error");
+				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+				app.UseHsts();
+			}
+
+
+			app.UseHttpsRedirection();
+			app.UseStaticFiles();
+			app.UseSpaStaticFiles();
+
+			app.UseCors("CorsPolicy");
+
+			app.UseSwagger();
+			app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "Five Rocking Fingers"); });
+
+			/*Uncomment this after do.*/
+			app.UseRouting();
+			//app.UseAuthentication();
+			//app.UseAuthorization();
+
+			app.UseEndpoints(endpoints =>
+			{
+				endpoints.MapControllerRoute(
+					name: "default",
+					pattern: "{controller}/{action=Index}/{id?}");
+			});
+
+			app.UseSpa(spa =>
+			{
+				spa.Options.SourcePath = "ClientApp";
+
+				if (env.IsDevelopment())
+				{
+					spa.UseReactDevelopmentServer(npmScript: "start");
+				}
+			});
+		}
+	}
 }

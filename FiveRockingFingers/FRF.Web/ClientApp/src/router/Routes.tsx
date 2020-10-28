@@ -1,15 +1,20 @@
-﻿import React from 'react';
-import { Switch, Route } from 'react-router';
+import React from 'react';
+import { Redirect, Route, Switch } from "react-router-dom";
+import PrivateRoute from "../components/auth/authService";
+import Login from '../components/auth/Login';
+import Signup from '../components/auth/Signup';
 import Home from '../components/Home';
 import ManageProjects from '../components/ManageProjects';
 
-
-const Routes = () => (
-    <Switch>
-        <Route exact path='/' component={Home} />
-        <Route exact path='/administrarProyectos' component={ManageProjects} />
-    </Switch>
-)
-
-export default Routes;
+export default function Routes() {
+    return (
+        <Switch>
+            <Redirect exact from="/" to="/home" />
+            <Route exact path="/login" component={Login} />
+            <Route exact path="/signup" component={Signup} />
+            <PrivateRoute exact path="/home" component={Home} />
+            <PrivateRoute exact path='/administrarProyectos' component={ManageProjects} />
+        </Switch>
+    );
+}
 
