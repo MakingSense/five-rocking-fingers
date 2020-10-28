@@ -12,47 +12,59 @@ namespace FRF.Web.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        public IUserService UserService { get; set; }
+        private readonly IUserService _userService;
 
         public UserController(IUserService userService)
         {
-            UserService = userService;
+            _userService = userService;
         }
 
-        /// <summary>
-        /// TEST: Gets the current user fullname searching by email.
-        /// </summary>
-        /// <returns>A <see cref="String"/> whit the fullname.</returns>
+        /* TODO:Pending AWS Credentials. Login is bypassed!!! [FIVE-6]*/
+        // [Authorize] 
         [HttpGet("getfullname")]
-        [Authorize]
         public async Task<IActionResult> GetFullName()
         {
+            /*Clear this after do*/
+            return Ok("FRF Developers");
+            /**************************/
+            /*Uncomment this after do.
+            /*
             try
             {
                 var email = HttpContext.User.FindFirst(ClaimTypes.Email).Value;
-                var fullname = await UserService.GetFullname(email);
+                var fullname = await _userService.GetFullname(email).ConfigureAwait(false);
+                if (fullname == null)
+                {
+                    return BadRequest();
+                }
+                else if (fullname == "")
+                {
+                    return NotFound();
+                }
                 return Ok(fullname);
             }
             catch (Exception e)
             {
                 return StatusCode(500, e.Message);
-            }
+            }*/
         }
 
+        /*Uncomment this after do.
+        /*
         [HttpGet("logout")]
         [AllowAnonymous]
         public async Task<IActionResult> Logout()
         {
+            
             try
             {
-                await UserService.Logout();
+                await _userService.Logout();
                 return Ok();
             }
             catch (Exception e)
             {
                 return StatusCode(500, e.Message);
             }
-        }
-
+        }*/
     }
 }

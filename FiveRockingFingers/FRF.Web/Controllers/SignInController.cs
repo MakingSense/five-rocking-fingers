@@ -14,20 +14,20 @@ namespace FRF.Web.Controllers
     [ApiController]
     public class SignInController : ControllerBase
     {
-        private readonly ISignInService SignInService;
-        private readonly IMapper Mapper;
+        private readonly ISignInService _signInService;
+        private readonly IMapper _mapper;
 
         public SignInController(ISignInService signInService, IMapper mapper)
         {
-            SignInService = signInService;
-            Mapper = mapper;
+            _signInService = signInService;
+            _mapper = mapper;
         }
 
         [HttpPost()]
         public async Task<ActionResult> SignIn(SignInDTO signInDto)
         {
-            var userSignIn = Mapper.Map<UserSignIn>(signInDto);
-            var (isAuthorize, token) = await SignInService.SignIn(userSignIn);
+            var userSignIn = _mapper.Map<UserSignIn>(signInDto);
+            var (isAuthorize, token) =await _signInService.SignInAsync(userSignIn);
             if (isAuthorize) return Ok(token);
             return BadRequest();
         }

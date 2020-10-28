@@ -1,9 +1,10 @@
 import React from 'react';
-import { Route, Switch, Redirect } from "react-router-dom";
-import Home from '../components/Home';
+import { Redirect, Route, Switch } from "react-router-dom";
+import PrivateRoute from "../components/auth/authService";
 import Login from '../components/auth/Login';
 import Signup from '../components/auth/Signup';
-import PrivateRoute from "../components/auth/authService"
+import Home from '../components/Home';
+import ManageProjects from '../components/ManageProjects';
 
 export default function Routes() {
     return (
@@ -12,6 +13,7 @@ export default function Routes() {
             <Route exact path="/login" component={Login} />
             <Route exact path="/signup" component={Signup} />
             <PrivateRoute exact path="/home" component={Home} />
+            <PrivateRoute exact path='/administrarProyectos' component={ManageProjects} />
         </Switch>
     );
 }

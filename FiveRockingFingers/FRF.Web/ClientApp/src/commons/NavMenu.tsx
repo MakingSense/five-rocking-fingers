@@ -1,4 +1,8 @@
+import { faHome } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import axios from 'axios';
 import * as React from 'react';
+<<<<<<< HEAD
 import { ProSidebar, Menu, SidebarHeader, SidebarContent } from 'react-pro-sidebar';
 import 'react-pro-sidebar/dist/css/styles.css';
 import { Link } from 'react-router-dom';
@@ -7,8 +11,14 @@ import { faHome } from '@fortawesome/free-solid-svg-icons'
 import '../styles/NavMenu.css';
 import axios from 'axios';
 
-import NavMenuItem from './NavMenuItem';
+=======
+import { Menu, ProSidebar, SidebarContent, SidebarHeader, SidebarFooter } from 'react-pro-sidebar';
+import 'react-pro-sidebar/dist/css/styles.css';
+import { Link } from 'react-router-dom';
 import Project from '../interfaces/Project';
+import '../styles/NavMenu.css';
+>>>>>>> origin/Release_0.1
+import NavMenuItem from './NavMenuItem';
 
 const FaHome = () => (
     <div className='d-inline-block m-2'>
@@ -48,6 +58,9 @@ const NavMenu = () => {
                     )) : "No hay projectos"}
                 </Menu>
             </SidebarContent>
+            <SidebarFooter>
+                <Link to="/administrarProyectos">Administrar proyectos</Link>
+            </SidebarFooter>
         </ProSidebar>
     );
 };

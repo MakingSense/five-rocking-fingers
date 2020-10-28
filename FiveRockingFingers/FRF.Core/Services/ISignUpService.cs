@@ -1,11 +1,13 @@
 ﻿using System;
-using FRF.Core.Models;
 using System.Threading.Tasks;
+using FRF.Core.Models;
 
 namespace FRF.Core.Services
 {
     public interface ISignUpService
     {
-        Task<Tuple<bool, string>> SignUp(User newUser);
+        /* TODO:Pending AWS Credentials. Login is bypassed![FIVE-6] */
+        /*Uncomment this after do.
+        Task<Tuple<bool, string>> SignUpAsync(User newUser);*/
     }
 }

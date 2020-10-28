@@ -4,19 +4,19 @@ namespace FRF.Web.Dtos.Users
 {
     public class SignUpDTO
     {
+        [Required] public string Name { get; set; }
+        [Required] public string FamilyName { get; set; }
+
         [Required]
-        public string Name { get; set; }
-        [Required]
-        public string FamilyName { get; set; }
-        [Required]
-        [EmailAddress]
-        [RegularExpression(@"^((([!#$%&'*+\-/=?^_`{|}~\w])|([!#$%&'*+\-/=?^_`{|}~\w][!#$%&'*+\-/=?^_`{|}~\.\w]{0,}[!#$%&'*+\-/=?^_`{|}~\w]))[@]\w+([-.]\w+)*\.\w+([-.]\w+)*)$")]
+        [CustomValidator.EmailPattern]
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; }
+
         [DataType(DataType.Password)]
         [Required]
-        [RegularExpression(@"^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$")]
+        [CustomValidator.PasswordPattern]
         public string Password { get; set; }
+
         [Required]
         [DataType(DataType.Password)]
         [Compare("Password")]

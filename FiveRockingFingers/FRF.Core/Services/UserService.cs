@@ -1,20 +1,23 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Amazon.Extensions.CognitoAuthentication;
 using Microsoft.AspNetCore.Identity;
-using System.Threading.Tasks;
 
 namespace FRF.Core.Services
 {
     public class UserService : IUserService
     {
-        private readonly UserManager<CognitoUser> UserManager;
-        private readonly SignInManager<CognitoUser> SignInManager;
+        /*Uncomment this after do.*/
+        /*
+       private readonly SignInManager<CognitoUser> _signInManager;
+       private readonly UserManager<CognitoUser> _userManager;
 
-        public UserService(UserManager<CognitoUser> userManager, SignInManager<CognitoUser> signInManager)
-        {
-            UserManager = userManager;
-            SignInManager = signInManager;
-        }
+       public UserService(UserManager<CognitoUser> userManager, SignInManager<CognitoUser> signInManager)
+       {
+           _userManager = userManager;
+           _signInManager = signInManager;
+       }
+        
 
         public async Task<string> GetFullname(string email)
         {
@@ -23,20 +26,18 @@ namespace FRF.Core.Services
             var fullName = "";
             try
             {
-                var user = await UserManager.FindByEmailAsync(email);
+                var user = await _userManager.FindByEmailAsync(email);
                 foreach (var (key, value) in user.Attributes)
-                {
                     fullName = key switch
                     {
                         "name" => value,
                         "family_name" => fullName + " " + value,
                         _ => fullName
                     };
-                }
             }
             catch (Exception e)
             {
-                throw new Exception("Failed to search user :" + e.Message);
+                throw new ArgumentException("Failed to search user :" + e.Message);
             }
 
             return fullName;
@@ -46,12 +47,13 @@ namespace FRF.Core.Services
         {
             try
             {
-                await SignInManager.SignOutAsync();
+                await _signInManager.SignOutAsync();
             }
             catch (Exception e)
             {
                 throw new Exception("Logout fail: " + e.Message);
             }
+<<<<<<< HEAD
         }
 
         public async Task<string> GetCurrentUserId()
@@ -67,5 +69,8 @@ namespace FRF.Core.Services
                 throw new Exception(e.Message);
             }
         }
+=======
+        }*/
+>>>>>>> origin/Release_0.1
     }
 }

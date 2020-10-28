@@ -1,15 +1,15 @@
-import React from "react";
-import { Form, FormGroup, Label, Col, Row } from "reactstrap";
-import { Paper, Button, FormControlLabel, Checkbox, TextField } from "@material-ui/core";
-import { useHistory } from "react-router-dom";
-import { useUserContext } from "./contextLib";
-import axios from "axios"
-import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
+import { Button, Checkbox, FormControlLabel, Paper, TextField } from "@material-ui/core";
+import axios from "axios";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { useHistory } from "react-router-dom";
+import { Col, Form, FormGroup, Label, Row } from "reactstrap";
 import * as yup from "yup";
 import { LoadingButton } from '../../commons/LoadingButton';
 import { SnackbarError } from '../../commons/SnackbarError';
-import "./authStyle.css"
+import "./authStyle.css";
+import { useUserContext } from "./contextLib";
 
 interface userLogin {
     email: string;
@@ -36,7 +36,6 @@ const Login: React.FC<userLogin> = () => {
     const [errorLogin, setErrorLogin] = React.useState<string>("");
 
     const onSumit = (e: userLogin) => {
-        console.log(e);
         setLoading(true);
         axios.post("https://localhost:44346/api/SignIn",
             {
@@ -45,11 +44,11 @@ const Login: React.FC<userLogin> = () => {
                 rememberMe: e.rememberMe
             })
             .then(response => {
-                if (response.status == 200) {
+                if (response.status === 200) {
                     userHasAuthenticated(response.data);
                     history.push("/home");
                 }
-                if (response.status == 400) {
+                if (response.status === 400) {
                     setErrorLogin("Login Failed! Invalid email or password.");
                     setLoading(false);
                     reset();

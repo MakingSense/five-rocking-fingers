@@ -9,28 +9,33 @@ using System.Threading.Tasks;
 
 namespace FRF.Web.Controllers
 {
+   
     [Route("api/[controller]")]
     [AllowAnonymous]
     [ApiController]
     public class SignUpController : ControllerBase
     {
-        private readonly ISignUpService SignUpService;
-        private readonly IMapper Mapper;
+        /* TODO:Pending AWS Credentials. Login is bypassed![FIVE-6] */
+        /*Uncomment this after do.*/
+        /*
+        private readonly IMapper _mapper;
+        private readonly ISignUpService _signUpService;
 
-        public SignUpController(ISignUpService signUpService, IMapper mapper)
+        public SignUpController(IMapper mapper)
         {
-            SignUpService = signUpService;
-            Mapper = mapper;
+            _signUpService = signUpService;
+            _mapper = mapper;
         }
 
+       
         [HttpPost]
         public async Task<ActionResult<string>> SignUp(SignUpDTO signUpDto)
         {
             if (!ModelState.IsValid) return BadRequest();
-            var userSignUp = Mapper.Map<User>(signUpDto);
-            var (isAuthorize, token) = await SignUpService.SignUp(userSignUp);
+            var userSignUp = _mapper.Map<User>(signUpDto);
+            var (isAuthorize, token) = await _signUpService.SignUpAsync(userSignUp);
             if (!isAuthorize) return BadRequest();
             return Ok(token);
-        }
+        }*/
     }
 }

@@ -1,10 +1,10 @@
+import axios from 'axios';
 import React, { useState } from 'react';
-import { UserContext } from "./components/auth/contextLib";
-import { Button } from 'reactstrap';
-import axios from 'axios'
 import { useHistory } from 'react-router-dom';
-import Routes from './router/Routes';
+import { Button } from 'reactstrap';
+import { UserContext } from "./components/auth/contextLib";
 import './custom.css';
+import Routes from './router/Routes';
 function App() {
 
     const History = useHistory();
