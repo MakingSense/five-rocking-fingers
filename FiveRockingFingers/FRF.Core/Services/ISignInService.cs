@@ -6,6 +6,6 @@ namespace FRF.Core.Services
 {
     public interface ISignInService
     {
-        Task<Tuple<bool, string>> SignIn(UserSignIn userSignIn);
+        Task<Tuple<bool, string>> SignInAsync(UserSignIn userSignIn);
     }
 }

@@ -54,6 +54,8 @@ namespace FiveRockingFingers
 			});
 
 			//Start Cognito Authorization and Identity
+			/* TODO:Pending AWS Credentials. AWS is bypassed![FIVE-6]
+
 			services.AddScoped<IConfigurationService, ConfigurationService>();
 
 			var CognitoCredencials = services.BuildServiceProvider().GetService<IConfigurationService>()
@@ -67,6 +69,7 @@ namespace FiveRockingFingers
 			services.AddSingleton(cognitoUserPool);
 
 			services.AddCognitoIdentity();
+			*/
 			//End Cognito 
 
 			services.AddTransient<IProjectsService, ProjectsService>();

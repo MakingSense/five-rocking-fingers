@@ -14,6 +14,9 @@ namespace FRF.Core.Services
 {
     public class SignUpService : ISignUpService
     {
+        /* TODO:Pending AWS Credentials. Login is bypassed![FIVE-6] */
+        /*Uncomment this after do.
+        /*
         private readonly CognitoConfigurationBase _cognitoBase;
         private readonly IConfigurationService _configurationService;
         private readonly SignInManager<CognitoUser> _signInManager;
@@ -24,8 +27,8 @@ namespace FRF.Core.Services
             _configurationService = configurationService;
             _cognitoBase = configurationService.GetConfigurationSettings();
         }
-
-        public async Task<Tuple<bool, string>> SignUp(User newUser)
+        
+        public async Task<Tuple<bool, string>> SignUpAsync(User newUser)
         {
             try
             {
@@ -79,6 +82,7 @@ namespace FRF.Core.Services
                 //throw exception from cognito user pool
                 throw new Exception("Sign up failed: " + e.Message);
             }
-        }
+            
+        }*/
     }
 }

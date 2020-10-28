@@ -5,7 +5,7 @@ namespace FRF.Web.Controllers
 {
     [ApiController]
     [Route("api/[controller]/[action]")]
-    [Authorize]
+    // [Authorize] TODO:Pending AWS Credentials. Login is bypassed!!! [FIVE-6]
     public abstract class BaseApiController<T> : ControllerBase where T : class
     {
         public abstract IActionResult Get(int id);

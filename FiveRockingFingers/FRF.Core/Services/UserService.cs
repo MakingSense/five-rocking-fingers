@@ -7,14 +7,17 @@ namespace FRF.Core.Services
 {
     public class UserService : IUserService
     {
-        private readonly SignInManager<CognitoUser> _signInManager;
-        private readonly UserManager<CognitoUser> _userManager;
+        /*Uncomment this after do.*/
+        /*
+       private readonly SignInManager<CognitoUser> _signInManager;
+       private readonly UserManager<CognitoUser> _userManager;
 
-        public UserService(UserManager<CognitoUser> userManager, SignInManager<CognitoUser> signInManager)
-        {
-            _userManager = userManager;
-            _signInManager = signInManager;
-        }
+       public UserService(UserManager<CognitoUser> userManager, SignInManager<CognitoUser> signInManager)
+       {
+           _userManager = userManager;
+           _signInManager = signInManager;
+       }
+        
 
         public async Task<string> GetFullname(string email)
         {
@@ -34,7 +37,7 @@ namespace FRF.Core.Services
             }
             catch (Exception e)
             {
-                throw new Exception("Failed to search user :" + e.Message);
+                throw new ArgumentException("Failed to search user :" + e.Message);
             }
 
             return fullName;
@@ -50,6 +53,6 @@ namespace FRF.Core.Services
             {
                 throw new Exception("Logout fail: " + e.Message);
             }
-        }
+        }*/
     }
 }

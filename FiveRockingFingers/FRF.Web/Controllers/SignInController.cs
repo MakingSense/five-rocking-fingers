@@ -27,7 +27,7 @@ namespace FRF.Web.Controllers
         public async Task<ActionResult> SignIn(SignInDTO signInDto)
         {
             var userSignIn = _mapper.Map<UserSignIn>(signInDto);
-            var (isAuthorize, token) = await _signInService.SignIn(userSignIn);
+            var (isAuthorize, token) =await _signInService.SignInAsync(userSignIn);
             if (isAuthorize) return Ok(token);
             return BadRequest();
         }
