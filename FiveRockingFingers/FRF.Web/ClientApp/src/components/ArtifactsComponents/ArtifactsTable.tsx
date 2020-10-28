@@ -4,18 +4,18 @@ import Artifact from '../../interfaces/Artifact'
 import ArtifactsTableRow from './ArtifactsTableRow';
 import axios from 'axios';
 
-const ArtifactsTable = () => {
+const ArtifactsTable = (props: { projectId: number }) => {
 
     const [artifacts, setArtifacts] = React.useState<Artifact[]>([]);
 
     const getArtifacts = async () => {
-        const response = await axios.get("http://localhost:4000/artifacts");
+        const response = await axios.get("https://localhost:5001/api/Artifacts/GetAllByProjectId/" + props.projectId);
         setArtifacts(response.data);
         console.log(response.data);
     }
 
     const deleteArtifact = async (artifactId: number) => {
-        var route = "http://localhost:4000/artifacts/" + artifactId.toString();
+        var route = "https://localhost:5001/api/Artifacts/Delete/" + artifactId.toString();
         console.log(route);
         await axios.delete(route);
         getArtifacts();
@@ -23,7 +23,7 @@ const ArtifactsTable = () => {
 
     React.useEffect(() => {
         getArtifacts();
-    }, [artifacts.length]);
+    }, [props.projectId]);
 
     return (
         <Table striped bordered hover>
