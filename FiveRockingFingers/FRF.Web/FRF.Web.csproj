@@ -44,7 +44,6 @@
 
   <ItemGroup>
     <TypeScriptCompile Include="ClientApp\src\commons\NavMenuItem.tsx" />
-    <TypeScriptCompile Include="ClientApp\src\components\ArtifactsDatails.tsx" />
     <TypeScriptCompile Include="ClientApp\src\interfaces\Artifact.ts" />
     <TypeScriptCompile Include="ClientApp\src\interfaces\ArtifactType.ts" />
     <TypeScriptCompile Include="ClientApp\src\interfaces\Category.ts" />

@@ -1,13 +1,14 @@
 ﻿import * as React from 'react';
 import axios from 'axios';
 import NavMenu from '../commons/NavMenu';
+import ArtifactsTable from './ArtifactsComponents/ArtifactsTable'
 
 const ArtifactsDetails = () => {
 
     return (
         <div className='content'>
             <NavMenu />
-            <h1>Vamos a mostrar los artifacts de los proyectos!!</h1>
+            <ArtifactsTable />
         </div>
     );
 }

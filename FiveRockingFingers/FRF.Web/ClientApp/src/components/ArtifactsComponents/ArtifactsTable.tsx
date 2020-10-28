@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import Table from 'bootstrap';
+import { Table } from 'reactstrap';
 import Artifact from '../../interfaces/Artifact'
 import ArtifactsTableRow from './ArtifactsTableRow';
 import axios from 'axios';
@@ -10,8 +10,15 @@ const ArtifactsTable = () => {
 
     const getArtifacts = async () => {
         const response = await axios.get("http://localhost:4000/artifacts");
-        setProjects(response.data);
+        setArtifacts(response.data);
         console.log(response.data);
+    }
+
+    const deleteArtifact = async (artifactId: number) => {
+        var route = "http://localhost:4000/artifacts/" + artifactId.toString();
+        console.log(route);
+        await axios.delete(route);
+        getArtifacts();
     }
 
     React.useEffect(() => {
@@ -29,7 +36,10 @@ const ArtifactsTable = () => {
             </thead>
             <tbody>
                 {Array.isArray(artifacts)
-                    ? artifacts.map((artifact) => <ArtifactsTableRow key={artifact.id} artifact={artifact} />)
+                    ? artifacts.map((artifact) => <ArtifactsTableRow
+                                                        key={artifact.id}
+                                                        artifact={artifact}
+                                                        deleteArtifact={deleteArtifact} />)
                     : null}
             </tbody>
         </Table>
