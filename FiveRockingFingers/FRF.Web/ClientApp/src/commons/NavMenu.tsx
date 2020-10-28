@@ -2,7 +2,7 @@ import * as React from 'react';
 import { faHome } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
-import { Menu, ProSidebar, SidebarContent, SidebarHeader } from 'react-pro-sidebar';
+import { Menu, ProSidebar, SidebarContent, SidebarHeader, SidebarFooter } from 'react-pro-sidebar';
 import 'react-pro-sidebar/dist/css/styles.css';
 import { Link } from 'react-router-dom';
 import Project from '../interfaces/Project';
@@ -42,6 +42,9 @@ const NavMenu = () => {
                     )) : "No hay projectos"}
                 </Menu>                
             </SidebarContent>
+            <SidebarFooter>
+                <Link to="/administrarProyectos">Administrar proyectos</Link>
+            </SidebarFooter>
         </ProSidebar>
     );
 };
