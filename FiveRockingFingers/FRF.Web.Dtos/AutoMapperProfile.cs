@@ -2,9 +2,6 @@
 using FRF.Core.Models;
 using FRF.Web.Dtos.Artifacts;
 using FRF.Web.Dtos.Projects;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace FRF.Web.Dtos
 {
