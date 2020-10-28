@@ -4,6 +4,8 @@ namespace FRF.Core.Services
 {
     public interface IConfigurationService
     {
-        CognitoConfigurationBase GetConfigurationSettings();
+        /* TODO:Pending AWS Credentials. Login is bypassed![FIVE-6] */
+        /*Uncomment this after do.
+        CognitoConfigurationBase GetConfigurationSettings();*/
     }
 }

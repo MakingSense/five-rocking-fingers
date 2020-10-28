@@ -1,10 +1,6 @@
-using Amazon;
-using Amazon.CognitoIdentityProvider;
-using Amazon.Extensions.CognitoAuthentication;
 using AutoMapper;
 using FRF.Core.Services;
 using FRF.DataAccess;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
@@ -16,6 +12,7 @@ using Microsoft.OpenApi.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace FiveRockingFingers
 {
@@ -76,6 +73,7 @@ namespace FiveRockingFingers
 			services.AddTransient<ISignUpService, SignUpService>();
 			services.AddTransient<ISignInService, SignInService>();
 			services.AddTransient<IUserService, UserService>();
+			services.AddTransient<IArtifactsService, ArtifactsService>();
 
 			services.AddSwaggerGen(c =>
 			{
@@ -86,6 +84,9 @@ namespace FiveRockingFingers
 			// In production, the React files will be served from this directory
 			services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/build"; });
 
+			/* TODO:Pending AWS Credentials. AWS is bypassed![FIVE-6]
+			/*Uncomment this after do.*/
+			/*
 			services.ConfigureApplicationCookie(option =>
 			{
 				option.Events = new CookieAuthenticationEvents()
@@ -109,7 +110,7 @@ namespace FiveRockingFingers
 						return Task.CompletedTask;
 					}
 				};
-			});
+			});*/
 
 			var autoMapperProfileTypes = AutoMapperProfiles.Select(p => p.GetType()).ToArray();
 			services.AddAutoMapper(autoMapperProfileTypes);
@@ -139,10 +140,10 @@ namespace FiveRockingFingers
 			app.UseSwagger();
 			app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "Five Rocking Fingers"); });
 
-
+			/*Uncomment this after do.*/
 			app.UseRouting();
-			app.UseAuthentication();
-			app.UseAuthorization();
+			//app.UseAuthentication();
+			//app.UseAuthorization();
 
 			app.UseEndpoints(endpoints =>
 			{

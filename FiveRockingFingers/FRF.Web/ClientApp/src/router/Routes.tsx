@@ -4,6 +4,7 @@ import PrivateRoute from "../components/auth/authService";
 import Login from '../components/auth/Login';
 import Signup from '../components/auth/Signup';
 import Home from '../components/Home';
+import ManageProjects from '../components/ManageProjects';
 
 export default function Routes() {
     return (
@@ -12,6 +13,7 @@ export default function Routes() {
             <Route exact path="/login" component={Login} />
             <Route exact path="/signup" component={Signup} />
             <PrivateRoute exact path="/home" component={Home} />
+            <PrivateRoute exact path='/administrarProyectos' component={ManageProjects} />
         </Switch>
     );
 }

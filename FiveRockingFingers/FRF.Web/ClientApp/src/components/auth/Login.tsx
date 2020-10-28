@@ -36,7 +36,6 @@ const Login: React.FC<userLogin> = () => {
     const [errorLogin, setErrorLogin] = React.useState<string>("");
 
     const onSumit = (e: userLogin) => {
-        console.log(e);
         setLoading(true);
         axios.post("https://localhost:44346/api/SignIn",
             {

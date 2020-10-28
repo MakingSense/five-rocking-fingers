@@ -13,13 +13,15 @@ namespace FRF.Core.Services
         {
             _dataContext = dataContext;
         }
-        
-        public CognitoConfigurationBase GetConfigurationSettings()
+
+        /* TODO:Pending AWS Credentials. Login is bypassed![FIVE-6] */
+        /*Uncomment this after do.
+         public CognitoConfigurationBase GetConfigurationSettings()
         {
             var resultFromDb = _dataContext.ConfigurationSettings.ToDictionary(k => k.Name, v => v.Value);
                 var result = ToObject<CognitoConfigurationBase>(resultFromDb);
                 return result ?? null;
-        }
+        }*/
 
         public static T ToObject<T>(IDictionary<string, string> source)
             where T : class, new()

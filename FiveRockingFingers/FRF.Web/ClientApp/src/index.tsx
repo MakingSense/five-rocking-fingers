@@ -6,7 +6,6 @@ import App from './App';
 import './custom.css';
 import registerServiceWorker from './registerServiceWorker';
 
-
 ReactDOM.render(
     <BrowserRouter>
         <App/>
