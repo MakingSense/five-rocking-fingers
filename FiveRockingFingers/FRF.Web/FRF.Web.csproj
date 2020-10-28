@@ -11,10 +11,15 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.0.1" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.8" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.1.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.8" />
+    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="4.0.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="StackifyMiddleware" Version="3.0.5.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.0" />
   </ItemGroup>
@@ -27,6 +32,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\src\components\ManageProjects.tsx" />
+    <None Remove="ClientApp\src\components\ManageProjectsComponents\ConfirmationDialog.tsx" />
+    <None Remove="ClientApp\src\components\ManageProjectsComponents\EditProject.tsx" />
+    <None Remove="ClientApp\src\components\ManageProjectsComponents\ListElement.tsx" />
+    <None Remove="ClientApp\src\components\ManageProjectsComponents\Navbar.tsx" />
+    <None Remove="ClientApp\src\components\ManageProjectsComponents\NewProjectDialog.tsx" />
+    <None Remove="ClientApp\src\components\ManageProjectsComponents\ProjectsList.tsx" />
+    <None Remove="ClientApp\src\components\ManageProjectsComponents\ViewProject.tsx" />
     <None Remove="ClientApp\src\components\NavMenuItem.tsx" />
     <None Remove="ClientApp\src\interfaces\Category.ts" />
     <None Remove="ClientApp\src\interfaces\Project.ts" />
@@ -41,6 +54,14 @@
 
   <ItemGroup>
     <TypeScriptCompile Include="ClientApp\src\commons\NavMenuItem.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\components\ManageProjects.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\components\ManageProjectsComponents\ConfirmationDialog.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\components\ManageProjectsComponents\EditProject.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\components\ManageProjectsComponents\ListElement.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\components\ManageProjectsComponents\Navbar.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\components\ManageProjectsComponents\NewProjectDialog.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\components\ManageProjectsComponents\ProjectsList.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\components\ManageProjectsComponents\ViewProject.tsx" />
     <TypeScriptCompile Include="ClientApp\src\interfaces\Category.ts" />
     <TypeScriptCompile Include="ClientApp\src\interfaces\Project.ts" />
     <TypeScriptCompile Include="ClientApp\src\interfaces\ProjectCategory.ts" />
