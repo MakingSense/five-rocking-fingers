@@ -41,6 +41,8 @@
     <None Remove="ClientApp\src\components\ManageProjectsComponents\ProjectsList.tsx" />
     <None Remove="ClientApp\src\components\ManageProjectsComponents\ViewProject.tsx" />
     <None Remove="ClientApp\src\components\NavMenuItem.tsx" />
+    <None Remove="ClientApp\src\components\NewArtifactDialog.tsx" />
+    <None Remove="ClientApp\src\interfaces\ArtifactType.ts" />
     <None Remove="ClientApp\src\interfaces\Category.ts" />
     <None Remove="ClientApp\src\interfaces\Project.ts" />
     <None Remove="ClientApp\src\interfaces\ProjectCategory.ts" />
