@@ -11,7 +11,9 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.0.1" />
+    <PackageReference Include="Amazon.AspNetCore.Identity.Cognito" Version="1.0.5" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.8" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.8" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.1.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.8" />
@@ -22,52 +24,33 @@
     </PackageReference>
     <PackageReference Include="StackifyMiddleware" Version="3.0.5.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.7.1" />
   </ItemGroup>
 
   <ItemGroup>
     <!-- Don't publish the SPA source files, but do show them in the project files list -->
     <Content Remove="$(SpaRoot)**" />
+    <Content Remove="ClientApp\src\commons\NewFolder\**" />
     <None Remove="$(SpaRoot)**" />
+    <None Remove="ClientApp\src\commons\NewFolder\**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="ClientApp\src\components\ManageProjects.tsx" />
-    <None Remove="ClientApp\src\components\ManageProjectsComponents\ConfirmationDialog.tsx" />
-    <None Remove="ClientApp\src\components\ManageProjectsComponents\EditProject.tsx" />
-    <None Remove="ClientApp\src\components\ManageProjectsComponents\ListElement.tsx" />
-    <None Remove="ClientApp\src\components\ManageProjectsComponents\Navbar.tsx" />
-    <None Remove="ClientApp\src\components\ManageProjectsComponents\NewProjectDialog.tsx" />
-    <None Remove="ClientApp\src\components\ManageProjectsComponents\ProjectsList.tsx" />
-    <None Remove="ClientApp\src\components\ManageProjectsComponents\ViewProject.tsx" />
-    <None Remove="ClientApp\src\components\NavMenuItem.tsx" />
-    <None Remove="ClientApp\src\components\NewArtifactDialog.tsx" />
-    <None Remove="ClientApp\src\interfaces\ArtifactType.ts" />
-    <None Remove="ClientApp\src\interfaces\Category.ts" />
-    <None Remove="ClientApp\src\interfaces\Project.ts" />
-    <None Remove="ClientApp\src\interfaces\ProjectCategory.ts" />
-    <None Remove="ClientApp\src\router\Routes.tsx" />
+    <Compile Remove="ClientApp\src\commons\NewFolder\**" />
+    <EmbeddedResource Remove="ClientApp\src\commons\NewFolder\**" />
+    <TypeScriptCompile Remove="ClientApp\src\commons\NewFolder\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="ClientApp\src\commons\LogoutButton.tsx" />
+    <None Remove="ClientApp\src\components\LoadingButton.tsx" />
+    <None Remove="ClientApp\src\components\Login.tsx" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\FRF.Core\FRF.Core.csproj" />
     <ProjectReference Include="..\FRF.Web.Dtos\FRF.Web.Dtos.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <TypeScriptCompile Include="ClientApp\src\commons\NavMenuItem.tsx" />
-    <TypeScriptCompile Include="ClientApp\src\components\ManageProjects.tsx" />
-    <TypeScriptCompile Include="ClientApp\src\components\ManageProjectsComponents\ConfirmationDialog.tsx" />
-    <TypeScriptCompile Include="ClientApp\src\components\ManageProjectsComponents\EditProject.tsx" />
-    <TypeScriptCompile Include="ClientApp\src\components\ManageProjectsComponents\ListElement.tsx" />
-    <TypeScriptCompile Include="ClientApp\src\components\ManageProjectsComponents\Navbar.tsx" />
-    <TypeScriptCompile Include="ClientApp\src\components\ManageProjectsComponents\NewProjectDialog.tsx" />
-    <TypeScriptCompile Include="ClientApp\src\components\ManageProjectsComponents\ProjectsList.tsx" />
-    <TypeScriptCompile Include="ClientApp\src\components\ManageProjectsComponents\ViewProject.tsx" />
-    <TypeScriptCompile Include="ClientApp\src\interfaces\Category.ts" />
-    <TypeScriptCompile Include="ClientApp\src\interfaces\Project.ts" />
-    <TypeScriptCompile Include="ClientApp\src\interfaces\ProjectCategory.ts" />
-    <TypeScriptCompile Include="ClientApp\src\router\Routes.tsx" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

@@ -15,7 +15,7 @@ namespace FRF.DataAccess
 
         public DataAccessContext(DbContextOptions<DataAccessContext> options, IConfiguration configuration) : base(options)
         {
-            _configuration = configuration;
+            _configuration = configuration; 
         }
 
         protected override void OnModelCreating(ModelBuilder builder)
