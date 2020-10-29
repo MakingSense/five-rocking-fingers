@@ -11,26 +11,33 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.0.1" />
+    <PackageReference Include="Amazon.AspNetCore.Identity.Cognito" Version="1.0.5" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.8" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.8" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.1.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.8" />
+    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="4.0.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="StackifyMiddleware" Version="3.0.5.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.7.1" />
   </ItemGroup>
 
   <ItemGroup>
     <!-- Don't publish the SPA source files, but do show them in the project files list -->
     <Content Remove="$(SpaRoot)**" />
+    <Content Remove="ClientApp\src\commons\NewFolder\**" />
     <None Remove="$(SpaRoot)**" />
+    <None Remove="ClientApp\src\commons\NewFolder\**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="ClientApp\src\components\ArtifactsDatails.tsx" />
     <None Remove="ClientApp\src\components\NavMenuItem.tsx" />
-    <None Remove="ClientApp\src\interfaces\Artifact.ts" />
-    <None Remove="ClientApp\src\interfaces\ArtifactType.ts" />
     <None Remove="ClientApp\src\interfaces\Category.ts" />
     <None Remove="ClientApp\src\interfaces\Project.ts" />
     <None Remove="ClientApp\src\interfaces\ProjectCategory.ts" />
@@ -38,14 +45,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FRF.Core\FRF.Core.csproj" />
-    <ProjectReference Include="..\FRF.Web.Dtos\FRF.Web.Dtos.csproj" />
+    <None Remove="ClientApp\src\commons\LogoutButton.tsx" />
+    <None Remove="ClientApp\src\components\LoadingButton.tsx" />
+    <None Remove="ClientApp\src\components\Login.tsx" />
   </ItemGroup>
 
   <ItemGroup>
     <TypeScriptCompile Include="ClientApp\src\commons\NavMenuItem.tsx" />
-    <TypeScriptCompile Include="ClientApp\src\interfaces\Artifact.ts" />
-    <TypeScriptCompile Include="ClientApp\src\interfaces\ArtifactType.ts" />
     <TypeScriptCompile Include="ClientApp\src\interfaces\Category.ts" />
     <TypeScriptCompile Include="ClientApp\src\interfaces\Project.ts" />
     <TypeScriptCompile Include="ClientApp\src\interfaces\ProjectCategory.ts" />

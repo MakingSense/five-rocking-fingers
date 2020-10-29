@@ -1,6 +1,6 @@
-﻿import * as React from 'react';
-import { ProSidebar, Menu, MenuItem, SubMenu, SidebarHeader, SidebarFooter, SidebarContent } from 'react-pro-sidebar';
-import { Link } from 'react-router-dom';
+﻿import { Box } from '@material-ui/core';
+import * as React from 'react';
+import { MenuItem, SubMenu } from 'react-pro-sidebar';
 import Project from '../interfaces/Project';
 import { Link } from 'react-router-dom';
 import { Box } from '@material-ui/core';
