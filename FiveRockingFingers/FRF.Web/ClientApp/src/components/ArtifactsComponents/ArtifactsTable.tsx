@@ -9,13 +9,13 @@ const ArtifactsTable = (props: { projectId: number }) => {
     const [artifacts, setArtifacts] = React.useState<Artifact[]>([]);
 
     const getArtifacts = async () => {
-        const response = await axios.get("https://localhost:5001/api/Artifacts/GetAllByProjectId/" + props.projectId);
+        const response = await axios.get("https://localhost:44346/api/Artifacts/GetAllByProjectId/" + props.projectId);
         setArtifacts(response.data);
         console.log(response.data);
     }
 
     const deleteArtifact = async (artifactId: number) => {
-        var route = "https://localhost:5001/api/Artifacts/Delete/" + artifactId.toString();
+        var route = "https://localhost:44346/api/Artifacts/Delete/" + artifactId.toString();
         console.log(route);
         await axios.delete(route);
         getArtifacts();

@@ -51,6 +51,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FRF.Core\FRF.Core.csproj" />
+    <ProjectReference Include="..\FRF.Web.Dtos\FRF.Web.Dtos.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <TypeScriptCompile Include="ClientApp\src\commons\NavMenuItem.tsx" />
     <TypeScriptCompile Include="ClientApp\src\interfaces\Category.ts" />
     <TypeScriptCompile Include="ClientApp\src\interfaces\Project.ts" />
