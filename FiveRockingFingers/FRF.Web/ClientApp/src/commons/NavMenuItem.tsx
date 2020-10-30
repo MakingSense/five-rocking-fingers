@@ -16,7 +16,7 @@ const NavMenuItem = (props: { project: Project }) => {
                 </MenuItem></Box>
                 
                 <MenuItem>
-                    <Link to={`/project/${props.project.id}/artifacts`}>
+                    <Link to={`/projects/${props.project.id}/artifacts`}>
                         Artefactos
                     </Link>
                 </MenuItem>
