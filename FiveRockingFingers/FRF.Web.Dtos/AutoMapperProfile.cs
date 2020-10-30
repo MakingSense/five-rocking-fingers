@@ -24,6 +24,8 @@ namespace FRF.Web.Dtos
                 .ForMember(dest => dest.ProjectId, opt => opt.MapFrom(src => src.ProjectId));
             CreateMap<ArtifactType, ArtifactTypeDTO>()
                 .ReverseMap();
+            CreateMap<UsersByProject, UsersByProjectDTO>()
+                .ReverseMap();
         }
     }
 }

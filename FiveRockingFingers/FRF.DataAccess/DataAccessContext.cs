@@ -24,6 +24,8 @@ namespace FRF.DataAccess
         {
             builder.Entity<ProjectCategory>().HasKey(pc => new { pc.ProjectId, pc.CategoryID });
             builder.Entity<ArtifactType>().HasKey(at => new { at.Id });
+            builder.Entity<UsersByProject>().HasKey(up => new {up.Id});
+            builder.Entity<UsersByProject>().HasOne(up=>up.Project).WithMany(u=>u.UsersByProject).HasForeignKey(up=>up.ProjectId);
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

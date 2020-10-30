@@ -5,159 +5,126 @@ using FRF.Web.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace FiveRockingFingers.Controllers
 {
-    public class ProjectsController : BaseApiController<ProjectDto>
+    public class ProjectsController : BaseApiControllerAsync<ProjectDto>
     {
         private readonly IMapper _mapper;
         private readonly IProjectsService _projectService;
         private readonly IUserService _userService;
+        private readonly IConfiguration _configuration;
 
-        public ProjectsController(IProjectsService projectsService, IMapper mapper, IUserService userService)
+        public ProjectsController(IProjectsService projectsService, IMapper mapper, IUserService userService, IConfiguration configuration)
         {
-            this._projectService = projectsService;
-            this._mapper = mapper;
-            this._userService = userService;
-
+            _projectService = projectsService;
+            _mapper = mapper;
+            _userService = userService;
+            _configuration = configuration;
         }
 
-
-        [HttpGet]
-        override public IActionResult GetAll()
-        {
-            try
-            {
-                var projects = _projectService.GetAll();
-
-                var projectsDto = _mapper.Map<IEnumerable<ProjectDto>>(projects);
-
-                return Ok(projectsDto);
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, "Internal Server Error");
-            }
-        }
-
+        //TODO: AWS Credentials, Loggin bypassed.Delete this method and Uncomment GetAll() after do:
         [HttpGet("{userId}")]
-        public async Task<IActionResult> GetAllByUserId(string userId)
+        public async Task<IActionResult> GetAll(string userId)
         {
-            try
-            {
-                var currentUserId = await _userService.GetCurrentUserId();
-                if (currentUserId != userId) return Unauthorized();
+            var currentUserId = _configuration.GetValue<string>("MockUsers:UserId");
 
-                var projects =await _projectService.GetAllByUserId(userId);
-                if (projects == null) return NotFound();
+            if (currentUserId != userId) return Unauthorized();
 
-                var projectsDto = _mapper.Map<IEnumerable<ProjectDto>>(projects);
-                return Ok(projectsDto);
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, e.Message);
-            }
+            var projects = await _projectService.GetAllAsync(userId);
+            
+            if (projects == null) return StatusCode(204);
+
+            var projectsDto = _mapper.Map<IEnumerable<ProjectDto>>(projects);
+            return Ok(projectsDto);
+        }
+        
+        [HttpGet]
+        public override async Task<IActionResult> GetAll()
+        {/*
+            var currentUserId = await _userService.GetCurrentUserId();
+            var projects = await _projectService.GetAllAsync(currentUserId);
+
+            if (projects == null) return StatusCode(204);
+
+            var projectsDto = _mapper.Map<IEnumerable<ProjectDto>>(projects);
+            return Ok(projectsDto);*/
+            return NotFound();
         }
 
         [HttpGet("{id}")]
-        override public IActionResult Get(int id)
+        override public async Task<IActionResult> Get(int id)
+        {
+            //TODO: AWS Credentials, Loggin bypassed. Uncomment after do:
+            //var userId = await _userService.GetCurrentUserId();
+            var project =await _projectService.GetAsync(id);
+
+            if (project == null)
+            {
+                return NotFound();
+            }
+
+            var projectDto = _mapper.Map<ProjectDto>(project);
+
+            return Ok(projectDto);
+        }
+
+        [HttpPost]
+        override public async Task<IActionResult> Save(ProjectDto projectDto)
+        {
+            if (projectDto == null)
+            {
+                return BadRequest("Project object is null");
+            }
+
+            var project = _mapper.Map<FRF.Core.Models.Project>(projectDto);
+            var projectSaved =await _projectService.SaveAsync(project);
+
+            if (projectSaved == null) return BadRequest();
+
+            var projectCreated = _mapper.Map<ProjectDto>(projectSaved);
+
+            return Ok(projectCreated);
+        }
+
+        [HttpPut]
+        override public async Task<IActionResult> Update(int id, ProjectDto projectDto)
+        {
+            if (projectDto == null || projectDto.Id != id)
+            {
+                return BadRequest();
+            }
+
+            var project = await _projectService.GetAsync(projectDto.Id);
+
+            if (project == null)
+            {
+                return NotFound();
+            }
+
+            _mapper.Map(projectDto, project);
+
+            var updatedProject = _mapper.Map<ProjectDto>(_projectService.UpdateAsync(project));
+
+            return Ok(updatedProject);
+        }
+
+        [HttpDelete("{id}")]
+        override public async Task<IActionResult> Delete(int id)
         {
             try
             {
-                var project = _projectService.Get(id);
+                var project =await _projectService.GetAsync(id);
 
                 if (project == null)
                 {
                     return NotFound();
                 }
 
-                var projectDto = _mapper.Map<ProjectDto>(project);
-
-                return Ok(projectDto);
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, "Internal Server Error");
-            }
-        }
-
-        [HttpPost]
-        override public IActionResult Save(ProjectDto projectDto )
-        {
-            if(projectDto == null)
-            {
-                return BadRequest("Project object is null");
-            }
-
-            if(!ModelState.IsValid)
-            {
-                return BadRequest("Invalid model object");
-            }
-
-            var project = _mapper.Map<FRF.Core.Models.Project>(projectDto);
-
-            try
-            {
-                var projectCreated = _mapper.Map<ProjectDto>(_projectService.Save(project));
-
-                return Ok(projectCreated);
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, "Internal Server Error");
-            }
-            
-        }
-        
-        [HttpPut]
-        override public IActionResult Update(ProjectDto projectDto)
-        {
-            if(projectDto == null)
-            {
-                return BadRequest("Project object is null");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest("Invalid model object");
-            }
-
-            try
-            {
-                var project = _projectService.Get(projectDto.Id);
-
-                if(project == null)
-                {
-                    return NotFound();
-                }
-
-                _mapper.Map(projectDto, project);
-
-                var updatedProject = _mapper.Map<ProjectDto>(_projectService.Update(project));
-
-                return Ok(updatedProject);
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, "Internal Server Error");
-            }
-        }
-
-        [HttpDelete("{id}")]
-        override public IActionResult Delete(int id)
-        {
-            try
-            {
-                var project = _projectService.Get(id);
-
-                if(project == null)
-                {
-                    return NotFound();
-                }
-
-                _projectService.Delete(id);
+                _projectService.DeleteAsync(id);
 
                 return NoContent();
             }

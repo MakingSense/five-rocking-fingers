@@ -17,8 +17,8 @@ namespace FRF.DataAccess.EntityModels
         public int? Budget { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime? ModifiedDate{ get; set; }
-        public string UserId{ get; set; }
         #nullable disable
         public IList<ProjectCategory> ProjectCategories { get; set; }
+        public ICollection<UsersByProject> UsersByProject { get; set; }
     }
 }

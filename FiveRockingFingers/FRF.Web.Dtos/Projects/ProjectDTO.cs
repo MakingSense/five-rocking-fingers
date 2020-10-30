@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using FRF.DataAccess.EntityModels;
 
 namespace FRF.Web.Dtos
 {
@@ -9,19 +11,14 @@ namespace FRF.Web.Dtos
     {
         [Required]
         public int Id { get; set; }
-<<<<<<< HEAD
-        [Required]
-        [RegularExpression(@"^([\da-zA-Z]{8}-([\da-zA-Z]{4}-){3}[\da-zA-Z]{12}$)")]
-        public int UserId { get; set; }
-        #nullable enable
-=======
->>>>>>> origin/Release_0.1
+        [Required(ErrorMessage = "Project name is required")]
         public string? Name { get; set; }
         public string? Owner { get; set; }
         public string? Client { get; set; }
         public int? Budget { get; set; }
         public DateTime CreatedDate { get; set; }
         public IList<ProjectCategoryDTO> ProjectCategories { get; set; }
+        public IList<UsersByProjectDTO> UsersByProject { get; set; }
 
     }
 }
