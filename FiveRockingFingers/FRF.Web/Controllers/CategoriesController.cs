@@ -23,7 +23,7 @@ namespace FRF.Web.Controllers
         [HttpGet]
         public override async Task<IActionResult> GetAll()
         {
-            var categories = await _categoriesService.GetAll();
+            var categories = await _categoriesService.GetAllAsync();
 
             var categoriesDto = _mapper.Map<IEnumerable<CategoryDTO>>(categories);
 
@@ -33,7 +33,7 @@ namespace FRF.Web.Controllers
         [HttpGet("{id}")]
         public override async Task<IActionResult> Get(int id)
         {
-            var category = await _categoriesService.Get(id);
+            var category = await _categoriesService.GetAsync(id);
 
             if (category == null)
             {
@@ -50,7 +50,7 @@ namespace FRF.Web.Controllers
         {
             var category = _mapper.Map<FRF.Core.Models.Category>(categoryDto);
 
-            var categoryCreated = _mapper.Map<CategoryDTO>(await _categoriesService.Save(category));
+            var categoryCreated = _mapper.Map<CategoryDTO>(await _categoriesService.SaveAsync(category));
 
             return Ok(categoryCreated);
         }
@@ -63,7 +63,7 @@ namespace FRF.Web.Controllers
                 return BadRequest();
             }
 
-            var category = await _categoriesService.Get(categoryDto.Id);
+            var category = await _categoriesService.GetAsync(categoryDto.Id);
 
             if (category == null)
             {
@@ -72,7 +72,7 @@ namespace FRF.Web.Controllers
 
             _mapper.Map(categoryDto, category);
 
-            var updatedCategory = _mapper.Map<CategoryDTO>(await _categoriesService.Update(category));
+            var updatedCategory = _mapper.Map<CategoryDTO>(await _categoriesService.UpdateAsync(category));
 
             return Ok(updatedCategory);
         }
@@ -80,14 +80,14 @@ namespace FRF.Web.Controllers
         [HttpDelete("{id}")]
         public override async Task<IActionResult> Delete(int id)
         {
-            var category = await _categoriesService.Get(id);
+            var category = await _categoriesService.GetAsync(id);
 
             if (category == null)
             {
                 return NotFound();
             }
 
-            await _categoriesService.Delete(id);
+            await _categoriesService.DeleteAsync(id);
 
             return NoContent();
         }
