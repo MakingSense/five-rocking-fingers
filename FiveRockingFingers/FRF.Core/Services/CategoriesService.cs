@@ -14,6 +14,7 @@ namespace FRF.Core.Services
         private readonly IConfiguration _configuration;
         private readonly DataAccessContext _dataContext;
         private readonly IMapper _mapper;
+        
         public CategoriesService(IConfiguration configuration, DataAccessContext dataContext, IMapper mapper)
         {
             _configuration = configuration;
@@ -23,7 +24,10 @@ namespace FRF.Core.Services
 
         public async Task<List<Category>> GetAll()
         {
-            var result = await _dataContext.Categories.Include(c => c.ProjectCategories).ThenInclude(pc => pc.Project).ToListAsync();
+            var result = await _dataContext.Categories
+                .Include(c => c.ProjectCategories)
+                    .ThenInclude(pc => pc.Project)
+                .ToListAsync();
             if (result == null)
             {
                 return null;
@@ -33,7 +37,10 @@ namespace FRF.Core.Services
 
         public async Task<Category> Get(int id)
         {
-            var category = await _dataContext.Categories.Include(c => c.ProjectCategories).ThenInclude(pc => pc.Project).SingleOrDefaultAsync(c => c.Id == id);
+            var category = await _dataContext
+                .Categories.Include(c => c.ProjectCategories)
+                    .ThenInclude(pc => pc.Project)
+                .SingleOrDefaultAsync(c => c.Id == id);
             if (category == null)
             {
                 return null;
@@ -57,7 +64,9 @@ namespace FRF.Core.Services
 
         public async Task<Category> Update(Category category)
         {
-            var result = await _dataContext.Categories.Include(c => c.ProjectCategories).SingleAsync(c => c.Id == category.Id);
+            var result = await _dataContext.Categories
+                .Include(c => c.ProjectCategories)
+                .SingleAsync(c => c.Id == category.Id);
 
             if (result == null)
             {
@@ -74,18 +83,12 @@ namespace FRF.Core.Services
 
         public async Task Delete(int id)
         {
-            var categoryToDelete = await _dataContext.Categories.Include(c => c.ProjectCategories).SingleAsync(c => c.Id == id);
+            var categoryToDelete = await _dataContext.Categories
+                .Include(c => c.ProjectCategories)
+                .SingleAsync(c => c.Id == id);
             _dataContext.Categories.Remove(categoryToDelete);
             await _dataContext.SaveChangesAsync();
             return;
         }
-
-        
-
-        
-
-        
-
-        
     }
 }
