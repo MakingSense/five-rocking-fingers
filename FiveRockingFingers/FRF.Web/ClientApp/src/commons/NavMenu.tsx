@@ -2,23 +2,13 @@ import { faHome } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
 import * as React from 'react';
-<<<<<<< HEAD
-import { ProSidebar, Menu, SidebarHeader, SidebarContent } from 'react-pro-sidebar';
-import 'react-pro-sidebar/dist/css/styles.css';
-import { Link } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faHome } from '@fortawesome/free-solid-svg-icons'
-import '../styles/NavMenu.css';
-import axios from 'axios';
-
-=======
 import { Menu, ProSidebar, SidebarContent, SidebarHeader, SidebarFooter } from 'react-pro-sidebar';
 import 'react-pro-sidebar/dist/css/styles.css';
 import { Link } from 'react-router-dom';
 import Project from '../interfaces/Project';
 import '../styles/NavMenu.css';
->>>>>>> origin/Release_0.1
 import NavMenuItem from './NavMenuItem';
+import { useUserContext } from "../components/auth/contextLib";
 
 const FaHome = () => (
     <div className='d-inline-block m-2'>
@@ -33,12 +23,14 @@ const NavMenu = () => {
     React.useEffect(() => {
         getProjects();
         getUser();
-    }, [projects.length]);
+    }, []);
 
+    const { isAuthenticated } = useUserContext();
     const getProjects = async () => {
-        const response = await axios.get("https://localhost:44346/api/Projects/GetAll");
+       //const response = await axios.get("https://localhost:44346/api/Projects/GetAll");
+        console.log(isAuthenticated);
+       const response = await axios.get("https://localhost:44346/api/Projects/GetAllByUserId/"+isAuthenticated);
         setProjects(response.data);
-        console.log(response.data);
     }
     const getUser = async () => {
         const response = await axios.get("https://localhost:44346/api/User/getfullname");

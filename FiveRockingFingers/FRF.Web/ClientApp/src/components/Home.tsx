@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import React from 'react';
-=======
 import * as React from 'react';
->>>>>>> origin/Release_0.1
 import NavMenu from '../commons/NavMenu';
 
 const Home = () => {

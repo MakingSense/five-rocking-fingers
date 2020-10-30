@@ -53,7 +53,6 @@ namespace FRF.Core.Services
             {
                 throw new Exception("Logout fail: " + e.Message);
             }
-<<<<<<< HEAD
         }
 
         public async Task<string> GetCurrentUserId()
@@ -68,9 +67,6 @@ namespace FRF.Core.Services
             {
                 throw new Exception(e.Message);
             }
-        }
-=======
         }*/
->>>>>>> origin/Release_0.1
     }
 }

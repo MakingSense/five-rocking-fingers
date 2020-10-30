@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-﻿import { Box, Typography } from '@material-ui/core';
-=======
 import { Box } from '@material-ui/core';
->>>>>>> origin/Release_0.1
 import * as React from 'react';
 import { MenuItem, SubMenu } from 'react-pro-sidebar';
 import Project from '../interfaces/Project';
