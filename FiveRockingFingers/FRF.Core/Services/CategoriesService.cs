@@ -28,10 +28,6 @@ namespace FRF.Core.Services
                 .Include(c => c.ProjectCategories)
                     .ThenInclude(pc => pc.Project)
                 .ToListAsync();
-            if (result == null)
-            {
-                return null;
-            }
             return _mapper.Map<List<Category>>(result);
         }
 
@@ -41,10 +37,6 @@ namespace FRF.Core.Services
                 .Categories.Include(c => c.ProjectCategories)
                     .ThenInclude(pc => pc.Project)
                 .SingleOrDefaultAsync(c => c.Id == id);
-            if (category == null)
-            {
-                return null;
-            }
             return _mapper.Map<Category>(category);
         }
 
@@ -67,12 +59,6 @@ namespace FRF.Core.Services
             var result = await _dataContext.Categories
                 .Include(c => c.ProjectCategories)
                 .SingleAsync(c => c.Id == category.Id);
-
-            if (result == null)
-            {
-                throw new System.ArgumentException("There is no category with Id = " + category.Id, "category.Id");
-            }
-
             result.Name = category.Name;
             result.Description = category.Description;
 
