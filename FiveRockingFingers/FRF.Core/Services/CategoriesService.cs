@@ -22,7 +22,7 @@ namespace FRF.Core.Services
             _mapper = mapper;
         }
 
-        public async Task<List<Category>> GetAll()
+        public async Task<List<Category>> GetAllAsync()
         {
             var result = await _dataContext.Categories
                 .Include(c => c.ProjectCategories)
@@ -31,7 +31,7 @@ namespace FRF.Core.Services
             return _mapper.Map<List<Category>>(result);
         }
 
-        public async Task<Category> Get(int id)
+        public async Task<Category> GetAsync(int id)
         {
             var category = await _dataContext
                 .Categories.Include(c => c.ProjectCategories)
@@ -40,7 +40,7 @@ namespace FRF.Core.Services
             return _mapper.Map<Category>(category);
         }
 
-        public async Task<Category> Save(Category category)
+        public async Task<Category> SaveAsync(Category category)
         {
             // Maps the category into an EntityModel, deleting the Id if there was one.
             var mappedCategory = _mapper.Map<EntityModels.Category>(category);            
@@ -54,7 +54,7 @@ namespace FRF.Core.Services
             return _mapper.Map<Category>(mappedCategory);
         }
 
-        public async Task<Category> Update(Category category)
+        public async Task<Category> UpdateAsync(Category category)
         {
             var result = await _dataContext.Categories
                 .Include(c => c.ProjectCategories)
@@ -67,7 +67,7 @@ namespace FRF.Core.Services
             return _mapper.Map<Category>(result);
         }
 
-        public async Task Delete(int id)
+        public async Task DeleteAsync(int id)
         {
             var categoryToDelete = await _dataContext.Categories
                 .Include(c => c.ProjectCategories)

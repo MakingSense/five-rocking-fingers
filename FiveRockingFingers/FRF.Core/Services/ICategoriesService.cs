@@ -8,10 +8,10 @@ namespace FRF.Core.Services
 {
     public interface ICategoriesService
     {
-        Task<List<Category>> GetAll();
-        Task<Category> Get(int id);
-        Task<Category> Update(Category category);
-        Task Delete(int id);
-        Task<Category> Save(Category category);
+        Task<List<Category>> GetAllAsync();
+        Task<Category> GetAsync(int id);
+        Task<Category> UpdateAsync(Category category);
+        Task DeleteAsync(int id);
+        Task<Category> SaveAsync(Category category);
     }
 }
