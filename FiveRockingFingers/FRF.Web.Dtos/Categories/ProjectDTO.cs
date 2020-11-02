@@ -1,17 +1,17 @@
-﻿using FRF.Web.Dtos.Projects;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
-namespace FRF.Web.Dtos
+namespace FRF.Web.Dtos.Categories
 {
-    public class ProjectDto
+    public class ProjectDTO
     {
         public int Id { get; set; }
+        #nullable enable
         public string? Name { get; set; }
         public string? Owner { get; set; }
         public string? Client { get; set; }
         public int? Budget { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public IList<ProjectCategoryDTO> ProjectCategories { get; set; }
+        #nullable disable
     }
 }
