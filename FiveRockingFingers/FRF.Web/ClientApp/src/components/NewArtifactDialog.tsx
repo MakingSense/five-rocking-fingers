@@ -8,6 +8,26 @@ import { useForm, Controller } from 'react-hook-form';
 
 const providers = ["custom", "AWS"];
 
+// Once the ArtifactType API and service are running,
+// this should be replaced with a call to that API
+const constArtifactTypes = [
+    {
+      "id": 1,
+      "name": "Atype",
+      "description": "asdasd"
+    },
+    {
+      "id": 2,
+      "name": "Btype",
+      "description": "BDescription"
+    },
+    {
+      "id": 3,
+      "name": "Ctype",
+      "description": "CDescription"
+    }
+]
+
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         container: {
@@ -16,7 +36,7 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         formControl: {
             margin: theme.spacing(1),
-            minWidth: 150,
+            width: '100%'
         },
         inputF: {
             padding: 2,
@@ -25,55 +45,45 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: any, project: Project }) => {
+const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, project: Project, openSnackbar: Function }) => {
 
     const classes = useStyles();
 
     const { register, handleSubmit, errors, control } = useForm();
 
-    const { showNewArtifactDialog, closeNewArtifactDialog, project } = props;
+    const { showNewArtifactDialog, closeNewArtifactDialog, project, openSnackbar } = props;
     const [artifactTypes, setArtifactTypes] = React.useState([] as ArtifactType[]);
-    const [state, setState] = React.useState<{ projectId: number; provider: string; artifactType: string; name: string; prueba: string }>({
-        projectId: project.id,
-        provider: '',
-        artifactType: '',
-        name: '',
-        prueba: ''
-    });
 
     React.useEffect(() => {
-        getArtifactTypes();
-    })
+        setArtifactTypes(constArtifactTypes);
+    }, [])
 
-    const handleChange = (event: React.ChangeEvent<{ name?: string; value: unknown }>) => {
-        const name = event.target.name as keyof typeof state;
-        if (typeof event.target.value === "string") {
-            setState({
-                ...state,
-                [name]: event.target.value,
-            });
-        }
-    };
+    const handleConfirm = async (data: { name: string, provider: string, artifactType: string }) => {
+        const artifactToCreate = {
+            name: data.name,
+            provider: data.provider,
+            artifactType: artifactTypes.find(at => at.id === parseInt(data.artifactType)),
+            projectId: props.project.id,
+            settings: { empty: "" }
+        };
 
-    const getArtifactTypes = async () => {
         try {
-            const response = await axios.get("http://localhost:3000/ArtifactType");
-            setArtifactTypes(response.data);
+            const response = await axios.post("https://localhost:44346/api/Artifacts/Save", artifactToCreate);
+            console.log(response);
+            if (response.status === 200) {
+                openSnackbar("Creaci\u00F3n del artefacto exitosa", "success");
+            } else {
+                openSnackbar("Ocurri\u00F3 un error al crear el artefacto", "warning");
+            }
         }
-        catch {
-            console.log("error en la carga");
+        catch (error) {
+            openSnackbar("Ocurri\u00F3 un error al crear el artefacto", "warning");
         }
+        closeNewArtifactDialog()
     }
 
-    const handleConfirm = (data) => {
-        setState({
-            ...state,
-            provider: data.provider
-        });
-
-        const { projectId, name, provider, artifactType, prueba } = state;
-        console.log(projectId, name, provider, artifactType, prueba)
-        console.log(data)
+    const handleCancel = () => {
+        closeNewArtifactDialog();
     }
 
     return (
@@ -117,7 +127,7 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
                                     <MenuItem value="">
                                         <em>None</em>
                                     </MenuItem>
-                                    {artifactTypes.map(at => <MenuItem value={at.name}>{at.name}</MenuItem>)}
+                                    {artifactTypes.map(at => <MenuItem value={at.id}>{at.name}</MenuItem>)}
                                 </Select>
                             }
                             name="artifactType"
@@ -135,14 +145,14 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
                         label="Nombre del artefacto"
                         helperText="Requerido*"
                         variant="outlined"
-                        onChange={handleChange}
                         className={classes.inputF}
-                    />
+                        fullWidth
+                        />
                 </form>
             </DialogContent>
             <DialogActions>
                 <Button size="small" type="submit" onClick={handleSubmit(handleConfirm)}>Agregar</Button>
-                <Button size="small" color="secondary" onClick={closeNewArtifactDialog}>Cancelar</Button>
+                <Button size="small" color="secondary" onClick={handleCancel}>Cancelar</Button>
             </DialogActions>
         </Dialog>
     );
