@@ -1,20 +1,23 @@
-import React from 'react';
+﻿import React from 'react';
 import { Redirect, Route, Switch } from "react-router-dom";
 import PrivateRoute from "../components/auth/authService";
 import Login from '../components/auth/Login';
 import Signup from '../components/auth/Signup';
+import ArtifactsDetails from '../components/ArtifactsDetails';
 import Home from '../components/Home';
 import ManageProjects from '../components/ManageProjects';
 
-export default function Routes() {
-    return (
-        <Switch>
-            <Redirect exact from="/" to="/home" />
-            <Route exact path="/login" component={Login} />
-            <Route exact path="/signup" component={Signup} />
-            <PrivateRoute exact path="/home" component={Home} />
-            <PrivateRoute exact path='/administrarProyectos' component={ManageProjects} />
-        </Switch>
-    );
-}
 
+const Routes = () => (
+    <Switch>
+	    <Redirect exact from="/" to="/home" />
+        <Route exact path="/login" component={Login} />
+        <Route exact path="/signup" component={Signup} />
+        <PrivateRoute exact path="/home" component={Home} />
+        <PrivateRoute exact path='/administrarProyectos' component={ManageProjects} />
+        <Route exact path='/projects/:idProject/artifacts/' component={ArtifactsDetails} />
+        <Route exact path='/' component={Home} />
+    </Switch>
+)
+
+export default Routes;

@@ -37,9 +37,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="ClientApp\src\commons\NewFolder\**" />
-    <EmbeddedResource Remove="ClientApp\src\commons\NewFolder\**" />
-    <TypeScriptCompile Remove="ClientApp\src\commons\NewFolder\**" />
+    <None Remove="ClientApp\src\components\NavMenuItem.tsx" />
+    <None Remove="ClientApp\src\interfaces\Category.ts" />
+    <None Remove="ClientApp\src\interfaces\Project.ts" />
+    <None Remove="ClientApp\src\interfaces\ProjectCategory.ts" />
+    <None Remove="ClientApp\src\router\Routes.tsx" />
   </ItemGroup>
 
   <ItemGroup>
@@ -51,6 +53,14 @@
   <ItemGroup>
     <ProjectReference Include="..\FRF.Core\FRF.Core.csproj" />
     <ProjectReference Include="..\FRF.Web.Dtos\FRF.Web.Dtos.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypeScriptCompile Include="ClientApp\src\commons\NavMenuItem.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\interfaces\Category.ts" />
+    <TypeScriptCompile Include="ClientApp\src\interfaces\Project.ts" />
+    <TypeScriptCompile Include="ClientApp\src\interfaces\ProjectCategory.ts" />
+    <TypeScriptCompile Include="ClientApp\src\router\Routes.tsx" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
