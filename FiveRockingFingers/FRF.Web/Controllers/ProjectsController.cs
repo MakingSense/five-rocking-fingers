@@ -11,7 +11,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace FiveRockingFingers.Controllers
 {
-    public class ProjectsController : BaseApiControllerAsync<ProjectDto>
+    public class ProjectsController : BaseApiController<ProjectDto>
     {
         private readonly IMapper _mapper;
         private readonly IProjectsService _projectService;
@@ -115,8 +115,6 @@ namespace FiveRockingFingers.Controllers
         [HttpDelete("{id}")]
         override public async Task<IActionResult> Delete(int id)
         {
-            try
-            {
                 var project =await _projectService.GetAsync(id);
 
                 if (project == null)
@@ -124,14 +122,12 @@ namespace FiveRockingFingers.Controllers
                     return NotFound();
                 }
 
-                _projectService.DeleteAsync(id);
-
+                var isDeleted = await _projectService.DeleteAsync(id);
+                if (!isDeleted)
+                {
+                    return NotFound();
+                }
                 return NoContent();
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, "Internal Server Error");
-            }
         }
     }
 }

@@ -102,7 +102,10 @@ namespace FRF.Core.Services
                 .SingleOrDefaultAsync(p => p.ProjectId == id);
             */
             /*Then delete this*/
-            var project =await _dataContext.Projects.Include(p => p.ProjectCategories).ThenInclude(pc => pc.Category).Include(up=>up.UsersByProject)
+            var project =await _dataContext.Projects
+                .Include(p => p.ProjectCategories)
+                .ThenInclude(pc => pc.Category)
+                .Include(up=>up.UsersByProject)
                 .SingleOrDefaultAsync(p => p.Id == id);
             //
             if (project == null) return null;
