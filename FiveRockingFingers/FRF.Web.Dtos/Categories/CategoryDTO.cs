@@ -3,17 +3,16 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace FRF.DataAccess.EntityModels
+namespace FRF.Web.Dtos.Categories
 {
-    public class Category
+    public class CategoryDTO
     {
-        [Key]
         public int Id { get; set; }
         [Required(AllowEmptyStrings = false)]
         public string Name { get; set; }
         #nullable enable
         public string? Description { get; set; }
         #nullable disable
-        public IList<ProjectCategory> ProjectCategories { get; set; }
+        public IList<ProjectCategoryDTO> ProjectCategories { get; set; }
     }
 }
