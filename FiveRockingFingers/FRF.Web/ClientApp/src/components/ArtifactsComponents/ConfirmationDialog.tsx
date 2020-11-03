@@ -1,14 +1,8 @@
 ﻿import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Snackbar } from '@material-ui/core';
-import { Alert } from 'reactstrap';
-import axios from 'axios';
 import * as React from 'react';
 import Artifact from '../../interfaces/Artifact';
-import Swal from 'sweetalert2'
 
-
-const ConfirmationDialog = (props: { open: boolean, setOpen: Function, deleteArtifact: Function, artifactToDelete: Artifact }) => {
-
-
+const ConfirmationDialog = (props: { open: boolean, setOpen: Function, deleteArtifact: Function, artifactToDelete: Artifact, setOpenSnackbar: Function, setSnackbarSettings: Function }) => {
 
     const handleClose = () => {
         props.setOpen(false);
@@ -17,10 +11,12 @@ const ConfirmationDialog = (props: { open: boolean, setOpen: Function, deleteArt
     const handleConfirm = () => {
         try {
             props.deleteArtifact(props.artifactToDelete.id);
-            Swal.fire("El artefacto ha sido borrado con éxito", "", "success");
+            props.setSnackbarSettings({ message: "El artefacto ha sido borrado con éxito", severity: "success" });
+            props.setOpenSnackbar(true);
         }
         catch {
-            Swal.fire("Hubo un error al borrar el artefacto", "", "error");
+            props.setSnackbarSettings({ message: "Hubo un error al borrar el artefacto", severity: "error" });
+            props.setOpenSnackbar(true);
         }
         handleClose();
     };
@@ -47,7 +43,7 @@ const ConfirmationDialog = (props: { open: boolean, setOpen: Function, deleteArt
                     <Button onClick={handleConfirm} color="primary">
                         Confirmar
                     </Button>
-                    <Button onClick={handleCancel} color="primary" autoFocus>
+                    <Button onClick={handleCancel} color="secondary">
                         Cancelar
                     </Button>
                 </DialogActions>

@@ -3,11 +3,9 @@ import Artifact from '../../interfaces/Artifact';
 import { Button } from 'reactstrap';
 import ConfirmationDialog from './ConfirmationDialog';
 
-const ArtifactsTableRow = (props: { artifact: Artifact, deleteArtifact: Function }) => {
+const ArtifactsTableRow = (props: { artifact: Artifact, deleteArtifact: Function, setOpenSnackbar: Function, setSnackbarSettings: Function }) => {
 
     const [openConfirmDialog, setOpenConfirmDialog] = React.useState(false);
-
-    
 
     const deleteButtonClick = () => {
         setOpenConfirmDialog(true);
@@ -23,8 +21,14 @@ const ArtifactsTableRow = (props: { artifact: Artifact, deleteArtifact: Function
                     <Button color="danger" onClick={deleteButtonClick}>Borrar</Button>
                 </td>
             </tr>
-            <ConfirmationDialog open={openConfirmDialog} setOpen={setOpenConfirmDialog} artifactToDelete={props.artifact} deleteArtifact={props.deleteArtifact} />
-
+            <ConfirmationDialog
+                open={openConfirmDialog}
+                setOpen={setOpenConfirmDialog}
+                artifactToDelete={props.artifact}
+                deleteArtifact={props.deleteArtifact}
+                setOpenSnackbar={props.setOpenSnackbar}
+                setSnackbarSettings={props.setSnackbarSettings}
+            />
          </React.Fragment>
     );
 };
