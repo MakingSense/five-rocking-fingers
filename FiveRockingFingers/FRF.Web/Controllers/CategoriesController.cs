@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace FRF.Web.Controllers
 {
-    public class CategoriesController : BaseApiController<CategoryDTO>
+    public class CategoriesController : BaseApiController<CategoryUpsertDTO, CategoryUpsertDTO>
     {
         private readonly IMapper _mapper;
         private readonly ICategoriesService _categoriesService;
@@ -46,7 +46,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpPost]
-        public override async Task<IActionResult> SaveAsync(CategoryDTO categoryDto)
+        public override async Task<IActionResult> SaveAsync(CategoryUpsertDTO categoryDto)
         {
             var category = _mapper.Map<FRF.Core.Models.Category>(categoryDto);
 
@@ -56,14 +56,9 @@ namespace FRF.Web.Controllers
         }
 
         [HttpPut("{id}")]
-        public override async Task<IActionResult> UpdateAsync(int id, CategoryDTO categoryDto)
+        public override async Task<IActionResult> UpdateAsync(int id, CategoryUpsertDTO categoryDto)
         {
-            if(id != categoryDto.Id)
-            {
-                return BadRequest();
-            }
-
-            var category = await _categoriesService.GetAsync(categoryDto.Id);
+            var category = await _categoriesService.GetAsync(id);
 
             if (category == null)
             {
