@@ -1,22 +1,35 @@
 ﻿import * as React from 'react';
 import Artifact from '../../interfaces/Artifact';
 import { Button } from 'reactstrap';
+import ConfirmationDialog from './ConfirmationDialog';
 
-const ArtifactsTableRow = (props: { artifact: Artifact, deleteArtifact: Function }) => {
+const ArtifactsTableRow = (props: { artifact: Artifact, deleteArtifact: Function, setOpenSnackbar: Function, setSnackbarSettings: Function }) => {
+
+    const [openConfirmDialog, setOpenConfirmDialog] = React.useState(false);
 
     const deleteButtonClick = () => {
-        props.deleteArtifact(props.artifact.id)
+        setOpenConfirmDialog(true);
     }
 
     return (
-        <tr>
-            <td>{props.artifact.name}</td>
-            <td>{props.artifact.provider}</td>
-            <td>{props.artifact.artifactType.name}</td>
-            <td>
-                <Button color="danger" onClick={deleteButtonClick}>Borrar</Button>
-            </td>
-        </tr>
+        <React.Fragment>
+            <tr>
+                <td>{props.artifact.name}</td>
+                <td>{props.artifact.provider}</td>
+                <td>{props.artifact.artifactType.name}</td>
+                <td>
+                    <Button color="danger" onClick={deleteButtonClick}>Borrar</Button>
+                </td>
+            </tr>
+            <ConfirmationDialog
+                open={openConfirmDialog}
+                setOpen={setOpenConfirmDialog}
+                artifactToDelete={props.artifact}
+                deleteArtifact={props.deleteArtifact}
+                setOpenSnackbar={props.setOpenSnackbar}
+                setSnackbarSettings={props.setSnackbarSettings}
+            />
+         </React.Fragment>
     );
 };
 
