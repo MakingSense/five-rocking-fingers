@@ -66,5 +66,20 @@ namespace FRF.Web.Controllers
                 return StatusCode(500, e.Message);
             }
         }*/
+
+
+        // [Authorize] 
+        [HttpGet("getuserid")]
+        public async Task<IActionResult> GetUserId(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email)) return BadRequest();
+
+            /* TODO:Pending AWS Credentials. Login is bypassed!!! [FIVE-6]*/
+            /*var userId = await _userService.GetUserIdByEmail(email);*/
+            var userId = "c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba";
+            if (userId != null) return Ok(userId);
+
+            return NotFound();
+        }
     }
 }

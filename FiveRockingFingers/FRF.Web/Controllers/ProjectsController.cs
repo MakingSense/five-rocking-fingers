@@ -11,7 +11,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace FiveRockingFingers.Controllers
 {
-    public class ProjectsController : BaseApiControllerAsync<ProjectDto>
+    public class ProjectsController : BaseApiController<ProjectDto>
     {
         private readonly IMapper _mapper;
         private readonly IProjectsService _projectService;
@@ -79,7 +79,7 @@ namespace FiveRockingFingers.Controllers
             {
                 return BadRequest("Project object is null");
             }
-
+            projectDto.CreatedDate=DateTime.Now;
             var project = _mapper.Map<FRF.Core.Models.Project>(projectDto);
             var projectSaved =await _projectService.SaveAsync(project);
 
@@ -106,8 +106,8 @@ namespace FiveRockingFingers.Controllers
             }
 
             _mapper.Map(projectDto, project);
-
-            var updatedProject = _mapper.Map<ProjectDto>(_projectService.UpdateAsync(project));
+            var updatePro = await _projectService.UpdateAsync(project);
+            var updatedProject = _mapper.Map<ProjectDto>(updatePro);
 
             return Ok(updatedProject);
         }
@@ -115,8 +115,6 @@ namespace FiveRockingFingers.Controllers
         [HttpDelete("{id}")]
         override public async Task<IActionResult> Delete(int id)
         {
-            try
-            {
                 var project =await _projectService.GetAsync(id);
 
                 if (project == null)
@@ -124,14 +122,12 @@ namespace FiveRockingFingers.Controllers
                     return NotFound();
                 }
 
-                _projectService.DeleteAsync(id);
-
+                var isDeleted = await _projectService.DeleteAsync(id);
+                if (!isDeleted)
+                {
+                    return NotFound();
+                }
                 return NoContent();
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, "Internal Server Error");
-            }
         }
     }
 }

@@ -31,6 +31,7 @@ namespace FRF.Core.Services
                 .ThenInclude(c => c.ProjectCategories)
                 .ThenInclude(ca => ca.Category)
                 .Include(pp => pp.Project)
+                .ThenInclude(upp=>upp.UsersByProject)
                 .Select(pro => pro.Project).ToListAsync();
 
             return (result == null) ? null : _mapper.Map<List<Project>>(result);
@@ -99,10 +100,14 @@ namespace FRF.Core.Services
                 .ThenInclude(c => c.ProjectCategories)
                 .ThenInclude(ca => ca.Category)
                 .Include(pp => pp.Project)
+                .ThenInclude(upp=>upp.UsersByProject)
                 .SingleOrDefaultAsync(p => p.ProjectId == id);
             */
             /*Then delete this*/
-            var project =await _dataContext.Projects.Include(p => p.ProjectCategories).ThenInclude(pc => pc.Category).Include(up=>up.UsersByProject)
+            var project =await _dataContext.Projects
+                .Include(p => p.ProjectCategories)
+                .ThenInclude(pc => pc.Category)
+                .Include(up=>up.UsersByProject)
                 .SingleOrDefaultAsync(p => p.Id == id);
             //
             if (project == null) return null;
@@ -125,6 +130,7 @@ namespace FRF.Core.Services
                 .Where(up => up.UserId == userId)
                 .Include(pr => pr.Project)
                 .ThenInclude(c => c.ProjectCategories)
+                .ThenInclude(upp=>upp.UsersByProject)
                 .SingleOrDefaultAsync(p => p.Id == id);
              */
             /*Then delete this*/
@@ -166,6 +172,7 @@ namespace FRF.Core.Services
                 .Where(up => up.UserId == userId)
                 .Include(pr => pr.Project)
                 .ThenInclude(c => c.ProjectCategories)
+                .ThenInclude(upp=>upp.UsersByProject)
                 .SingleOrDefaultAsync(p => p.Id == id);
              */
 

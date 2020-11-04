@@ -2,13 +2,14 @@
 using System.Threading.Tasks;
 using Amazon.Extensions.CognitoAuthentication;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace FRF.Core.Services
 {
     public class UserService : IUserService
     {
         /*Uncomment this after do.*/
-        /*
+       /*
        private readonly SignInManager<CognitoUser> _signInManager;
        private readonly UserManager<CognitoUser> _userManager;
 
@@ -18,7 +19,7 @@ namespace FRF.Core.Services
            _signInManager = signInManager;
        }
         
-
+ 
         public async Task<string> GetFullname(string email)
         {
             if (string.IsNullOrEmpty(email)) return null;
@@ -67,6 +68,13 @@ namespace FRF.Core.Services
             {
                 throw new Exception(e.Message);
             }
+        }
+
+        public async Task<string> GetUserIdByEmail(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            return user == null ? null : user.UserID;
         }*/
     }
 }

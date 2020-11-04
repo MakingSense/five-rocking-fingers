@@ -10,7 +10,7 @@ using FRF.Web.Dtos.Artifacts;
 
 namespace FRF.Web.Controllers
 {
-    public class ArtifactsController : BaseApiControllerAsync<ArtifactDTO>
+    public class ArtifactsController : BaseApiController<ArtifactDTO>
     {
         private readonly IMapper _mapper;
         private readonly IArtifactsService _artifactsService;

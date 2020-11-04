@@ -1,14 +1,17 @@
 ﻿import {
     Button, Card, CardActions, CardContent,
-    Checkbox, FormControl, FormControlLabel, FormGroup, InputAdornment, TextField, Typography
+    Checkbox, Chip, FormControl, FormControlLabel, FormGroup, IconButton, InputAdornment, Paper, TextField, TextFieldProps, Typography
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import axios from 'axios';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
+import * as yup from "yup";
 import Category from '../../interfaces/Category';
 import Project from '../../interfaces/Project';
 import ProjectCategory from '../../interfaces/ProjectCategory';
+import UserByProject from '../../interfaces/UserByProject';
+import PersonAddIcon from '@material-ui/icons/PersonAdd';
 
 const useStyles = makeStyles({
     root: {
@@ -20,12 +23,27 @@ const useStyles = makeStyles({
     inputF: {
         padding: 2,
         marginTop: 10
+    },
+    categoryList: {
+        display: 'flex',
+        flexWrap: 'wrap',
+        listStyle: 'none',
+        padding: 2,
+        margin: 0,
+    },
+    chip: {
+        margin: 2
     }
 });
-
+const emailSchema = yup.object().shape({
+    email: yup.string()
+        .trim()
+        .email('Debe ser un email valido.'),
+});
 const EditProject = (props: { project: Project, cancelEdit: any, categories: Category[], openSnackbar: Function }) => {
     const classes = useStyles();
-
+    const email = React.useRef<TextFieldProps>(null);
+    const [fieldEmail, setFieldEmail] = React.useState<string | null>("")
     const { register, handleSubmit, errors } = useForm();
 
     const [state, setState] = React.useState({
@@ -33,8 +51,10 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
         client: props.project.client,
         owner: props.project.owner,
         budget: props.project.budget,
+        createdDate: props.project.createdDate,
         id: props.project.id,
-        projectCategories: props.project.projectCategories
+        projectCategories: props.project.projectCategories,
+        userByProject: props.project.usersByProject
     });
 
     const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -59,11 +79,70 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
         }
     }
 
+    const handleAddUser = async () => {
+        let userEmail: string | null = "";
+
+        if (typeof email.current?.value === "string") {
+            userEmail = email.current?.value;
+        }
+
+        if (emailSchema.isValidSync({ email: userEmail })) {
+
+            if (userEmail.length > 0 && userEmail !== null) {
+                axios.get("https://localhost:44346/api/User/getuserid", {
+                    params: { email: userEmail }
+                })
+                    .then(response => {
+                        if (response.status === 200) {
+                            console.log(response.data);
+                            const aux: UserByProject = {
+                                id: 0,
+                                userId: response.data,
+                                projectId: 0
+                            }
+                            var auxState = state.userByProject;
+                            auxState.push(aux);
+                            setState({ ...state, userByProject: auxState });
+                            props.openSnackbar("Usuario asignado correctamente!", "success");
+                            setFieldEmail("");
+                        }
+                        if (response.status === 400) {
+                            props.openSnackbar("Ocurri\u00F3 un error al asignar un usuario", "warning");
+                            setFieldEmail("");
+                        }
+                    })
+                    .catch(() => {
+                        props.openSnackbar("Ocurri\u00F3 un error al asignar un usuario", "warning");
+                        setFieldEmail("");
+                    });
+            }
+            else {
+                props.openSnackbar("No puede ingresar un campo vacio", "warning");
+                setFieldEmail("");
+            }
+        }
+        else {
+            props.openSnackbar("El dato ingresado no es un email valido", "warning");
+            setFieldEmail("");
+        }
+    }
+
     const handleConfirm = async () => {
-        const { name, client, owner, budget, id, projectCategories } = state;
-        const project = { name, client, owner, budget, id, projectCategories }
+        const { name, client, owner, budget, id, createdDate, projectCategories, userByProject } = state;
+        const project = { name, client, owner, budget, id, createdDate, projectCategories, userByProject }
         try {
-            const response = await axios.put("https://localhost:44346/api/Projects/Update", project);
+            const response = await axios.put(`https://localhost:44346/api/Projects/Update?id=${id}`,{
+                name: project.name,
+                id:id,
+                owner: project.owner,
+                client: project.client,
+                createdDate: project.createdDate,
+                budget: project.budget,
+                projectCategories: project.projectCategories,
+                usersByProject: project.userByProject
+            });
+            console.log(response.request);
+            console.log(response.data);
             if (response.status === 200) {
                 props.openSnackbar("Se modific\u00F3 el proyecto de manera correcta", "success");
             } else {
@@ -157,6 +236,39 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
                                     label={category.name}
                                 />
                             )}
+                        </FormGroup>
+                    </FormControl>
+                    <Typography className={classes.title} color="textSecondary" gutterBottom>
+                        Usuarios
+                    </Typography>
+                    <FormControl component="fieldset">
+                        <FormGroup>
+                            <Paper component="ul" className={classes.categoryList} >
+                                {props.project.usersByProject.map((up) => {
+                                    return (
+                                        <li key={up.id}>
+                                            <Chip label={up.userId} className={classes.chip} />
+                                        </li>
+                                    )
+                                })}
+                            </Paper>
+                            <span><TextField
+                                inputRef={email}
+                                value={fieldEmail}
+                                type="email"
+                                id="email"
+                                name="email"
+                                label="Permitir acceso a:"
+                                helperText="Ingrese el email del usuario al que desea otorgarle acceso"
+                                variant="outlined"
+                                className={classes.inputF}
+                                onChange={event => {
+                                    setFieldEmail(event.target.value);
+                                }}
+                            />
+                                <IconButton type="button" onClick={handleAddUser} >
+                                    <PersonAddIcon />
+                                </IconButton></span>
                         </FormGroup>
                     </FormControl>
                 </CardContent>

@@ -11,6 +11,7 @@ namespace FRF.Core.Services
         /*Uncomment this after do.
         Task<string> GetFullname(string email);
         Task Logout();
-        Task<string> GetCurrentUserId();*/
+        Task<string> GetCurrentUserId();
+        Task<string> GetUserIdByEmail(string email);*/
     }
 }
