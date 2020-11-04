@@ -10,7 +10,7 @@ using FRF.Web.Dtos.Artifacts;
 
 namespace FRF.Web.Controllers
 {
-    public class ArtifactsController : BaseApiControllerAsync<ArtifactDTO>
+    public class ArtifactsController : BaseApiController<ArtifactDTO>
     {
         private readonly IMapper _mapper;
         private readonly IArtifactsService _artifactsService;
@@ -22,7 +22,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpGet]
-        public override async Task<IActionResult> GetAll()
+        public override async Task<IActionResult> GetAllAsync()
         {
             var artifacts = await _artifactsService.GetAll();
 
@@ -32,7 +32,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpGet("{projectId}")]
-        public async Task<IActionResult> GetAllByProjectId(int projectId)
+        public async Task<IActionResult> GetAllByProjectIdAsync(int projectId)
         {
             var artifacts = await _artifactsService.GetAllByProjectId(projectId);
 
@@ -42,7 +42,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpGet("{id}")]
-        public override async Task<IActionResult> Get(int id)
+        public override async Task<IActionResult> GetAsync(int id)
         {
             var artifact = await _artifactsService.Get(id);
 
@@ -57,7 +57,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpPost]
-        public override async Task<IActionResult> Save(ArtifactDTO artifactDto)
+        public override async Task<IActionResult> SaveAsync(ArtifactDTO artifactDto)
         {
             var artifact = _mapper.Map<FRF.Core.Models.Artifact>(artifactDto);
 
@@ -67,7 +67,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpPut("{id}")]
-        public override async Task<IActionResult> Update(int id, ArtifactDTO artifactDto)
+        public override async Task<IActionResult> UpdateAsync(int id, ArtifactDTO artifactDto)
         {
             if(id != artifactDto.Id)
             {
@@ -89,7 +89,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpDelete("{id}")]
-        public override async Task<IActionResult> Delete(int id)
+        public override async Task<IActionResult> DeleteAsync(int id)
         {
             var artifact = await _artifactsService.Get(id);
 

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace FRF.Web.Controllers
 {
-    public class CategoriesController : BaseApiControllerAsync<CategoryDTO>
+    public class CategoriesController : BaseApiController<CategoryDTO>
     {
         private readonly IMapper _mapper;
         private readonly ICategoriesService _categoriesService;
@@ -21,7 +21,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpGet]
-        public override async Task<IActionResult> GetAll()
+        public override async Task<IActionResult> GetAllAsync()
         {
             var categories = await _categoriesService.GetAllAsync();
 
@@ -31,7 +31,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpGet("{id}")]
-        public override async Task<IActionResult> Get(int id)
+        public override async Task<IActionResult> GetAsync(int id)
         {
             var category = await _categoriesService.GetAsync(id);
 
@@ -46,7 +46,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpPost]
-        public override async Task<IActionResult> Save(CategoryDTO categoryDto)
+        public override async Task<IActionResult> SaveAsync(CategoryDTO categoryDto)
         {
             var category = _mapper.Map<FRF.Core.Models.Category>(categoryDto);
 
@@ -56,7 +56,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpPut("{id}")]
-        public override async Task<IActionResult> Update(int id, CategoryDTO categoryDto)
+        public override async Task<IActionResult> UpdateAsync(int id, CategoryDTO categoryDto)
         {
             if(id != categoryDto.Id)
             {
@@ -78,7 +78,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpDelete("{id}")]
-        public override async Task<IActionResult> Delete(int id)
+        public override async Task<IActionResult> DeleteAsync(int id)
         {
             var category = await _categoriesService.GetAsync(id);
 
