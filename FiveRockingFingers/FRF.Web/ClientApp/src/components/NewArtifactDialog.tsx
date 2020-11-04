@@ -7,7 +7,7 @@ import ArtifactType from '../interfaces/ArtifactType';
 import ArtifactService from '../services/ArtifactService';
 
 // Once the ArtifactType API and service are running, this should be replaced with a call to that API
-// Until then, you might an error if you don't have this 3 types created on your local DataBase before using this code
+// Until then, you might an error if you don't have this 3 types created on your local DataBase before using this
 const constArtifactTypes = [
     {
       "id": 1,
@@ -43,12 +43,12 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, projectId: number, updateList: Function}) => {
+const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, projectId: number, updateList: Function, setOpenSnackbar: Function , setSnackbarSettings: Function }) => {
 
     const classes = useStyles();
 
     const { register, handleSubmit, errors, control } = useForm();
-    const { showNewArtifactDialog, closeNewArtifactDialog, projectId, updateList } = props;
+    const { showNewArtifactDialog, closeNewArtifactDialog, projectId, updateList, setOpenSnackbar, setSnackbarSettings } = props;
 
     const [artifactTypes, setArtifactTypes] = React.useState([] as ArtifactType[]);
 
@@ -68,17 +68,17 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
         try {
             const response = await ArtifactService.save(artifactToCreate);
             if (response.status === 200) {
-                //openSnackbar("Creaci\u00F3n del artefacto exitosa", "success");
-                console.log("Creacion exitosa");
+                setSnackbarSettings({ message: "El artefacto ha sido creado con éxito", severity: "success" });
+                setOpenSnackbar(true);
                 updateList();
             } else {
-                //openSnackbar("Ocurri\u00F3 un error al crear el artefacto", "warning");
-                console.log("Fallo la creación (status != 200)");
+                setSnackbarSettings({ message: "Hubo un error al crear el artefacto", severity: "error" });
+                setOpenSnackbar(true);
             }
         }
         catch (error) {
-            //openSnackbar("Ocurri\u00F3 un error al crear el artefacto", "warning");
-            console.log("Fallo la creación (catch)");
+            setSnackbarSettings({ message: "Hubo un error al crear el artefacto", severity: "error" });
+            setOpenSnackbar(true);
         }
         closeNewArtifactDialog()
     }
