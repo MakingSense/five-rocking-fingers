@@ -10,7 +10,7 @@ using FRF.Web.Dtos.Artifacts;
 
 namespace FRF.Web.Controllers
 {
-    public class ArtifactsController : BaseApiController<ArtifactDTO>
+    public class ArtifactsController : BaseApiController<ArtifactUpsertDTO, ArtifactUpsertDTO>
     {
         private readonly IMapper _mapper;
         private readonly IArtifactsService _artifactsService;
@@ -57,7 +57,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpPost]
-        public override async Task<IActionResult> SaveAsync(ArtifactDTO artifactDto)
+        public override async Task<IActionResult> SaveAsync(ArtifactUpsertDTO artifactDto)
         {
             var artifact = _mapper.Map<FRF.Core.Models.Artifact>(artifactDto);
 
@@ -67,14 +67,9 @@ namespace FRF.Web.Controllers
         }
 
         [HttpPut("{id}")]
-        public override async Task<IActionResult> UpdateAsync(int id, ArtifactDTO artifactDto)
+        public override async Task<IActionResult> UpdateAsync(int id, ArtifactUpsertDTO artifactDto)
         {
-            if(id != artifactDto.Id)
-            {
-                return BadRequest();
-            }
-
-            var artifact = await _artifactsService.Get(artifactDto.Id);
+            var artifact = await _artifactsService.Get(id);
 
             if (artifact == null)
             {
