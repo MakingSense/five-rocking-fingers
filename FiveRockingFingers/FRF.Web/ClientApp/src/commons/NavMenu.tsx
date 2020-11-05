@@ -28,7 +28,9 @@ const NavMenu = () => {
 
     const { isAuthenticated } = useUserContext();
     const getProjects = async () => {
+
        const response = await axios.get("https://localhost:44346/api/Projects/GetAll/"+isAuthenticated);
+
         setProjects(response.data);
     }
     const getUser = async () => {

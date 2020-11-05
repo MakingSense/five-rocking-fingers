@@ -69,8 +69,8 @@ namespace FRF.Web.Controllers
 
 
         // [Authorize] 
-        [HttpGet("getuserid")]
-        public async Task<IActionResult> GetUserId(string email)
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchUserAsync(string email)
         {
             if (string.IsNullOrWhiteSpace(email)) return BadRequest();
 

@@ -3,7 +3,7 @@
     Checkbox, Chip, FormControl, FormControlLabel, FormGroup, IconButton, InputAdornment, Paper, TextField, TextFieldProps, Typography
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import axios from 'axios';
+import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import * as yup from "yup";
@@ -11,7 +11,7 @@ import Category from '../../interfaces/Category';
 import Project from '../../interfaces/Project';
 import ProjectCategory from '../../interfaces/ProjectCategory';
 import UserByProject from '../../interfaces/UserByProject';
-import PersonAddIcon from '@material-ui/icons/PersonAdd';
+import ProjectService from '../ManageProjectsComponents/ProjectService';
 
 const useStyles = makeStyles({
     root: {
@@ -38,6 +38,7 @@ const useStyles = makeStyles({
 const emailSchema = yup.object().shape({
     email: yup.string()
         .trim()
+        .required('No puede ingresar un campo vacio')
         .email('Debe ser un email valido.'),
 });
 const EditProject = (props: { project: Project, cancelEdit: any, categories: Category[], openSnackbar: Function }) => {
@@ -45,7 +46,7 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
     const email = React.useRef<TextFieldProps>(null);
     const [fieldEmail, setFieldEmail] = React.useState<string | null>("")
     const { register, handleSubmit, errors } = useForm();
-
+    const [isValid, setIsValid] = React.useState<boolean>(true);
     const [state, setState] = React.useState({
         name: props.project.name,
         client: props.project.client,
@@ -81,78 +82,57 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
 
     const handleAddUser = async () => {
         let userEmail: string | null = "";
+        if (typeof email.current?.value === "string") userEmail = email.current?.value;
 
-        if (typeof email.current?.value === "string") {
-            userEmail = email.current?.value;
-        }
-
-        if (emailSchema.isValidSync({ email: userEmail })) {
-
-            if (userEmail.length > 0 && userEmail !== null) {
-                axios.get("https://localhost:44346/api/User/getuserid", {
-                    params: { email: userEmail }
-                })
-                    .then(response => {
-                        if (response.status === 200) {
-                            console.log(response.data);
-                            const aux: UserByProject = {
-                                id: 0,
-                                userId: response.data,
-                                projectId: 0
-                            }
-                            var auxState = state.userByProject;
-                            auxState.push(aux);
-                            setState({ ...state, userByProject: auxState });
-                            props.openSnackbar("Usuario asignado correctamente!", "success");
-                            setFieldEmail("");
-                        }
-                        if (response.status === 400) {
-                            props.openSnackbar("Ocurri\u00F3 un error al asignar un usuario", "warning");
-                            setFieldEmail("");
-                        }
-                    })
-                    .catch(() => {
-                        props.openSnackbar("Ocurri\u00F3 un error al asignar un usuario", "warning");
-                        setFieldEmail("");
-                    });
-            }
-            else {
-                props.openSnackbar("No puede ingresar un campo vacio", "warning");
-                setFieldEmail("");
-            }
+        if (!emailSchema.isValidSync({ email: userEmail })) {
+            setIsValid(false);
+            props.openSnackbar("Formato de email invalido!", "warning");
+            setFieldEmail("");
         }
         else {
-            props.openSnackbar("El dato ingresado no es un email valido", "warning");
-            setFieldEmail("");
+            setIsValid(true);
+            const response = await ProjectService.searchUser(userEmail);
+
+            switch (response.status) {
+                case 200:
+                    const aux: UserByProject = {
+                        id: 0,
+                        userId: response.data,
+                        projectId: 0
+                    }
+                    var auxState = state.userByProject;
+                    auxState.push(aux);
+                    setState({ ...state, userByProject: auxState });
+                    props.openSnackbar("Usuario asignado correctamente!", "success");
+                    setFieldEmail("");
+                    break;
+                case 404:
+                    props.openSnackbar("Usuario no encontrado", "warning");
+                    setFieldEmail("");
+                    break;
+                case 400:
+                    props.openSnackbar("Ocurri\u00F3 un error al asignar un usuario", "error");
+                    setFieldEmail("");
+                    break;
+                default:
+                    props.openSnackbar("Ocurri\u00F3 un error al asignar un usuario", "error");
+                    setFieldEmail("");
+                    break;
+            }
         }
     }
 
     const handleConfirm = async () => {
         const { name, client, owner, budget, id, createdDate, projectCategories, userByProject } = state;
         const project = { name, client, owner, budget, id, createdDate, projectCategories, userByProject }
-        try {
-            const response = await axios.put(`https://localhost:44346/api/Projects/Update?id=${id}`,{
-                name: project.name,
-                id:id,
-                owner: project.owner,
-                client: project.client,
-                createdDate: project.createdDate,
-                budget: project.budget,
-                projectCategories: project.projectCategories,
-                usersByProject: project.userByProject
-            });
-            console.log(response.request);
-            console.log(response.data);
-            if (response.status === 200) {
-                props.openSnackbar("Se modific\u00F3 el proyecto de manera correcta", "success");
-            } else {
-                props.openSnackbar("Ocurri\u00F3 un error al modificar el proyecto", "warning");
-            }
-            props.cancelEdit();
-        }
-        catch {
+
+        const response = await ProjectService.update(id, project);
+        if (response.status === 200) {
+            props.openSnackbar("Se modific\u00F3 el proyecto de manera correcta", "success");
+        } else {
             props.openSnackbar("Ocurri\u00F3 un error al modificar el proyecto", "warning");
         }
+        props.cancelEdit();
     }
 
     return (
@@ -253,6 +233,7 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
                                 })}
                             </Paper>
                             <span><TextField
+                                error={isValid === false}
                                 inputRef={email}
                                 value={fieldEmail}
                                 type="email"

@@ -11,6 +11,7 @@ import Category from '../../interfaces/Category';
 import ProjectCategory from '../../interfaces/ProjectCategory';
 import UserByProject from '../../interfaces/UserByProject';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
+import ProjectService from './ProjectService';
 
 const useStyles = makeStyles({
     inputF: {
@@ -28,6 +29,7 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
     const email = React.useRef<TextFieldProps>(null);
     const [fieldEmail, setFieldEmail] = React.useState<string | null>("")
     const classes = useStyles();
+    const [isValid, setIsValid] = React.useState<boolean>(true);
 
     const { register, handleSubmit, errors, reset } = useForm();
 
@@ -80,78 +82,58 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
 
     const handleAddUser = async () => {
         let userEmail: string | null = "";
+        if (typeof email.current?.value === "string") userEmail = email.current?.value;
 
-        if (typeof email.current?.value === "string") {
-            userEmail = email.current?.value;
-        }
-
-        if (emailSchema.isValidSync({ email: userEmail })) {
-
-            if (userEmail.length > 0 && userEmail !== null) {
-                axios.get("https://localhost:44346/api/User/getuserid", {
-                    params: { email: userEmail }
-                })
-                    .then(response => {
-                        if (response.status === 200) {
-                            console.log(response.data);
-                            const aux: UserByProject = {
-                                id: 0,
-                                userId: response.data,
-                                projectId: 0
-                            }
-                            var auxState = state.userByProject;
-                            auxState.push(aux);
-                            setState({ ...state, userByProject: auxState });
-                            props.openSnackbar("Usuario asignado correctamente!", "success");
-                            setFieldEmail("");
-                        }
-                        if (response.status === 400) {
-                            props.openSnackbar("Ocurri\u00F3 un error al asignar un usuario", "warning");
-                            reset();
-                        }
-                    })
-                    .catch(() => {
-                        props.openSnackbar("Ocurri\u00F3 un error al asignar un usuario", "warning");
-                        reset();
-                    });
-            }
-            else {
-                props.openSnackbar("No puede ingresar un campo vacio", "warning");
-                setFieldEmail("");
-            }
+        if (!emailSchema.isValidSync({ email: userEmail })) {
+            setIsValid(false);
+            props.openSnackbar("Formato de email invalido!", "warning");
+            setFieldEmail("");
         }
         else {
-            props.openSnackbar("El dato ingresado no es un email valido", "warning");
-            setFieldEmail("");
+            setIsValid(true);
+            const response = await ProjectService.searchUser(userEmail);
+
+            switch (response.status) {
+                case 200:
+                    const aux: UserByProject = {
+                        id: 0,
+                        userId: response.data,
+                        projectId: 0
+                    }
+                    var auxState = state.userByProject;
+                    auxState.push(aux);
+                    setState({ ...state, userByProject: auxState });
+                    props.openSnackbar("Usuario asignado correctamente!", "success");
+                    setFieldEmail("");
+                    break;
+                case 404:
+                    props.openSnackbar("Usuario no encontrado", "warning");
+                    setFieldEmail("");
+                    break;
+                case 400:
+                    props.openSnackbar("Ocurri\u00F3 un error al asignar un usuario", "error");
+                    setFieldEmail("");
+                    break;
+                default:
+                    props.openSnackbar("Ocurri\u00F3 un error al asignar un usuario", "error");
+                    setFieldEmail("");
+                    break;
+            }
         }
     }
 
     const handleConfirm = async () => {
         const { name, client, owner, budget, projectCategories, userByProject } = state;
         const project = { name, client, owner, budget, projectCategories, userByProject }
-        try {
-            console.log(project);
-            const response = await axios.post("https://localhost:44346/api/Projects/Save",
-                {
-                    name: project.name,
-                    owner: project.owner,
-                    client: project.client,
-                    budget: project.budget,
-                    projectCategories: project.projectCategories,
-                    usersByProject: project.userByProject
-                });
-            if (response.status === 200) {
-                props.openSnackbar("Creaci\u00F3n del proyecto exitosa", "success");
-            } else {
-                props.openSnackbar("Ocurri\u00F3 un error al crear el proyecto", "warning");
-            }
-            props.finishCreation();
-        }
-        catch {
+
+        const response = await ProjectService.save(project);
+        if (response.status === 200) {
+            props.openSnackbar("Creaci\u00F3n del proyecto exitosa", "success");
+        } else {
             props.openSnackbar("Ocurri\u00F3 un error al crear el proyecto", "warning");
         }
-        clearState();
         props.finishCreation();
+        clearState();
     }
 
     return (
@@ -216,6 +198,7 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
                         fullWidth
                     />
                     <TextField
+                        error={isValid === false}
                         inputRef={email}
                         value={fieldEmail}
                         type="email"
