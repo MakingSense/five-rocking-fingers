@@ -2,7 +2,7 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import * as React from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Providers } from '../Constants';
+import { PROVIDERS } from '../Constants';
 import ArtifactType from '../interfaces/ArtifactType';
 import ArtifactService from '../services/ArtifactService';
 
@@ -12,7 +12,7 @@ const constArtifactTypes = [
     {
       "id": 1,
       "name": "Atype",
-      "description": "asdasd"
+      "description": "ADescription"
     },
     {
       "id": 2,
@@ -60,7 +60,7 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
         const artifactToCreate = {
             name: data.name.trim(),
             provider: data.provider,
-            artifactType: artifactTypes.find(at => at.id === parseInt(data.artifactType)),
+            artifactType: artifactTypes.find(at => at.id === parseInt(data.artifactType, 10)),
             projectId: projectId,
             settings: { empty: "" }
         };
@@ -105,7 +105,7 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
                                     <MenuItem value="">
                                         <em>None</em>
                                     </MenuItem>
-                                    {Providers.map(p => <MenuItem value={p}>{p}</MenuItem>)}
+                                    {PROVIDERS.map(p => <MenuItem value={p}>{p}</MenuItem>)}
                                 </Select>
                             }
                             name="provider"
