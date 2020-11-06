@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace FiveRockingFingers.Controllers
 {
-    public class ProjectsController : BaseApiController<ProjectDto>
+    public class ProjectsController : BaseApiControllerAsync<ProjectDto>
     {
         private readonly IMapper mapper;
 
