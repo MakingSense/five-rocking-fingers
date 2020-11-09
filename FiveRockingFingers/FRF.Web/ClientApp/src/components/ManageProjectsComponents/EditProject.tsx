@@ -6,12 +6,13 @@ import { makeStyles } from '@material-ui/core/styles';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
-import * as yup from "yup";
 import Category from '../../interfaces/Category';
 import Project from '../../interfaces/Project';
 import ProjectCategory from '../../interfaces/ProjectCategory';
 import UserByProject from '../../interfaces/UserByProject';
+import UserPublicProfile from '../../interfaces/UserPublicProfile';
 import ProjectService from '../ManageProjectsComponents/ProjectService';
+import { ValidateEmail } from "./ValidateEmail";
 
 const useStyles = makeStyles({
     root: {
@@ -35,18 +36,13 @@ const useStyles = makeStyles({
         margin: 2
     }
 });
-const emailSchema = yup.object().shape({
-    email: yup.string()
-        .trim()
-        .required('No puede ingresar un campo vacio')
-        .email('Debe ser un email valido.'),
-});
+
 const EditProject = (props: { project: Project, cancelEdit: any, categories: Category[], openSnackbar: Function }) => {
     const classes = useStyles();
     const email = React.useRef<TextFieldProps>(null);
     const [fieldEmail, setFieldEmail] = React.useState<string | null>("")
     const { register, handleSubmit, errors } = useForm();
-    const [isValid, setIsValid] = React.useState<boolean>(true);
+    const [isValid] = React.useState<boolean>(true);
     const [state, setState] = React.useState({
         name: props.project.name,
         client: props.project.client,
@@ -55,11 +51,15 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
         createdDate: props.project.createdDate,
         id: props.project.id,
         projectCategories: props.project.projectCategories,
-        userByProject: props.project.usersByProject
+        usersByProject: props.project.usersByProject
     });
 
     const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         setState({ ...state, [event.target.id]: event.target.value });
+    }
+
+    const emailField = () => {
+        setFieldEmail("");
     }
 
     const handleChangeCategory = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,27 +82,21 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
 
     const handleAddUser = async () => {
         let userEmail: string | null = "";
-        if (typeof email.current?.value === "string") userEmail = email.current?.value;
-
-        if (!emailSchema.isValidSync({ email: userEmail })) {
-            setIsValid(false);
-            props.openSnackbar("Formato de email invalido!", "warning");
-            setFieldEmail("");
-        }
-        else {
-            setIsValid(true);
+        userEmail = ValidateEmail(email.current?.value as string, emailField, props.openSnackbar);
+        if (userEmail != null) {
             const response = await ProjectService.searchUser(userEmail);
 
             switch (response.status) {
                 case 200:
+                    const User: UserPublicProfile = response.data;
                     const aux: UserByProject = {
                         id: 0,
-                        userId: response.data,
-                        projectId: 0
+                        userId: User.userId,
+                        projectId: 0,
                     }
-                    var auxState = state.userByProject;
+                    var auxState = state.usersByProject;
                     auxState.push(aux);
-                    setState({ ...state, userByProject: auxState });
+                    setState({ ...state, usersByProject: auxState });
                     props.openSnackbar("Usuario asignado correctamente!", "success");
                     setFieldEmail("");
                     break;
@@ -123,8 +117,8 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
     }
 
     const handleConfirm = async () => {
-        const { name, client, owner, budget, id, createdDate, projectCategories, userByProject } = state;
-        const project = { name, client, owner, budget, id, createdDate, projectCategories, userByProject }
+        const { name, client, owner, budget, id, createdDate, projectCategories, usersByProject } = state;
+        const project = { name, client, owner, budget, id, createdDate, projectCategories, usersByProject }
 
         const response = await ProjectService.update(id, project);
         if (response.status === 200) {

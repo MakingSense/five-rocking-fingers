@@ -1,4 +1,5 @@
 import axios from 'axios'
+import Project from '../../interfaces/Project';
 
 export default class ProjectService {
 
@@ -9,17 +10,25 @@ export default class ProjectService {
         return response;
     }
 
-    static save = async (project: any) => {
-        const response = await axios.post("https://localhost:44346/api/Projects/Save",
+    static save = async (project: Project) => {
+        console.log("Service: ");
+        console.log(project);
+        try {
+            const response = await axios.post("https://localhost:44346/api/Projects/Save",
             {
                 name: project.name,
                 owner: project.owner,
                 client: project.client,
                 budget: project.budget,
                 projectCategories: project.projectCategories,
-                userByProject: project.usersByProject
+                usersByProject: project.usersByProject
             });
-        return response;
+            return response;
+        } catch (error) {
+            console.log(error.message);
+        }
+        
+        
     }
 
     static update = async (id: number, project: any) => {

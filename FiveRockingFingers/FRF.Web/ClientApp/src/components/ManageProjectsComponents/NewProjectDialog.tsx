@@ -3,15 +3,16 @@
     DialogTitle, FormControl, FormControlLabel, FormGroup, IconButton, InputAdornment, TextField, TextFieldProps
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import axios from 'axios';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
-import * as yup from "yup";
 import Category from '../../interfaces/Category';
 import ProjectCategory from '../../interfaces/ProjectCategory';
 import UserByProject from '../../interfaces/UserByProject';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import ProjectService from './ProjectService';
+import UserPublicProfile from '../../interfaces/UserPublicProfile';
+import Project from '../../interfaces/Project';
+import { ValidateEmail } from "./ValidateEmail";
 
 const useStyles = makeStyles({
     inputF: {
@@ -19,19 +20,13 @@ const useStyles = makeStyles({
         marginTop: 10
     }
 });
-const emailSchema = yup.object().shape({
-    email: yup.string()
-        .trim()
-        .email('Debe ser un email valido.'),
-});
 
 const NewProjectDialog = (props: { create: boolean, categories: Category[], finishCreation: Function, openSnackbar: Function }) => {
     const email = React.useRef<TextFieldProps>(null);
     const [fieldEmail, setFieldEmail] = React.useState<string | null>("")
     const classes = useStyles();
-    const [isValid, setIsValid] = React.useState<boolean>(true);
 
-    const { register, handleSubmit, errors, reset } = useForm();
+    const { register, handleSubmit, errors } = useForm();
 
     const [state, setState] = React.useState({
         name: "",
@@ -39,7 +34,7 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
         owner: "",
         budget: -1,
         projectCategories: [] as ProjectCategory[],
-        userByProject: [] as UserByProject[]
+        usersByProject: [] as UserByProject[]
     });
 
     const clearState = () => {
@@ -49,8 +44,12 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
             owner: "",
             budget: -1,
             projectCategories: [],
-            userByProject: []
+            usersByProject: []
         });
+    }
+
+    const emailField = () => {
+        setFieldEmail("");
     }
 
     const handleCancel = () => {
@@ -82,27 +81,21 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
 
     const handleAddUser = async () => {
         let userEmail: string | null = "";
-        if (typeof email.current?.value === "string") userEmail = email.current?.value;
+        userEmail = ValidateEmail(email.current?.value as string, emailField, props.openSnackbar);
 
-        if (!emailSchema.isValidSync({ email: userEmail })) {
-            setIsValid(false);
-            props.openSnackbar("Formato de email invalido!", "warning");
-            setFieldEmail("");
-        }
-        else {
-            setIsValid(true);
+        if (userEmail != null) {
             const response = await ProjectService.searchUser(userEmail);
-
             switch (response.status) {
                 case 200:
+                    let user: UserPublicProfile = response.data;
                     const aux: UserByProject = {
                         id: 0,
-                        userId: response.data,
+                        userId: user.userId,
                         projectId: 0
                     }
-                    var auxState = state.userByProject;
+                    var auxState = state.usersByProject;
                     auxState.push(aux);
-                    setState({ ...state, userByProject: auxState });
+                    setState({ ...state, usersByProject: auxState });
                     props.openSnackbar("Usuario asignado correctamente!", "success");
                     setFieldEmail("");
                     break;
@@ -123,17 +116,16 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
     }
 
     const handleConfirm = async () => {
-        const { name, client, owner, budget, projectCategories, userByProject } = state;
-        const project = { name, client, owner, budget, projectCategories, userByProject }
-
-        const response = await ProjectService.save(project);
+        const { name, client, owner, budget, projectCategories, usersByProject } = state;
+        const project = { name, client, owner, budget, projectCategories, usersByProject }
+        const response = await ProjectService.save(project as Project);
         if (response.status === 200) {
             props.openSnackbar("Creaci\u00F3n del proyecto exitosa", "success");
         } else {
             props.openSnackbar("Ocurri\u00F3 un error al crear el proyecto", "warning");
         }
-        props.finishCreation();
         clearState();
+        props.finishCreation();
     }
 
     return (
@@ -198,7 +190,6 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
                         fullWidth
                     />
                     <TextField
-                        error={isValid === false}
                         inputRef={email}
                         value={fieldEmail}
                         type="email"
