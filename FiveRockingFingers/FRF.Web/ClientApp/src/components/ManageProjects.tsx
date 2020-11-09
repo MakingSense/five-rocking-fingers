@@ -43,12 +43,12 @@ export default function ManageProjects() {
     React.useEffect(() => {
         getProjectList();
         getCategoryList();
-    })
+    }, [])
 
     return (
         <div className="App">
             <Navbar />
-            <ProjectsList projects={projects} categories={categories} />
+            <ProjectsList projects={projects} categories={categories} updateProjects={getProjectList} />
         </div>
     )
 }

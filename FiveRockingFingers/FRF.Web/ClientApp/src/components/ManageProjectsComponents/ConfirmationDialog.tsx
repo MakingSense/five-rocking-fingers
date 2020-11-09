@@ -3,8 +3,8 @@ import axios from 'axios';
 import * as React from 'react';
 import Project from '../../interfaces/Project';
 
-export default function ConfirmationDialog(props: { keepMounted: boolean, open: boolean, project: Project | null, onClose: Function, resetView: Function, openSnackbar: Function }) {
-    const { onClose, project, open } = props;
+export default function ConfirmationDialog(props: { keepMounted: boolean, open: boolean, project: Project | null, onClose: Function, resetView: Function, setOpenSnackbar: Function, setSnackbarSettings: Function, updateProjects: Function }) {
+    const { onClose, project, open, updateProjects } = props;
 
     const handleCancel = () => {
         onClose();
@@ -16,13 +16,17 @@ export default function ConfirmationDialog(props: { keepMounted: boolean, open: 
             try {
                 const response = await axios.delete("https://localhost:44346/api/Projects/Delete/" + project.id.toString());
                 if (response.status === 204) {
-                    props.openSnackbar("Se elimin\u00F3 correctamente el proyecto", "success");
+                    props.setSnackbarSettings({ message: "Se eliminó el proyecto con éxito", severity: "success" });
+                    props.setOpenSnackbar(true);
+                    updateProjects();
                 } else {
-                    props.openSnackbar("Ocurri\u00F3 un error al eliminar el proyecto", "warning");
+                    props.setSnackbarSettings({ message: "Ocurrió un error al eliminar el proyecto", severity: "error" });
+                    props.setOpenSnackbar(true);
                 }
             }
             catch {
-                props.openSnackbar("Ocurri\u00F3 un error al eliminar el proyecto", "warning");
+                props.setSnackbarSettings({ message: "Ocurrió un error al eliminar el proyecto", severity: "error" });
+                props.setOpenSnackbar(true);
             }
         }
         onClose();

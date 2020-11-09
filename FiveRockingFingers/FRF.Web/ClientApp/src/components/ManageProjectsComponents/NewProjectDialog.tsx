@@ -16,7 +16,7 @@ const useStyles = makeStyles({
     }
 });
 
-const NewProjectDialog = (props: { create: boolean, categories: Category[] , finishCreation: Function, openSnackbar: Function }) => {
+const NewProjectDialog = (props: { create: boolean, categories: Category[], finishCreation: Function, setOpenSnackbar: Function, setSnackbarSettings: Function, updateProjects: Function }) => {
 
     const classes = useStyles();
 
@@ -73,14 +73,18 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[] , fin
         try {
             const response = await axios.post("https://localhost:44346/api/Projects/Save", project);
             if (response.status === 200) {
-                props.openSnackbar("Creaci\u00F3n del proyecto exitosa", "success");
+                props.setSnackbarSettings({ message: "El proyecto ha sido creado con éxito", severity: "success" });
+                props.setOpenSnackbar(true);
+                props.updateProjects();
             } else {
-                props.openSnackbar("Ocurri\u00F3 un error al crear el proyecto", "warning");
+                props.setSnackbarSettings({ message: "Ocurrió un error al crear el proyecto", severity: "error" });
+                props.setOpenSnackbar(true);
             }
             props.finishCreation();
         }
         catch {
-            props.openSnackbar("Ocurri\u00F3 un error al crear el proyecto", "warning");
+            props.setSnackbarSettings({ message: "Ocurrió un error al crear el proyecto", severity: "error" });
+            props.setOpenSnackbar(true);
         }
         clearState();
         props.finishCreation();

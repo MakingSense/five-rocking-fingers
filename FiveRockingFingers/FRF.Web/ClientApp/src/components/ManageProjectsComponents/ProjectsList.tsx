@@ -1,10 +1,11 @@
-﻿import { Button, CssBaseline, Divider, Drawer, List, Snackbar, Toolbar } from '@material-ui/core';
+﻿import { Button, CssBaseline, Divider, Drawer, List, Toolbar } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import AddIcon from '@material-ui/icons/Add';
 import * as React from 'react';
-import { Alert } from 'reactstrap';
+import SnackbarMessage from '../../commons/SnackbarMessage';
 import Category from '../../interfaces/Category';
 import Project from '../../interfaces/Project';
+import SnackbarSettings from '../../interfaces/SnackbarSettings';
 import ConfirmationDialog from './ConfirmationDialog';
 import EditProject from './EditProject';
 import ListElement from './ListElement';
@@ -42,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-const ProjectsList = (props: { projects: Project[], categories: Category[] }) => {
+const ProjectsList = (props: { projects: Project[], categories: Category[], updateProjects: Function }) => {
 
     const classes = useStyles();
 
@@ -52,9 +53,7 @@ const ProjectsList = (props: { projects: Project[], categories: Category[] }) =>
     const [openSnackbar, setOpenSnackbar] = React.useState(false);
     const [projectToDelete, setProjectToDelete] = React.useState<Project | null>(null);
     const [selectedIndex, setSelectedIndex] = React.useState(-1);
-
-    const [snackbarMessage, setSnackbarMessage] = React.useState("");
-    const [snackbarType, setSnackbarType] = React.useState("");
+    const [snackbarSettings, setSnackbarSettings] = React.useState<SnackbarSettings>({ message: "", severity: undefined });
 
     const handleClose = () => {
         setOpenDelete(false);
@@ -104,17 +103,6 @@ const ProjectsList = (props: { projects: Project[], categories: Category[] }) =>
         setCreate(false);
     }
 
-    // Snackbar open/close
-    const handleOpenSnackbar = (message: string, type: string) => {
-        setSnackbarMessage(message);
-        setSnackbarType(type);
-        setOpenSnackbar(true);
-    }
-
-    const closeSnackbar = () => {
-        setOpenSnackbar(false);
-    }
-
     return (
         <div className={classes.root}>
             <CssBaseline />
@@ -124,13 +112,13 @@ const ProjectsList = (props: { projects: Project[], categories: Category[] }) =>
                     <Button size="large" variant="contained" className={classes.button} fullWidth={true} endIcon={<AddIcon />} onClick={createProject}>
                         Nuevo Proyecto
                     </Button>
-                    <NewProjectDialog create={create} finishCreation={finishCreation} categories={props.categories} openSnackbar={handleOpenSnackbar} />
+                    <NewProjectDialog create={create} finishCreation={finishCreation} categories={props.categories} setOpenSnackbar={setOpenSnackbar} setSnackbarSettings={setSnackbarSettings} updateProjects={props.updateProjects} />
                     <Divider />
                     <List>
                         {props.projects.map((project: Project) =>
                             <ListElement selected={selectedIndex === project.id} key={project.id} id={project.id} selectProject={selectProject} deleteProject={deleteProject} name={project.name} />
                         )}
-                        <ConfirmationDialog keepMounted open={openDelete} onClose={handleClose} project={projectToDelete} resetView={resetView} openSnackbar={handleOpenSnackbar} />
+                        <ConfirmationDialog keepMounted open={openDelete} onClose={handleClose} project={projectToDelete} resetView={resetView} setOpenSnackbar={setOpenSnackbar} setSnackbarSettings={setSnackbarSettings} updateProjects={props.updateProjects} />
                     </List>
                 </div>
             </Drawer>
@@ -139,14 +127,15 @@ const ProjectsList = (props: { projects: Project[], categories: Category[] }) =>
                     selectedIndex === -1 ?
                         (<h1>Seleccione un proyecto para ver sus detalles</h1>)
                         : (edit ?
-                            (<EditProject project={props.projects.filter(p => p.id === selectedIndex)[0]} cancelEdit={cancelEdit} categories={props.categories} openSnackbar={handleOpenSnackbar} />)
+                            (<EditProject project={props.projects.filter(p => p.id === selectedIndex)[0]} cancelEdit={cancelEdit} categories={props.categories} setOpenSnackbar={setOpenSnackbar} setSnackbarSettings={setSnackbarSettings} updateProjects={props.updateProjects} />)
                             : (<ViewProject project={props.projects.filter(p => p.id === selectedIndex)[0]} changeEdit={changeEdit} />))
                 }
-                <Snackbar open={openSnackbar} autoHideDuration={4000} onClose={closeSnackbar}>
-                    <Alert onClose={closeSnackbar} color={snackbarType}>
-                        {snackbarMessage}
-                    </Alert>
-                </Snackbar>
+                <SnackbarMessage
+                    message={snackbarSettings.message}
+                    severity={snackbarSettings.severity}
+                    open={openSnackbar}
+                    setOpen={setOpenSnackbar}
+                />
             </main>
         </div>
     )
