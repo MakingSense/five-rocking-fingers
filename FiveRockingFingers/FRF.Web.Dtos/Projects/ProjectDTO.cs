@@ -1,4 +1,4 @@
-﻿using FRF.Web.Dtos.Projects;
+using FRF.Web.Dtos.Projects;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -19,6 +19,5 @@ namespace FRF.Web.Dtos
         public DateTime CreatedDate { get; set; }
         public IList<ProjectCategoryDTO> ProjectCategories { get; set; }
         public IList<UsersByProjectDTO> UsersByProject { get; set; }
-
     }
 }

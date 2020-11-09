@@ -14,9 +14,15 @@ namespace FRF.Web.Dtos
             CreateMap<User, SignUpDTO>().ReverseMap();
             CreateMap<Project, ProjectDto>()
                 .ReverseMap();
-            CreateMap<ProjectCategory, ProjectCategoryDTO>()
+            CreateMap<ProjectCategory, Projects.ProjectCategoryDTO>()
                 .ReverseMap();
-            CreateMap<Category, CategoryDTO>()
+            CreateMap<Category, Projects.CategoryDTO>()
+                .ReverseMap();
+            CreateMap<Project, Categories.ProjectDTO>()
+                .ReverseMap();
+            CreateMap<ProjectCategory, Categories.ProjectCategoryDTO>()
+                .ReverseMap();
+            CreateMap<Category, Categories.CategoryDTO>()
                 .ReverseMap();
             CreateMap<Artifact, ArtifactDTO>()
                 .ReverseMap()

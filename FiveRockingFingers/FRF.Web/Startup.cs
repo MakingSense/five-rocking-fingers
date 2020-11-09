@@ -20,16 +20,14 @@ namespace FiveRockingFingers
 	{
 
 	public static readonly IEnumerable<Profile> AutoMapperProfiles = new Profile[]
-		{
-			new FRF.Web.Dtos.AutoMapperProfile(),
-			new FRF.Core.AutoMapperProfile(),
-			new FRF.Web.Dtos.AutoMapperProfile(),
-		};
-
-		public Startup(IConfiguration configuration)
-		{
-			Configuration = configuration;
-		}
+        {
+            new FRF.Web.Dtos.AutoMapperProfile(),
+            new FRF.Core.AutoMapperProfile(),
+        };
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
 
 		public IConfiguration Configuration { get; }
 
@@ -74,12 +72,18 @@ namespace FiveRockingFingers
 			services.AddTransient<ISignInService, SignInService>();
 			services.AddTransient<IUserService, UserService>();
 			services.AddTransient<IArtifactsService, ArtifactsService>();
+			services.AddTransient<ICategoriesService, CategoriesService>();
 
 			services.AddSwaggerGen(c =>
 			{
 				c.SwaggerDoc("v1", new OpenApiInfo {Title = "Five Rocking Fingers", Version = "v1"});
+				c.CustomSchemaIds(i => i.FullName);
 			});
 
+            services.AddDbContext<DataAccessContext>(c =>
+            {
+                c.UseSqlServer(Configuration.GetConnectionString("FiveRockingFingers"));
+            });
 
 			// In production, the React files will be served from this directory
 			services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/build"; });
