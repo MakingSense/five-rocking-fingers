@@ -4,11 +4,11 @@ import NavMenu from '../commons/NavMenu';
 import ArtifactsTable from './ArtifactsComponents/ArtifactsTable';
 import { RouteComponentProps } from 'react-router';
 
-type TParams = { idProject: string }
+type TParams = { projectId: string }
 
 const ArtifactsDetails = ({ match }: RouteComponentProps<TParams>) => {
 
-    const projectId = parseInt(match.params.idProject, 10);
+    const projectId = parseInt(match.params.projectId, 10);
 
     return (
         <div className='content'>
