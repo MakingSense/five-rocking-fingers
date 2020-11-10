@@ -8,26 +8,28 @@ import { Link } from 'react-router-dom';
 import Project from '../interfaces/Project';
 import '../styles/NavMenu.css';
 import NavMenuItem from './NavMenuItem';
+import { useUserContext } from "../components/auth/contextLib";
 
 const FaHome = () => (
     <div className='d-inline-block m-2'>
-        <FontAwesomeIcon icon={faHome} />
+        <FontAwesomeIcon icon={faHome}/>
     </div>
 );
 
 const NavMenu = () => {
 
     const [projects, setProjects] = React.useState<Project[]>([]);
-    const [user, setUser] = React.useState<string|null>("");
+    const [user, setUser] = React.useState<string | null>("");
     React.useEffect(() => {
-        getProjects();
-        getUser();
-    }, [projects.length]);
+            getProjects();
+            getUser();
+        },
+        []);
 
+    const { isAuthenticated } = useUserContext();
     const getProjects = async () => {
-        const response = await axios.get("https://localhost:44346/api/Projects/GetAll");
+        const response = await axios.get("https://localhost:44346/api/Projects/GetAll" + isAuthenticated);
         setProjects(response.data);
-        console.log(response.data);
     }
     const getUser = async () => {
         const response = await axios.get("https://localhost:44346/api/User/getfullname");
@@ -38,13 +40,15 @@ const NavMenu = () => {
             <SidebarHeader>
                 {FaHome()}
                 {user}
-                    <Link to="/" />
+                <Link to="/"/>
             </SidebarHeader>
             <SidebarContent>
                 <Menu>
-                    {projects ? projects.map((project) => (
-                        <NavMenuItem key={project.id} project={project} />
-                    )) : "No hay projectos"}
+                    {projects
+                        ? projects.map((project) => (
+                            <NavMenuItem key={project.id} project={project}/>
+                        ))
+                        : "No hay projectos"}
                 </Menu>
             </SidebarContent>
             <SidebarFooter>

@@ -10,6 +10,8 @@ namespace FRF.DataAccess
         public DbSet<Project> Projects { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<ProjectCategory> ProjectCategories { get; set; }
+        public DbSet<ConfigurationSettings> ConfigurationSettings { get; set; }
+        public DbSet<UsersByProject> UsersByProject { get; set; }
         public DbSet<Artifact> Artifacts { get; set; }
         public DbSet<ArtifactType> ArtifactType { get; set; }
 
@@ -22,6 +24,8 @@ namespace FRF.DataAccess
         {
             builder.Entity<ProjectCategory>().HasKey(pc => new { pc.ProjectId, pc.CategoryID });
             builder.Entity<ArtifactType>().HasKey(at => new { at.Id });
+            builder.Entity<UsersByProject>().HasKey(up => new {up.Id});
+            builder.Entity<UsersByProject>().HasOne(up=>up.Project).WithMany(u=>u.UsersByProject).HasForeignKey(up=>up.ProjectId);
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

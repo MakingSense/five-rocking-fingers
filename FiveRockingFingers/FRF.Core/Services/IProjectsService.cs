@@ -1,14 +1,15 @@
 ﻿using FRF.Core.Models;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace FRF.Core.Services
 {
     public interface IProjectsService
     {
-        List<Project> GetAll();
-        Project Get(int id);
-        Project Update(Project project);
-        void Delete(int id);
-        Project Save(Project project);
+        Task<List<Project>> GetAllAsync(string userId);
+        Task<Project> GetAsync(int id);
+        Task<Project> UpdateAsync(Project project);
+        Task<bool> DeleteAsync(int id);
+        Task<Project> SaveAsync(Project project);
     }
 }
