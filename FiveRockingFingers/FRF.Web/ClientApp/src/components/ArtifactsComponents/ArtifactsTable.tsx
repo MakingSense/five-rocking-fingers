@@ -20,12 +20,12 @@ const ArtifactsTable = (props: { projectId: number }) => {
                 setArtifacts(response.data);
             }
             else {
-                setSnackbarSettings({ message: "Hubo un error al cargar los artifacts", severity: "success" });
+                setSnackbarSettings({ message: "Hubo un error al cargar los artifacts", severity: "error" });
                 setOpenSnackbar(true);
             }
         }
         catch {
-            setSnackbarSettings({ message: "Hubo un error al cargar los artifacts", severity: "success" });
+            setSnackbarSettings({ message: "Hubo un error al cargar los artifacts", severity: "error" });
             setOpenSnackbar(true);
         }    
     }
