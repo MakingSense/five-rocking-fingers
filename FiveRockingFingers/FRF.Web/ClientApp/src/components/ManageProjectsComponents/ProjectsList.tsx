@@ -103,6 +103,11 @@ const ProjectsList = (props: { projects: Project[], categories: Category[], upda
         setCreate(false);
     }
 
+    const manageOpenSnackbar = (settings: SnackbarSettings) => {
+        setSnackbarSettings(settings);
+        setOpenSnackbar(true);
+    }
+
     return (
         <div className={classes.root}>
             <CssBaseline />
@@ -112,13 +117,13 @@ const ProjectsList = (props: { projects: Project[], categories: Category[], upda
                     <Button size="large" variant="contained" className={classes.button} fullWidth={true} endIcon={<AddIcon />} onClick={createProject}>
                         Nuevo Proyecto
                     </Button>
-                    <NewProjectDialog create={create} finishCreation={finishCreation} categories={props.categories} setOpenSnackbar={setOpenSnackbar} setSnackbarSettings={setSnackbarSettings} updateProjects={props.updateProjects} />
+                    <NewProjectDialog create={create} finishCreation={finishCreation} categories={props.categories} openSnackbar={manageOpenSnackbar} updateProjects={props.updateProjects} />
                     <Divider />
                     <List>
                         {props.projects.map((project: Project) =>
                             <ListElement selected={selectedIndex === project.id} key={project.id} id={project.id} selectProject={selectProject} deleteProject={deleteProject} name={project.name} />
                         )}
-                        <ConfirmationDialog keepMounted open={openDelete} onClose={handleClose} project={projectToDelete} resetView={resetView} setOpenSnackbar={setOpenSnackbar} setSnackbarSettings={setSnackbarSettings} updateProjects={props.updateProjects} />
+                        <ConfirmationDialog keepMounted open={openDelete} onClose={handleClose} project={projectToDelete} resetView={resetView} openSnackbar={manageOpenSnackbar} updateProjects={props.updateProjects} />
                     </List>
                 </div>
             </Drawer>
@@ -127,7 +132,7 @@ const ProjectsList = (props: { projects: Project[], categories: Category[], upda
                     selectedIndex === -1 ?
                         (<h1>Seleccione un proyecto para ver sus detalles</h1>)
                         : (edit ?
-                            (<EditProject project={props.projects.filter(p => p.id === selectedIndex)[0]} cancelEdit={cancelEdit} categories={props.categories} setOpenSnackbar={setOpenSnackbar} setSnackbarSettings={setSnackbarSettings} updateProjects={props.updateProjects} />)
+                            (<EditProject project={props.projects.filter(p => p.id === selectedIndex)[0]} cancelEdit={cancelEdit} categories={props.categories} openSnackbar={manageOpenSnackbar} updateProjects={props.updateProjects} />)
                             : (<ViewProject project={props.projects.filter(p => p.id === selectedIndex)[0]} changeEdit={changeEdit} />))
                 }
                 <SnackbarMessage
