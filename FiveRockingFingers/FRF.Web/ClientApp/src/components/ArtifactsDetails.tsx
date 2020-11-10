@@ -1,5 +1,4 @@
 ﻿import * as React from 'react';
-import axios from 'axios';
 import NavMenu from '../commons/NavMenu';
 import ArtifactsTable from './ArtifactsComponents/ArtifactsTable';
 import { RouteComponentProps } from 'react-router';

@@ -13,19 +13,26 @@ const ArtifactsTable = (props: { projectId: number }) => {
     const [snackbarSettings, setSnackbarSettings] = React.useState<SnackbarSettings>({ message: "", severity: undefined });
 
     const getArtifacts = async () => {
-        const response = await axios.get("https://localhost:44346/api/Artifacts/GetAllByProjectId/" + props.projectId);
-        setArtifacts(response.data);
-    }
+        try {
+            const response = await axios.get("https://localhost:44346/api/Artifacts/GetAllByProjectId/" + props.projectId);
 
-    const deleteArtifact = async (artifactId: number) => {
-        var route = "https://localhost:44346/api/Artifacts/Delete/" + artifactId.toString();
-        await axios.delete(route);
-        getArtifacts();
+            if (response.status == 200) {
+                setArtifacts(response.data);
+            }
+            else {
+                setSnackbarSettings({ message: "Hubo un error al cargar los artifacts", severity: "success" });
+                setOpenSnackbar(true);
+            }
+        }
+        catch {
+            setSnackbarSettings({ message: "Hubo un error al cargar los artifacts", severity: "success" });
+            setOpenSnackbar(true);
+        }    
     }
 
     React.useEffect(() => {
         getArtifacts();
-    }, [props.projectId]);
+    }, [props.projectId, artifacts]);
 
     return (
         <React.Fragment>
@@ -42,7 +49,6 @@ const ArtifactsTable = (props: { projectId: number }) => {
                         ? artifacts.map((artifact) => <ArtifactsTableRow
                             key={artifact.id}
                             artifact={artifact}
-                            deleteArtifact={deleteArtifact}
                             setOpenSnackbar = {setOpenSnackbar }
                             setSnackbarSettings={setSnackbarSettings}
                             />
