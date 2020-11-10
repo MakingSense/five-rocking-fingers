@@ -103,10 +103,6 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
                     props.openSnackbar("Usuario no encontrado", "warning");
                     setFieldEmail("");
                     break;
-                case 400:
-                    props.openSnackbar("Ocurri\u00F3 un error al asignar un usuario", "error");
-                    setFieldEmail("");
-                    break;
                 default:
                     props.openSnackbar("Ocurri\u00F3 un error al asignar un usuario", "error");
                     setFieldEmail("");
