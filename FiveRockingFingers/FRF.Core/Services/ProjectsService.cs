@@ -33,7 +33,7 @@ namespace FRF.Core.Services
                 .Include(pp => pp.Project)
                 .Select(pro => pro.Project).ToListAsync();
 
-            return (result == null) ? null : _mapper.Map<List<Project>>(result);
+            return _mapper.Map<List<Project>>(result);
         }
 
         public async Task<Project> SaveAsync(Project project)
@@ -108,7 +108,6 @@ namespace FRF.Core.Services
                 .Include(up=>up.UsersByProject)
                 .SingleOrDefaultAsync(p => p.Id == id);
             //
-            if (project == null) return null;
 
             return _mapper.Map<Project>(project);
         }
