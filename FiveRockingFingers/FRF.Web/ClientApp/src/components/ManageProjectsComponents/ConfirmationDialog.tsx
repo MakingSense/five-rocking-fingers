@@ -1,7 +1,7 @@
 ﻿import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
 import * as React from 'react';
 import Project from '../../interfaces/Project';
-import ProjectService from './ProjectService';
+import ProjectService from '../../services/ProjectService';
 
 export default function ConfirmationDialog(props: { keepMounted: boolean, open: boolean, project: Project | null, onClose: Function, resetView: Function, openSnackbar: Function }) {
     const { onClose, project, open } = props;

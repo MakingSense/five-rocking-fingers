@@ -1,5 +1,5 @@
 import axios from 'axios'
-import Project from '../../interfaces/Project';
+import Project from '../interfaces/Project';
 
 export default class ProjectService {
 

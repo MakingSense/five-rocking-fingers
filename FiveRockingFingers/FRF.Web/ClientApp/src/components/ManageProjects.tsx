@@ -3,7 +3,7 @@ import Category from '../interfaces/Category';
 import Project from '../interfaces/Project';
 import { useUserContext } from './auth/contextLib';
 import Navbar from './ManageProjectsComponents/Navbar';
-import ProjectService from './ManageProjectsComponents/ProjectService';
+import ProjectService from '../services/ProjectService';
 import ProjectsList from './ManageProjectsComponents/ProjectsList';
 
 // Categorias de prueba, una vez que este listo el servicio y su API

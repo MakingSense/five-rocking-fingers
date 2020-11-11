@@ -9,7 +9,7 @@ import Category from '../../interfaces/Category';
 import ProjectCategory from '../../interfaces/ProjectCategory';
 import UserByProject from '../../interfaces/UserByProject';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
-import ProjectService from './ProjectService';
+import ProjectService from '../../services/ProjectService';
 import UserPublicProfile from '../../interfaces/UserPublicProfile';
 import Project from '../../interfaces/Project';
 import { ValidateEmail } from "./ValidateEmail";

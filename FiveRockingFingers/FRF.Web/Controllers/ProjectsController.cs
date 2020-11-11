@@ -110,8 +110,8 @@ namespace FiveRockingFingers.Controllers
             }
 
             _mapper.Map(projectDto, project);
-            var updatePro = await _projectService.UpdateAsync(project);
-            var updatedProject = _mapper.Map<ProjectDto>(updatePro);
+
+            var updatedProject = _mapper.Map<ProjectDto>(_projectService.UpdateAsync(project));
 
             return Ok(updatedProject);
         }

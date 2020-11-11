@@ -11,7 +11,7 @@ import Project from '../../interfaces/Project';
 import ProjectCategory from '../../interfaces/ProjectCategory';
 import UserByProject from '../../interfaces/UserByProject';
 import UserPublicProfile from '../../interfaces/UserPublicProfile';
-import ProjectService from '../ManageProjectsComponents/ProjectService';
+import ProjectService from '../../services/ProjectService';
 import { ValidateEmail } from "./ValidateEmail";
 
 const useStyles = makeStyles({
