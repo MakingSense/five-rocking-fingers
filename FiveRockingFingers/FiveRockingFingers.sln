@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FRF.Core", "FRF.Core\FRF.Co
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FRF.DataAccess", "FRF.DataAccess\FRF.DataAccess.csproj", "{669A52DA-8527-4822-B07E-06891F2F0356}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FRF.Web.Dtos", "FRF.Web.Dtos\FRF.Web.Dtos.csproj", "{57544289-FDE3-4832-B9A5-1F88F830E7E8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FRF.Web.Dtos", "FRF.Web.Dtos\FRF.Web.Dtos.csproj", "{57544289-FDE3-4832-B9A5-1F88F830E7E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FRF.Web.Tests", "..\test\FRF.Web.Tests\FRF.Web.Tests.csproj", "{0E74D407-D697-4012-BB5F-842E47ECB009}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{57544289-FDE3-4832-B9A5-1F88F830E7E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{57544289-FDE3-4832-B9A5-1F88F830E7E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{57544289-FDE3-4832-B9A5-1F88F830E7E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E74D407-D697-4012-BB5F-842E47ECB009}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E74D407-D697-4012-BB5F-842E47ECB009}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E74D407-D697-4012-BB5F-842E47ECB009}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E74D407-D697-4012-BB5F-842E47ECB009}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

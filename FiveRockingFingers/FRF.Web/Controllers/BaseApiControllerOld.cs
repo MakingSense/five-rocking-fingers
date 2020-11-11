@@ -1,11 +1,15 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace FRF.Web.Controllers
 {
+    /* TODO:ESTE CONTROLLER SERÁ ELIMINADO CUANDO SE TERMINE EL TICKET FIVE-115*/
     [ApiController]
     [Route("api/[controller]/[action]")]
-    // [Authorize] TODO:Pending AWS Credentials. Login is bypassed!!! [FIVE-6]
-    public abstract class BaseApiController<T> : ControllerBase where T : class
+    public abstract class BaseApiControllerOld<T> : ControllerBase where T : class
     {
         public abstract IActionResult Get(int id);
         public abstract IActionResult GetAll();

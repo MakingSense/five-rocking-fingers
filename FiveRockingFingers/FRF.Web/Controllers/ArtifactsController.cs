@@ -10,7 +10,9 @@ using FRF.Web.Dtos.Artifacts;
 
 namespace FRF.Web.Controllers
 {
-    public class ArtifactsController : BaseApiController<ArtifactDTO>
+    [ApiController]
+    [Route("api/[controller]/[action]")]
+    public class ArtifactsController : ControllerBase
     {
         private readonly IMapper _mapper;
         private readonly IArtifactsService _artifactsService;
@@ -22,7 +24,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpGet]
-        public override async Task<IActionResult> GetAllAsync()
+        public async Task<IActionResult> GetAllAsync()
         {
             var artifacts = await _artifactsService.GetAll();
 
@@ -42,7 +44,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpGet("{id}")]
-        public override async Task<IActionResult> GetAsync(int id)
+        public async Task<IActionResult> GetAsync(int id)
         {
             var artifact = await _artifactsService.Get(id);
 
@@ -57,7 +59,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpPost]
-        public override async Task<IActionResult> SaveAsync(ArtifactDTO artifactDto)
+        public async Task<IActionResult> SaveAsync(ArtifactUpsertDTO artifactDto)
         {
             var artifact = _mapper.Map<FRF.Core.Models.Artifact>(artifactDto);
 
@@ -67,14 +69,9 @@ namespace FRF.Web.Controllers
         }
 
         [HttpPut("{id}")]
-        public override async Task<IActionResult> UpdateAsync(int id, ArtifactDTO artifactDto)
+        public async Task<IActionResult> UpdateAsync(int id, ArtifactUpsertDTO artifactDto)
         {
-            if(id != artifactDto.Id)
-            {
-                return BadRequest();
-            }
-
-            var artifact = await _artifactsService.Get(artifactDto.Id);
+            var artifact = await _artifactsService.Get(id);
 
             if (artifact == null)
             {
@@ -89,7 +86,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpDelete("{id}")]
-        public override async Task<IActionResult> DeleteAsync(int id)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
             var artifact = await _artifactsService.Get(id);
 

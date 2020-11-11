@@ -53,6 +53,20 @@ namespace FRF.Core.Services
             {
                 throw new Exception("Logout fail: " + e.Message);
             }
+        }
+
+        public async Task<string> GetCurrentUserId()
+        {
+            try
+            {
+                var currentUser = SignInManager.Context.User;
+                var result = await UserManager.GetUserAsync(currentUser).ConfigureAwait(false);
+                return result.UserID;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
         }*/
     }
 }
