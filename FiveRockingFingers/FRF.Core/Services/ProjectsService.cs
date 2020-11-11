@@ -1,19 +1,17 @@
 ﻿using AutoMapper;
 using FRF.Core.Models;
 using FRF.DataAccess;
-using EntityModels = FRF.DataAccess.EntityModels;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EntityModels = FRF.DataAccess.EntityModels;
 
 namespace FRF.Core.Services
 {
     public class ProjectsService : IProjectsService
     {
-        
         private readonly DataAccessContext _dataContext;
         private readonly IMapper _mapper;
 
@@ -31,6 +29,7 @@ namespace FRF.Core.Services
                 .ThenInclude(c => c.ProjectCategories)
                 .ThenInclude(ca => ca.Category)
                 .Include(pp => pp.Project)
+                .ThenInclude(upp => upp.UsersByProject)
                 .Select(pro => pro.Project).ToListAsync();
 
             return _mapper.Map<List<Project>>(result);
@@ -99,13 +98,14 @@ namespace FRF.Core.Services
                 .ThenInclude(c => c.ProjectCategories)
                 .ThenInclude(ca => ca.Category)
                 .Include(pp => pp.Project)
+                .ThenInclude(upp=>upp.UsersByProject)
                 .SingleOrDefaultAsync(p => p.ProjectId == id);
             */
             /*Then delete this*/
-            var project =await _dataContext.Projects
+            var project = await _dataContext.Projects
                 .Include(p => p.ProjectCategories)
                 .ThenInclude(pc => pc.Category)
-                .Include(up=>up.UsersByProject)
+                .Include(up => up.UsersByProject)
                 .SingleOrDefaultAsync(p => p.Id == id);
             //
 
@@ -127,6 +127,7 @@ namespace FRF.Core.Services
                 .Where(up => up.UserId == userId)
                 .Include(pr => pr.Project)
                 .ThenInclude(c => c.ProjectCategories)
+                .ThenInclude(upp=>upp.UsersByProject)
                 .SingleOrDefaultAsync(p => p.Id == id);
              */
             /*Then delete this*/
@@ -168,6 +169,7 @@ namespace FRF.Core.Services
                 .Where(up => up.UserId == userId)
                 .Include(pr => pr.Project)
                 .ThenInclude(c => c.ProjectCategories)
+                .ThenInclude(upp=>upp.UsersByProject)
                 .SingleOrDefaultAsync(p => p.Id == id);
              */
 

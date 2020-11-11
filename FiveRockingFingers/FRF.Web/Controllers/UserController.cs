@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using FRF.Web.Dtos.Users;
 
 namespace FRF.Web.Controllers
 {
@@ -66,5 +67,30 @@ namespace FRF.Web.Controllers
                 return StatusCode(500, e.Message);
             }
         }*/
+
+        /// <summary>
+        /// Search an User by email.
+        /// </summary>
+        /// <param name="email">of the wanted user</param>
+        /// <returns>If the email is from a valid user, return a UserPublicProfileDTO</returns>
+        // [Authorize] 
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchUserAsync(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email)) return BadRequest();
+
+            var userPublicProfile = new UserPublicProfileDTO
+            {
+                /* TODO:Pending AWS Credentials. Login is bypassed!!! [FIVE-6]*/
+                /* userPublicProfile.UserId = await _userService.GetUserIdByEmail(email);
+                if (userId == null) return NotFound();
+                userPublicProfile.FullName = await _userService.GetFullname(email);
+                */
+                UserId = "c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba",
+                Email = email
+            };
+
+            return Ok(userPublicProfile);
+        }
     }
 }

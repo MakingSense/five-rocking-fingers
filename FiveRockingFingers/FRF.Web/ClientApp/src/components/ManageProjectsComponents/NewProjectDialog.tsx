@@ -1,13 +1,18 @@
 ﻿import {
     Button, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText,
-    DialogTitle, FormControl, FormControlLabel, FormGroup, InputAdornment, TextField
+    DialogTitle, FormControl, FormControlLabel, FormGroup, IconButton, InputAdornment, TextField, TextFieldProps
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import axios from 'axios';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import Category from '../../interfaces/Category';
 import ProjectCategory from '../../interfaces/ProjectCategory';
+import UserByProject from '../../interfaces/UserByProject';
+import PersonAddIcon from '@material-ui/icons/PersonAdd';
+import ProjectService from '../../services/ProjectService';
+import UserPublicProfile from '../../interfaces/UserPublicProfile';
+import Project from '../../interfaces/Project';
+import { ValidateEmail } from "./ValidateEmail";
 
 const useStyles = makeStyles({
     inputF: {
@@ -16,8 +21,9 @@ const useStyles = makeStyles({
     }
 });
 
-const NewProjectDialog = (props: { create: boolean, categories: Category[] , finishCreation: Function, openSnackbar: Function }) => {
-
+const NewProjectDialog = (props: { create: boolean, categories: Category[], finishCreation: Function, openSnackbar: Function }) => {
+    const email = React.useRef<TextFieldProps>(null);
+    const [fieldEmail, setFieldEmail] = React.useState<string | null>("")
     const classes = useStyles();
 
     const { register, handleSubmit, errors } = useForm();
@@ -27,7 +33,8 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[] , fin
         client: "",
         owner: "",
         budget: -1,
-        projectCategories: [] as ProjectCategory[]
+        projectCategories: [] as ProjectCategory[],
+        usersByProject: [] as UserByProject[]
     });
 
     const clearState = () => {
@@ -36,8 +43,13 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[] , fin
             client: "",
             owner: "",
             budget: -1,
-            projectCategories: []
+            projectCategories: [],
+            usersByProject: []
         });
+    }
+
+    const emailField = () => {
+        setFieldEmail("");
     }
 
     const handleCancel = () => {
@@ -67,19 +79,45 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[] , fin
         }
     }
 
-    const handleConfirm = async () => {
-        const { name, client, owner, budget, projectCategories } = state;
-        const project = { name, client, owner, budget, projectCategories }
-        try {
-            const response = await axios.post("https://localhost:44346/api/Projects/Save", project);
-            if (response.status === 200) {
-                props.openSnackbar("Creaci\u00F3n del proyecto exitosa", "success");
-            } else {
-                props.openSnackbar("Ocurri\u00F3 un error al crear el proyecto", "warning");
+    const handleAddUser = async () => {
+        let userEmail: string | null = "";
+        userEmail = ValidateEmail(email.current?.value as string, emailField, props.openSnackbar);
+
+        if (userEmail != null) {
+            const response = await ProjectService.searchUser(userEmail);
+            switch (response.status) {
+                case 200:
+                    let user: UserPublicProfile = response.data;
+                    const aux: UserByProject = {
+                        id: 0,
+                        userId: user.userId,
+                        projectId: 0
+                    }
+                    var auxState = state.usersByProject;
+                    auxState.push(aux);
+                    setState({ ...state, usersByProject: auxState });
+                    props.openSnackbar("Usuario asignado correctamente!", "success");
+                    setFieldEmail("");
+                    break;
+                case 404:
+                    props.openSnackbar("Usuario no encontrado", "warning");
+                    setFieldEmail("");
+                    break;
+                default:
+                    props.openSnackbar("Ocurri\u00F3 un error al asignar un usuario", "error");
+                    setFieldEmail("");
+                    break;
             }
-            props.finishCreation();
         }
-        catch {
+    }
+
+    const handleConfirm = async () => {
+        const { name, client, owner, budget, projectCategories, usersByProject } = state;
+        const project = { name, client, owner, budget, projectCategories, usersByProject }
+        const response = await ProjectService.save(project as Project);
+        if (response.status === 200) {
+            props.openSnackbar("Creaci\u00F3n del proyecto exitosa", "success");
+        } else {
             props.openSnackbar("Ocurri\u00F3 un error al crear el proyecto", "warning");
         }
         clearState();
@@ -147,6 +185,23 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[] , fin
                         }}
                         fullWidth
                     />
+                    <TextField
+                        inputRef={email}
+                        value={fieldEmail}
+                        type="email"
+                        id="email"
+                        name="email"
+                        label="Permitir acceso a:"
+                        helperText="Ingrese el email del usuario al que desea otorgarle acceso"
+                        variant="outlined"
+                        className={classes.inputF}
+                        onChange={event => {
+                            setFieldEmail(event.target.value);
+                        }}
+                    />
+                    <IconButton type="button" onClick={handleAddUser} >
+                        <PersonAddIcon />
+                    </IconButton>
                     <DialogContentText>
                         Categorías:
                     </DialogContentText>
@@ -177,5 +232,4 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[] , fin
         </Dialog>
     )
 }
-
 export default NewProjectDialog

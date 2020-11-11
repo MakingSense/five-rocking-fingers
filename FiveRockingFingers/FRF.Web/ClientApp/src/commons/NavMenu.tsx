@@ -9,6 +9,7 @@ import Project from '../interfaces/Project';
 import '../styles/NavMenu.css';
 import NavMenuItem from './NavMenuItem';
 import { useUserContext } from "../components/auth/contextLib";
+import ProjectService from '../services/ProjectService';
 
 const FaHome = () => (
     <div className='d-inline-block m-2'>
@@ -28,7 +29,9 @@ const NavMenu = () => {
 
     const { isAuthenticated } = useUserContext();
     const getProjects = async () => {
-        const response = await axios.get("https://localhost:44346/api/Projects/GetAll" + isAuthenticated);
+
+        const response = await ProjectService.getAll(isAuthenticated);
+
         setProjects(response.data);
     }
     const getUser = async () => {

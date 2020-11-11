@@ -1,14 +1,18 @@
 ﻿import {
     Button, Card, CardActions, CardContent,
-    Checkbox, FormControl, FormControlLabel, FormGroup, InputAdornment, TextField, Typography
+    Checkbox, Chip, FormControl, FormControlLabel, FormGroup, IconButton, InputAdornment, Paper, TextField, TextFieldProps, Typography
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import axios from 'axios';
+import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import Category from '../../interfaces/Category';
 import Project from '../../interfaces/Project';
 import ProjectCategory from '../../interfaces/ProjectCategory';
+import UserByProject from '../../interfaces/UserByProject';
+import UserPublicProfile from '../../interfaces/UserPublicProfile';
+import ProjectService from '../../services/ProjectService';
+import { ValidateEmail } from "./ValidateEmail";
 
 const useStyles = makeStyles({
     root: {
@@ -20,25 +24,42 @@ const useStyles = makeStyles({
     inputF: {
         padding: 2,
         marginTop: 10
+    },
+    categoryList: {
+        display: 'flex',
+        flexWrap: 'wrap',
+        listStyle: 'none',
+        padding: 2,
+        margin: 0,
+    },
+    chip: {
+        margin: 2
     }
 });
 
 const EditProject = (props: { project: Project, cancelEdit: any, categories: Category[], openSnackbar: Function }) => {
     const classes = useStyles();
-
+    const email = React.useRef<TextFieldProps>(null);
+    const [fieldEmail, setFieldEmail] = React.useState<string | null>("")
     const { register, handleSubmit, errors } = useForm();
-
+    const [isValid] = React.useState<boolean>(true);
     const [state, setState] = React.useState({
         name: props.project.name,
         client: props.project.client,
         owner: props.project.owner,
         budget: props.project.budget,
+        createdDate: props.project.createdDate,
         id: props.project.id,
-        projectCategories: props.project.projectCategories
+        projectCategories: props.project.projectCategories,
+        usersByProject: props.project.usersByProject
     });
 
     const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         setState({ ...state, [event.target.id]: event.target.value });
+    }
+
+    const emailField = () => {
+        setFieldEmail("");
     }
 
     const handleChangeCategory = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,21 +80,49 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
         }
     }
 
-    const handleConfirm = async () => {
-        const { name, client, owner, budget, id, projectCategories } = state;
-        const project = { name, client, owner, budget, id, projectCategories }
-        try {
-            const response = await axios.put("https://localhost:44346/api/Projects/Update", project);
-            if (response.status === 200) {
-                props.openSnackbar("Se modific\u00F3 el proyecto de manera correcta", "success");
-            } else {
-                props.openSnackbar("Ocurri\u00F3 un error al modificar el proyecto", "warning");
+    const handleAddUser = async () => {
+        let userEmail: string | null = "";
+        userEmail = ValidateEmail(email.current?.value as string, emailField, props.openSnackbar);
+        if (userEmail != null) {
+            const response = await ProjectService.searchUser(userEmail);
+
+            switch (response.status) {
+                case 200:
+                    const User: UserPublicProfile = response.data;
+                    const aux: UserByProject = {
+                        id: 0,
+                        userId: User.userId,
+                        projectId: 0,
+                    }
+                    var auxState = state.usersByProject;
+                    auxState.push(aux);
+                    setState({ ...state, usersByProject: auxState });
+                    props.openSnackbar("Usuario asignado correctamente!", "success");
+                    setFieldEmail("");
+                    break;
+                case 404:
+                    props.openSnackbar("Usuario no encontrado", "warning");
+                    setFieldEmail("");
+                    break;
+                default:
+                    props.openSnackbar("Ocurri\u00F3 un error al asignar un usuario", "error");
+                    setFieldEmail("");
+                    break;
             }
-            props.cancelEdit();
         }
-        catch {
+    }
+
+    const handleConfirm = async () => {
+        const { name, client, owner, budget, id, createdDate, projectCategories, usersByProject } = state;
+        const project = { name, client, owner, budget, id, createdDate, projectCategories, usersByProject }
+
+        const response = await ProjectService.update(id, project);
+        if (response.status === 200) {
+            props.openSnackbar("Se modific\u00F3 el proyecto de manera correcta", "success");
+        } else {
             props.openSnackbar("Ocurri\u00F3 un error al modificar el proyecto", "warning");
         }
+        props.cancelEdit();
     }
 
     return (
@@ -157,6 +206,40 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
                                     label={category.name}
                                 />
                             )}
+                        </FormGroup>
+                    </FormControl>
+                    <Typography className={classes.title} color="textSecondary" gutterBottom>
+                        Usuarios
+                    </Typography>
+                    <FormControl component="fieldset">
+                        <FormGroup>
+                            <Paper component="ul" className={classes.categoryList} >
+                                {props.project.usersByProject.map((up) => {
+                                    return (
+                                        <li key={up.id}>
+                                            <Chip label={up.userId} className={classes.chip} />
+                                        </li>
+                                    )
+                                })}
+                            </Paper>
+                            <span><TextField
+                                error={isValid === false}
+                                inputRef={email}
+                                value={fieldEmail}
+                                type="email"
+                                id="email"
+                                name="email"
+                                label="Permitir acceso a:"
+                                helperText="Ingrese el email del usuario al que desea otorgarle acceso"
+                                variant="outlined"
+                                className={classes.inputF}
+                                onChange={event => {
+                                    setFieldEmail(event.target.value);
+                                }}
+                            />
+                                <IconButton type="button" onClick={handleAddUser} >
+                                    <PersonAddIcon />
+                                </IconButton></span>
                         </FormGroup>
                     </FormControl>
                 </CardContent>

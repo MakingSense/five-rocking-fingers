@@ -1,6 +1,6 @@
-﻿using AutoMapper;
+﻿using System;
+using AutoMapper;
 using FRF.Core.Services;
-using FRF.Web.Controllers;
 using FRF.Web.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace FiveRockingFingers.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]/[action]")]
+    // [Authorize] 
     public class ProjectsController : ControllerBase
     {
         private readonly IMapper _mapper;
@@ -80,6 +83,7 @@ namespace FiveRockingFingers.Controllers
                 return BadRequest("Project object is null");
             }
 
+            projectDto.CreatedDate = DateTime.Now;
             var project = _mapper.Map<FRF.Core.Models.Project>(projectDto);
             var projectSaved = await _projectService.SaveAsync(project);
 

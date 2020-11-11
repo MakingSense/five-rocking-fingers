@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using FRF.Core.Services;
 using FRF.Web.Dtos.Categories;
 using Microsoft.AspNetCore.Mvc;
