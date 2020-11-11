@@ -11,7 +11,9 @@ namespace FRF.DataAccess.EntityModels
         public int Id { get; set; }
         public string Name { get; set; }
         public string Provider { get; set; }
-        public string SettingsXML { get; set; }
+        #nullable enable
+        public string? SettingsXML { get; set; }
+        #nullable disable
         public DateTime CreatedDate { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public int ProjectId { get; set; }
@@ -21,8 +23,8 @@ namespace FRF.DataAccess.EntityModels
         [NotMapped]
         public XElement Settings
         {
-            get { return XElement.Parse(SettingsXML); }
-            set { SettingsXML = value.ToString(); }
+            get => _ = SettingsXML != null ? XElement.Parse(SettingsXML) : null;
+            set { SettingsXML = value?.ToString(); }
         }
     }
 }

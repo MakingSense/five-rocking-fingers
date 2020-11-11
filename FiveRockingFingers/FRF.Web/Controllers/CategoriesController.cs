@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using FRF.Core.Services;
 using FRF.Web.Dtos.Categories;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +9,9 @@ using System.Threading.Tasks;
 
 namespace FRF.Web.Controllers
 {
-    public class CategoriesController : BaseApiController<CategoryDTO>
+    [ApiController]
+    [Route("api/[controller]/[action]")]
+    public class CategoriesController : ControllerBase
     {
         private readonly IMapper _mapper;
         private readonly ICategoriesService _categoriesService;
@@ -21,7 +23,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpGet]
-        public override async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAllAsync()
         {
             var categories = await _categoriesService.GetAllAsync();
 
@@ -31,7 +33,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpGet("{id}")]
-        public override async Task<IActionResult> Get(int id)
+        public async Task<IActionResult> GetAsync(int id)
         {
             var category = await _categoriesService.GetAsync(id);
 
@@ -46,7 +48,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpPost]
-        public override async Task<IActionResult> Save(CategoryDTO categoryDto)
+        public async Task<IActionResult> SaveAsync(CategoryUpsertDTO categoryDto)
         {
             var category = _mapper.Map<FRF.Core.Models.Category>(categoryDto);
 
@@ -56,14 +58,9 @@ namespace FRF.Web.Controllers
         }
 
         [HttpPut("{id}")]
-        public override async Task<IActionResult> Update(int id, CategoryDTO categoryDto)
+        public async Task<IActionResult> UpdateAsync(int id, CategoryUpsertDTO categoryDto)
         {
-            if(id != categoryDto.Id)
-            {
-                return BadRequest();
-            }
-
-            var category = await _categoriesService.GetAsync(categoryDto.Id);
+            var category = await _categoriesService.GetAsync(id);
 
             if (category == null)
             {
@@ -78,7 +75,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpDelete("{id}")]
-        public override async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
             var category = await _categoriesService.GetAsync(id);
 

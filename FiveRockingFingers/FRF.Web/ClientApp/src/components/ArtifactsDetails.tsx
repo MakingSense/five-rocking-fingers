@@ -1,17 +1,18 @@
 ﻿import * as React from 'react';
-import axios from 'axios';
 import NavMenu from '../commons/NavMenu';
 import ArtifactsTable from './ArtifactsComponents/ArtifactsTable';
 import { RouteComponentProps } from 'react-router';
 
-type TParams = { idProject: string }
+type TParams = { projectId: string }
 
 const ArtifactsDetails = ({ match }: RouteComponentProps<TParams>) => {
+
+    const projectId = parseInt(match.params.projectId, 10);
 
     return (
         <div className='content'>
             <NavMenu />
-            <ArtifactsTable projectId={+match.params.idProject} />
+            <ArtifactsTable projectId={projectId} />
         </div>
     );
 }
