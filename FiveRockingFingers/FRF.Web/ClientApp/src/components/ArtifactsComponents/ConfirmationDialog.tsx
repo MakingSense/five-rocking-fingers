@@ -1,18 +1,27 @@
 ﻿import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Snackbar } from '@material-ui/core';
 import * as React from 'react';
 import Artifact from '../../interfaces/Artifact';
+import axios from 'axios';
 
-const ConfirmationDialog = (props: { open: boolean, setOpen: Function, deleteArtifact: Function, artifactToDelete: Artifact, setOpenSnackbar: Function, setSnackbarSettings: Function }) => {
+const ConfirmationDialog = (props: { open: boolean, setOpen: Function, artifactToDelete: Artifact, setOpenSnackbar: Function, setSnackbarSettings: Function }) => {
 
     const handleClose = () => {
         props.setOpen(false);
     };
 
-    const handleConfirm = () => {
+    const handleConfirm = async () => {
         try {
-            props.deleteArtifact(props.artifactToDelete.id);
-            props.setSnackbarSettings({ message: "El artefacto ha sido borrado con éxito", severity: "success" });
-            props.setOpenSnackbar(true);
+            var route = "https://localhost:44346/api/Artifacts/Delete/" + props.artifactToDelete.id.toString();
+            const response = await axios.delete(route);
+
+            if (response.status == 204) {
+                props.setSnackbarSettings({ message: "El artefacto ha sido borrado con éxito", severity: "success" });
+                props.setOpenSnackbar(true);
+            }
+            else {
+                props.setSnackbarSettings({ message: "Hubo un error al borrar el artefacto", severity: "error" });
+                props.setOpenSnackbar(true);
+            }
         }
         catch {
             props.setSnackbarSettings({ message: "Hubo un error al borrar el artefacto", severity: "error" });

@@ -10,6 +10,8 @@ namespace FRF.Core.Services
         /* TODO:Pending AWS Credentials. Login is bypassed![FIVE-6] */
         /*Uncomment this after do.
         Task<string> GetFullname(string email);
-        Task Logout();*/
+        Task Logout();
+        Task<string> GetCurrentUserId();
+        Task<string> GetUserIdByEmail(string email);*/
     }
 }

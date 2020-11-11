@@ -32,15 +32,16 @@
     <Content Remove="$(SpaRoot)**" />
     <Content Remove="ClientApp\src\commons\NewFolder\**" />
     <None Remove="$(SpaRoot)**" />
-    <None Remove="ClientApp\src\commons\NewFolder\**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\src\commons\SnackbarMessage.tsx" />
     <None Remove="ClientApp\src\components\NavMenuItem.tsx" />
     <None Remove="ClientApp\src\interfaces\Category.ts" />
     <None Remove="ClientApp\src\interfaces\Project.ts" />
     <None Remove="ClientApp\src\interfaces\ProjectCategory.ts" />
+    <None Remove="ClientApp\src\interfaces\SnackbarSettings.ts" />
     <None Remove="ClientApp\src\router\Routes.tsx" />
   </ItemGroup>
 
@@ -88,5 +89,7 @@
       </ResolvedFileToPublish>
     </ItemGroup>
   </Target>
+
+  <ProjectExtensions><VisualStudio><UserProperties clientapp_4package_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
 
 </Project>

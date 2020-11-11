@@ -1,17 +1,19 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace FRF.Web.Controllers
 {
     [ApiController]
     [Route("api/[controller]/[action]")]
-    // [Authorize] TODO:Pending AWS Credentials. Login is bypassed!!! [FIVE-6]
     public abstract class BaseApiController<T> : ControllerBase where T : class
     {
-        public abstract IActionResult Get(int id);
-        public abstract IActionResult GetAll();
-        public abstract IActionResult Save(T entity);
-        public abstract IActionResult Update(T entity);
-        public abstract IActionResult Delete(int id);
+        public abstract Task<IActionResult> Get(int id);
+        public abstract Task<IActionResult> GetAll();
+        public abstract Task<IActionResult> Save(T entity);
+        public abstract Task<IActionResult> Update(int id, T entity);
+        public abstract Task<IActionResult> Delete(int id);
     }
 }

@@ -55,6 +55,18 @@ const ViewProject = (props: { project: Project, changeEdit: any }) => {
                         )
                     })}
                 </Paper>
+                <Typography className={classes.title} color="textSecondary" gutterBottom>
+                    Usuarios:
+                </Typography>
+                <Paper component="ul" className={classes.categoryList} >
+                    {props.project.usersByProject.map((up) => {
+                        return (
+                            <li key={up.id}>
+                                <Chip label={up.userId} className={classes.chip} />
+                            </li>
+                        )
+                    })}
+                </Paper>
             </CardContent>
             <CardActions>
                 <Button size="small" onClick={props.changeEdit}>Editar</Button>

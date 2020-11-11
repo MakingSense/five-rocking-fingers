@@ -1,7 +1,7 @@
 ﻿import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
-import axios from 'axios';
 import * as React from 'react';
 import Project from '../../interfaces/Project';
+import ProjectService from '../../services/ProjectService';
 
 export default function ConfirmationDialog(props: { keepMounted: boolean, open: boolean, project: Project | null, onClose: Function, resetView: Function, openSnackbar: Function, updateProjects: Function }) {
     const { onClose, project, open, updateProjects } = props;
@@ -14,11 +14,14 @@ export default function ConfirmationDialog(props: { keepMounted: boolean, open: 
         if (project) {
             props.resetView(project.id);
             try {
-                const response = await axios.delete("https://localhost:44346/api/Projects/Delete/" + project.id.toString());
+                const response = await ProjectService.delete(project.id.toString());
                 if (response.status === 204) {
                     props.openSnackbar({ message: "Se eliminó el proyecto con éxito", severity: "success" });
                     updateProjects();
-                } else {
+                } else if (response.status === 404) {
+                    props.openSnackbar({ message: "No se encontró el proyecto a eliminar", severity: "info" });
+                }
+                else {
                     props.openSnackbar({ message: "Ocurrió un error al eliminar el proyecto", severity: "error" });
                 }
             }
