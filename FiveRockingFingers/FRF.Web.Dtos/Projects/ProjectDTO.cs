@@ -1,4 +1,4 @@
-﻿using FRF.Web.Dtos.Projects;
+using FRF.Web.Dtos.Projects;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -13,7 +13,6 @@ namespace FRF.Web.Dtos
 
         [Required(ErrorMessage = "Project name is required")]
         public string? Name { get; set; }
-
         public string? Owner { get; set; }
         public string? Client { get; set; }
         public int? Budget { get; set; }

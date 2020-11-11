@@ -108,7 +108,6 @@ namespace FRF.Core.Services
                 .Include(up => up.UsersByProject)
                 .SingleOrDefaultAsync(p => p.Id == id);
             //
-            if (project == null) return null;
 
             return _mapper.Map<Project>(project);
         }

@@ -1,14 +1,17 @@
-﻿using AutoMapper;
+﻿using System;
+using AutoMapper;
 using FRF.Core.Services;
 using FRF.Web.Dtos;
 using Microsoft.AspNetCore.Mvc;
-using System;
+using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 
 namespace FiveRockingFingers.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]/[action]")]
+    // [Authorize] 
     public class ProjectsController : ControllerBase
     {
         private readonly IMapper _mapper;
@@ -44,13 +47,14 @@ namespace FiveRockingFingers.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            /*var currentUserId = await _userService.GetCurrentUserId();
-            var projects = await _projectService.GetAllAsync(currentUserId);
-
-            if (projects == null) return StatusCode(204);
-
-            var projectsDto = _mapper.Map<IEnumerable<ProjectDto>>(projects);
-            return Ok(projectsDto);*/
+            /*
+                        var currentUserId = await _userService.GetCurrentUserId();
+                        var projects = await _projectService.GetAllAsync(currentUserId);
+            
+                        if (projects == null) return StatusCode(204);
+            
+                        var projectsDto = _mapper.Map<IEnumerable<ProjectDto>>(projects);
+                        return Ok(projectsDto);*/
             return NotFound();
         }
 

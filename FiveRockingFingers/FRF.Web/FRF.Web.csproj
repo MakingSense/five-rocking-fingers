@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -38,6 +38,14 @@
   <ItemGroup>
     <ProjectReference Include="..\FRF.Core\FRF.Core.csproj" />
     <ProjectReference Include="..\FRF.Web.Dtos\FRF.Web.Dtos.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypeScriptCompile Include="ClientApp\src\commons\NavMenuItem.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\interfaces\Category.ts" />
+    <TypeScriptCompile Include="ClientApp\src\interfaces\Project.ts" />
+    <TypeScriptCompile Include="ClientApp\src\interfaces\ProjectCategory.ts" />
+    <TypeScriptCompile Include="ClientApp\src\router\Routes.tsx" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
