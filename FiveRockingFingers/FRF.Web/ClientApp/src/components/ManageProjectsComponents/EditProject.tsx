@@ -23,7 +23,7 @@ const useStyles = makeStyles({
     }
 });
 
-const EditProject = (props: { project: Project, cancelEdit: any, categories: Category[], setOpenSnackbar: Function, setSnackbarSettings: Function, updateProjects: Function }) => {
+const EditProject = (props: { project: Project, cancelEdit: any, categories: Category[], openSnackbar: Function, updateProjects: Function }) => {
     const classes = useStyles();
 
     const { register, handleSubmit, errors } = useForm();
@@ -65,18 +65,15 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
         try {
             const response = await axios.put("https://localhost:44346/api/Projects/Update", project);
             if (response.status === 200) {
-                props.setSnackbarSettings({ message: "El proyecto ha sido modificado con éxito", severity: "success" });
-                props.setOpenSnackbar(true);
+                props.openSnackbar({ message: "El proyecto ha sido modificado con éxito", severity: "success" });
                 props.updateProjects();
             } else {
-                props.setSnackbarSettings({ message: "Ocurrió un error al modificar el proyecto", severity: "error" });
-                props.setOpenSnackbar(true);
+                props.openSnackbar({ message: "Ocurrió un error al modificar el proyecto", severity: "error" });
             }
             props.cancelEdit();
         }
         catch {
-            props.setSnackbarSettings({ message: "Ocurrió un error al modificar el proyecto", severity: "error" });
-            props.setOpenSnackbar(true);
+            props.openSnackbar({ message: "Ocurrió un error al modificar el proyecto", severity: "error" });
         }
     }
 
