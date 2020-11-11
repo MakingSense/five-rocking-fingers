@@ -60,10 +60,12 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
         const artifactToCreate = {
             name: data.name.trim(),
             provider: data.provider,
-            artifactType: artifactTypes.find(at => at.id === parseInt(data.artifactType, 10)),
+            artifactTypeId: parseInt(data.artifactType, 10),
             projectId: projectId,
             settings: { empty: "" }
         };
+
+        console.log(artifactToCreate);
 
         try {
             const response = await ArtifactService.save(artifactToCreate);

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace FRF.Web.Dtos.Artifacts
+﻿namespace FRF.Web.Dtos.Artifacts
 {
     public class ArtifactTypeDTO
     {
