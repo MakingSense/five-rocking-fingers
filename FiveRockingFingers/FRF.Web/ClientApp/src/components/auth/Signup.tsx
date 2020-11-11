@@ -39,7 +39,7 @@ const UserSignupSchema = yup.object().shape({
         .oneOf([yup.ref('password'), ''], 'El password no coincide.')
 });
 
-const Signup: React.FC<userSignUp> = ({}) => {
+const Signup: React.FC<userSignUp> = ({ }) => {
     const history = useHistory();
     const { userHasAuthenticated } = useUserContext();
     const { register, handleSubmit, errors, reset } = useForm<userSignUp>({ resolver: yupResolver(UserSignupSchema) });

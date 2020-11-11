@@ -9,7 +9,9 @@ using System.Threading.Tasks;
 
 namespace FRF.Web.Controllers
 {
-    public class CategoriesController : BaseApiController<CategoryUpsertDTO, CategoryUpsertDTO>
+    [ApiController]
+    [Route("api/[controller]/[action]")]
+    public class CategoriesController : ControllerBase
     {
         private readonly IMapper _mapper;
         private readonly ICategoriesService _categoriesService;
@@ -21,7 +23,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpGet]
-        public override async Task<IActionResult> GetAllAsync()
+        public async Task<IActionResult> GetAllAsync()
         {
             var categories = await _categoriesService.GetAllAsync();
 
@@ -31,7 +33,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpGet("{id}")]
-        public override async Task<IActionResult> GetAsync(int id)
+        public async Task<IActionResult> GetAsync(int id)
         {
             var category = await _categoriesService.GetAsync(id);
 
@@ -46,7 +48,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpPost]
-        public override async Task<IActionResult> SaveAsync(CategoryUpsertDTO categoryDto)
+        public async Task<IActionResult> SaveAsync(CategoryUpsertDTO categoryDto)
         {
             var category = _mapper.Map<FRF.Core.Models.Category>(categoryDto);
 
@@ -56,7 +58,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpPut("{id}")]
-        public override async Task<IActionResult> UpdateAsync(int id, CategoryUpsertDTO categoryDto)
+        public async Task<IActionResult> UpdateAsync(int id, CategoryUpsertDTO categoryDto)
         {
             var category = await _categoriesService.GetAsync(id);
 
@@ -73,7 +75,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpDelete("{id}")]
-        public override async Task<IActionResult> DeleteAsync(int id)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
             var category = await _categoriesService.GetAsync(id);
 
