@@ -6,6 +6,7 @@ import axios from 'axios';
 import SnackbarMessage from '../../commons/SnackbarMessage';
 import SnackbarSettings from '../../interfaces/SnackbarSettings'
 import NewArtifactDialog from '../NewArtifactDialog';
+import ArtifactService from '../../services/ArtifactService';
 
 const ArtifactsTable = (props: { projectId: number }) => {
 
@@ -16,19 +17,17 @@ const ArtifactsTable = (props: { projectId: number }) => {
 
     const getArtifacts = async () => {
         try {
-            const response = await axios.get("https://localhost:44346/api/Artifacts/GetAllByProjectId/" + props.projectId);
+            const response = await ArtifactService.getAllByProjectId(props.projectId);
 
             if (response.status == 200) {
                 setArtifacts(response.data);
             }
             else {
-                setSnackbarSettings({ message: "Hubo un error al cargar los artifacts", severity: "error" });
-                setOpenSnackbar(true);
+                manageOpenSnackbar({ message: "Hubo un error al cargar los artifacts", severity: "error" });
             }
         }
         catch {
-            setSnackbarSettings({ message: "Hubo un error al cargar los artifacts", severity: "error" });
-            setOpenSnackbar(true);
+            manageOpenSnackbar({ message: "Hubo un error al cargar los artifacts", severity: "error" });
         }    
     }
 
@@ -42,7 +41,12 @@ const ArtifactsTable = (props: { projectId: number }) => {
 
     React.useEffect(() => {
         getArtifacts();
-    }, [props.projectId, artifacts]);
+    }, [props.projectId]);
+
+    const manageOpenSnackbar = (settings: SnackbarSettings) => {
+        setSnackbarSettings(settings);
+        setOpenSnackbar(true);
+    }
 
     return (
         <React.Fragment>
@@ -62,8 +66,8 @@ const ArtifactsTable = (props: { projectId: number }) => {
                         ? artifacts.map((artifact) => <ArtifactsTableRow
                             key={artifact.id}
                             artifact={artifact}
-                            setOpenSnackbar = {setOpenSnackbar }
-                            setSnackbarSettings={setSnackbarSettings}
+                            openSnackbar={manageOpenSnackbar}
+                            updateList={getArtifacts}
                             />
                             )
                         : null}

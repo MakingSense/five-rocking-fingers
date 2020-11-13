@@ -2,8 +2,9 @@
 import * as React from 'react';
 import Artifact from '../../interfaces/Artifact';
 import axios from 'axios';
+import ArtifactService from '../../services/ArtifactService';
 
-const ConfirmationDialog = (props: { open: boolean, setOpen: Function, artifactToDelete: Artifact, setOpenSnackbar: Function, setSnackbarSettings: Function }) => {
+const ConfirmationDialog = (props: { open: boolean, setOpen: Function, artifactToDelete: Artifact, openSnackbar: Function, updateList: Function }) => {
 
     const handleClose = () => {
         props.setOpen(false);
@@ -11,21 +12,18 @@ const ConfirmationDialog = (props: { open: boolean, setOpen: Function, artifactT
 
     const handleConfirm = async () => {
         try {
-            var route = "https://localhost:44346/api/Artifacts/Delete/" + props.artifactToDelete.id.toString();
-            const response = await axios.delete(route);
+            const response = await ArtifactService.delete(props.artifactToDelete.id)
 
             if (response.status == 204) {
-                props.setSnackbarSettings({ message: "El artefacto ha sido borrado con éxito", severity: "success" });
-                props.setOpenSnackbar(true);
+                props.openSnackbar({ message: "El artefacto ha sido borrado con éxito", severity: "success" });
+                props.updateList();
             }
             else {
-                props.setSnackbarSettings({ message: "Hubo un error al borrar el artefacto", severity: "error" });
-                props.setOpenSnackbar(true);
+                props.openSnackbar({ message: "Hubo un error al borrar el artefacto", severity: "error" });
             }
         }
         catch {
-            props.setSnackbarSettings({ message: "Hubo un error al borrar el artefacto", severity: "error" });
-            props.setOpenSnackbar(true);
+            props.openSnackbar({ message: "Hubo un error al borrar el artefacto", severity: "error" });
         }
         handleClose();
     };
