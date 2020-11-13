@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Globalization;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using FRF.Web.Dtos.Users;
@@ -79,16 +80,39 @@ namespace FRF.Web.Controllers
         {
             if (string.IsNullOrWhiteSpace(email)) return BadRequest();
 
-            var userPublicProfile = new UserPublicProfileDTO
+            /* TODO:Pending AWS Credentials. Login is bypassed!!! [FIVE-6]*/
+            //MOCK ::
+            var userPublicProfile = new UserPublicProfileDTO();
+            if (email.Equals("prueba@makingsense.com"))
             {
-                /* TODO:Pending AWS Credentials. Login is bypassed!!! [FIVE-6]*/
-                /* userPublicProfile.UserId = await _userService.GetUserIdByEmail(email);
-                if (userId == null) return NotFound();
-                userPublicProfile.FullName = await _userService.GetFullname(email);
-                */
+                var userPublic = new UserPublicProfileDTO
+                {
+                    UserId = "9e9df404-3060-4904-bcb8-020f4344c5f0",
+                    Email = email
+                };
+                userPublicProfile = userPublic;
+            }
+            else
+            {
+                var userPublic = new UserPublicProfileDTO
+            {
                 UserId = "c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba",
                 Email = email
             };
+                userPublicProfile = userPublic;
+            }
+            //END MOCK::
+            //Uncomment this after do:
+            /*var userId = await _userService.GetUserIdByEmail(email);
+            if (userId == null) return NotFound();
+
+            var userPublicProfile = new UserPublicProfileDTO
+            {
+                FullName = await _userService.GetFullname(email),
+                UserId = userId,
+                Email = email,
+                Avatar = null
+            };*/
 
             return Ok(userPublicProfile);
         }

@@ -115,27 +115,15 @@ namespace FRF.Core.Services
         public async Task<Project> UpdateAsync(Project project)
         {
             var categoryList = new List<EntityModels.Category>();
-            foreach (var category in project.ProjectCategories)
-            {
+            foreach (var category in project.ProjectCategories) 
                 categoryList.Add(await _dataContext.Categories.SingleAsync(c => c.Id == category.Category.Id));
-            }
 
-            /* TODO:Pending AWS Credentials. Login is bypassed![FIVE-6] */
-            /*Uncomment this after do.*/
-            /* var userId = _userService.GetCurrentUserId();
-            var result = await _dataContext.UsersByProject
-                .Where(up => up.UserId == userId)
-                .Include(pr => pr.Project)
-                .ThenInclude(c => c.ProjectCategories)
-                .ThenInclude(upp=>upp.UsersByProject)
-                .SingleOrDefaultAsync(p => p.Id == id);
-             */
-            /*Then delete this*/
             var result = await _dataContext.Projects
                 .Include(p => p.ProjectCategories)
                 .ThenInclude(pc => pc.Category)
+                .Include(up => up.UsersByProject)
                 .SingleOrDefaultAsync(p => p.Id == project.Id);
-            //
+
             if (result == null) return null;
 
             result.Name = project.Name;
@@ -145,6 +133,7 @@ namespace FRF.Core.Services
             result.ModifiedDate = DateTime.Now;
 
             result.ProjectCategories.Clear();
+            result.UsersByProject.Clear();
 
             foreach (var category in categoryList)
             {
@@ -154,6 +143,15 @@ namespace FRF.Core.Services
                 pc.Project = result;
                 pc.ProjectId = result.Id;
                 result.ProjectCategories.Add(pc);
+            }
+
+            foreach (var usersByProject in project.UsersByProject)
+            {
+                var up = new EntityModels.UsersByProject();
+                up.UserId = usersByProject.UserId;
+                up.Project = result;
+                up.ProjectId = result.Id;
+                result.UsersByProject.Add(up);
             }
 
             await _dataContext.SaveChangesAsync();
@@ -182,6 +180,12 @@ namespace FRF.Core.Services
             _dataContext.Projects.Remove(projectToDelete);
             await _dataContext.SaveChangesAsync();
             return true;
+        }
+
+        public bool IsAuthorized(Project project, string userId)
+        {
+            var userProject = project.UsersByProject.FirstOrDefault(p => p.UserId == userId);
+            return userProject != null;
         }
     }
 }

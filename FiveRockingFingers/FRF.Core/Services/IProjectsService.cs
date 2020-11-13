@@ -11,5 +11,6 @@ namespace FRF.Core.Services
         Task<Project> UpdateAsync(Project project);
         Task<bool> DeleteAsync(int id);
         Task<Project> SaveAsync(Project project);
+        bool IsAuthorized(Project project, string userId);
     }
 }
