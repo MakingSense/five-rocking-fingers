@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Text;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace FRF.Web.Dtos.Projects
 {
     public class UsersByProjectDTO
     {
-        public int Id { get; set; }
-        [Required]
+        [CustomValidator.UserId]
         public string UserId { get; set; }
         [Required]
         public int ProjectId { get; set; }

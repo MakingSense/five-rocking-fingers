@@ -1,13 +1,12 @@
-﻿using System;
-using AutoMapper;
+﻿using AutoMapper;
+using FRF.Core.Models;
 using FRF.Core.Services;
 using FRF.Web.Dtos;
+using FRF.Web.Dtos.Projects;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using FRF.Web.Dtos.Projects;
 
 namespace FiveRockingFingers.Controllers
 {
@@ -32,7 +31,7 @@ namespace FiveRockingFingers.Controllers
 
         //TODO: AWS Credentials, Loggin bypassed.Delete this method and Uncomment GetAll() after do:
         [HttpGet("{userId}")]
-        public async Task<IActionResult> GetAll(string userId)
+        public async Task<IActionResult> GetAllAsync(string userId)
         {
             var currentUserId = _configuration.GetValue<string>("MockUsers:UserId");
 
@@ -47,7 +46,7 @@ namespace FiveRockingFingers.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAllAsync()
         {
             /*var currentUserId = await _userService.GetCurrentUserId();
              var projects = await _projectService.GetAllAsync(currentUserId);
@@ -60,10 +59,10 @@ namespace FiveRockingFingers.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        public async Task<IActionResult> GetAsync(int id)
         {
             var project = await _projectService.GetAsync(id);
-            if (project == null) return NotFound();
+            if (project == null) return StatusCode(204);
 
             //TODO: AWS Credentials, Loggin bypassed. Uncomment after do:
             //var currentUserId = await _userService.GetCurrentUserId();
@@ -76,11 +75,21 @@ namespace FiveRockingFingers.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Save(ProjectUpsertDTO projectDto)
+        public async Task<IActionResult> SaveAsync(ProjectUpsertDTO projectDto)
         {
-            var project = _mapper.Map<FRF.Core.Models.Project>(projectDto);
-
+            var project = _mapper.Map<Project>(projectDto);
             if (project == null) return BadRequest();
+
+            /* TODO:Pending AWS Credentials. Login is bypassed![FIVE-6] */
+            /*Uncomment this after do.*/
+            /* var currentUserId = _userService.GetCurrentUserId();*/
+            var currentUserId = _configuration.GetValue<string>("MockUsers:UserId");
+            var usersByProject = new UsersByProject()
+            {
+                UserId = currentUserId
+            };
+            project.UsersByProject.Add(usersByProject);
+
             var projectSaved = await _projectService.SaveAsync(project);
 
             if (projectSaved == null) return BadRequest();
@@ -91,10 +100,10 @@ namespace FiveRockingFingers.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update(int id, ProjectUpsertDTO projectDto)
+        public async Task<IActionResult> UpdateAsync(int id, ProjectUpsertDTO projectDto)
         {
             var project = await _projectService.GetAsync(id);
-            if (project == null) return NotFound();
+            if (project == null) return StatusCode(204);
 
             /* TODO:Pending AWS Credentials. Login is bypassed![FIVE-6] */
             /*Uncomment this after do.*/
@@ -110,10 +119,10 @@ namespace FiveRockingFingers.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
             var project = await _projectService.GetAsync(id);
-            if (project == null) return NotFound();
+            if (project == null) return StatusCode(204);
 
             /* TODO:Pending AWS Credentials. Login is bypassed![FIVE-6] */
             /*Uncomment this after do.*/
@@ -122,9 +131,8 @@ namespace FiveRockingFingers.Controllers
             if (!_projectService.IsAuthorized(project, currentUserId)) return Unauthorized();
 
             var isDeleted = await _projectService.DeleteAsync(id);
-            if (!isDeleted) return NotFound();
 
-            return NoContent();
+            return !isDeleted ? StatusCode(204) : Ok();
         }
     }
 }

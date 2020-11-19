@@ -2,7 +2,7 @@
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
 
-namespace FRF.Web.Dtos.Users
+namespace FRF.Web.Dtos
 {
     public class CustomValidator
     {
@@ -16,7 +16,7 @@ namespace FRF.Web.Dtos.Users
                 if (string.IsNullOrWhiteSpace(value as string)) return new ValidationResult("Should not be empty");
 
                 var regexEmailPattern = new Regex(configuration["Regex:EmailPattern"]);
-                
+
                 if (regexEmailPattern.IsMatch((string) value)) return ValidationResult.Success;
 
                 return new ValidationResult("Is not a correct email");
@@ -33,10 +33,27 @@ namespace FRF.Web.Dtos.Users
                 if (string.IsNullOrWhiteSpace(value as string)) return new ValidationResult("Should not be empty");
 
                 var regexPasswordPattern = new Regex(configuration["Regex:PasswordPattern"]);
-                
+
                 if (regexPasswordPattern.IsMatch((string) value)) return ValidationResult.Success;
 
                 return new ValidationResult("Is not a correct password format");
+            }
+        }
+
+        public class UserIdAttribute : ValidationAttribute
+        {
+            protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+            {
+                var configuration = (IConfiguration) validationContext
+                    .GetService(typeof(IConfiguration));
+
+                if (string.IsNullOrWhiteSpace(value as string)) return new ValidationResult("Should not be empty");
+
+                var regexEmailPattern = new Regex(configuration["Regex:UserIdPattern"]);
+
+                if (regexEmailPattern.IsMatch((string) value)) return ValidationResult.Success;
+
+                return new ValidationResult("Is not a correct user id");
             }
         }
     }
