@@ -2,7 +2,6 @@
 import { Table, Button } from 'reactstrap';
 import Artifact from '../../interfaces/Artifact'
 import ArtifactsTableRow from './ArtifactsTableRow';
-import axios from 'axios';
 import SnackbarMessage from '../../commons/SnackbarMessage';
 import SnackbarSettings from '../../interfaces/SnackbarSettings'
 import NewArtifactDialog from '../NewArtifactDialog';

@@ -1,7 +1,6 @@
 ﻿import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Snackbar } from '@material-ui/core';
 import * as React from 'react';
 import Artifact from '../../interfaces/Artifact';
-import axios from 'axios';
 import ArtifactService from '../../services/ArtifactService';
 
 const ConfirmationDialog = (props: { open: boolean, setOpen: Function, artifactToDelete: Artifact, openSnackbar: Function, updateList: Function }) => {
