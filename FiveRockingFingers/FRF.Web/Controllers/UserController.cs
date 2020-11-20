@@ -87,7 +87,7 @@ namespace FRF.Web.Controllers
             {
                 var userPublic = new UserPublicProfileDTO
                 {
-                    UserId = "9e9df404-3060-4904-bcb8-020f4344c5f0",
+                    UserId = new Guid("9e9df404-3060-4904-bcb8-020f4344c5f0"),
                     Email = email
                 };
                 userPublicProfile = userPublic;
@@ -96,7 +96,7 @@ namespace FRF.Web.Controllers
             {
                 var userPublic = new UserPublicProfileDTO
             {
-                UserId = "c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba",
+                UserId = new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba"),
                 Email = email
             };
                 userPublicProfile = userPublic;

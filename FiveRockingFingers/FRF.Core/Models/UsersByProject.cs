@@ -9,6 +9,6 @@ namespace FRF.Core.Models
         public int Id { get; set; }
         public int ProjectId { get; set; }
         public Project Project { get; set; }
-        public string UserId { get; set; }
+        public Guid UserId { get; set; }
     }
 }
