@@ -47,15 +47,15 @@ namespace FiveRockingFingers.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            /*
-                        var currentUserId = await _userService.GetCurrentUserId();
-                        var projects = await _projectService.GetAllAsync(currentUserId);
-            
-                        if (projects == null) return StatusCode(204);
-            
-                        var projectsDto = _mapper.Map<IEnumerable<ProjectDto>>(projects);
-                        return Ok(projectsDto);*/
-            return NotFound();
+            // TODO: AWS Credentials, Loggin bypassed.Uncomment after do:
+            //var currentUserId = await _userService.GetCurrentUserId();
+            var currentUserId = "";
+            var projects = await _projectService.GetAllAsync(currentUserId);
+
+            if (projects == null) return StatusCode(204);
+
+            var projectsDto = _mapper.Map<IEnumerable<ProjectDto>>(projects);
+            return Ok(projectsDto);
         }
 
         [HttpGet("{id}")]
@@ -111,7 +111,7 @@ namespace FiveRockingFingers.Controllers
 
             _mapper.Map(projectDto, project);
 
-            var updatedProject = _mapper.Map<ProjectDto>(_projectService.UpdateAsync(project));
+            var updatedProject = _mapper.Map<ProjectDto>(await _projectService.UpdateAsync(project));
 
             return Ok(updatedProject);
         }
