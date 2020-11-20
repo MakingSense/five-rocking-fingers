@@ -18,8 +18,8 @@ namespace FRF.Web.Dtos
                 .ReverseMap();
             CreateMap<Category, Projects.CategoryDTO>()
                 .ReverseMap();
-           /*CreateMap<Project, Categories.ProjectDTO>()
-                .ReverseMap();*/
+           CreateMap<Project, Categories.ProjectDTO>()
+                .ReverseMap();
             CreateMap<ProjectCategory, Categories.ProjectCategoryDTO>()
                 .ReverseMap();
             CreateMap<Category, Categories.CategoryDTO>()

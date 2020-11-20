@@ -181,11 +181,5 @@ namespace FRF.Core.Services
             await _dataContext.SaveChangesAsync();
             return true;
         }
-
-        public bool IsAuthorized(Project project, string userId)
-        {
-            var userProject = project.UsersByProject.FirstOrDefault(p => p.UserId == userId);
-            return userProject != null;
-        }
     }
 }
