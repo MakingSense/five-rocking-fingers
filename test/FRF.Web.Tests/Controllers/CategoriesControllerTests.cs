@@ -51,7 +51,7 @@ namespace FRF.Web.Tests.Controllers
                 });
 
             // Act
-            var result = await _classUnderTest.Get(categoryId);
+            var result = await _classUnderTest.GetAsync(categoryId);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
@@ -72,7 +72,7 @@ namespace FRF.Web.Tests.Controllers
             var categoryId = 900;
 
             // Act
-            var result = await _classUnderTest.Get(categoryId);
+            var result = await _classUnderTest.GetAsync(categoryId);
 
             // Assert
             var notFoundResult = Assert.IsType<NotFoundResult>(result);
