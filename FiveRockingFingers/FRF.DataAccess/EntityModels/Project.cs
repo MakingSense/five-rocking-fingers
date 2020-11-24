@@ -19,6 +19,6 @@ namespace FRF.DataAccess.EntityModels
         public DateTime? ModifiedDate{ get; set; }
         #nullable disable
         public IList<ProjectCategory> ProjectCategories { get; set; }
-        public ICollection<UsersByProject> UsersByProject { get; set; }
+        public virtual ICollection<UsersByProject> UsersByProject { get; set; }
     }
 }

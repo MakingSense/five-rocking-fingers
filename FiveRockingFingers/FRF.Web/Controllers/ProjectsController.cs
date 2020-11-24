@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System;
+using AutoMapper;
 using FRF.Core.Models;
 using FRF.Core.Services;
 using FRF.Web.Dtos;
@@ -31,10 +32,10 @@ namespace FiveRockingFingers.Controllers
 
         //TODO: AWS Credentials, Loggin bypassed.Delete this method and Uncomment GetAll() after do:
         [HttpGet("{userId}")]
-        public async Task<IActionResult> GetAllAsync(string userId)
+        public async Task<IActionResult> GetAllAsync(Guid userId)
         {
-            var currentUserId = _configuration.GetValue<string>("MockUsers:UserId");
-
+            var currentUserId = Guid.Parse(_configuration.GetValue<string>("MockUsers:UserId"));
+            
             if (currentUserId != userId) return Unauthorized();
 
             var projects = await _projectService.GetAllAsync(userId);
@@ -48,29 +49,24 @@ namespace FiveRockingFingers.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllAsync()
         {
-            /*var currentUserId = await _userService.GetCurrentUserId();
-             var projects = await _projectService.GetAllAsync(currentUserId);
- 
-             if (projects == null) return StatusCode(204);
- 
-             var projectsDto = _mapper.Map<IEnumerable<ProjectDTO>>(projects);
-             return Ok(projectsDto);*/
-            return NotFound();
+            // TODO: AWS Credentials, Loggin bypassed.Uncomment after do:
+            //var currentUserId = await _userService.GetCurrentUserId();
+            var currentUserId = new Guid("9e9df404-3060-4904-bcb8-020f4344c5f0");
+            var projects = await _projectService.GetAllAsync(currentUserId);
+
+            if (projects == null) return StatusCode(204);
+
+            var projectsDto = _mapper.Map<IEnumerable<ProjectDTO>>(projects);
+            return Ok(projectsDto);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetAsync(int id)
         {
             var project = await _projectService.GetAsync(id);
-            if (project == null) return StatusCode(204);
-
-            //TODO: AWS Credentials, Loggin bypassed. Uncomment after do:
-            //var currentUserId = await _userService.GetCurrentUserId();
-            var currentUserId = _configuration.GetValue<string>("MockUsers:UserId");
-            if (!_projectService.IsAuthorized(project, currentUserId)) return Unauthorized();
+            if (project == null) return NoContent();
 
             var projectDto = _mapper.Map<ProjectDTO>(project);
-
             return Ok(projectDto);
         }
 
@@ -80,22 +76,10 @@ namespace FiveRockingFingers.Controllers
             var project = _mapper.Map<Project>(projectDto);
             if (project == null) return BadRequest();
 
-            /* TODO:Pending AWS Credentials. Login is bypassed![FIVE-6] */
-            /*Uncomment this after do.*/
-            /* var currentUserId = _userService.GetCurrentUserId();*/
-            var currentUserId = _configuration.GetValue<string>("MockUsers:UserId");
-            var usersByProject = new UsersByProject()
-            {
-                UserId = currentUserId
-            };
-            project.UsersByProject.Add(usersByProject);
-
             var projectSaved = await _projectService.SaveAsync(project);
-
             if (projectSaved == null) return BadRequest();
 
             var projectCreated = _mapper.Map<ProjectDTO>(projectSaved);
-
             return Ok(projectCreated);
         }
 
@@ -103,18 +87,13 @@ namespace FiveRockingFingers.Controllers
         public async Task<IActionResult> UpdateAsync(int id, ProjectUpsertDTO projectDto)
         {
             var project = await _projectService.GetAsync(id);
-            if (project == null) return StatusCode(204);
-
-            /* TODO:Pending AWS Credentials. Login is bypassed![FIVE-6] */
-            /*Uncomment this after do.*/
-            /* var currentUserId = _userService.GetCurrentUserId();*/
-            var currentUserId = _configuration.GetValue<string>("MockUsers:UserId");
-            if (!_projectService.IsAuthorized(project, currentUserId)) return Unauthorized();
+            if (project == null) return NoContent();
 
             _mapper.Map(projectDto, project);
             var updated = await _projectService.UpdateAsync(project);
-            var updatedProject = _mapper.Map<ProjectDTO>(updated);
+            if (updated == null) return BadRequest();
 
+            var updatedProject = _mapper.Map<ProjectDTO>(updated);
             return Ok(updatedProject);
         }
 
@@ -123,12 +102,6 @@ namespace FiveRockingFingers.Controllers
         {
             var project = await _projectService.GetAsync(id);
             if (project == null) return StatusCode(204);
-
-            /* TODO:Pending AWS Credentials. Login is bypassed![FIVE-6] */
-            /*Uncomment this after do.*/
-            /* var currentUserId = _userService.GetCurrentUserId();*/
-            var currentUserId = _configuration.GetValue<string>("MockUsers:UserId");
-            if (!_projectService.IsAuthorized(project, currentUserId)) return Unauthorized();
 
             var isDeleted = await _projectService.DeleteAsync(id);
 
