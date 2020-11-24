@@ -64,7 +64,7 @@ namespace FRF.Web.Tests.Controllers
         }
 
         [Fact]
-        public async Task Get_NotFound_WhenProjectIsNotFound()
+        public async Task Get_WhenProjectIsNotFound_NotFound()
         {
             // Arrange
             var rnd = new Random();
@@ -118,7 +118,7 @@ namespace FRF.Web.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetAll_NoContent_WhenAUserHasNoProjects()
+        public async Task GetAll_WhenAUserHasNoProjects_NoContent()
         {
             // Arrange
             //TODO: AWS Credentials, Loggin bypassed. Uncomment after do:
@@ -174,7 +174,7 @@ namespace FRF.Web.Tests.Controllers
         }
 
         [Fact]
-        public async Task Save_ReturnsBadRequest_WhenProjectUpsertDTOIsInvalid()
+        public async Task Save_WhenProjectUpsertDTOIsInvalid_ReturnsBadRequest()
         {
             // Arrange
             var rnd = new Random();
@@ -193,7 +193,7 @@ namespace FRF.Web.Tests.Controllers
         }
 
         [Fact]
-        public async Task Update_BadRequest_WhenGivenIdIsDifferentFromProjectId()
+        public async Task Update_WhenGivenIdIsDifferentFromProjectId_BadRequest()
         {
             // Arrange
             var rnd = new Random();
@@ -251,7 +251,7 @@ namespace FRF.Web.Tests.Controllers
         }
 
         [Fact]
-        public async Task Delete_NoContent_WhenProjectIsDeleted()
+        public async Task Delete_WhenProjectIsDeleted_NoContent()
         {
             //Arrange
             var rnd = new Random();
@@ -273,7 +273,7 @@ namespace FRF.Web.Tests.Controllers
         }
 
         [Fact]
-        public async Task Delete_NotFound_WhenProjectDoesntExist()
+        public async Task Delete_WhenProjectDoesntExist_NotFound()
         {
             //Arrange
             var rnd = new Random();
@@ -289,7 +289,7 @@ namespace FRF.Web.Tests.Controllers
         }
 
         [Fact]
-        public async Task Delete_NotFound_WhenProjectIsNotDeleted()
+        public async Task Delete_WhenProjectIsNotDeleted_NotFound()
         {
             //Arrange
             var rnd = new Random();
@@ -313,7 +313,7 @@ namespace FRF.Web.Tests.Controllers
         }
 
         /// <summary>
-        ///     Create mock Project object with a given id
+        /// Create mock Project object with a given id
         /// </summary>
         /// <param name="projectId">The project id</param>
         /// <returns>A new Project object</returns>
