@@ -39,8 +39,6 @@ namespace FiveRockingFingers.Controllers
 
             var projects = await _projectService.GetAllAsync(userId);
 
-            if (projects == null) return StatusCode(204);
-
             var projectsDto = _mapper.Map<IEnumerable<ProjectDTO>>(projects);
             return Ok(projectsDto);
         }
@@ -52,9 +50,6 @@ namespace FiveRockingFingers.Controllers
             //var currentUserId = await _userService.GetCurrentUserId();
             var currentUserId = "";
             var projects = await _projectService.GetAllAsync(currentUserId);
-
-            if (projects == null) return StatusCode(204);
-
             var projectsDto = _mapper.Map<IEnumerable<ProjectDTO>>(projects);
             return Ok(projectsDto);
         }
@@ -63,7 +58,7 @@ namespace FiveRockingFingers.Controllers
         public async Task<IActionResult> GetAsync(int id)
         {
             var project = await _projectService.GetAsync(id);
-            if (project == null) return NoContent();
+            if (project == null) return NotFound();
 
             var projectDto = _mapper.Map<ProjectDTO>(project);
             return Ok(projectDto);
@@ -86,7 +81,7 @@ namespace FiveRockingFingers.Controllers
         public async Task<IActionResult> UpdateAsync(int id, ProjectUpsertDTO projectDto)
         {
             var project = await _projectService.GetAsync(id);
-            if (project == null) return NoContent();
+            if (project == null) return NotFound();
 
             _mapper.Map(projectDto, project);
             var updated = await _projectService.UpdateAsync(project);
