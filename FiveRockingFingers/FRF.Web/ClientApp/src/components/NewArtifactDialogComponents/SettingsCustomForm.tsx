@@ -2,30 +2,28 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import * as React from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { PROVIDERS } from '../Constants';
-import ArtifactType from '../interfaces/ArtifactType';
-import ArtifactService from '../services/ArtifactService';
-import CustomForm from './NewArtifactDialogComponents/CustomForm';
-import ProviderForm from './NewArtifactDialogComponents/ProviderForm';
-import SettingsCustomForm from './NewArtifactDialogComponents/SettingsCustomForm';
+import { PROVIDERS } from '../../Constants';
+import ArtifactType from '../../interfaces/ArtifactType';
+import ArtifactService from '../../services/ArtifactService';
+import Typography from '@material-ui/core/Typography';
 
 // Once the ArtifactType API and service are running, this should be replaced with a call to that API
 // Until then, you might an error if you don't have this 3 types created on your local DataBase before using this
 const constArtifactTypes = [
     {
-      "id": 5,
-      "name": "Atype",
-      "description": "ADescription"
+        "id": 5,
+        "name": "Atype",
+        "description": "ADescription"
     },
     {
-      "id": 6,
-      "name": "Btype",
-      "description": "BDescription"
+        "id": 6,
+        "name": "Btype",
+        "description": "BDescription"
     },
     {
-      "id": 7,
-      "name": "Ctype",
-      "description": "CDescription"
+        "id": 7,
+        "name": "Ctype",
+        "description": "CDescription"
     }
 ]
 
@@ -46,11 +44,9 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, projectId: number, updateList: Function, setOpenSnackbar: Function , setSnackbarSettings: Function }) => {
+const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, projectId: number, updateList: Function, setOpenSnackbar: Function, setSnackbarSettings: Function }) => {
 
     const classes = useStyles();
-
-    const [step, setStep] = React.useState<number>(1);
 
     const { register, handleSubmit, errors, control } = useForm();
     const { showNewArtifactDialog, closeNewArtifactDialog, projectId, updateList, setOpenSnackbar, setSnackbarSettings } = props;
@@ -60,24 +56,7 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
 
     React.useEffect(() => {
         setArtifactTypes(constArtifactTypes);
-    }, [step]);
-
-    const handleNextStep = () => {
-        setStep(step + 1);
-        console.log(step);
-    }
-
-    const handlePreviousStep = () => {
-        setStep(step - 1);
-    }
-
-    const handleConfirmProvider = async (data: { provider: string }) => {
-        const artifactToCreate = {
-            provider: data.provider
-        };
-
-        console.log(artifactToCreate);
-    }
+    }, [])
 
     const handleConfirm = async (data: { name: string, provider: string, artifactType: string }) => {
         const artifactToCreate = {
@@ -116,35 +95,45 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
         setProvider(provider);
     }
 
-    switch (step) {
-        case 1:
-            return (
-                <ProviderForm
-                    showNewArtifactDialog={props.showNewArtifactDialog}
-                    closeNewArtifactDialog={props.closeNewArtifactDialog}
-                    projectId={props.projectId}
-                    updateList={props.updateList}
-                    setOpenSnackbar={props.setOpenSnackbar}
-                    setSnackbarSettings={props.setSnackbarSettings}
-                    handleNextStep={handleNextStep}
-                />
-            );
+    return (
+        <Dialog open={showNewArtifactDialog}>
+            <DialogTitle id="alert-dialog-title">Bienvenido al asistente para la creación de un nuevo artefacto</DialogTitle>
+            <DialogContent>
+                <Typography gutterBottom>
+                    A continuación ingrese el tipo y el nombre de su nuevo artefacto
+                </Typography>
+                <form className={classes.container}>
+                    <TextField
+                        inputRef={register({ required: true, validate: { isValid: value => value.trim() != "" } })}
+                        error={errors.name ? true : false}
+                        id="name"
+                        name="name"
+                        label="Nombre de la setting"
+                        helperText="Requerido*"
+                        variant="outlined"
+                        className={classes.inputF}
+                        fullWidth
+                    />
 
-        case 2:
-            return (
-                <CustomForm
-                    showNewArtifactDialog={props.showNewArtifactDialog}
-                    closeNewArtifactDialog={props.closeNewArtifactDialog}
-                    projectId={props.projectId}
-                    updateList={props.updateList}
-                    setOpenSnackbar={props.setOpenSnackbar}
-                    setSnackbarSettings={props.setSnackbarSettings}
-                />
-            );
-
-        default:
-            return null;
-    }
+                    <TextField
+                        inputRef={register({ required: true, validate: { isValid: value => value.trim() != "" } })}
+                        error={errors.name ? true : false}
+                        id="name"
+                        name="name"
+                        label="Valor de la setting"
+                        helperText="Requerido*"
+                        variant="outlined"
+                        className={classes.inputF}
+                        fullWidth
+                    />
+                </form>
+            </DialogContent>
+            <DialogActions>
+                <Button size="small" color="primary" type="submit" onClick={handleSubmit(handleConfirm)}>Agregar</Button>
+                <Button size="small" color="secondary" onClick={handleCancel}>Cancelar</Button>
+            </DialogActions>
+        </Dialog>
+    );
 }
 
-export default NewArtifactDialog;
+export default SettingsCustomForm;
