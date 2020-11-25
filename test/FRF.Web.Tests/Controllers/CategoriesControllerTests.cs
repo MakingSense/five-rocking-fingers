@@ -26,7 +26,7 @@ namespace FRF.Web.Tests.Controllers
         }
 
         [Fact]
-        public async Task Get_ReturnsOk()
+        public async Task GetAsync_ReturnsOk()
         {
             // Arrange
             var categoryId = 900;
@@ -51,7 +51,7 @@ namespace FRF.Web.Tests.Controllers
                 });
 
             // Act
-            var result = await _classUnderTest.Get(categoryId);
+            var result = await _classUnderTest.GetAsync(categoryId);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
@@ -66,13 +66,13 @@ namespace FRF.Web.Tests.Controllers
         }
 
         [Fact]
-        public async Task Get_ReturnsNotFound()
+        public async Task GetAsync_ReturnsNotFound()
         {
             // Arrange
             var categoryId = 900;
 
             // Act
-            var result = await _classUnderTest.Get(categoryId);
+            var result = await _classUnderTest.GetAsync(categoryId);
 
             // Assert
             var notFoundResult = Assert.IsType<NotFoundResult>(result);
