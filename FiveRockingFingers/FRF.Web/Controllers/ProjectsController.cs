@@ -33,14 +33,12 @@ namespace FiveRockingFingers.Controllers
         //TODO: AWS Credentials, Loggin bypassed.Delete this method and Uncomment GetAll() after do:
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetAllAsync(Guid userId)
-        {
+        {   //TODO: AWS Credentials, Loggin bypassed. Use the method argument Guid userId instead of GetValue.
             var currentUserId = Guid.Parse(_configuration.GetValue<string>("MockUsers:UserId"));
             
             if (currentUserId != userId) return Unauthorized();
 
             var projects = await _projectService.GetAllAsync(userId);
-
-            if (projects == null) return StatusCode(204);
 
             var projectsDto = _mapper.Map<IEnumerable<ProjectDTO>>(projects);
             return Ok(projectsDto);
@@ -53,9 +51,6 @@ namespace FiveRockingFingers.Controllers
             //var currentUserId = await _userService.GetCurrentUserId();
             var currentUserId = new Guid("9e9df404-3060-4904-bcb8-020f4344c5f0");
             var projects = await _projectService.GetAllAsync(currentUserId);
-
-            if (projects == null) return StatusCode(204);
-
             var projectsDto = _mapper.Map<IEnumerable<ProjectDTO>>(projects);
             return Ok(projectsDto);
         }
@@ -64,7 +59,7 @@ namespace FiveRockingFingers.Controllers
         public async Task<IActionResult> GetAsync(int id)
         {
             var project = await _projectService.GetAsync(id);
-            if (project == null) return NoContent();
+            if (project == null) return NotFound();
 
             var projectDto = _mapper.Map<ProjectDTO>(project);
             return Ok(projectDto);
@@ -87,7 +82,7 @@ namespace FiveRockingFingers.Controllers
         public async Task<IActionResult> UpdateAsync(int id, ProjectUpsertDTO projectDto)
         {
             var project = await _projectService.GetAsync(id);
-            if (project == null) return NoContent();
+            if (project == null) return NotFound();
 
             _mapper.Map(projectDto, project);
             var updated = await _projectService.UpdateAsync(project);
