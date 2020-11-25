@@ -11,7 +11,6 @@ namespace FRF.Web.Dtos
         public int Id { get; set; }
         [Required(ErrorMessage = "Project name is required")]
         public string Name { get; set; }
-        [Required]
         public string Owner { get; set; }
         public string? Client { get; set; }
         public int? Budget { get; set; }
