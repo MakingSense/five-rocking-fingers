@@ -70,6 +70,11 @@ namespace FiveRockingFingers.Controllers
         [HttpPost]
         public async Task<IActionResult> SaveAsync(ProjectUpsertDTO projectDto)
         {
+            // TODO: AWS Credentials, Loggin bypassed.Uncomment after do:
+            //var currentUserId = await _userService.GetCurrentUserId();
+            var currentUserId = new Guid("9e9df404-3060-4904-bcb8-020f4344c5f0");
+            projectDto.UsersByProject.Add(new UsersByProjectDTO(){UserId = currentUserId});
+
             var project = _mapper.Map<Project>(projectDto);
             if (project == null) return BadRequest();
 

@@ -43,7 +43,7 @@ namespace FRF.Core.Services
             {
                 var categoryToAdd =
                     await _dataContext.Categories.SingleOrDefaultAsync(c => c.Id == category.Category.Id);
-                
+
                 if (categoryToAdd == null) return null;
 
                 categoryList.Add(categoryToAdd);
@@ -54,8 +54,21 @@ namespace FRF.Core.Services
             mappedProject.CreatedDate = DateTime.Now;
             mappedProject.ModifiedDate = null;
 
-            // Map all the User from the Project 
-            var mappedUBP = _mapper.Map<IList<EntityModels.UsersByProject>>(project.UsersByProject);
+            // Separate all the non duplicated User Id in a list of UsersByProject
+            var noDuplicatedUsersId = project.UsersByProject
+                .Select(ubp =>
+                    ubp.UserId)
+                .Distinct()
+                .Select(ubp =>
+                    new UsersByProject()
+                    {
+                        UserId = ubp
+                    })
+                .ToList();
+
+            // Map all non duplicated users list
+            var mappedUBP =
+                _mapper.Map<IList<EntityModels.UsersByProject>>(noDuplicatedUsersId);
 
             // Map all the categories from the categories list in to a ProjectCategory
             var mappedCat = categoryList
@@ -119,14 +132,20 @@ namespace FRF.Core.Services
                     Category = _mapper.Map<EntityModels.Category>(ct)
                 }).ToList();
 
-            var userList = project.UsersByProject
-                .Select(ubp => ubp.UserId)
+            var noDuplicatedUsersId = project.UsersByProject
+                .Select(ubp =>
+                    ubp.UserId)
                 .Distinct()
+                .Select(ubp =>
+                    new UsersByProject()
+                    {
+                        UserId = ubp
+                    })
                 .ToList();
-            
-            var mappedUBP = _mapper.Map<IList<EntityModels.UsersByProject>>(userList);
 
-            var result = await _dataContext.Projects
+            var mappedUBP = _mapper.Map<IList<EntityModels.UsersByProject>>(noDuplicatedUsersId);
+
+                var result = await _dataContext.Projects
                 .Include(p => p.ProjectCategories)
                 .ThenInclude(pc => pc.Category)
                 .Include(up => up.UsersByProject)
