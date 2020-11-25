@@ -7,6 +7,7 @@ using FRF.Web.Dtos.Projects;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -84,6 +85,8 @@ namespace FiveRockingFingers.Controllers
         {
             var project = await _projectService.GetAsync(id);
             if (project == null) return NotFound();
+            //To improve
+            if (!projectDto.UsersByProject.Any()) return BadRequest();
 
             _mapper.Map(projectDto, project);
             var updated = await _projectService.UpdateAsync(project);

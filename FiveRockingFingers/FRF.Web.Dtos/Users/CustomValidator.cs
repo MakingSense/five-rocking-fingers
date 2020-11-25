@@ -16,7 +16,7 @@ namespace FRF.Web.Dtos.Users
                 if (string.IsNullOrWhiteSpace(value as string)) return new ValidationResult("Should not be empty");
 
                 var regexEmailPattern = new Regex(configuration["Regex:EmailPattern"]);
-                
+
                 if (regexEmailPattern.IsMatch((string) value)) return ValidationResult.Success;
 
                 return new ValidationResult("Is not a correct email");
@@ -33,7 +33,7 @@ namespace FRF.Web.Dtos.Users
                 if (string.IsNullOrWhiteSpace(value as string)) return new ValidationResult("Should not be empty");
 
                 var regexPasswordPattern = new Regex(configuration["Regex:PasswordPattern"]);
-                
+
                 if (regexPasswordPattern.IsMatch((string) value)) return ValidationResult.Success;
 
                 return new ValidationResult("Is not a correct password format");

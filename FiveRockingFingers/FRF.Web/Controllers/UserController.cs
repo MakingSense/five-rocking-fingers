@@ -82,7 +82,7 @@ namespace FRF.Web.Controllers
             var userPublicProfile = new UserPublicProfileDTO
             {
                 /* TODO:Pending AWS Credentials. Login is bypassed!!! [FIVE-6]*/
-                /* userPublicProfile.UserId = await _userService.GetUserIdByEmail(email);
+                /* UserId = await _userService.GetUserIdByEmail(email);
                 if (userId == null) return NotFound();
                 userPublicProfile.FullName = await _userService.GetFullname(email);
                 */
