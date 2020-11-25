@@ -122,7 +122,7 @@ namespace FRF.Web.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetAllByProjectIdAsync()
+        public async Task GetAllByProjectIdAsync_ReturnsOk()
         {
             var projectId = 1;
             var project = new Project
@@ -306,7 +306,7 @@ namespace FRF.Web.Tests.Controllers
             var result = await _classUnderTest.GetAsync(artifactId);
 
             // Assert
-            var notFoundResult = Assert.IsType<NotFoundResult>(result);
+            Assert.IsType<NotFoundResult>(result);
             _artifactsService.Verify(mock => mock.Get(artifactId), Times.Once);
             _mapper.Verify(mock => mock.Map<ArtifactDTO>(It.IsAny<Artifact>()), Times.Never);
         }
@@ -531,7 +531,7 @@ namespace FRF.Web.Tests.Controllers
             var result = await _classUnderTest.GetAsync(artifactId);
 
             // Assert
-            var notFoundResult = Assert.IsType<NotFoundResult>(result);
+            Assert.IsType<NotFoundResult>(result);
             _artifactsService.Verify(mock => mock.Get(artifactId), Times.Once);
             _mapper.Verify(mock => mock.Map(It.IsAny<ArtifactUpsertDTO>(), It.IsAny<Artifact>()), Times.Never);
             _mapper.Verify(mock => mock.Map<ArtifactDTO>(It.IsAny<Artifact>()), Times.Never);
@@ -607,7 +607,7 @@ namespace FRF.Web.Tests.Controllers
             var result = await _classUnderTest.GetAsync(artifactId);
 
             // Assert
-            var notFoundResult = Assert.IsType<NotFoundResult>(result);
+            Assert.IsType<NotFoundResult>(result);
             _artifactsService.Verify(mock => mock.Get(artifactId), Times.Once);
             _artifactsService.Verify(mock => mock.Delete(artifactId), Times.Never);
         }
