@@ -99,11 +99,12 @@ namespace FiveRockingFingers.Controllers
         public async Task<IActionResult> DeleteAsync(int id)
         {
             var project = await _projectService.GetAsync(id);
-            if (project == null) return StatusCode(204);
+            if (project == null) return NotFound();
 
             var isDeleted = await _projectService.DeleteAsync(id);
+            if (!isDeleted) return NotFound();
 
-            return !isDeleted ? StatusCode(204) : Ok();
+            return NoContent();
         }
     }
 }
