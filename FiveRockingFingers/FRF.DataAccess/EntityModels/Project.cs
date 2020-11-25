@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FRF.DataAccess.EntityModels
 {
@@ -19,6 +17,6 @@ namespace FRF.DataAccess.EntityModels
         public DateTime? ModifiedDate{ get; set; }
         #nullable disable
         public IList<ProjectCategory> ProjectCategories { get; set; }
-        public virtual ICollection<UsersByProject> UsersByProject { get; set; }
+        public ICollection<UsersByProject> UsersByProject { get; set; }
     }
 }

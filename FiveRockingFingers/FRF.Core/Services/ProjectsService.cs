@@ -43,7 +43,7 @@ namespace FRF.Core.Services
             {
                 var categoryToAdd =
                     await _dataContext.Categories.SingleOrDefaultAsync(c => c.Id == category.Category.Id);
-                //Category provided exist ?
+                
                 if (categoryToAdd == null) return null;
 
                 categoryList.Add(categoryToAdd);
@@ -55,8 +55,7 @@ namespace FRF.Core.Services
             mappedProject.ModifiedDate = null;
 
             // Map all the User from the Project 
-            var mappedUBP = project.UsersByProject
-                .Select(usersByProject => _mapper.Map<EntityModels.UsersByProject>(usersByProject)).ToList();
+            var mappedUBP = _mapper.Map<IList<EntityModels.UsersByProject>>(project.UsersByProject);
 
             // Map all the categories from the categories list in to a ProjectCategory
             var mappedCat = categoryList
@@ -124,11 +123,8 @@ namespace FRF.Core.Services
                 .Select(ubp => ubp.UserId)
                 .Distinct()
                 .ToList();
-            var mappedUBP = userList
-                .Select(ubp => _mapper.Map<EntityModels.UsersByProject>(new EntityModels.UsersByProject
-                {
-                    UserId = ubp
-                })).ToList();
+            
+            var mappedUBP = _mapper.Map<IList<EntityModels.UsersByProject>>(userList);
 
             var result = await _dataContext.Projects
                 .Include(p => p.ProjectCategories)
