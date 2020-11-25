@@ -109,43 +109,32 @@ namespace FRF.Core.Services
             {
                 var categoryToAdd =
                     await _dataContext.Categories.SingleOrDefaultAsync(c => c.Id == category.Category.Id);
-                if (categoryToAdd == null)
-                {
-                    throw new System.ArgumentException("Category doesn't exist");
-                }
+                if (categoryToAdd == null) return null;
 
                 categoryList.Add(categoryToAdd);
             }
 
-            var userList = new List<EntityModels.UsersByProject>();
-            foreach (var usersByProject in project.UsersByProject)
-            {
-                var exist = await _dataContext.UsersByProject.AnyAsync(ubp =>
-                    ubp.ProjectId == project.Id && ubp.UserId == usersByProject.UserId) || userList.Exists(ul =>
-                    ul.UserId == usersByProject.UserId && ul.ProjectId == project.Id);
-                if (!exist)
+            var mappedProjectCategory = categoryList
+                .Select(ct => new EntityModels.ProjectCategory
                 {
-                    userList.Add(_mapper.Map<EntityModels.UsersByProject>(usersByProject));
-                }
-            }
+                    Category = _mapper.Map<EntityModels.Category>(ct)
+                }).ToList();
 
-            /* TODO:Pending AWS Credentials. Login is bypassed![FIVE-6] */
-            /*Uncomment this after do.*/
-            /* var userId = _userService.GetCurrentUserId();
-            var result = await _dataContext.UsersByProject
-                .Where(up => up.UserId == userId)
-                .Include(pr => pr.Project)
-                .ThenInclude(c => c.ProjectCategories)
-                .ThenInclude(upp=>upp.UsersByProject)
-                .SingleOrDefaultAsync(p => p.Id == id);
-             */
-            /*Then delete this*/
+            var userList = project.UsersByProject
+                .Select(ubp => ubp.UserId)
+                .Distinct()
+                .ToList();
+            var mappedUBP = userList
+                .Select(ubp => _mapper.Map<EntityModels.UsersByProject>(new EntityModels.UsersByProject
+                {
+                    UserId = ubp
+                })).ToList();
+
             var result = await _dataContext.Projects
                 .Include(p => p.ProjectCategories)
                 .ThenInclude(pc => pc.Category)
                 .Include(up => up.UsersByProject)
                 .SingleOrDefaultAsync(p => p.Id == project.Id);
-            //
 
             if (result == null) return null;
 
@@ -154,15 +143,9 @@ namespace FRF.Core.Services
             result.Client = project.Client;
             result.Budget = project.Budget;
             result.ModifiedDate = DateTime.Now;
+            result.ProjectCategories = mappedProjectCategory;
+            result.UsersByProject = mappedUBP;
 
-            var mappedCat = categoryList
-                .Select(ct => new EntityModels.ProjectCategory
-                {
-                    Category = _mapper.Map<EntityModels.Category>(ct)
-                }).ToList();
-
-            result.UsersByProject = result.UsersByProject.Union(userList).ToList();
-            result.ProjectCategories = mappedCat;
             await _dataContext.SaveChangesAsync();
             return _mapper.Map<Project>(result);
         }
