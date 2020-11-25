@@ -21,7 +21,7 @@ namespace FRF.Core.Services
             _mapper = mapper;
         }
 
-        public async Task<List<Project>> GetAllAsync(string userId)
+        public async Task<List<Project>> GetAllAsync(Guid userId)
         {
             var result = await _dataContext.UsersByProject
                 .Where(up => up.UserId == userId)

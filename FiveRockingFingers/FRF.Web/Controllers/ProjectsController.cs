@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System;
+using AutoMapper;
 using FRF.Core.Models;
 using FRF.Core.Services;
 using FRF.Web.Dtos;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FiveRockingFingers.Controllers
 {
@@ -31,10 +33,10 @@ namespace FiveRockingFingers.Controllers
 
         //TODO: AWS Credentials, Loggin bypassed.Delete this method and Uncomment GetAll() after do:
         [HttpGet("{userId}")]
-        public async Task<IActionResult> GetAllAsync(string userId)
-        {
-            var currentUserId = _configuration.GetValue<string>("MockUsers:UserId");
-
+        public async Task<IActionResult> GetAllAsync(Guid userId)
+        {   //TODO: AWS Credentials, Loggin bypassed. Use the method argument Guid userId instead of GetValue.
+            var currentUserId = Guid.Parse(_configuration.GetValue<string>("MockUsers:UserId"));
+            
             if (currentUserId != userId) return Unauthorized();
 
             var projects = await _projectService.GetAllAsync(userId);
@@ -48,7 +50,7 @@ namespace FiveRockingFingers.Controllers
         {
             // TODO: AWS Credentials, Loggin bypassed.Uncomment after do:
             //var currentUserId = await _userService.GetCurrentUserId();
-            var currentUserId = "";
+            var currentUserId = new Guid("9e9df404-3060-4904-bcb8-020f4344c5f0");
             var projects = await _projectService.GetAllAsync(currentUserId);
             var projectsDto = _mapper.Map<IEnumerable<ProjectDTO>>(projects);
             return Ok(projectsDto);
