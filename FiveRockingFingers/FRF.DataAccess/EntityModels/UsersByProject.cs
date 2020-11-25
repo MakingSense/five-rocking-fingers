@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace FRF.DataAccess.EntityModels
 {
@@ -8,6 +9,6 @@ namespace FRF.DataAccess.EntityModels
         public int Id { get; set; }
         public int ProjectId { get; set; }
         public Project Project { get; set; }
-        public string UserId { get; set; }
+        public Guid UserId { get; set; }
     }
 }
