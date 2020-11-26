@@ -26,7 +26,7 @@ namespace FRF.Web.Tests.Controllers
         }
 
         [Fact]
-        public async Task Get_ReturnsOk()
+        public async Task GetAsync_ReturnsOk()
         {
             // Arrange
             var categoryId = 900;
@@ -66,7 +66,7 @@ namespace FRF.Web.Tests.Controllers
         }
 
         [Fact]
-        public async Task Get_ReturnsNotFound()
+        public async Task GetAsync_ReturnsNotFound()
         {
             // Arrange
             var categoryId = 900;

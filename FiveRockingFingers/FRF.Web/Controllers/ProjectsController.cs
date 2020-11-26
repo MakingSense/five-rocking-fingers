@@ -1,11 +1,15 @@
 ﻿using System;
 using AutoMapper;
+using FRF.Core.Models;
 using FRF.Core.Services;
 using FRF.Web.Dtos;
+using FRF.Web.Dtos.Projects;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FiveRockingFingers.Controllers
 {
@@ -30,107 +34,81 @@ namespace FiveRockingFingers.Controllers
 
         //TODO: AWS Credentials, Loggin bypassed.Delete this method and Uncomment GetAll() after do:
         [HttpGet("{userId}")]
-        public async Task<IActionResult> GetAll(string userId)
-        {
-            var currentUserId = _configuration.GetValue<string>("MockUsers:UserId");
-
+        public async Task<IActionResult> GetAllAsync(Guid userId)
+        {   //TODO: AWS Credentials, Loggin bypassed. Use the method argument Guid userId instead of GetValue.
+            var currentUserId = Guid.Parse(_configuration.GetValue<string>("MockUsers:UserId"));
+            
             if (currentUserId != userId) return Unauthorized();
 
             var projects = await _projectService.GetAllAsync(userId);
 
-            if (projects == null) return StatusCode(204);
-
-            var projectsDto = _mapper.Map<IEnumerable<ProjectDto>>(projects);
+            var projectsDto = _mapper.Map<IEnumerable<ProjectDTO>>(projects);
             return Ok(projectsDto);
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAllAsync()
         {
             // TODO: AWS Credentials, Loggin bypassed.Uncomment after do:
             //var currentUserId = await _userService.GetCurrentUserId();
-            var currentUserId = "";
+            var currentUserId = new Guid("9e9df404-3060-4904-bcb8-020f4344c5f0");
             var projects = await _projectService.GetAllAsync(currentUserId);
-
-            if (projects == null) return StatusCode(204);
-
-            var projectsDto = _mapper.Map<IEnumerable<ProjectDto>>(projects);
+            var projectsDto = _mapper.Map<IEnumerable<ProjectDTO>>(projects);
             return Ok(projectsDto);
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        public async Task<IActionResult> GetAsync(int id)
         {
-            //TODO: AWS Credentials, Loggin bypassed. Uncomment after do:
-            //var userId = await _userService.GetCurrentUserId();
             var project = await _projectService.GetAsync(id);
+            if (project == null) return NotFound();
 
-            if (project == null)
-            {
-                return NotFound();
-            }
-
-            var projectDto = _mapper.Map<ProjectDto>(project);
-
+            var projectDto = _mapper.Map<ProjectDTO>(project);
             return Ok(projectDto);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Save(ProjectDto projectDto)
+        public async Task<IActionResult> SaveAsync(ProjectUpsertDTO projectDto)
         {
-            if (projectDto == null)
-            {
-                return BadRequest("Project object is null");
-            }
+            // TODO: AWS Credentials, Loggin bypassed.Uncomment after do:
+            //var currentUserId = await _userService.GetCurrentUserId();
+            var currentUserId = new Guid("9e9df404-3060-4904-bcb8-020f4344c5f0");
+            projectDto.UsersByProject.Add(new UsersByProjectDTO(){UserId = currentUserId});
 
-            projectDto.CreatedDate = DateTime.Now;
-            var project = _mapper.Map<FRF.Core.Models.Project>(projectDto);
+            var project = _mapper.Map<Project>(projectDto);
+            if (project == null) return BadRequest();
+
             var projectSaved = await _projectService.SaveAsync(project);
-
             if (projectSaved == null) return BadRequest();
 
-            var projectCreated = _mapper.Map<ProjectDto>(projectSaved);
-
+            var projectCreated = _mapper.Map<ProjectDTO>(projectSaved);
             return Ok(projectCreated);
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update(int id, ProjectDto projectDto)
+        public async Task<IActionResult> UpdateAsync(int id, ProjectUpsertDTO projectDto)
         {
-            if (projectDto == null || projectDto.Id != id)
-            {
-                return BadRequest();
-            }
-
-            var project = await _projectService.GetAsync(projectDto.Id);
-
-            if (project == null)
-            {
-                return NotFound();
-            }
+            var project = await _projectService.GetAsync(id);
+            if (project == null) return NotFound();
+            //To improve
+            if (!projectDto.UsersByProject.Any()) return BadRequest();
 
             _mapper.Map(projectDto, project);
+            var updated = await _projectService.UpdateAsync(project);
+            if (updated == null) return BadRequest();
 
-            var updatedProject = _mapper.Map<ProjectDto>(await _projectService.UpdateAsync(project));
-
+            var updatedProject = _mapper.Map<ProjectDTO>(updated);
             return Ok(updatedProject);
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
             var project = await _projectService.GetAsync(id);
-
-            if (project == null)
-            {
-                return NotFound();
-            }
+            if (project == null) return NotFound();
 
             var isDeleted = await _projectService.DeleteAsync(id);
-            if (!isDeleted)
-            {
-                return NotFound();
-            }
+            if (!isDeleted) return NotFound();
 
             return NoContent();
         }
