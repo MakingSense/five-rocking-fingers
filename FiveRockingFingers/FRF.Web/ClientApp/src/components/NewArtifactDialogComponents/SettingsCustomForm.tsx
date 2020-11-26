@@ -34,7 +34,7 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
     const { register, handleSubmit, errors, control } = useForm();
     const { showNewArtifactDialog, closeNewArtifactDialog, projectId, updateList, setOpenSnackbar, setSnackbarSettings } = props;
 
-    const [settingsList, setSettingsList] = React.useState<object>({});
+    const [settingsList, setSettingsList] = React.useState<object>({key: "value"});
 
     const handleConfirm = async (data: { name: string, provider: string, artifactType: string }) => {
         const artifactToCreate = {
@@ -65,8 +65,16 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
         closeNewArtifactDialog()
     }
 
+    const handleInputChange = () => {
+
+    }
+
     const handleCancel = () => {
         closeNewArtifactDialog();
+    }
+
+    const handleAddSetting = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        console.log(event.target);
     }
 
     return (
@@ -77,33 +85,45 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
                     A continuación ingrese el tipo y el nombre de su nuevo artefacto
                 </Typography>
                 <form className={classes.container}>
-                    <TextField
-                        inputRef={register({ required: true, validate: { isValid: value => value.trim() != "" } })}
-                        error={errors.name ? true : false}
-                        id="name"
-                        name="name"
-                        label="Nombre de la setting"
-                        helperText="Requerido*"
-                        variant="outlined"
-                        className={classes.inputF}
-                    />
+                    {Object.keys(settingsList).map((key: string, index: number) => {
+                        return (
+                            <React.Fragment>
+                                <TextField
+                                    inputRef={register({ required: true, validate: { isValid: value => value.trim() != "" } })}
+                                    error={errors.name ? true : false}
+                                    id="settingName"
+                                    name="settingName"
+                                    label="Nombre de la setting"
+                                    helperText="Requerido*"
+                                    variant="outlined"
+                                    className={classes.inputF}
+                                />
 
-                    <TextField
-                        inputRef={register({ required: true, validate: { isValid: value => value.trim() != "" } })}
-                        error={errors.name ? true : false}
-                        id="name"
-                        name="name"
-                        label="Valor de la setting"
-                        helperText="Requerido*"
-                        variant="outlined"
-                        className={classes.inputF}
-                    />
-                    <IconButton aria-label="add" disabled color="primary">
-                        <AddCircleIcon />
-                    </IconButton>
-                    <IconButton aria-label="delete" disabled color="secondary">
-                        <DeleteIcon />
-                    </IconButton>
+                                <TextField
+                                    inputRef={register({ required: true, validate: { isValid: value => value.trim() != "" } })}
+                                    error={errors.name ? true : false}
+                                    id="settingValue"
+                                    name="settingValue"
+                                    label="Valor de la setting"
+                                    helperText="Requerido*"
+                                    variant="outlined"
+                                    className={classes.inputF}
+                                />
+                                {Object.keys(settingsList).length - 1 === index &&
+                                    <IconButton onClick={handleAddSetting } aria-label="add" color="primary">
+                                        <AddCircleIcon />
+                                    </IconButton>
+                                }
+
+                                {Object.keys(settingsList).length !== 1 &&
+                                    <IconButton aria-label="delete" color="secondary">
+                                        <DeleteIcon />
+                                    </IconButton>
+                                }
+                        </React.Fragment>
+                        ); 
+                    })}
+                    
                 </form>
             </DialogContent>
             <DialogActions>

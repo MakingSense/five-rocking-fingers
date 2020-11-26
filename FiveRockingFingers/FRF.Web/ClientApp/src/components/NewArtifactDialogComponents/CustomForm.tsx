@@ -120,7 +120,7 @@ const CustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDia
                     />
                 </form>
             </DialogContent>
-            <DialogActions>3
+            <DialogActions>
                 <Button size="small" color="primary" onClick={handlePreviousStep}>Atrás</Button>
                 <Button size="small" color="primary" type="submit" onClick={handleSubmit(handleConfirm)}>Siguiente</Button>
                 <Button size="small" color="secondary" onClick={handleCancel}>Cancelar</Button>
