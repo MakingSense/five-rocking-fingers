@@ -19,7 +19,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\FiveRockingFingers\FRF.Core\FRF.Core.csproj" />
-    <ProjectReference Include="..\..\FiveRockingFingers\FRF.DataAccess\FRF.DataAccess.csproj" />
   </ItemGroup>
 
 </Project>

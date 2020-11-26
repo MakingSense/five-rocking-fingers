@@ -17,7 +17,8 @@ namespace FRF.Core.Tests.Services
         private readonly Mock<IMapper> _mapper;
         private readonly DataAccessContextForTest _dataAccess;
         private readonly ArtifactsService _classUnderTest;
-        protected DbContextOptions<DataAccessContextForTest> ContextOptions { get; }
+        private readonly DbContextOptions<DataAccessContextForTest> ContextOptions;
+
         public ArtifactsServiceTests()
         {
             _configuration = new Mock<IConfiguration>();
@@ -27,6 +28,9 @@ namespace FRF.Core.Tests.Services
                     .UseInMemoryDatabase(databaseName: "Test")
                     .Options;
             _dataAccess = new DataAccessContextForTest(ContextOptions, _configuration.Object);
+
+            _dataAccess.Database.EnsureDeleted();
+            _dataAccess.Database.EnsureCreated();
 
             _classUnderTest = new ArtifactsService(_configuration.Object, _dataAccess, _mapper.Object);
 
@@ -46,6 +50,7 @@ namespace FRF.Core.Tests.Services
                     Name = input.Name, 
                     Description = input.Description
                 });
+
         }
 
         private ArtifactType CreateArtifactType()
@@ -89,14 +94,10 @@ namespace FRF.Core.Tests.Services
             return artifact;
         }
 
-        // GetAll
         [Fact]
         public async Task GetAllAsync_ReturnsList()
         {
             // Arange
-            _dataAccess.Database.EnsureDeleted();
-            _dataAccess.Database.EnsureCreated();
-
             var artifactType = CreateArtifactType();
             var project = CreateProject();
             var artifact = CreateArtifact(project, artifactType);
@@ -145,9 +146,6 @@ namespace FRF.Core.Tests.Services
         public async Task GetAllAsync_ReturnsEmptyList()
         {
             // Arange
-            _dataAccess.Database.EnsureDeleted();
-            _dataAccess.Database.EnsureCreated();
-
             _mapper
                 .Setup(mock => mock.Map<List<Models.Artifact>>(It.IsAny<IEnumerable<Artifact>>()))
                 .Returns(new List<Models.Artifact>());
@@ -161,14 +159,10 @@ namespace FRF.Core.Tests.Services
             _mapper.Verify(mock => mock.Map<List<Models.Artifact>>(It.IsAny<IEnumerable<Artifact>>()), Times.Once);
         }
 
-        // GetAllByProjectId
         [Fact]
         public async Task GetAllByProjectIdAsync_ReturnList()
         {
             // Arange
-            _dataAccess.Database.EnsureDeleted();
-            _dataAccess.Database.EnsureCreated();
-
             var artifactType = CreateArtifactType();
             var project = CreateProject();
             var artifact = CreateArtifact(project, artifactType);
@@ -217,10 +211,6 @@ namespace FRF.Core.Tests.Services
         [Fact]
         public async Task GetAllByProjectIdAsync_ReturnExceptionNoProject()
         {
-            // Arange
-            _dataAccess.Database.EnsureDeleted();
-            _dataAccess.Database.EnsureCreated();
-
             // Act/Assert
             await Assert.ThrowsAsync<System.ArgumentException>(() => _classUnderTest.GetAllByProjectId(1));
             _mapper.Verify(mock => mock.Map<List<Models.Artifact>>(It.IsAny<IEnumerable<Artifact>>()), Times.Never);
@@ -230,9 +220,6 @@ namespace FRF.Core.Tests.Services
         public async Task GetAllByProjectIdAsync_ReturnEmptyList()
         {
             // Arange
-            _dataAccess.Database.EnsureDeleted();
-            _dataAccess.Database.EnsureCreated();
-
             var artifactType = CreateArtifactType();
             var project = CreateProject();
 
@@ -249,14 +236,10 @@ namespace FRF.Core.Tests.Services
             _mapper.Verify(mock => mock.Map<List<Models.Artifact>>(It.IsAny<IEnumerable<Artifact>>()), Times.Once);
         }
 
-        // Get
         [Fact]
         public async Task GetAsync_ReturnsArtifact()
         {
             // Arange
-            _dataAccess.Database.EnsureDeleted();
-            _dataAccess.Database.EnsureCreated();
-
             var artifactType = CreateArtifactType();
             var project = CreateProject();
             var artifact = CreateArtifact(project, artifactType);
@@ -302,9 +285,6 @@ namespace FRF.Core.Tests.Services
         public async Task GetAsync_ReturnsNull()
         {
             // Arange
-            _dataAccess.Database.EnsureDeleted();
-            _dataAccess.Database.EnsureCreated();
-            
             var artifactId = 1;
 
             // Act
@@ -315,14 +295,10 @@ namespace FRF.Core.Tests.Services
             _mapper.Verify(mock => mock.Map<Models.Artifact>(It.Is<Artifact>(a => a.Id == artifactId)), Times.Never);
         }
 
-        // Save
         [Fact]
         public async Task SaveAsync_ReturnsArtifact()
         {
             // Arange
-            _dataAccess.Database.EnsureDeleted();
-            _dataAccess.Database.EnsureCreated();
-
             var artifactType = CreateArtifactType();
             var project = CreateProject();
 
@@ -383,9 +359,6 @@ namespace FRF.Core.Tests.Services
         public async Task SaveAsync_ExceptionNoProjectWithId()
         {
             // Arange
-            _dataAccess.Database.EnsureDeleted();
-            _dataAccess.Database.EnsureCreated();
-
             var artifactType = CreateArtifactType();
             var artifactToSave = new Models.Artifact()
             {
@@ -412,9 +385,6 @@ namespace FRF.Core.Tests.Services
         public async Task SaveAsync_ExceptionNoArtifactTypeWithId()
         {
             // Arange
-            _dataAccess.Database.EnsureDeleted();
-            _dataAccess.Database.EnsureCreated();
-
             var project = CreateProject();
             var artifactToSave = new Models.Artifact() 
             { 
@@ -437,14 +407,10 @@ namespace FRF.Core.Tests.Services
             _mapper.Verify(mock => mock.Map<Models.Artifact>(It.IsAny<Artifact>()), Times.Never);
         }
 
-        // Update
         [Fact]
         public async Task UpdateAsync_ReturnsArtifact()
         {
             // Arange
-            _dataAccess.Database.EnsureDeleted();
-            _dataAccess.Database.EnsureCreated();
-
             var artifactType = CreateArtifactType();
             var project = CreateProject();
             var artifact = CreateArtifact(project, artifactType);
@@ -522,9 +488,6 @@ namespace FRF.Core.Tests.Services
         public async Task UpdateAsync_ExceptionNoArtifactWithId()
         {
             // Arange
-            _dataAccess.Database.EnsureDeleted();
-            _dataAccess.Database.EnsureCreated();
-
             var artifactType = CreateArtifactType();
             var project = CreateProject();
             var artifactToUpdate = new Models.Artifact()
@@ -546,9 +509,6 @@ namespace FRF.Core.Tests.Services
         public async Task UpdateAsync_ExceptionNoProjectWithId()
         {
             // Arange
-            _dataAccess.Database.EnsureDeleted();
-            _dataAccess.Database.EnsureCreated();
-
             var artifactType = CreateArtifactType();
             var project = CreateProject();
             var artifact = CreateArtifact(project, artifactType);
@@ -572,9 +532,6 @@ namespace FRF.Core.Tests.Services
         public async Task UpdateAsync_ExceptionNoArtifactTypeWithId()
         {
             // Arange
-            _dataAccess.Database.EnsureDeleted();
-            _dataAccess.Database.EnsureCreated();
-
             var artifactType = CreateArtifactType();
             var project = CreateProject();
             var artifact = CreateArtifact(project, artifactType);
@@ -594,13 +551,10 @@ namespace FRF.Core.Tests.Services
             _mapper.Verify(mock => mock.Map<Models.Artifact>(It.IsAny<Artifact>()), Times.Never);
         }
 
-        // Delete
         [Fact]
         public async Task Delete_Returns()
         {
             // Arange
-            _dataAccess.Database.EnsureDeleted();
-            _dataAccess.Database.EnsureCreated();
             var artifactType = CreateArtifactType();
             var project = CreateProject();
             var artifact = CreateArtifact(project, artifactType);
