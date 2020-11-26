@@ -1,4 +1,4 @@
-﻿import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField } from '@material-ui/core';
+﻿import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField, IconButton } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import * as React from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -6,26 +6,9 @@ import { PROVIDERS } from '../../Constants';
 import ArtifactType from '../../interfaces/ArtifactType';
 import ArtifactService from '../../services/ArtifactService';
 import Typography from '@material-ui/core/Typography';
+import AddCircleIcon from '@material-ui/icons/AddCircle';
+import DeleteIcon from '@material-ui/icons/Delete';
 
-// Once the ArtifactType API and service are running, this should be replaced with a call to that API
-// Until then, you might an error if you don't have this 3 types created on your local DataBase before using this
-const constArtifactTypes = [
-    {
-        "id": 5,
-        "name": "Atype",
-        "description": "ADescription"
-    },
-    {
-        "id": 6,
-        "name": "Btype",
-        "description": "BDescription"
-    },
-    {
-        "id": 7,
-        "name": "Ctype",
-        "description": "CDescription"
-    }
-]
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -44,19 +27,14 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, projectId: number, updateList: Function, setOpenSnackbar: Function, setSnackbarSettings: Function }) => {
+const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, projectId: number, updateList: Function, setOpenSnackbar: Function, setSnackbarSettings: Function, handleNextStep: Function, handlePreviousStep: Function }) => {
 
     const classes = useStyles();
 
     const { register, handleSubmit, errors, control } = useForm();
     const { showNewArtifactDialog, closeNewArtifactDialog, projectId, updateList, setOpenSnackbar, setSnackbarSettings } = props;
 
-    const [artifactTypes, setArtifactTypes] = React.useState([] as ArtifactType[]);
-    const [provider, setProvider] = React.useState<string | null>(null);
-
-    React.useEffect(() => {
-        setArtifactTypes(constArtifactTypes);
-    }, [])
+    const [settingsList, setSettingsList] = React.useState<object>({});
 
     const handleConfirm = async (data: { name: string, provider: string, artifactType: string }) => {
         const artifactToCreate = {
@@ -91,10 +69,6 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
         closeNewArtifactDialog();
     }
 
-    const handleProviderChange = (provider: string) => {
-        setProvider(provider);
-    }
-
     return (
         <Dialog open={showNewArtifactDialog}>
             <DialogTitle id="alert-dialog-title">Bienvenido al asistente para la creación de un nuevo artefacto</DialogTitle>
@@ -112,7 +86,6 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
                         helperText="Requerido*"
                         variant="outlined"
                         className={classes.inputF}
-                        fullWidth
                     />
 
                     <TextField
@@ -124,12 +97,17 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
                         helperText="Requerido*"
                         variant="outlined"
                         className={classes.inputF}
-                        fullWidth
                     />
+                    <IconButton aria-label="add" disabled color="primary">
+                        <AddCircleIcon />
+                    </IconButton>
+                    <IconButton aria-label="delete" disabled color="secondary">
+                        <DeleteIcon />
+                    </IconButton>
                 </form>
             </DialogContent>
             <DialogActions>
-                <Button size="small" color="primary" type="submit" onClick={handleSubmit(handleConfirm)}>Agregar</Button>
+                <Button size="small" color="primary" type="submit" onClick={handleSubmit(handleConfirm)}>Continuar</Button>
                 <Button size="small" color="secondary" onClick={handleCancel}>Cancelar</Button>
             </DialogActions>
         </Dialog>

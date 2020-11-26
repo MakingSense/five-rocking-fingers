@@ -44,55 +44,36 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const CustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, projectId: number, updateList: Function, setOpenSnackbar: Function, setSnackbarSettings: Function }) => {
+const CustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, handleNextStep: Function, handlePreviousStep: Function }) => {
 
     const classes = useStyles();
 
     const { register, handleSubmit, errors, control } = useForm();
-    const { showNewArtifactDialog, closeNewArtifactDialog, projectId, updateList, setOpenSnackbar, setSnackbarSettings } = props;
+    const { showNewArtifactDialog, closeNewArtifactDialog } = props;
 
     const [artifactTypes, setArtifactTypes] = React.useState([] as ArtifactType[]);
-    const [provider, setProvider] = React.useState<string | null>(null);
 
     React.useEffect(() => {
         setArtifactTypes(constArtifactTypes);
     }, [])
 
-    const handleConfirm = async (data: { name: string, provider: string, artifactType: string }) => {
+    const handleConfirm = async (data: { name: string, artifactType: string }) => {
         const artifactToCreate = {
-            name: data.name.trim(),
-            provider: data.provider,
-            artifactTypeId: parseInt(data.artifactType, 10),
-            projectId: projectId,
-            settings: { empty: "" }
+            name: data.name,
+            artifactType: data.artifactType
         };
 
         console.log(artifactToCreate);
 
-        try {
-            const response = await ArtifactService.save(artifactToCreate);
-            if (response.status === 200) {
-                setSnackbarSettings({ message: "El artefacto ha sido creado con éxito", severity: "success" });
-                setOpenSnackbar(true);
-                updateList();
-            } else {
-                setSnackbarSettings({ message: "Hubo un error al crear el artefacto", severity: "error" });
-                setOpenSnackbar(true);
-            }
-        }
-        catch (error) {
-            setSnackbarSettings({ message: "Hubo un error al crear el artefacto", severity: "error" });
-            setOpenSnackbar(true);
-        }
-        closeNewArtifactDialog()
+        props.handleNextStep();
+    }
+
+    const handlePreviousStep = () => {
+        props.handlePreviousStep();
     }
 
     const handleCancel = () => {
         closeNewArtifactDialog();
-    }
-
-    const handleProviderChange = (provider: string) => {
-        setProvider(provider);
     }
 
     return (
@@ -139,8 +120,9 @@ const CustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDia
                     />
                 </form>
             </DialogContent>
-            <DialogActions>
-                <Button size="small" color="primary" type="submit" onClick={handleSubmit(handleConfirm)}>Agregar</Button>
+            <DialogActions>3
+                <Button size="small" color="primary" onClick={handlePreviousStep}>Atrás</Button>
+                <Button size="small" color="primary" type="submit" onClick={handleSubmit(handleConfirm)}>Siguiente</Button>
                 <Button size="small" color="secondary" onClick={handleCancel}>Cancelar</Button>
             </DialogActions>
         </Dialog>

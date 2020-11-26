@@ -27,44 +27,15 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const ProviderForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, projectId: number, updateList: Function, setOpenSnackbar: Function, setSnackbarSettings: Function, handleNextStep: Function }) => {
+const ProviderForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, handleNextStep: Function }) => {
 
     const classes = useStyles();
 
-    const { register, handleSubmit, errors, control } = useForm();
-    const { showNewArtifactDialog, closeNewArtifactDialog, projectId, updateList, setOpenSnackbar, setSnackbarSettings } = props;
+    const { handleSubmit, errors, control } = useForm();
+    const { showNewArtifactDialog, closeNewArtifactDialog } = props;
 
-    const [artifactTypes, setArtifactTypes] = React.useState([] as ArtifactType[]);
     const [provider, setProvider] = React.useState<string | null>(null);
 
-    const handleConfirm = async (data: { name: string, provider: string, artifactType: string }) => {
-        const artifactToCreate = {
-            name: data.name.trim(),
-            provider: data.provider,
-            artifactTypeId: parseInt(data.artifactType, 10),
-            projectId: projectId,
-            settings: { empty: "" }
-        };
-
-        console.log(artifactToCreate);
-
-        try {
-            const response = await ArtifactService.save(artifactToCreate);
-            if (response.status === 200) {
-                setSnackbarSettings({ message: "El artefacto ha sido creado con éxito", severity: "success" });
-                setOpenSnackbar(true);
-                updateList();
-            } else {
-                setSnackbarSettings({ message: "Hubo un error al crear el artefacto", severity: "error" });
-                setOpenSnackbar(true);
-            }
-        }
-        catch (error) {
-            setSnackbarSettings({ message: "Hubo un error al crear el artefacto", severity: "error" });
-            setOpenSnackbar(true);
-        }
-        closeNewArtifactDialog()
-    }
 
     const handleConfirmProvider = async (data: { provider: string }) => {
         const artifactToCreate = {
@@ -78,10 +49,6 @@ const ProviderForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactD
 
     const handleCancel = () => {
         closeNewArtifactDialog();
-    }
-
-    const handleProviderChange = (provider: string) => {
-        setProvider(provider);
     }
 
     return (

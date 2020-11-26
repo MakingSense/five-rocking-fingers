@@ -122,10 +122,6 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
                 <ProviderForm
                     showNewArtifactDialog={props.showNewArtifactDialog}
                     closeNewArtifactDialog={props.closeNewArtifactDialog}
-                    projectId={props.projectId}
-                    updateList={props.updateList}
-                    setOpenSnackbar={props.setOpenSnackbar}
-                    setSnackbarSettings={props.setSnackbarSettings}
                     handleNextStep={handleNextStep}
                 />
             );
@@ -135,10 +131,22 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
                 <CustomForm
                     showNewArtifactDialog={props.showNewArtifactDialog}
                     closeNewArtifactDialog={props.closeNewArtifactDialog}
+                    handleNextStep={handleNextStep}
+                    handlePreviousStep={handlePreviousStep}
+                />
+            );
+
+        case 3:
+            return (
+                <SettingsCustomForm
+                    showNewArtifactDialog={props.showNewArtifactDialog}
+                    closeNewArtifactDialog={props.closeNewArtifactDialog}
                     projectId={props.projectId}
                     updateList={props.updateList}
                     setOpenSnackbar={props.setOpenSnackbar}
                     setSnackbarSettings={props.setSnackbarSettings}
+                    handleNextStep={handleNextStep}
+                    handlePreviousStep={handlePreviousStep}
                 />
             );
 
