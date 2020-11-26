@@ -1,5 +1,8 @@
 import axios from 'axios'
+import { BASE_URL } from '../Constants';
 import Project from '../interfaces/Project';
+
+const PROJECTS_URL = `${BASE_URL}api/Projects/`
 
 export default class ProjectService {
 
@@ -11,28 +14,20 @@ export default class ProjectService {
     }
 
     static save = async (project: Project) => {
-        console.log("Service: ");
-        console.log(project);
-        try {
-            const response = await axios.post("https://localhost:44346/api/Projects/Save",
+        const response = await axios.post(`${PROJECTS_URL}Save`,
             {
                 name: project.name,
                 owner: project.owner,
                 client: project.client,
                 budget: project.budget,
                 projectCategories: project.projectCategories,
-                usersByProject: project.usersByProject
+                usersByProject: project.usersByProject.map((parameter) => {userId:parameter.userId})
             });
-            return response;
-        } catch (error) {
-            console.log(error.message);
-        }
-        
-        
+        return response;
     }
 
     static update = async (id: number, project: any) => {
-        const response = await axios.put(`https://localhost:44346/api/Projects/Update?id=${id}`, {
+        const response = await axios.put(`${PROJECTS_URL}Update?id=${id}`, {
             name: project.name,
             id: id,
             owner: project.owner,
@@ -40,18 +35,18 @@ export default class ProjectService {
             createdDate: project.createdDate,
             budget: project.budget,
             projectCategories: project.projectCategories,
-            usersByProject: project.usersByProject
+            usersByProject: project.usersByProject.map((parameter) => {userId:parameter.userId})
         });
         return response;
     }
 
     static delete = async (id: string) => {
-        const response = await axios.delete("https://localhost:44346/api/Projects/Delete/" + id)
+        const response = await axios.delete(`${PROJECTS_URL}Delete` + id)
         return response;
     }
 
     static getAll = async (userId: string) => {
-        const response = await axios.get("https://localhost:44346/api/Projects/GetAll/" + userId);
+        const response = await axios.get(`${PROJECTS_URL}GetAll/` + userId);
         return response;
     }
 }
