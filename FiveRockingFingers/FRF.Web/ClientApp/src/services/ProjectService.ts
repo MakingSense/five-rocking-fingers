@@ -2,7 +2,7 @@ import axios from 'axios'
 import { BASE_URL } from '../Constants';
 import Project from '../interfaces/Project';
 
-const PROJECTS_URL = `${BASE_URL}api/Projects/`
+const PROJECTS_URL = `${BASE_URL}api/Projects/`;
 
 export default class ProjectService {
 
@@ -21,12 +21,12 @@ export default class ProjectService {
                 client: project.client,
                 budget: project.budget,
                 projectCategories: project.projectCategories,
-                usersByProject: project.usersByProject.map((parameter) => {userId:parameter.userId})
+                usersByProject: project.usersByProject.map((parameter) => ({ userId:parameter.userId}))
             });
         return response;
     }
 
-    static update = async (id: number, project: any) => {
+    static update = async (id: number, project: Project) => {
         const response = await axios.put(`${PROJECTS_URL}Update?id=${id}`, {
             name: project.name,
             id: id,
@@ -35,18 +35,18 @@ export default class ProjectService {
             createdDate: project.createdDate,
             budget: project.budget,
             projectCategories: project.projectCategories,
-            usersByProject: project.usersByProject.map((parameter) => {userId:parameter.userId})
+            usersByProject: project.usersByProject.map((parameter) => ({userId:parameter.userId}))
         });
         return response;
     }
 
     static delete = async (id: string) => {
-        const response = await axios.delete(`${PROJECTS_URL}Delete` + id)
+        const response = await axios.delete(`${PROJECTS_URL}Delete/${id}`)
         return response;
     }
 
     static getAll = async (userId: string) => {
-        const response = await axios.get(`${PROJECTS_URL}GetAll/` + userId);
+        const response = await axios.get(`${PROJECTS_URL}GetAll/${userId}`);
         return response;
     }
 }
