@@ -10,7 +10,7 @@ namespace FRF.Core.Models
         public string Provider { get; set; }
         public XElement Settings { get; set; }
         public DateTime CreatedDate { get; set; }
-        public DateTime ModifiedDate { get; set; }
+        public DateTime? ModifiedDate { get; set; }
         public int ProjectId { get; set; }
         public Project Project { get; set; }
         public int ArtifactTypeId { get; set; }
