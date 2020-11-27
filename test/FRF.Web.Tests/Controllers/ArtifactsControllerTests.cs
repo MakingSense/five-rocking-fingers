@@ -8,7 +8,6 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Xunit;
@@ -17,16 +16,15 @@ namespace FRF.Web.Tests.Controllers
 {
     public class ArtifactsControllerTests
     {
-        private readonly Mock<IMapper> _mapper;
+        private readonly IMapper _mapper = MapperBuilder.Build();
         private readonly Mock<IArtifactsService> _artifactsService;
 
         private readonly ArtifactsController _classUnderTest;
 
         public ArtifactsControllerTests()
         {
-            _mapper = new Mock<IMapper>();
             _artifactsService = new Mock<IArtifactsService>();
-            _classUnderTest = new ArtifactsController(_artifactsService.Object, _mapper.Object);
+            _classUnderTest = new ArtifactsController(_artifactsService.Object, _mapper);
         }
 
         [Fact]
@@ -53,13 +51,6 @@ namespace FRF.Web.Tests.Controllers
                 Description = "Description of Artifact Type 1"
             };
 
-            var artifactTypeDTO = new ArtifactTypeDTO
-            {
-                Id = artifactType.Id,
-                Name = artifactType.Name,
-                Description = artifactType.Description
-            };
-
             var artifactId = 1;
             var artifact = new Artifact
             {
@@ -79,33 +70,14 @@ namespace FRF.Web.Tests.Controllers
                 ArtifactType = artifactType
             };
 
-            var artifactDTO = new ArtifactDTO
-            {
-                Id = artifact.Id,
-                Name = artifact.Name,
-                Provider = artifact.Provider,
-                Settings = artifact.Settings,
-                ProjectId = projectId,
-                ArtifactType = artifactTypeDTO
-            };
-
             List<Artifact> artifacts = new List<Artifact>
             {
                 artifact
             };
 
-            List<ArtifactDTO> artifactsDTO = new List<ArtifactDTO>
-            {
-                artifactDTO
-            };
-
             _artifactsService
                 .Setup(mock => mock.GetAll())
                 .ReturnsAsync(artifacts);
-
-            _mapper
-                .Setup(mock => mock.Map<IEnumerable<ArtifactDTO>>(It.IsAny<List<Artifact>>()))
-                .Returns(artifactsDTO);
 
             //Act
             var result = await _classUnderTest.GetAllAsync();
@@ -116,9 +88,8 @@ namespace FRF.Web.Tests.Controllers
             var returnValueList = returnValue.ToList();
 
             AssertCompareList(artifacts, returnValueList);
-            
+
             _artifactsService.Verify(mock => mock.GetAll(), Times.Once);
-            _mapper.Verify(mock => mock.Map<IEnumerable<ArtifactDTO>>(It.Is<List<Artifact>>(a => a.Contains(artifact))), Times.Once);
         }
 
         [Fact]
@@ -144,13 +115,6 @@ namespace FRF.Web.Tests.Controllers
                 Description = "Description of Artifact Type 1"
             };
 
-            var artifactTypeDTO = new ArtifactTypeDTO
-            {
-                Id = artifactType.Id,
-                Name = artifactType.Name,
-                Description = artifactType.Description
-            };
-
             var artifactId = 1;
             var artifact = new Artifact
             {
@@ -170,33 +134,14 @@ namespace FRF.Web.Tests.Controllers
                 ArtifactType = artifactType
             };
 
-            var artifactDTO = new ArtifactDTO
-            {
-                Id = artifact.Id,
-                Name = artifact.Name,
-                Provider = artifact.Provider,
-                Settings = artifact.Settings,
-                ProjectId = projectId,
-                ArtifactType = artifactTypeDTO
-            };
-
             List<Artifact> artifacts = new List<Artifact>
             {
                 artifact
             };
 
-            List<ArtifactDTO> artifactsDTO = new List<ArtifactDTO>
-            {
-                artifactDTO
-            };
-
             _artifactsService
                 .Setup(mock => mock.GetAllByProjectId(It.IsAny<int>()))
                 .ReturnsAsync(artifacts);
-
-            _mapper
-                .Setup(mock => mock.Map<IEnumerable<ArtifactDTO>>(It.IsAny<List<Artifact>>()))
-                .Returns(artifactsDTO);
 
             //Act
             var result = await _classUnderTest.GetAllByProjectIdAsync(projectId);
@@ -209,7 +154,6 @@ namespace FRF.Web.Tests.Controllers
             AssertCompareList(artifacts, returnValueList);
 
             _artifactsService.Verify(mock => mock.GetAllByProjectId(projectId), Times.Once);
-            _mapper.Verify(mock => mock.Map<IEnumerable<ArtifactDTO>>(It.Is<List<Artifact>>(a => a.Contains(artifact))), Times.Once);
         }
 
         [Fact]
@@ -261,27 +205,9 @@ namespace FRF.Web.Tests.Controllers
                 Description = "Description of Artifact Type 1"
             };
 
-            var artifactDTO = new ArtifactDTO
-            {
-                Id = 1,
-                Name = "Artifact 1",
-                Provider = "AWS",
-                Settings = new XElement("Root",
-                                new XElement("Child1", 1),
-                                new XElement("Child2", 2),
-                                new XElement("Child3", 3)
-                            ),
-                ProjectId = projectId,
-                ArtifactType = artifactTypeDTO
-            };
-
             _artifactsService
                 .Setup(mock => mock.Get(It.IsAny<int>()))
                 .ReturnsAsync(artifact);
-
-            _mapper
-                .Setup(mock => mock.Map<ArtifactDTO>(It.IsAny<Artifact>()))
-                .Returns(artifactDTO);
 
             //Act
             var result = await _classUnderTest.GetAsync(artifactId);
@@ -293,7 +219,6 @@ namespace FRF.Web.Tests.Controllers
             AssertCompareArtifactArtifactDTO(artifact, returnValue);
 
             _artifactsService.Verify(mock => mock.Get(artifactId), Times.Once);
-            _mapper.Verify(mock => mock.Map<ArtifactDTO>(It.Is<Artifact>(a => a.Equals(artifact))), Times.Once);
         }
 
         [Fact]
@@ -308,7 +233,6 @@ namespace FRF.Web.Tests.Controllers
             // Assert
             Assert.IsType<NotFoundResult>(result);
             _artifactsService.Verify(mock => mock.Get(artifactId), Times.Once);
-            _mapper.Verify(mock => mock.Map<ArtifactDTO>(It.IsAny<Artifact>()), Times.Never);
         }
 
         [Fact]
@@ -353,27 +277,6 @@ namespace FRF.Web.Tests.Controllers
                 ArtifactTypeId = artifactTypeId,
                 ArtifactType = artifactType
             };
-        
-            var artifactTypeDTO = new ArtifactTypeDTO
-            {
-                Id = artifactTypeId,
-                Name = "Artifact Type 1",
-                Description = "Description of Artifact Type 1"
-            };
-
-            var artifactDTO = new ArtifactDTO
-            {
-                Id = 1,
-                Name = "Artifact 1",
-                Provider = "AWS",
-                Settings = new XElement("Root",
-                                new XElement("Child1", 1),
-                                new XElement("Child2", 2),
-                                new XElement("Child3", 3)
-                            ),
-                ProjectId = projectId,
-                ArtifactType = artifactTypeDTO
-            };
 
             var artifactUpsertDTO = new ArtifactUpsertDTO
             {
@@ -392,14 +295,6 @@ namespace FRF.Web.Tests.Controllers
                 .Setup(mock => mock.Save(It.IsAny<Artifact>()))
                 .ReturnsAsync(artifact);
 
-            _mapper
-                .Setup(mock => mock.Map<Artifact>(It.IsAny<ArtifactUpsertDTO>()))
-                .Returns(artifact);
-
-            _mapper
-                .Setup(mock => mock.Map<ArtifactDTO>(It.IsAny<Artifact>()))
-                .Returns(artifactDTO);
-
             //Act
             var result = await _classUnderTest.SaveAsync(artifactUpsertDTO);
 
@@ -407,10 +302,12 @@ namespace FRF.Web.Tests.Controllers
             var okResult = Assert.IsType<OkObjectResult>(result);
             var returnValue = Assert.IsAssignableFrom<ArtifactDTO>(okResult.Value);
 
-            AssertCompareArtifactArtifactDTO(artifact, artifactDTO);
-            _artifactsService.Verify(mock => mock.Save(artifact), Times.Once);
-            _mapper.Verify(mock => mock.Map<ArtifactDTO>(It.Is<Artifact>(a => a.Equals(artifact))), Times.Once);
-            _mapper.Verify(mock => mock.Map<Artifact>(It.Is<ArtifactUpsertDTO>(a => a.Equals(artifactUpsertDTO))), Times.Once);
+            AssertCompareArtifactArtifactDTO(artifact, returnValue);
+            _artifactsService.Verify(mock => mock.Save(It.Is<Artifact>(a => 
+                a.Name == artifactUpsertDTO.Name
+                && a.Provider == artifactUpsertDTO.Provider
+                && a.ProjectId == artifactUpsertDTO.ProjectId
+                && a.ArtifactTypeId == artifactUpsertDTO.ArtifactTypeId)), Times.Once);
         }
 
         [Fact]
@@ -456,27 +353,6 @@ namespace FRF.Web.Tests.Controllers
                 ArtifactType = artifactType
             };
 
-            var artifactTypeDTO = new ArtifactTypeDTO
-            {
-                Id = artifactTypeId,
-                Name = "Artifact Type 1",
-                Description = "Description of Artifact Type 1"
-            };
-
-            var artifactDTO = new ArtifactDTO
-            {
-                Id = 1,
-                Name = "Artifact 1",
-                Provider = "AWS",
-                Settings = new XElement("Root",
-                                new XElement("Child1", 1),
-                                new XElement("Child2", 2),
-                                new XElement("Child3", 3)
-                            ),
-                ProjectId = projectId,
-                ArtifactType = artifactTypeDTO
-            };
-
             var artifactUpsertDTO = new ArtifactUpsertDTO
             {
                 Name = "Artifact 1",
@@ -498,14 +374,6 @@ namespace FRF.Web.Tests.Controllers
                 .Setup(mock => mock.Update(It.IsAny<Artifact>()))
                 .ReturnsAsync(artifact);
 
-            _mapper
-                .Setup(mock => mock.Map<ArtifactDTO>(It.IsAny<Artifact>()))
-                .Returns(artifactDTO);
-
-            _mapper
-                .Setup(mock => mock.Map(It.IsAny<ArtifactUpsertDTO>(), It.IsAny<Artifact>()))
-                .Returns(artifact);
-
             //Act
             var result = await _classUnderTest.UpdateAsync(artifactId, artifactUpsertDTO);
 
@@ -517,8 +385,6 @@ namespace FRF.Web.Tests.Controllers
 
             _artifactsService.Verify(mock => mock.Get(artifactId), Times.Once);
             _artifactsService.Verify(mock => mock.Update(artifact), Times.Once);
-            _mapper.Verify(mock => mock.Map(It.Is<ArtifactUpsertDTO>(a => a.Equals(artifactUpsertDTO)), It.Is<Artifact>(a => a.Equals(artifact))), Times.Once);
-            _mapper.Verify(mock => mock.Map<ArtifactDTO>(It.Is<Artifact>(a => a.Equals(artifact))), Times.Once);
         }
 
         [Fact]
@@ -533,8 +399,6 @@ namespace FRF.Web.Tests.Controllers
             // Assert
             Assert.IsType<NotFoundResult>(result);
             _artifactsService.Verify(mock => mock.Get(artifactId), Times.Once);
-            _mapper.Verify(mock => mock.Map(It.IsAny<ArtifactUpsertDTO>(), It.IsAny<Artifact>()), Times.Never);
-            _mapper.Verify(mock => mock.Map<ArtifactDTO>(It.IsAny<Artifact>()), Times.Never);
         }
 
         [Fact]
