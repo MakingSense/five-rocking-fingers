@@ -2,6 +2,7 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import * as React from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import { number } from 'yup';
 import { PROVIDERS } from '../Constants';
 import ArtifactType from '../interfaces/ArtifactType';
 import ArtifactService from '../services/ArtifactService';
@@ -11,23 +12,6 @@ import SettingsCustomForm from './NewArtifactDialogComponents/SettingsCustomForm
 
 // Once the ArtifactType API and service are running, this should be replaced with a call to that API
 // Until then, you might an error if you don't have this 3 types created on your local DataBase before using this
-const constArtifactTypes = [
-    {
-      "id": 5,
-      "name": "Atype",
-      "description": "ADescription"
-    },
-    {
-      "id": 6,
-      "name": "Btype",
-      "description": "BDescription"
-    },
-    {
-      "id": 7,
-      "name": "Ctype",
-      "description": "CDescription"
-    }
-]
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -51,15 +35,13 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
     const classes = useStyles();
 
     const [step, setStep] = React.useState<number>(1);
+    const [artifactTypeId, setArtifactTypeId] = React.useState<number>(0);
+    const [name, setName] = React.useState<string>("");
 
     const { register, handleSubmit, errors, control } = useForm();
     const { showNewArtifactDialog, closeNewArtifactDialog, projectId, updateList, setOpenSnackbar, setSnackbarSettings } = props;
 
-    const [artifactTypes, setArtifactTypes] = React.useState([] as ArtifactType[]);
-    const [provider, setProvider] = React.useState<string | null>(null);
-
     React.useEffect(() => {
-        setArtifactTypes(constArtifactTypes);
     }, [step]);
 
     const handleNextStep = () => {
@@ -69,51 +51,6 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
 
     const handlePreviousStep = () => {
         setStep(step - 1);
-    }
-
-    const handleConfirmProvider = async (data: { provider: string }) => {
-        const artifactToCreate = {
-            provider: data.provider
-        };
-
-        console.log(artifactToCreate);
-    }
-
-    const handleConfirm = async (data: { name: string, provider: string, artifactType: string }) => {
-        const artifactToCreate = {
-            name: data.name.trim(),
-            provider: data.provider,
-            artifactTypeId: parseInt(data.artifactType, 10),
-            projectId: projectId,
-            settings: { empty: "" }
-        };
-
-        console.log(artifactToCreate);
-
-        try {
-            const response = await ArtifactService.save(artifactToCreate);
-            if (response.status === 200) {
-                setSnackbarSettings({ message: "El artefacto ha sido creado con éxito", severity: "success" });
-                setOpenSnackbar(true);
-                updateList();
-            } else {
-                setSnackbarSettings({ message: "Hubo un error al crear el artefacto", severity: "error" });
-                setOpenSnackbar(true);
-            }
-        }
-        catch (error) {
-            setSnackbarSettings({ message: "Hubo un error al crear el artefacto", severity: "error" });
-            setOpenSnackbar(true);
-        }
-        closeNewArtifactDialog()
-    }
-
-    const handleCancel = () => {
-        closeNewArtifactDialog();
-    }
-
-    const handleProviderChange = (provider: string) => {
-        setProvider(provider);
     }
 
     switch (step) {
@@ -133,6 +70,8 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
                     closeNewArtifactDialog={props.closeNewArtifactDialog}
                     handleNextStep={handleNextStep}
                     handlePreviousStep={handlePreviousStep}
+                    setName={setName}
+                    setArtifactTypeId={setArtifactTypeId}
                 />
             );
 
@@ -141,7 +80,9 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
                 <SettingsCustomForm
                     showNewArtifactDialog={props.showNewArtifactDialog}
                     closeNewArtifactDialog={props.closeNewArtifactDialog}
+                    name={name}
                     projectId={props.projectId}
+                    artifactTypeId={artifactTypeId}
                     updateList={props.updateList}
                     setOpenSnackbar={props.setOpenSnackbar}
                     setSnackbarSettings={props.setSnackbarSettings}

@@ -27,22 +27,38 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, projectId: number, updateList: Function, setOpenSnackbar: Function, setSnackbarSettings: Function, handleNextStep: Function, handlePreviousStep: Function }) => {
+interface Setting {
+    settingName: string;
+    settingValue: string;
+    [key: string]: string;
+}
+
+const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, name: string, projectId: number, artifactTypeId: number, updateList: Function, setOpenSnackbar: Function, setSnackbarSettings: Function, handleNextStep: Function, handlePreviousStep: Function }) => {
 
     const classes = useStyles();
 
     const { register, handleSubmit, errors, control } = useForm();
-    const { showNewArtifactDialog, closeNewArtifactDialog, projectId, updateList, setOpenSnackbar, setSnackbarSettings } = props;
+    const { showNewArtifactDialog, closeNewArtifactDialog, name, projectId, artifactTypeId, updateList, setOpenSnackbar, setSnackbarSettings } = props;
 
-    const [settingsList, setSettingsList] = React.useState<object>({key: "value"});
+    const [settings, setSettings] = React.useState<{}>({});
+    const [settingsList, setSettingsList] = React.useState<Setting[]>([{ settingName: "", settingValue: "" }]);
+    const [settingName, setSettingName] = React.useState<string>("");
+    const [settingValue, setSettingValue] = React.useState<string>("");
 
-    const handleConfirm = async (data: { name: string, provider: string, artifactType: string }) => {
+    React.useEffect(() => {
+        console.log(settings);
+    }, [settings]);
+
+    const handleConfirm = async () => {
+
+        //setSettings(createSettingsObject());
+
         const artifactToCreate = {
-            name: data.name.trim(),
-            provider: data.provider,
-            artifactTypeId: parseInt(data.artifactType, 10),
+            name: name,
+            provider: "Custom",
+            artifactTypeId: artifactTypeId,
             projectId: projectId,
-            settings: { empty: "" }
+            settings: { settings: createSettingsObject()}
         };
 
         console.log(artifactToCreate);
@@ -62,19 +78,47 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
             setSnackbarSettings({ message: "Hubo un error al crear el artefacto", severity: "error" });
             setOpenSnackbar(true);
         }
-        closeNewArtifactDialog()
+        closeNewArtifactDialog();
     }
 
-    const handleInputChange = () => {
-
+    const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, index: number) => {
+        const { name, value } = event.target;
+        const list = [...settingsList];
+        list[index][name] = value;
+        setSettingsList(list);
     }
 
     const handleCancel = () => {
         closeNewArtifactDialog();
     }
 
-    const handleAddSetting = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-        console.log(event.target);
+    const handleAddSetting = () => {
+        setSettingsList([...settingsList, { settingName: "", settingValue: "" }]);
+    }
+
+    const handleDeleteSetting = (index: number) => {
+        const list = [...settingsList];
+        list.splice(index, 1);
+        setSettingsList(list);
+    }
+
+    const handleSettingChange = (name: string, value: string) => {
+        let settingsList = settings;
+        let newSetting = { [name]: value };
+        settingsList = { ...settingsList, ...newSetting }
+        setSettings(settingsList);
+        console.log(settings);
+    }
+
+    const createSettingsObject = () => {
+        let settingsObject: { [key: string]: string } = {};
+
+        for (let i = 0; i < settingsList.length; i++) {
+            settingsObject[settingsList[i].settingName] = settingsList[i].settingValue
+            console.log(settingsObject);
+        }
+
+        return JSON.parse(JSON.stringify(settingsObject));
     }
 
     return (
@@ -85,7 +129,7 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
                     A continuación ingrese el tipo y el nombre de su nuevo artefacto
                 </Typography>
                 <form className={classes.container}>
-                    {Object.keys(settingsList).map((key: string, index: number) => {
+                    {settingsList.map((setting: Setting, index: number) => {
                         return (
                             <React.Fragment>
                                 <TextField
@@ -96,7 +140,10 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
                                     label="Nombre de la setting"
                                     helperText="Requerido*"
                                     variant="outlined"
+                                    value={setting.settingName}
+                                    required
                                     className={classes.inputF}
+                                    onChange={event => handleInputChange(event, index)}
                                 />
 
                                 <TextField
@@ -107,16 +154,19 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
                                     label="Valor de la setting"
                                     helperText="Requerido*"
                                     variant="outlined"
+                                    value={setting.settingValue}
+                                    required
                                     className={classes.inputF}
+                                    onChange={event => handleInputChange(event, index)}
                                 />
-                                {Object.keys(settingsList).length - 1 === index &&
+                                {settingsList.length - 1 === index &&
                                     <IconButton onClick={handleAddSetting } aria-label="add" color="primary">
                                         <AddCircleIcon />
                                     </IconButton>
                                 }
 
-                                {Object.keys(settingsList).length !== 1 &&
-                                    <IconButton aria-label="delete" color="secondary">
+                                {settingsList.length !== 1 &&
+                                    <IconButton onClick={event => handleDeleteSetting(index)} aria-label="delete" color="secondary">
                                         <DeleteIcon />
                                     </IconButton>
                                 }
@@ -127,7 +177,7 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
                 </form>
             </DialogContent>
             <DialogActions>
-                <Button size="small" color="primary" type="submit" onClick={handleSubmit(handleConfirm)}>Continuar</Button>
+                <Button size="small" color="primary" type="submit" onClick={event => handleConfirm()}>Continuar</Button>
                 <Button size="small" color="secondary" onClick={handleCancel}>Cancelar</Button>
             </DialogActions>
         </Dialog>

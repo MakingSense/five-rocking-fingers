@@ -44,7 +44,7 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const CustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, handleNextStep: Function, handlePreviousStep: Function }) => {
+const CustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, handleNextStep: Function, handlePreviousStep: Function, setName: Function, setArtifactTypeId: Function }) => {
 
     const classes = useStyles();
 
@@ -58,13 +58,8 @@ const CustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDia
     }, [])
 
     const handleConfirm = async (data: { name: string, artifactType: string }) => {
-        const artifactToCreate = {
-            name: data.name,
-            artifactType: data.artifactType
-        };
-
-        console.log(artifactToCreate);
-
+        props.setName(data.name);
+        props.setArtifactTypeId(data.artifactType);
         props.handleNextStep();
     }
 
