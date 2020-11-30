@@ -1,6 +1,6 @@
 ﻿import {
-    Button, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText,
-    DialogTitle, FormControl, FormControlLabel, FormGroup, IconButton, InputAdornment, TextField, TextFieldProps
+    Button, Checkbox, Chip, Dialog, DialogActions, DialogContent, DialogContentText,
+    DialogTitle, FormControl, FormControlLabel, FormGroup, IconButton, InputAdornment, Paper, TextField, TextFieldProps
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import * as React from 'react';
@@ -10,14 +10,24 @@ import ProjectCategory from '../../interfaces/ProjectCategory';
 import UserByProject from '../../interfaces/UserByProject';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import ProjectService from '../../services/ProjectService';
-import UserPublicProfile from '../../interfaces/UserPublicProfile';
 import Project from '../../interfaces/Project';
 import { ValidateEmail } from "./ValidateEmail";
+import { HelperAddUser } from "./HelperAddUser";
 
 const useStyles = makeStyles({
     inputF: {
         padding: 2,
         marginTop: 10
+    },
+    addUser: {
+        display: 'flex',
+        flexWrap: 'wrap',
+        listStyle: 'none',
+        padding: 2,
+        margin: 0,
+    },
+    chip: {
+        margin: 2
     }
 });
 
@@ -60,6 +70,12 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
     const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         setState({ ...state, [event.target.id]: event.target.value });
     }
+    
+    const handleDelete = (event: UserByProject) => () => {
+        let auxState: UserByProject[] = state.usersByProject.filter(c => c.userId !== event.userId);
+        setState({ ...state, usersByProject: auxState });
+        return { state };
+    };
 
     const handleChangeCategory = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.checked) {
@@ -82,22 +98,13 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
     const handleAddUser = async () => {
         let userEmail: string | null = "";
         userEmail = ValidateEmail(email.current?.value as string, emailField, props.openSnackbar);
-
         if (userEmail != null) {
             const response = await ProjectService.searchUser(userEmail);
             switch (response.status) {
                 case 200:
-                    let user: UserPublicProfile = response.data;
-                    const aux: UserByProject = {
-                        id: 0,
-                        userId: user.userId,
-                        projectId: 0
-                    }
-                    var auxState = state.usersByProject;
-                    auxState.push(aux);
-                    setState({ ...state, usersByProject: auxState });
-                    props.openSnackbar("Usuario asignado correctamente!", "success");
-                    setFieldEmail("");
+                    let newUserList: UserByProject[] | null;
+                    newUserList = HelperAddUser(response.data,state.usersByProject,emailField,props.openSnackbar);
+                    if(newUserList != null) setState({ ...state, usersByProject: newUserList });
                     break;
                 case 404:
                     props.openSnackbar("Usuario no encontrado", "warning");
@@ -185,23 +192,34 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
                         }}
                         fullWidth
                     />
-                    <TextField
-                        inputRef={email}
-                        value={fieldEmail}
-                        type="email"
-                        id="email"
-                        name="email"
-                        label="Permitir acceso a:"
-                        helperText="Ingrese el email del usuario al que desea otorgarle acceso"
-                        variant="outlined"
-                        className={classes.inputF}
-                        onChange={event => {
-                            setFieldEmail(event.target.value);
-                        }}
-                    />
-                    <IconButton type="button" onClick={handleAddUser} >
-                        <PersonAddIcon />
-                    </IconButton>
+                    <FormGroup>
+                        <Paper component="ul" className={classes.addUser} >
+                            {state.usersByProject.map((ubp) => {
+                                return (
+                                    <li key={ubp.id}>
+                                        <Chip label={ubp.email} className={classes.chip} onDelete={handleDelete(ubp)} />
+                                    </li>
+                                )
+                            })}
+                        </Paper>
+                        <span><TextField
+                            inputRef={email}
+                            value={fieldEmail}
+                            type="email"
+                            id="email"
+                            name="email"
+                            label="Permitir acceso a:"
+                            helperText="Ingrese el email del usuario al que desea otorgarle acceso"
+                            variant="outlined"
+                            className={classes.inputF}
+                            onChange={event => {
+                                setFieldEmail(event.target.value);
+                            }}
+                        />
+                            <IconButton type="button" onClick={handleAddUser} >
+                                <PersonAddIcon />
+                            </IconButton></span>
+                    </FormGroup>
                     <DialogContentText>
                         Categorías:
                     </DialogContentText>

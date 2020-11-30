@@ -10,8 +10,8 @@ import Category from '../../interfaces/Category';
 import Project from '../../interfaces/Project';
 import ProjectCategory from '../../interfaces/ProjectCategory';
 import UserByProject from '../../interfaces/UserByProject';
-import UserPublicProfile from '../../interfaces/UserPublicProfile';
 import ProjectService from '../../services/ProjectService';
+import { HelperAddUser } from './HelperAddUser';
 import { ValidateEmail } from "./ValidateEmail";
 
 const useStyles = makeStyles({
@@ -85,20 +85,11 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
         userEmail = ValidateEmail(email.current?.value as string, emailField, props.openSnackbar);
         if (userEmail != null) {
             const response = await ProjectService.searchUser(userEmail);
-
             switch (response.status) {
                 case 200:
-                    const User: UserPublicProfile = response.data;
-                    const aux: UserByProject = {
-                        id: 0,
-                        userId: User.userId,
-                        projectId: 0,
-                    }
-                    var auxState = state.usersByProject;
-                    auxState.push(aux);
-                    setState({ ...state, usersByProject: auxState });
-                    props.openSnackbar("Usuario asignado correctamente!", "success");
-                    setFieldEmail("");
+                    let newUserList: UserByProject[] | null;
+                    newUserList = HelperAddUser(response.data, state.usersByProject, emailField, props.openSnackbar);
+                    if (newUserList != null) setState({ ...state, usersByProject: newUserList });
                     break;
                 case 404:
                     props.openSnackbar("Usuario no encontrado", "warning");
@@ -112,11 +103,16 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
         }
     }
 
+    const handleDelete = (event: UserByProject) => () => {
+        let auxState: UserByProject[] = state.usersByProject.filter(c => c.userId !== event.userId);
+        setState({ ...state, usersByProject: auxState });
+        return { state };
+    };
+
     const handleConfirm = async () => {
         const { name, client, owner, budget, id, createdDate, projectCategories, usersByProject } = state;
         const project = { name, client, owner, budget, id, createdDate, projectCategories, usersByProject }
-
-        const response = await ProjectService.update(id, project);
+        const response = await ProjectService.update(id, project as Project);
         if (response.status === 200) {
             props.openSnackbar("Se modific\u00F3 el proyecto de manera correcta", "success");
         } else {
@@ -214,10 +210,10 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
                     <FormControl component="fieldset">
                         <FormGroup>
                             <Paper component="ul" className={classes.categoryList} >
-                                {props.project.usersByProject.map((up) => {
+                                {state.usersByProject.map((ubp) => {
                                     return (
-                                        <li key={up.id}>
-                                            <Chip label={up.userId} className={classes.chip} />
+                                        <li key={ubp.id}>
+                                            <Chip label={ubp.email} className={classes.chip} onDelete={handleDelete(ubp)} />
                                         </li>
                                     )
                                 })}

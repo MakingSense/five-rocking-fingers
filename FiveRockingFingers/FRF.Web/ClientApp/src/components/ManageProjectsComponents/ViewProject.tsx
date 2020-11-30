@@ -62,7 +62,7 @@ const ViewProject = (props: { project: Project, changeEdit: any }) => {
                     {props.project.usersByProject.map((up) => {
                         return (
                             <li key={up.id}>
-                                <Chip label={up.userId} className={classes.chip} />
+                                <Chip label={up.email} className={classes.chip} />
                             </li>
                         )
                     })}
