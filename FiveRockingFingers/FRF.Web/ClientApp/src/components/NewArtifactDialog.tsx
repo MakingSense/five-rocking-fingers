@@ -25,6 +25,9 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
 
     const handleCancel = () => {
         setStep(1);
+        setArtifactTypeId(null);
+        setName(null);
+        setProvider(null);
         props.closeNewArtifactDialog()
     }
 

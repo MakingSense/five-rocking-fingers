@@ -35,19 +35,19 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
 
     const classes = useStyles();
 
-    const { handleSubmit, register, errors } = useForm();
+    const { handleSubmit, register, errors, setError, clearErrors } = useForm();
     const { showNewArtifactDialog, closeNewArtifactDialog, provider, name, projectId, artifactTypeId, updateList, setOpenSnackbar, setSnackbarSettings } = props;
 
     const [settings, setSettings] = React.useState<{}>({});
     const [settingsList, setSettingsList] = React.useState<Setting[]>([{ settingName: "", settingValue: "" }]);
+
+    const [areNamesRepeate, setAreNameRepeate] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         console.log(settings);
     }, [settings]);
 
     const handleConfirm = async () => {
-
-        //setSettings(createSettingsObject());
 
         const artifactToCreate = {
             name: name,
@@ -77,11 +77,32 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
         closeNewArtifactDialog();
     }
 
+    const handleError = () => {
+
+    }
+
     const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, index: number) => {
+        checkSettingNameRepeat(event);
         const { name, value } = event.target;
         const list = [...settingsList];
         list[index][name] = value;
         setSettingsList(list);
+    }
+
+    const checkSettingNameRepeat = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+        if (event.target.name === "settingName") {
+            if (settingsList.find(setting => setting.settingName === event.target.value)) {
+                setError("settingName", {
+                    type: "manual",
+                    message: "Los nombres no pueden repetirse"
+                });
+                setAreNameRepeate(true);
+            }
+            else {
+                clearErrors("settingName");
+                setAreNameRepeate(false);
+            }
+        }
     }
 
     const handleCancel = () => {
@@ -118,19 +139,19 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
             <DialogTitle id="alert-dialog-title">Bienvenido al asistente para la creación de un nuevo artefacto</DialogTitle>
             <DialogContent>
                 <Typography gutterBottom>
-                    A continuación ingrese el tipo y el nombre de su nuevo artefacto
+                    A continuación ingrese las propiedades de su nuevo artefacto y el valor que tomarán esas propiedades
                 </Typography>
                 <form className={classes.container}>
                     {settingsList.map((setting: Setting, index: number) => {
                         return (
                             <React.Fragment>
                                 <TextField
-                                    inputRef={register({ required: true, validate: { isValid: value => value.trim() != "" } })}
-                                    error={errors.name ? true : false}
+                                    inputRef={register({ required: true, validate: { isValid: value => value.trim() != "", isRepeate: () => !areNamesRepeate } })}
+                                    error={errors.settingName ? true : false}
                                     id="settingName"
                                     name="settingName"
                                     label="Nombre de la setting"
-                                    helperText="Requerido*"
+                                    helperText={errors.settingName ? errors.settingName.message : "Requerido*"}
                                     variant="outlined"
                                     value={setting.settingName}
                                     required
@@ -170,7 +191,7 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
             </DialogContent>
             <DialogActions>
                 <Button size="small" color="primary" onClick={event => goPrevStep()}>Atrás</Button>
-                <Button size="small" color="primary" type="submit" onClick={handleSubmit(handleConfirm)}>Finalizar</Button>
+                <Button size="small" color="primary" type="submit" onClick={handleSubmit(handleConfirm, handleError)}>Finalizar</Button>
                 <Button size="small" color="secondary" onClick={handleCancel}>Cancelar</Button>
             </DialogActions>
         </Dialog>
