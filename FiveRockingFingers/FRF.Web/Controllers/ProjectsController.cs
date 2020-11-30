@@ -35,15 +35,47 @@ namespace FiveRockingFingers.Controllers
         //TODO: AWS Credentials, Loggin bypassed.Delete this method and Uncomment GetAll() after do:
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetAllAsync(Guid userId)
-        {   //TODO: AWS Credentials, Loggin bypassed. Use the method argument Guid userId instead of GetValue.
+        {
+            //TODO: AWS Credentials, Loggin bypassed. Use the method argument Guid userId instead of GetValue.
             var currentUserId = Guid.Parse(_configuration.GetValue<string>("MockUsers:UserId"));
-            
+
             if (currentUserId != userId) return Unauthorized();
 
-            var projects = await _projectService.GetAllAsync(userId);
+            var projects = await _projectService.GetAllAsync(currentUserId);
 
             var projectsDto = _mapper.Map<IEnumerable<ProjectDTO>>(projects);
-            return Ok(projectsDto);
+            var projectsViewModel = new List<ProjectViewModel>();
+
+            foreach (var project in projectsDto)
+            {
+                var userByProjectViewModel = new List<UserByProjectViewModel>();
+                foreach (var usersByProjectDto in project.UsersByProject)
+                {
+                    var uId = usersByProjectDto.UserId.ToString();
+                    var userProfile = new UserByProjectViewModel
+                    {
+                        email = await _userService.GetEmailByUserId(uId),
+                        userId = usersByProjectDto.UserId
+                    };
+                    userByProjectViewModel.Add(userProfile);
+                }
+
+                var projectViewModel = new ProjectViewModel
+                {
+                    Budget = project.Budget,
+                    Client = project.Client,
+                    CreatedDate = project.CreatedDate,
+                    Id = project.Id,
+                    Name = project.Name,
+                    Owner = project.Owner,
+                    ProjectCategories = project.ProjectCategories,
+                    UsersByProject = userByProjectViewModel
+                };
+
+                projectsViewModel.Add(projectViewModel);
+            }
+
+            return Ok(projectsViewModel);
         }
 
         [HttpGet]
@@ -51,10 +83,42 @@ namespace FiveRockingFingers.Controllers
         {
             // TODO: AWS Credentials, Loggin bypassed.Uncomment after do:
             //var currentUserId = await _userService.GetCurrentUserId();
-            var currentUserId = new Guid("9e9df404-3060-4904-bcb8-020f4344c5f0");
+            var currentUserId = new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba");
             var projects = await _projectService.GetAllAsync(currentUserId);
+
             var projectsDto = _mapper.Map<IEnumerable<ProjectDTO>>(projects);
-            return Ok(projectsDto);
+            var projectsViewModel = new List<ProjectViewModel>();
+
+            foreach (var project in projectsDto)
+            {
+                var userByProjectViewModel = new List<UserByProjectViewModel>();
+                foreach (var usersByProjectDto in project.UsersByProject)
+                {
+                    var userId = usersByProjectDto.UserId.ToString();
+                    var userProfile = new UserByProjectViewModel()
+                    {
+                        email = await _userService.GetEmailByUserId(userId),
+                        userId = usersByProjectDto.UserId
+                    };
+                    userByProjectViewModel.Add(userProfile);
+                }
+
+                var projectViewModel = new ProjectViewModel()
+                {
+                    Budget = project.Budget,
+                    Client = project.Client,
+                    CreatedDate = project.CreatedDate,
+                    Id = project.Id,
+                    Name = project.Name,
+                    Owner = project.Owner,
+                    ProjectCategories = project.ProjectCategories,
+                    UsersByProject = userByProjectViewModel
+                };
+
+                projectsViewModel.Add(projectViewModel);
+            }
+
+            return Ok(projectsViewModel);
         }
 
         [HttpGet("{id}")]
@@ -72,8 +136,9 @@ namespace FiveRockingFingers.Controllers
         {
             // TODO: AWS Credentials, Loggin bypassed.Uncomment after do:
             //var currentUserId = await _userService.GetCurrentUserId();
-            var currentUserId = new Guid("9e9df404-3060-4904-bcb8-020f4344c5f0");
-            projectDto.UsersByProject.Add(new UsersByProjectDTO(){UserId = currentUserId});
+            var currentUserId = new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba");
+
+            projectDto.UsersByProject.Add(new UsersByProjectDTO() {UserId = currentUserId});
 
             var project = _mapper.Map<Project>(projectDto);
             if (project == null) return BadRequest();

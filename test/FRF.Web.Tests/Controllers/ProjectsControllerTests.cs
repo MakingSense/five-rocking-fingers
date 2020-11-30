@@ -184,7 +184,7 @@ namespace FRF.Web.Tests.Controllers
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
-            var returnValue = Assert.IsType<List<ProjectDTO>>(okResult.Value);
+            var returnValue = Assert.IsType<List<ProjectViewModel>>(okResult.Value);
 
             Assert.Equal(sizeOfList, returnValue.Count);
             //_userService.Verify(mock => mock.GetCurrentUserId(), Times.Once);
@@ -213,7 +213,7 @@ namespace FRF.Web.Tests.Controllers
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
-            var returnValue = Assert.IsType<List<ProjectDTO>>(okResult.Value);
+            var returnValue = Assert.IsType<List<ProjectViewModel>>(okResult.Value);
 
             //_userService.Verify(mock => mock.GetCurrentUserId(), Times.Once);
             Assert.Empty(returnValue);

@@ -13,5 +13,6 @@ namespace FRF.Core.Services
         Task Logout();
         Task<string> GetCurrentUserId();
         Task<string> GetUserIdByEmail(string email);*/
+        Task<string> GetEmailByUserId(string userId);
     }
 }
