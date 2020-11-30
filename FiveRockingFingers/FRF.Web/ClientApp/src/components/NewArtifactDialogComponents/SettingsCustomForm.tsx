@@ -1,9 +1,7 @@
-﻿import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField, IconButton } from '@material-ui/core';
+﻿import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, IconButton } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import * as React from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import { PROVIDERS } from '../../Constants';
-import ArtifactType from '../../interfaces/ArtifactType';
+import { useForm } from 'react-hook-form';
 import ArtifactService from '../../services/ArtifactService';
 import Typography from '@material-ui/core/Typography';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
@@ -33,17 +31,15 @@ interface Setting {
     [key: string]: string;
 }
 
-const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, name: string, projectId: number, artifactTypeId: number, updateList: Function, setOpenSnackbar: Function, setSnackbarSettings: Function, handleNextStep: Function, handlePreviousStep: Function }) => {
+const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, provider: string | null, name: string | null, projectId: number, artifactTypeId: number | null, updateList: Function, setOpenSnackbar: Function, setSnackbarSettings: Function, handleNextStep: Function, handlePreviousStep: Function }) => {
 
     const classes = useStyles();
 
-    const { register, handleSubmit, errors, control } = useForm();
-    const { showNewArtifactDialog, closeNewArtifactDialog, name, projectId, artifactTypeId, updateList, setOpenSnackbar, setSnackbarSettings } = props;
+    const { handleSubmit, register, errors } = useForm();
+    const { showNewArtifactDialog, closeNewArtifactDialog, provider, name, projectId, artifactTypeId, updateList, setOpenSnackbar, setSnackbarSettings } = props;
 
     const [settings, setSettings] = React.useState<{}>({});
     const [settingsList, setSettingsList] = React.useState<Setting[]>([{ settingName: "", settingValue: "" }]);
-    const [settingName, setSettingName] = React.useState<string>("");
-    const [settingValue, setSettingValue] = React.useState<string>("");
 
     React.useEffect(() => {
         console.log(settings);
@@ -55,7 +51,7 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
 
         const artifactToCreate = {
             name: name,
-            provider: "Custom",
+            provider: provider,
             artifactTypeId: artifactTypeId,
             projectId: projectId,
             settings: { settings: createSettingsObject()}
@@ -102,14 +98,6 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
         setSettingsList(list);
     }
 
-    const handleSettingChange = (name: string, value: string) => {
-        let settingsList = settings;
-        let newSetting = { [name]: value };
-        settingsList = { ...settingsList, ...newSetting }
-        setSettings(settingsList);
-        console.log(settings);
-    }
-
     const createSettingsObject = () => {
         let settingsObject: { [key: string]: string } = {};
 
@@ -119,6 +107,10 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
         }
 
         return JSON.parse(JSON.stringify(settingsObject));
+    }
+
+    const goPrevStep = () => {
+        props.handlePreviousStep();
     }
 
     return (
@@ -177,7 +169,8 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
                 </form>
             </DialogContent>
             <DialogActions>
-                <Button size="small" color="primary" type="submit" onClick={event => handleConfirm()}>Continuar</Button>
+                <Button size="small" color="primary" onClick={event => goPrevStep()}>Atrás</Button>
+                <Button size="small" color="primary" type="submit" onClick={handleSubmit(handleConfirm)}>Finalizar</Button>
                 <Button size="small" color="secondary" onClick={handleCancel}>Cancelar</Button>
             </DialogActions>
         </Dialog>

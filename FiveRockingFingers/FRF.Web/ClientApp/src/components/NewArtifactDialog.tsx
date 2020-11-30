@@ -1,45 +1,15 @@
-﻿import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField } from '@material-ui/core';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import * as React from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import { number } from 'yup';
-import { PROVIDERS } from '../Constants';
-import ArtifactType from '../interfaces/ArtifactType';
-import ArtifactService from '../services/ArtifactService';
+﻿import * as React from 'react';
 import CustomForm from './NewArtifactDialogComponents/CustomForm';
+import AwsForm from './NewArtifactDialogComponents/AwsForm';
 import ProviderForm from './NewArtifactDialogComponents/ProviderForm';
 import SettingsCustomForm from './NewArtifactDialogComponents/SettingsCustomForm';
 
-// Once the ArtifactType API and service are running, this should be replaced with a call to that API
-// Until then, you might an error if you don't have this 3 types created on your local DataBase before using this
-
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        container: {
-            display: 'flex',
-            flexWrap: 'wrap',
-        },
-        formControl: {
-            margin: theme.spacing(1),
-            width: '100%'
-        },
-        inputF: {
-            padding: 2,
-            marginTop: 10
-        }
-    }),
-);
-
 const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, projectId: number, updateList: Function, setOpenSnackbar: Function , setSnackbarSettings: Function }) => {
 
-    const classes = useStyles();
-
     const [step, setStep] = React.useState<number>(1);
-    const [artifactTypeId, setArtifactTypeId] = React.useState<number>(0);
-    const [name, setName] = React.useState<string>("");
-
-    const { register, handleSubmit, errors, control } = useForm();
-    const { showNewArtifactDialog, closeNewArtifactDialog, projectId, updateList, setOpenSnackbar, setSnackbarSettings } = props;
+    const [artifactTypeId, setArtifactTypeId] = React.useState<number | null>(null);
+    const [name, setName] = React.useState<string | null>(null);
+    const [provider, setProvider] = React.useState<string | null>(null);
 
     React.useEffect(() => {
     }, [step]);
@@ -53,33 +23,55 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
         setStep(step - 1);
     }
 
+    const handleCancel = () => {
+        setStep(1);
+        props.closeNewArtifactDialog()
+    }
+
     switch (step) {
         case 1:
             return (
                 <ProviderForm
                     showNewArtifactDialog={props.showNewArtifactDialog}
-                    closeNewArtifactDialog={props.closeNewArtifactDialog}
+                    closeNewArtifactDialog={handleCancel}
                     handleNextStep={handleNextStep}
+                    setProvider={setProvider}
+                    provider={provider}
                 />
             );
 
         case 2:
-            return (
-                <CustomForm
-                    showNewArtifactDialog={props.showNewArtifactDialog}
-                    closeNewArtifactDialog={props.closeNewArtifactDialog}
-                    handleNextStep={handleNextStep}
-                    handlePreviousStep={handlePreviousStep}
-                    setName={setName}
-                    setArtifactTypeId={setArtifactTypeId}
-                />
-            );
+            if (provider === "Custom") {
+                return (
+                    <CustomForm
+                        showNewArtifactDialog={props.showNewArtifactDialog}
+                        closeNewArtifactDialog={handleCancel}
+                        handleNextStep={handleNextStep}
+                        handlePreviousStep={handlePreviousStep}
+                        setName={setName}
+                        setArtifactTypeId={setArtifactTypeId}
+                        name={name}
+                        artifactTypeId={artifactTypeId}
+                    />
+                );
+            }
+            else {
+                return (
+                    <AwsForm
+                        showNewArtifactDialog={props.showNewArtifactDialog}
+                        closeNewArtifactDialog={handleCancel}
+                        handlePreviousStep={handlePreviousStep}
+                    />
+                );
+            }
+            
 
         case 3:
             return (
                 <SettingsCustomForm
                     showNewArtifactDialog={props.showNewArtifactDialog}
-                    closeNewArtifactDialog={props.closeNewArtifactDialog}
+                    closeNewArtifactDialog={handleCancel}
+                    provider={provider}
                     name={name}
                     projectId={props.projectId}
                     artifactTypeId={artifactTypeId}

@@ -44,7 +44,7 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const CustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, handleNextStep: Function, handlePreviousStep: Function, setName: Function, setArtifactTypeId: Function }) => {
+const CustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, handleNextStep: Function, handlePreviousStep: Function, setName: Function, setArtifactTypeId: Function, name: string|null, artifactTypeId: number|null }) => {
 
     const classes = useStyles();
 
@@ -98,7 +98,7 @@ const CustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDia
                             name="artifactType"
                             rules={{ required: true }}
                             control={control}
-                            defaultValue=""
+                            defaultValue={props.artifactTypeId}
                         />
                         <FormHelperText>Requerido*</FormHelperText>
                     </FormControl>
@@ -112,6 +112,7 @@ const CustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDia
                         variant="outlined"
                         className={classes.inputF}
                         fullWidth
+                        value={props.name}
                     />
                 </form>
             </DialogContent>

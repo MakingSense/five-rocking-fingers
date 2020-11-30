@@ -3,12 +3,7 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import * as React from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { PROVIDERS } from '../../Constants';
-import ArtifactType from '../../interfaces/ArtifactType';
-import ArtifactService from '../../services/ArtifactService';
 import Typography from '@material-ui/core/Typography';
-
-// Once the ArtifactType API and service are running, this should be replaced with a call to that API
-// Until then, you might an error if you don't have this 3 types created on your local DataBase before using this
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -27,23 +22,16 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const ProviderForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, handleNextStep: Function }) => {
+const ProviderForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, handleNextStep: Function, setProvider: Function, provider: string|null }) => {
 
     const classes = useStyles();
 
     const { handleSubmit, errors, control } = useForm();
     const { showNewArtifactDialog, closeNewArtifactDialog } = props;
 
-    const [provider, setProvider] = React.useState<string | null>(null);
-
 
     const handleConfirmProvider = async (data: { provider: string }) => {
-        const artifactToCreate = {
-            provider: data.provider
-        };
-
-        console.log(artifactToCreate);
-
+        props.setProvider(data.provider);
         props.handleNextStep();
     }
 
@@ -79,7 +67,7 @@ const ProviderForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactD
                             name="provider"
                             rules={{ required: true }}
                             control={control}
-                            defaultValue=""
+                            defaultValue={props.provider}
                         />
                         <FormHelperText>Requerido*</FormHelperText>
                     </FormControl>
