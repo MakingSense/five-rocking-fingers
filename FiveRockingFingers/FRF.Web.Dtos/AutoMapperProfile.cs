@@ -12,13 +12,13 @@ namespace FRF.Web.Dtos
         {
             CreateMap<UserSignIn, SignInDTO>().ReverseMap();
             CreateMap<User, SignUpDTO>().ReverseMap();
-            CreateMap<Project, ProjectDto>()
+            CreateMap<Project, ProjectDTO>()
                 .ReverseMap();
             CreateMap<ProjectCategory, Projects.ProjectCategoryDTO>()
                 .ReverseMap();
             CreateMap<Category, Projects.CategoryDTO>()
                 .ReverseMap();
-            CreateMap<Project, Categories.ProjectDTO>()
+           CreateMap<Project, Categories.ProjectDTO>()
                 .ReverseMap();
             CreateMap<ProjectCategory, Categories.ProjectCategoryDTO>()
                 .ReverseMap();
@@ -34,6 +34,7 @@ namespace FRF.Web.Dtos
                 .ReverseMap();
             CreateMap<UsersByProject, UsersByProjectDTO>()
                 .ReverseMap();
+            CreateMap<ProjectUpsertDTO, Project>();
         }
     }
 }
