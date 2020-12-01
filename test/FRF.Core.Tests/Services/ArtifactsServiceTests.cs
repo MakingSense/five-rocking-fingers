@@ -14,7 +14,7 @@ namespace FRF.Core.Tests.Services
     public class ArtifactsServiceTests
     {
         private readonly Mock<IConfiguration> _configuration;
-        private readonly Mock<IMapper> _mapper;
+        private readonly IMapper _mapper = MapperBuilder.Build();
         private readonly DataAccessContextForTest _dataAccess;
         private readonly ArtifactsService _classUnderTest;
         private readonly DbContextOptions<DataAccessContextForTest> ContextOptions;
@@ -22,7 +22,6 @@ namespace FRF.Core.Tests.Services
         public ArtifactsServiceTests()
         {
             _configuration = new Mock<IConfiguration>();
-            _mapper = new Mock<IMapper>();
 
             ContextOptions = new DbContextOptionsBuilder<DataAccessContextForTest>()
                     .UseInMemoryDatabase(databaseName: "Test")
@@ -32,25 +31,7 @@ namespace FRF.Core.Tests.Services
             _dataAccess.Database.EnsureDeleted();
             _dataAccess.Database.EnsureCreated();
 
-            _classUnderTest = new ArtifactsService(_configuration.Object, _dataAccess, _mapper.Object);
-
-            _mapper
-                .Setup(mock => mock.Map<Models.Project>(It.IsAny<Project>()))
-                .Returns<Project>((input) => new Models.Project()
-                {
-                    Id = input.Id,
-                    Name = input.Name
-                });
-
-            _mapper
-                .Setup(mock => mock.Map<Models.ArtifactType>(It.IsAny<ArtifactType>()))
-                .Returns<ArtifactType>((input) => new Models.ArtifactType()
-                {
-                    Id = input.Id,
-                    Name = input.Name, 
-                    Description = input.Description
-                });
-
+            _classUnderTest = new ArtifactsService(_configuration.Object, _dataAccess, _mapper);
         }
 
         private ArtifactType CreateArtifactType()
@@ -102,21 +83,6 @@ namespace FRF.Core.Tests.Services
             var project = CreateProject();
             var artifact = CreateArtifact(project, artifactType);
 
-            var mapperReturn = new List<Models.Artifact>();
-            mapperReturn.Add(new Models.Artifact { 
-                Id = artifact.Id,
-                Name = artifact.Name,
-                Provider = artifact.Provider,
-                CreatedDate = artifact.CreatedDate,
-                ProjectId = artifact.ProjectId,
-                Project = _mapper.Object.Map<Models.Project>(artifact.Project),
-                ArtifactTypeId = artifact.ArtifactTypeId,
-                ArtifactType = _mapper.Object.Map<Models.ArtifactType>(artifact.ArtifactType)
-            });
-            _mapper
-                .Setup(mock => mock.Map<List<Models.Artifact>>(It.IsAny<IEnumerable<Artifact>>()))
-                .Returns(mapperReturn);
-
             // Act
             var result = await _classUnderTest.GetAll();
 
@@ -138,25 +104,17 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(artifact.ArtifactType.Id, result[0].ArtifactType.Id);
             Assert.Equal(artifact.ArtifactType.Name, result[0].ArtifactType.Name);
             Assert.Equal(artifact.ArtifactType.Description, result[0].ArtifactType.Description);
-
-            _mapper.Verify(mock => mock.Map<List<Models.Artifact>>(It.IsAny<IEnumerable<Artifact>>()), Times.Once);
         }
 
         [Fact]
         public async Task GetAllAsync_ReturnsEmptyList()
         {
-            // Arange
-            _mapper
-                .Setup(mock => mock.Map<List<Models.Artifact>>(It.IsAny<IEnumerable<Artifact>>()))
-                .Returns(new List<Models.Artifact>());
-
             // Act
             var result = await _classUnderTest.GetAll();
 
             // Assert
             Assert.IsType<List<Models.Artifact>>(result);
             Assert.Empty(result);
-            _mapper.Verify(mock => mock.Map<List<Models.Artifact>>(It.IsAny<IEnumerable<Artifact>>()), Times.Once);
         }
 
         [Fact]
@@ -167,22 +125,6 @@ namespace FRF.Core.Tests.Services
             var project = CreateProject();
             var artifact = CreateArtifact(project, artifactType);
 
-            var mapperReturn = new List<Models.Artifact>();
-            mapperReturn.Add(new Models.Artifact
-            {
-                Id = artifact.Id,
-                Name = artifact.Name,
-                Provider = artifact.Provider,
-                CreatedDate = artifact.CreatedDate,
-                ProjectId = artifact.ProjectId,
-                Project = _mapper.Object.Map<Models.Project>(artifact.Project),
-                ArtifactTypeId = artifact.ArtifactTypeId,
-                ArtifactType = _mapper.Object.Map<Models.ArtifactType>(artifact.ArtifactType)
-            });
-            _mapper
-                .Setup(mock => mock.Map<List<Models.Artifact>>(It.IsAny<IEnumerable<Artifact>>()))
-                .Returns(mapperReturn);
-
             // Act
             var result = await _classUnderTest.GetAllByProjectId(project.Id);
 
@@ -204,16 +146,16 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(artifact.ArtifactType.Id, result[0].ArtifactType.Id);
             Assert.Equal(artifact.ArtifactType.Name, result[0].ArtifactType.Name);
             Assert.Equal(artifact.ArtifactType.Description, result[0].ArtifactType.Description);
-
-            _mapper.Verify(mock => mock.Map<List<Models.Artifact>>(It.IsAny<IEnumerable<Artifact>>()), Times.Once);
         }
 
         [Fact]
         public async Task GetAllByProjectIdAsync_ReturnExceptionNoProject()
         {
+            // Arange
+            var projectId = 1;
+
             // Act/Assert
-            await Assert.ThrowsAsync<System.ArgumentException>(() => _classUnderTest.GetAllByProjectId(1));
-            _mapper.Verify(mock => mock.Map<List<Models.Artifact>>(It.IsAny<IEnumerable<Artifact>>()), Times.Never);
+            await Assert.ThrowsAsync<System.ArgumentException>(() => _classUnderTest.GetAllByProjectId(projectId));
         }
 
         [Fact]
@@ -223,17 +165,12 @@ namespace FRF.Core.Tests.Services
             var artifactType = CreateArtifactType();
             var project = CreateProject();
 
-            _mapper
-                .Setup(mock => mock.Map<List<Models.Artifact>>(It.IsAny<IEnumerable<Artifact>>()))
-                .Returns(new List<Models.Artifact>());
-
             // Act
             var result = await _classUnderTest.GetAllByProjectId(project.Id);
 
             // Assert
             Assert.IsType<List<Models.Artifact>>(result);
             Assert.Empty(result);
-            _mapper.Verify(mock => mock.Map<List<Models.Artifact>>(It.IsAny<IEnumerable<Artifact>>()), Times.Once);
         }
 
         [Fact]
@@ -243,20 +180,6 @@ namespace FRF.Core.Tests.Services
             var artifactType = CreateArtifactType();
             var project = CreateProject();
             var artifact = CreateArtifact(project, artifactType);
-
-            _mapper
-                .Setup(mock => mock.Map<Models.Artifact>(It.IsAny<Artifact>()))
-                .Returns(new Models.Artifact
-                {
-                    Id = artifact.Id,
-                    Name = artifact.Name,
-                    Provider = artifact.Provider,
-                    CreatedDate = artifact.CreatedDate,
-                    ProjectId = artifact.ProjectId,
-                    Project = _mapper.Object.Map<Models.Project>(artifact.Project),
-                    ArtifactTypeId = artifact.ArtifactTypeId,
-                    ArtifactType = _mapper.Object.Map<Models.ArtifactType>(artifact.ArtifactType)
-                });
 
             // Act
             var result = await _classUnderTest.Get(artifact.Id);
@@ -277,8 +200,6 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(artifact.ArtifactType.Id, result.ArtifactType.Id);
             Assert.Equal(artifact.ArtifactType.Name, result.ArtifactType.Name);
             Assert.Equal(artifact.ArtifactType.Description, result.ArtifactType.Description);
-
-            _mapper.Verify(mock => mock.Map<Models.Artifact>(It.IsAny<Artifact>()), Times.Once);
         }
 
         [Fact]
@@ -292,7 +213,6 @@ namespace FRF.Core.Tests.Services
 
             // Assert
             Assert.Null(result);
-            _mapper.Verify(mock => mock.Map<Models.Artifact>(It.Is<Artifact>(a => a.Id == artifactId)), Times.Never);
         }
 
         [Fact]
@@ -307,30 +227,6 @@ namespace FRF.Core.Tests.Services
             artifactToSave.Provider = "[Mock] AWS";
             artifactToSave.ProjectId = project.Id;
             artifactToSave.ArtifactTypeId = artifactType.Id;
-
-            _mapper
-                .Setup(mock => mock.Map<Artifact>(It.IsAny<Models.Artifact>()))
-                .Returns(new Artifact
-                {
-                    Name = artifactToSave.Name,
-                    Provider = artifactToSave.Provider,
-                    ProjectId = artifactToSave.ProjectId,
-                    ArtifactTypeId = artifactToSave.ArtifactTypeId,
-                });
-
-            _mapper
-                .Setup(mock => mock.Map<Models.Artifact>(It.IsAny<Artifact>()))
-                .Returns<Artifact>((input) => new Models.Artifact
-                {
-                    Id = input.Id,
-                    Name = input.Name,
-                    Provider = input.Provider,
-                    CreatedDate = input.CreatedDate,
-                    ProjectId = input.ProjectId,
-                    Project = _mapper.Object.Map<Models.Project>(input.Project),
-                    ArtifactTypeId = input.ArtifactTypeId,
-                    ArtifactType = _mapper.Object.Map<Models.ArtifactType>(input.ArtifactType)
-                });
 
             // Act
             var result = await _classUnderTest.Save(artifactToSave);
@@ -348,11 +244,6 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(artifactType.Id, result.ArtifactType.Id);
             Assert.Equal(artifactType.Name, result.ArtifactType.Name);
             Assert.Equal(artifactType.Description, result.ArtifactType.Description);
-
-            _mapper.Verify(mock => mock.Map<Artifact>(It.IsAny<Models.Artifact>()), Times.Once);
-            _mapper.Verify(mock => mock.Map<Models.Artifact>(It.IsAny<Artifact>()), Times.Once);
-            _mapper.Verify(mock => mock.Map<Models.Project>(It.IsAny<Project>()), Times.Once);
-            _mapper.Verify(mock => mock.Map<Models.ArtifactType>(It.IsAny<ArtifactType>()), Times.Once);
         }
 
         [Fact]
@@ -378,7 +269,6 @@ namespace FRF.Core.Tests.Services
 
             // Act/Assert
             await Assert.ThrowsAsync<System.ArgumentException>(() => _classUnderTest.Save(artifactToSave));
-            _mapper.Verify(mock => mock.Map<Models.Artifact>(It.IsAny<Artifact>()), Times.Never);
         }
 
         [Fact]
@@ -404,7 +294,6 @@ namespace FRF.Core.Tests.Services
 
             // Act/Assert
             await Assert.ThrowsAsync<System.ArgumentException>(() => _classUnderTest.Save(artifactToSave));
-            _mapper.Verify(mock => mock.Map<Models.Artifact>(It.IsAny<Artifact>()), Times.Never);
         }
 
         [Fact]
@@ -439,25 +328,10 @@ namespace FRF.Core.Tests.Services
                 Provider = "[Mock] Updated provider",
                 CreatedDate = DateTime.Now,
                 ProjectId = newProject.Id,
-                Project = _mapper.Object.Map<Models.Project>(newProject),
+                Project = _mapper.Map<Models.Project>(newProject),
                 ArtifactTypeId = newArtifactType.Id,
-                ArtifactType = _mapper.Object.Map<Models.ArtifactType>(newArtifactType)
+                ArtifactType = _mapper.Map<Models.ArtifactType>(newArtifactType)
             };
-
-            _mapper
-                .Setup(mock => mock.Map<Models.Artifact>(It.IsAny<Artifact>()))
-                .Returns<Artifact>((input) => new Models.Artifact()
-                {
-                    Id = input.Id,
-                    Name = input.Name,
-                    Provider = input.Provider,
-                    CreatedDate = input.CreatedDate,
-                    ModifiedDate = (DateTime)input.ModifiedDate,
-                    ProjectId = input.ProjectId,
-                    Project = _mapper.Object.Map<Models.Project>(input.Project),
-                    ArtifactTypeId = input.ArtifactTypeId,
-                    ArtifactType = _mapper.Object.Map<Models.ArtifactType>(input.ArtifactType),
-                });
 
             // Act
             var result = await _classUnderTest.Update(artifactToUpdate);
@@ -480,8 +354,6 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(newArtifactType.Id, result.ArtifactType.Id);
             Assert.Equal(newArtifactType.Name, result.ArtifactType.Name);
             Assert.Equal(newArtifactType.Description, result.ArtifactType.Description);
-
-            _mapper.Verify(mock => mock.Map<Models.Artifact>(It.IsAny<Artifact>()), Times.Once);
         }
 
         [Fact]
@@ -502,7 +374,6 @@ namespace FRF.Core.Tests.Services
 
             // Act/Assert
             await Assert.ThrowsAsync<System.ArgumentException>(() => _classUnderTest.Update(artifactToUpdate));
-            _mapper.Verify(mock => mock.Map<Models.Artifact>(It.IsAny<Artifact>()), Times.Never);
         }
 
         [Fact]
@@ -525,7 +396,6 @@ namespace FRF.Core.Tests.Services
 
             // Act/Assert
             await Assert.ThrowsAsync<System.ArgumentException>(() => _classUnderTest.Update(artifactToUpdate));
-            _mapper.Verify(mock => mock.Map<Models.Artifact>(It.IsAny<Artifact>()), Times.Never);
         }
 
         [Fact]
@@ -548,7 +418,6 @@ namespace FRF.Core.Tests.Services
 
             // Act/Assert
             await Assert.ThrowsAsync<System.ArgumentException>(() => _classUnderTest.Update(artifactToUpdate));
-            _mapper.Verify(mock => mock.Map<Models.Artifact>(It.IsAny<Artifact>()), Times.Never);
         }
 
         [Fact]
