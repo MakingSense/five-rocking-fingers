@@ -1,4 +1,4 @@
-export default interface UserPublicProfile {
+export default interface UserProfile {
     userId: string;
     fullName: string | null;
     email: string;
