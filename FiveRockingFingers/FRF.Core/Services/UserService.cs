@@ -82,7 +82,7 @@ namespace FRF.Core.Services
             //return userEmail == null ? null : userEmail.Username;
 
             // AND DELETE THIS:
-            const string currentUserId = "9e9df404-3060-4904-bcb8-020f4344c5f0";
+            const string currentUserId = "c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba";
             return userId.ToLower() == currentUserId ? "fiverockingfingers@making.com" : "cooluser@mock.org";
             //
         }

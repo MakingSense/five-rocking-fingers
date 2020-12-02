@@ -43,24 +43,6 @@ namespace FiveRockingFingers.Controllers
             var projects = await _projectService.GetAllAsync(currentUserId);
 
             var projectsDto = _mapper.Map<IEnumerable<ProjectDTO>>(projects);
-
-            foreach (var project in projectsDto)
-            {
-                var usersProfile = new List<UserProfile>();
-                foreach (var usersByProjectDto in project.UsersProfile)
-                {
-                    var uId = usersByProjectDto.UserId.ToString();
-                    var userProfile = new UserProfile
-                    {
-                        Email = await _userService.GetEmailByUserId(uId),
-                        UserId = usersByProjectDto.UserId
-                    };
-                    usersProfile.Add(userProfile);
-                }
-
-                project.UsersProfile = usersProfile;
-            }
-
             return Ok(projectsDto);
         }
 
@@ -73,24 +55,6 @@ namespace FiveRockingFingers.Controllers
             var projects = await _projectService.GetAllAsync(currentUserId);
 
             var projectsDto = _mapper.Map<IEnumerable<ProjectDTO>>(projects);
-
-            foreach (var project in projectsDto)
-            {
-                var usersProfile = new List<UserProfile>();
-                foreach (var user in project.UsersProfile)
-                {
-                    var uId = user.UserId.ToString();
-                    var userProfile = new UserProfile
-                    {
-                        Email = await _userService.GetEmailByUserId(uId),
-                        UserId = user.UserId
-                    };
-                    usersProfile.Add(userProfile);
-                }
-
-                project.UsersProfile = usersProfile;
-            }
-
             return Ok(projectsDto);
         }
 
@@ -111,7 +75,7 @@ namespace FiveRockingFingers.Controllers
             //var currentUserId = await _userService.GetCurrentUserId();
             var currentUserId = new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba");
 
-            projectDto.UsersProfile.Add(new UserProfileUpsert() {UserId = currentUserId});
+            projectDto.Users.Add(new UserProfileUpsertDTO() {UserId = currentUserId});
 
             var project = _mapper.Map<Project>(projectDto);
             if (project == null) return BadRequest();
@@ -129,7 +93,7 @@ namespace FiveRockingFingers.Controllers
             var project = await _projectService.GetAsync(id);
             if (project == null) return NotFound();
             //To improve
-            if (!projectDto.UsersProfile.Any()) return BadRequest();
+            if (!projectDto.Users.Any()) return BadRequest();
 
             _mapper.Map(projectDto, project);
             var updated = await _projectService.UpdateAsync(project);

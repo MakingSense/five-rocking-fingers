@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace FRF.Web.Dtos.Projects
 {
-    public class UserProfileUpsert
+    public class UserProfileUpsertDTO
     {
         [Required] 
         public Guid? UserId { get; set; }

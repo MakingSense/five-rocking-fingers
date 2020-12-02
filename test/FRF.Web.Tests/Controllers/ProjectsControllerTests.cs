@@ -42,7 +42,7 @@ namespace FRF.Web.Tests.Controllers
         private Project CreateProject(int projectId)
         {
             var projectCategories = new Mock<ProjectCategory>();
-            var userByProject = new Mock<UsersByProject>();
+            var userByProject = new Mock<UsersProfile>();
             var project = new Project
             {
                 Budget = 900,
@@ -56,7 +56,7 @@ namespace FRF.Web.Tests.Controllers
                 {
                     projectCategories.Object
                 },
-                UsersByProject = new List<UsersByProject>
+                UsersByProject = new List<UsersProfile>
                 {
                     userByProject.Object
                 }
@@ -68,7 +68,7 @@ namespace FRF.Web.Tests.Controllers
         private ProjectDTO CreateProjectDto(Project project)
         {
             var projectCategories = new Mock<ProjectCategoryDTO>();
-            var userByProject = new Mock<UserProfile>();
+            var userByProject = new Mock<UserProfileDTO>();
             var projectDto = new ProjectDTO
             {
                 Id = project.Id,
@@ -81,7 +81,7 @@ namespace FRF.Web.Tests.Controllers
                 {
                     projectCategories.Object
                 },
-                UsersProfile = new List<UserProfile>
+                Users = new List<UserProfileDTO>
                 {
                     userByProject.Object
                 }
@@ -92,7 +92,7 @@ namespace FRF.Web.Tests.Controllers
         private ProjectUpsertDTO CreateProjectUpsertDto(Project project)
         {
             var projectCategories = new Mock<ProjectCategoryDTO>();
-            var userByProject = new Mock<UserProfileUpsert>();
+            var userByProject = new Mock<UserProfileUpsertDTO>();
             var projectUpsertDTO = new ProjectUpsertDTO
             {
                 Budget = project.Budget,
@@ -103,7 +103,7 @@ namespace FRF.Web.Tests.Controllers
                 {
                     projectCategories.Object
                 },
-                UsersProfile = new List<UserProfileUpsert>
+                Users = new List<UserProfileUpsertDTO>
                 {
                     userByProject.Object
                 }

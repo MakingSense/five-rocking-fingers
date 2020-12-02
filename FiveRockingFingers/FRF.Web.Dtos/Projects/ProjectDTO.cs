@@ -17,6 +17,6 @@ namespace FRF.Web.Dtos
         public int? Budget { get; set; }
         public DateTime CreatedDate { get; set; }
         public IList<ProjectCategoryDTO> ProjectCategories { get; set; }
-        public IList<UserProfile> UsersProfile { get; set; }
+        public IList<UserProfileDTO> Users { get; set; }
     }
 }
