@@ -2,6 +2,7 @@ using FRF.Web.Dtos.Projects;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using AutoMapper.Configuration.Conventions;
 
 namespace FRF.Web.Dtos
 {
@@ -16,6 +17,6 @@ namespace FRF.Web.Dtos
         public int? Budget { get; set; }
         public DateTime CreatedDate { get; set; }
         public IList<ProjectCategoryDTO> ProjectCategories { get; set; }
-        public IList<UsersByProjectDTO> UsersByProject { get; set; }
+        public IList<UserProfile> UsersProfile { get; set; }
     }
 }

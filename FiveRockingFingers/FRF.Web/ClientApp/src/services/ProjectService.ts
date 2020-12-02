@@ -21,7 +21,7 @@ export default class ProjectService {
                 client: project.client,
                 budget: project.budget,
                 projectCategories: project.projectCategories,
-                usersByProject: project.usersByProject.map((parameter) => ({ userId:parameter.userId}))
+                usersProfile: project.usersByProject.map((parameter) => ({ userId:parameter.userId}))
             });
         return response;
     }
@@ -35,7 +35,7 @@ export default class ProjectService {
             createdDate: project.createdDate,
             budget: project.budget,
             projectCategories: project.projectCategories,
-            usersByProject: project.usersByProject.map((parameter) => ({userId:parameter.userId}))
+            usersProfile: project.usersByProject.map((parameter) => ({userId:parameter.userId}))
         });
         return response;
     }

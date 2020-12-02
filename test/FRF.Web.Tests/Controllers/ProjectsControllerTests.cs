@@ -68,7 +68,7 @@ namespace FRF.Web.Tests.Controllers
         private ProjectDTO CreateProjectDto(Project project)
         {
             var projectCategories = new Mock<ProjectCategoryDTO>();
-            var userByProject = new Mock<UsersByProjectDTO>();
+            var userByProject = new Mock<UserProfile>();
             var projectDto = new ProjectDTO
             {
                 Id = project.Id,
@@ -81,7 +81,7 @@ namespace FRF.Web.Tests.Controllers
                 {
                     projectCategories.Object
                 },
-                UsersByProject = new List<UsersByProjectDTO>
+                UsersProfile = new List<UserProfile>
                 {
                     userByProject.Object
                 }
@@ -92,7 +92,7 @@ namespace FRF.Web.Tests.Controllers
         private ProjectUpsertDTO CreateProjectUpsertDto(Project project)
         {
             var projectCategories = new Mock<ProjectCategoryDTO>();
-            var userByProject = new Mock<UsersByProjectDTO>();
+            var userByProject = new Mock<UserProfileUpsert>();
             var projectUpsertDTO = new ProjectUpsertDTO
             {
                 Budget = project.Budget,
@@ -103,7 +103,7 @@ namespace FRF.Web.Tests.Controllers
                 {
                     projectCategories.Object
                 },
-                UsersByProject = new List<UsersByProjectDTO>
+                UsersProfile = new List<UserProfileUpsert>
                 {
                     userByProject.Object
                 }
@@ -184,7 +184,7 @@ namespace FRF.Web.Tests.Controllers
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
-            var returnValue = Assert.IsType<List<ProjectViewModel>>(okResult.Value);
+            var returnValue = Assert.IsType<List<ProjectDTO>>(okResult.Value);
 
             Assert.Equal(sizeOfList, returnValue.Count);
             //_userService.Verify(mock => mock.GetCurrentUserId(), Times.Once);
@@ -213,7 +213,7 @@ namespace FRF.Web.Tests.Controllers
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
-            var returnValue = Assert.IsType<List<ProjectViewModel>>(okResult.Value);
+            var returnValue = Assert.IsType<List<ProjectDTO>>(okResult.Value);
 
             //_userService.Verify(mock => mock.GetCurrentUserId(), Times.Once);
             Assert.Empty(returnValue);

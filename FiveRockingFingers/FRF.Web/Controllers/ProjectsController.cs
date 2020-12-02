@@ -9,7 +9,6 @@ using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FiveRockingFingers.Controllers
 {
@@ -44,38 +43,25 @@ namespace FiveRockingFingers.Controllers
             var projects = await _projectService.GetAllAsync(currentUserId);
 
             var projectsDto = _mapper.Map<IEnumerable<ProjectDTO>>(projects);
-            var projectsViewModel = new List<ProjectViewModel>();
 
             foreach (var project in projectsDto)
             {
-                var userByProjectViewModel = new List<UserByProjectViewModel>();
-                foreach (var usersByProjectDto in project.UsersByProject)
+                var usersProfile = new List<UserProfile>();
+                foreach (var usersByProjectDto in project.UsersProfile)
                 {
                     var uId = usersByProjectDto.UserId.ToString();
-                    var userProfile = new UserByProjectViewModel
+                    var userProfile = new UserProfile
                     {
-                        email = await _userService.GetEmailByUserId(uId),
-                        userId = usersByProjectDto.UserId
+                        Email = await _userService.GetEmailByUserId(uId),
+                        UserId = usersByProjectDto.UserId
                     };
-                    userByProjectViewModel.Add(userProfile);
+                    usersProfile.Add(userProfile);
                 }
 
-                var projectViewModel = new ProjectViewModel
-                {
-                    Budget = project.Budget,
-                    Client = project.Client,
-                    CreatedDate = project.CreatedDate,
-                    Id = project.Id,
-                    Name = project.Name,
-                    Owner = project.Owner,
-                    ProjectCategories = project.ProjectCategories,
-                    UsersByProject = userByProjectViewModel
-                };
-
-                projectsViewModel.Add(projectViewModel);
+                project.UsersProfile = usersProfile;
             }
 
-            return Ok(projectsViewModel);
+            return Ok(projectsDto);
         }
 
         [HttpGet]
@@ -87,38 +73,25 @@ namespace FiveRockingFingers.Controllers
             var projects = await _projectService.GetAllAsync(currentUserId);
 
             var projectsDto = _mapper.Map<IEnumerable<ProjectDTO>>(projects);
-            var projectsViewModel = new List<ProjectViewModel>();
 
             foreach (var project in projectsDto)
             {
-                var userByProjectViewModel = new List<UserByProjectViewModel>();
-                foreach (var usersByProjectDto in project.UsersByProject)
+                var usersProfile = new List<UserProfile>();
+                foreach (var user in project.UsersProfile)
                 {
-                    var userId = usersByProjectDto.UserId.ToString();
-                    var userProfile = new UserByProjectViewModel()
+                    var uId = user.UserId.ToString();
+                    var userProfile = new UserProfile
                     {
-                        email = await _userService.GetEmailByUserId(userId),
-                        userId = usersByProjectDto.UserId
+                        Email = await _userService.GetEmailByUserId(uId),
+                        UserId = user.UserId
                     };
-                    userByProjectViewModel.Add(userProfile);
+                    usersProfile.Add(userProfile);
                 }
 
-                var projectViewModel = new ProjectViewModel()
-                {
-                    Budget = project.Budget,
-                    Client = project.Client,
-                    CreatedDate = project.CreatedDate,
-                    Id = project.Id,
-                    Name = project.Name,
-                    Owner = project.Owner,
-                    ProjectCategories = project.ProjectCategories,
-                    UsersByProject = userByProjectViewModel
-                };
-
-                projectsViewModel.Add(projectViewModel);
+                project.UsersProfile = usersProfile;
             }
 
-            return Ok(projectsViewModel);
+            return Ok(projectsDto);
         }
 
         [HttpGet("{id}")]
@@ -138,7 +111,7 @@ namespace FiveRockingFingers.Controllers
             //var currentUserId = await _userService.GetCurrentUserId();
             var currentUserId = new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba");
 
-            projectDto.UsersByProject.Add(new UsersByProjectDTO() {UserId = currentUserId});
+            projectDto.UsersProfile.Add(new UserProfileUpsert() {UserId = currentUserId});
 
             var project = _mapper.Map<Project>(projectDto);
             if (project == null) return BadRequest();
@@ -156,7 +129,7 @@ namespace FiveRockingFingers.Controllers
             var project = await _projectService.GetAsync(id);
             if (project == null) return NotFound();
             //To improve
-            if (!projectDto.UsersByProject.Any()) return BadRequest();
+            if (!projectDto.UsersProfile.Any()) return BadRequest();
 
             _mapper.Map(projectDto, project);
             var updated = await _projectService.UpdateAsync(project);
