@@ -74,7 +74,7 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
     const handleDelete = (user: UserProfile) => () => {
         let auxState: UserProfile[] = state.users.filter(c => c.userId !== user.userId);
         setState({ ...state, users: auxState });
-        props.openSnackbar("Usuario desvilculado correctamente!", "info");
+        props.openSnackbar("Usuario desvinculado correctamente!", "info");
         return { state };
     };
 

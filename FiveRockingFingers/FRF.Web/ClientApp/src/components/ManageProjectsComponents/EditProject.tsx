@@ -106,7 +106,7 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
     const handleDelete = (user: UserProfile) => () => {
         let auxState: UserProfile[] = state.users.filter(c => c.userId !== user.userId);
         setState({ ...state, users: auxState });
-        props.openSnackbar("Usuario desvilculado correctamente!", "info");
+        props.openSnackbar("Usuario desvinculado correctamente!", "info");
         return { state };
     };
 
