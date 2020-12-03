@@ -14,11 +14,13 @@ namespace FRF.Core.Services
     {
         private readonly DataAccessContext _dataContext;
         private readonly IMapper _mapper;
+        private readonly IUserService _userService;
 
-        public ProjectsService(DataAccessContext dataContext, IMapper mapper)
+        public ProjectsService(DataAccessContext dataContext, IMapper mapper, IUserService userService)
         {
             _dataContext = dataContext;
             _mapper = mapper;
+            _userService = userService;
         }
 
         public async Task<List<Project>> GetAllAsync(Guid userId)
@@ -32,7 +34,16 @@ namespace FRF.Core.Services
                 .ThenInclude(upp => upp.UsersByProject)
                 .Select(pro => pro.Project).ToListAsync();
 
-            return _mapper.Map<List<Project>>(result);
+            var projects = _mapper.Map<List<Project>>(result);
+
+            foreach (var project in projects)
+            foreach (var user in project.UsersByProject)
+            {
+                var uId = user.UserId.ToString();
+                user.Email = await _userService.GetEmailByUserId(uId);
+            }
+
+            return projects;
         }
 
         public async Task<Project> SaveAsync(Project project)
@@ -54,13 +65,13 @@ namespace FRF.Core.Services
             mappedProject.CreatedDate = DateTime.Now;
             mappedProject.ModifiedDate = null;
 
-            // Separate all the non duplicated User Id in a list of UsersByProject
+            // Separate all the non duplicated User Id in a list of UsersProfile
             var noDuplicatedUsersId = project.UsersByProject
                 .Select(ubp =>
                     ubp.UserId)
                 .Distinct()
                 .Select(ubp =>
-                    new UsersByProject()
+                    new UsersProfile()
                     {
                         UserId = ubp
                     })
@@ -77,7 +88,7 @@ namespace FRF.Core.Services
                     Category = _mapper.Map<EntityModels.Category>(ct)
                 }).ToList();
 
-            // Add the mapped UsersByProject and ProjectCategory
+            // Add the mapped UsersProfile and ProjectCategory
             mappedProject.UsersByProject = mappedUBP;
             mappedProject.ProjectCategories = mappedCat;
 
@@ -94,24 +105,31 @@ namespace FRF.Core.Services
             /*Uncomment this after do.*/
             /*
             var userId = _userService.GetCurrentUserId();
-            var project = await _dataContext.UsersByProject
+            var result = await _dataContext.UsersProfile
                 .Where(up => up.UserId == userId)
                 .Include(pr => pr.Project)
                 .ThenInclude(c => c.ProjectCategories)
                 .ThenInclude(ca => ca.Category)
                 .Include(pp => pp.Project)
-                .ThenInclude(upp=>upp.UsersByProject)
+                .ThenInclude(upp=>upp.UsersProfile)
                 .SingleOrDefaultAsync(p => p.ProjectId == id);
             */
             /*Then delete this*/
-            var project = await _dataContext.Projects
+            var result = await _dataContext.Projects
                 .Include(p => p.ProjectCategories)
                 .ThenInclude(pc => pc.Category)
                 .Include(up => up.UsersByProject)
                 .SingleOrDefaultAsync(p => p.Id == id);
             //
 
-            return _mapper.Map<Project>(project);
+            var project = _mapper.Map<Project>(result);
+            foreach (var user in project.UsersByProject)
+            {
+                var uId = user.UserId.ToString();
+                user.Email = await _userService.GetEmailByUserId(uId);
+            }
+
+            return project;
         }
 
         public async Task<Project> UpdateAsync(Project project)
@@ -137,7 +155,7 @@ namespace FRF.Core.Services
                     ubp.UserId)
                 .Distinct()
                 .Select(ubp =>
-                    new UsersByProject()
+                    new UsersProfile()
                     {
                         UserId = ubp
                     })
@@ -145,7 +163,7 @@ namespace FRF.Core.Services
 
             var mappedUBP = _mapper.Map<IList<EntityModels.UsersByProject>>(noDuplicatedUsersId);
 
-                var result = await _dataContext.Projects
+            var result = await _dataContext.Projects
                 .Include(p => p.ProjectCategories)
                 .ThenInclude(pc => pc.Category)
                 .Include(up => up.UsersByProject)
@@ -170,11 +188,11 @@ namespace FRF.Core.Services
             /* TODO:Pending AWS Credentials. Login is bypassed![FIVE-6] */
             /*Uncomment this after do.*/
             /* var userId = _userService.GetCurrentUserId();
-            var projectToDelete = await _dataContext.UsersByProject
+            var projectToDelete = await _dataContext.UsersProfile
                 .Where(up => up.UserId == userId)
                 .Include(pr => pr.Project)
                 .ThenInclude(c => c.ProjectCategories)
-                .ThenInclude(upp=>upp.UsersByProject)
+                .ThenInclude(upp=>upp.UsersProfile)
                 .SingleOrDefaultAsync(p => p.Id == id);
              */
 
