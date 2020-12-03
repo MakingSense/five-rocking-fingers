@@ -104,9 +104,12 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
     }
 
     const handleDelete = (user: UserProfile) => () => {
-        let auxState: UserProfile[] = state.users.filter(c => c.userId !== user.userId);
-        setState({ ...state, users: auxState });
-        props.openSnackbar("Usuario desvinculado correctamente!", "info");
+        if (state.users.length > 1) {
+            let auxState: UserProfile[] = state.users.filter(c => c.userId !== user.userId);
+            setState({ ...state, users: auxState });
+            props.openSnackbar("Usuario desvinculado correctamente!", "info");
+        }
+        else props.openSnackbar("No puede eliminar todos los usuarios de un proyecto!", "error");
         return { state };
     };
 
@@ -211,7 +214,7 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
                     <FormControl component="fieldset">
                         <FormGroup>
                             <Paper component="ul" className={classes.categoryList} >
-                                {state.users.map((user,index) => {
+                                {state.users.map((user, index) => {
                                     return (
                                         <li key={index}>
                                             <Chip label={user.email} className={classes.chip} onDelete={handleDelete(user)} />
