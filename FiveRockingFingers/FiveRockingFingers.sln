@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FRF.DataAccess", "FRF.DataA
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FRF.Web.Dtos", "FRF.Web.Dtos\FRF.Web.Dtos.csproj", "{57544289-FDE3-4832-B9A5-1F88F830E7E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FRF.Web.Tests", "..\test\FRF.Web.Tests\FRF.Web.Tests.csproj", "{0E74D407-D697-4012-BB5F-842E47ECB009}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FRF.Web.Tests", "..\test\FRF.Web.Tests\FRF.Web.Tests.csproj", "{0E74D407-D697-4012-BB5F-842E47ECB009}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FRF.Core.Tests", "..\test\FRF.Core.Tests\FRF.Core.Tests.csproj", "{FAE7C1E3-677B-4946-9EB5-0F42A2D7920D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{0E74D407-D697-4012-BB5F-842E47ECB009}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E74D407-D697-4012-BB5F-842E47ECB009}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0E74D407-D697-4012-BB5F-842E47ECB009}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FAE7C1E3-677B-4946-9EB5-0F42A2D7920D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAE7C1E3-677B-4946-9EB5-0F42A2D7920D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FAE7C1E3-677B-4946-9EB5-0F42A2D7920D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FAE7C1E3-677B-4946-9EB5-0F42A2D7920D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
