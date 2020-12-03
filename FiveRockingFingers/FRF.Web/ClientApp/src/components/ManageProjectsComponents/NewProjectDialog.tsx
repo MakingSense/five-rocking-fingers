@@ -7,7 +7,7 @@ import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import Category from '../../interfaces/Category';
 import ProjectCategory from '../../interfaces/ProjectCategory';
-import UserByProject from '../../interfaces/UserByProject';
+import UserProfile from '../../interfaces/UserProfile';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import ProjectService from '../../services/ProjectService';
 import Project from '../../interfaces/Project';
@@ -44,7 +44,7 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
         owner: "",
         budget: -1,
         projectCategories: [] as ProjectCategory[],
-        usersByProject: [] as UserByProject[]
+        users: [] as UserProfile[]
     });
 
     const clearState = () => {
@@ -54,7 +54,7 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
             owner: "",
             budget: -1,
             projectCategories: [],
-            usersByProject: []
+            users: []
         });
     }
 
@@ -70,10 +70,11 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
     const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         setState({ ...state, [event.target.id]: event.target.value });
     }
-    
-    const handleDelete = (event: UserByProject) => () => {
-        let auxState: UserByProject[] = state.usersByProject.filter(c => c.userId !== event.userId);
-        setState({ ...state, usersByProject: auxState });
+
+    const handleDelete = (user: UserProfile) => () => {
+        let auxState: UserProfile[] = state.users.filter(c => c.userId !== user.userId);
+        setState({ ...state, users: auxState });
+        props.openSnackbar("Usuario desvinculado correctamente!", "info");
         return { state };
     };
 
@@ -102,9 +103,9 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
             const response = await ProjectService.searchUser(userEmail);
             switch (response.status) {
                 case 200:
-                    let newUserList: UserByProject[] | null;
-                    newUserList = HelperAddUser(response.data,state.usersByProject,emailField,props.openSnackbar);
-                    if(newUserList != null) setState({ ...state, usersByProject: newUserList });
+                    let newUserList: UserProfile[] | null;
+                    newUserList = HelperAddUser(response.data, state.users, emailField, props.openSnackbar);
+                    if (newUserList != null) setState({ ...state, users: newUserList });
                     break;
                 case 404:
                     props.openSnackbar("Usuario no encontrado", "warning");
@@ -119,8 +120,8 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
     }
 
     const handleConfirm = async () => {
-        const { name, client, owner, budget, projectCategories, usersByProject } = state;
-        const project = { name, client, owner, budget, projectCategories, usersByProject }
+        const { name, client, owner, budget, projectCategories, users } = state;
+        const project = { name, client, owner, budget, projectCategories, users }
         const response = await ProjectService.save(project as Project);
         if (response.status === 200) {
             props.openSnackbar("Creaci\u00F3n del proyecto exitosa", "success");
@@ -177,7 +178,7 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
                         fullWidth
                     />
                     <TextField
-                        inputRef={register({ validate: { isValid: value => value == null || parseInt(value, 10) >= 0 } })}
+                        inputRef={register({ validate: { isValid: value => value == null || parseInt(value, 10) >= 1 } })}
                         error={errors.budget ? true : false}
                         id="budget"
                         name="budget"
@@ -194,10 +195,10 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
                     />
                     <FormGroup>
                         <Paper component="ul" className={classes.addUser} >
-                            {state.usersByProject.map((ubp) => {
+                            {state.users.map((user,index) => {
                                 return (
-                                    <li key={ubp.id}>
-                                        <Chip label={ubp.email} className={classes.chip} onDelete={handleDelete(ubp)} />
+                                    <li key={index}>
+                                        <Chip label={user.email} className={classes.chip} onDelete={handleDelete(user)} />
                                     </li>
                                 )
                             })}

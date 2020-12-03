@@ -1,14 +1,13 @@
-import UserPublicProfile from '../../interfaces/UserPublicProfile';
-import UserByProject from '../../interfaces/UserByProject';
+import UserProfile from '../../interfaces/UserProfile';
 
-export function HelperAddUser(user: UserPublicProfile, usersByProject: UserByProject[], emailField: Function, openSnackbar: Function) {
-    const aux: UserByProject = {
-        id: 0,
+export function HelperAddUser(user: UserProfile, usersProfile: UserProfile[], emailField: Function, openSnackbar: Function) {
+    const aux: UserProfile = {
         userId: user.userId,
-        projectId: 0,
-        email: user.email
+        email: user.email,
+        fullName: "",
+        avatar: ""
     }
-    var auxState = usersByProject;
+    var auxState = usersProfile;
     var indexItem = auxState.findIndex(x => x.userId === user.userId);
 
     if (indexItem === -1) {

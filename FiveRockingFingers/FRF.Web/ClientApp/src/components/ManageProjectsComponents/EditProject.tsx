@@ -9,7 +9,7 @@ import { useForm } from 'react-hook-form';
 import Category from '../../interfaces/Category';
 import Project from '../../interfaces/Project';
 import ProjectCategory from '../../interfaces/ProjectCategory';
-import UserByProject from '../../interfaces/UserByProject';
+import UserProfile from '../../interfaces/UserProfile';
 import ProjectService from '../../services/ProjectService';
 import { HelperAddUser } from './HelperAddUser';
 import { ValidateEmail } from "./ValidateEmail";
@@ -51,7 +51,7 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
         createdDate: props.project.createdDate,
         id: props.project.id,
         projectCategories: props.project.projectCategories,
-        usersByProject: props.project.usersByProject
+        users: props.project.users
     });
 
     const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -87,9 +87,9 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
             const response = await ProjectService.searchUser(userEmail);
             switch (response.status) {
                 case 200:
-                    let newUserList: UserByProject[] | null;
-                    newUserList = HelperAddUser(response.data, state.usersByProject, emailField, props.openSnackbar);
-                    if (newUserList != null) setState({ ...state, usersByProject: newUserList });
+                    let newUsersList: UserProfile[] | null;
+                    newUsersList = HelperAddUser(response.data, state.users, emailField, props.openSnackbar);
+                    if (newUsersList != null) setState({ ...state, users: newUsersList });
                     break;
                 case 404:
                     props.openSnackbar("Usuario no encontrado", "warning");
@@ -103,15 +103,16 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
         }
     }
 
-    const handleDelete = (event: UserByProject) => () => {
-        let auxState: UserByProject[] = state.usersByProject.filter(c => c.userId !== event.userId);
-        setState({ ...state, usersByProject: auxState });
+    const handleDelete = (user: UserProfile) => () => {
+        let auxState: UserProfile[] = state.users.filter(c => c.userId !== user.userId);
+        setState({ ...state, users: auxState });
+        props.openSnackbar("Usuario desvinculado correctamente!", "info");
         return { state };
     };
 
     const handleConfirm = async () => {
-        const { name, client, owner, budget, id, createdDate, projectCategories, usersByProject } = state;
-        const project = { name, client, owner, budget, id, createdDate, projectCategories, usersByProject }
+        const { name, client, owner, budget, id, createdDate, projectCategories, users } = state;
+        const project = { name, client, owner, budget, id, createdDate, projectCategories, users }
         const response = await ProjectService.update(id, project as Project);
         if (response.status === 200) {
             props.openSnackbar("Se modific\u00F3 el proyecto de manera correcta", "success");
@@ -210,10 +211,10 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
                     <FormControl component="fieldset">
                         <FormGroup>
                             <Paper component="ul" className={classes.categoryList} >
-                                {state.usersByProject.map((ubp) => {
+                                {state.users.map((user,index) => {
                                     return (
-                                        <li key={ubp.id}>
-                                            <Chip label={ubp.email} className={classes.chip} onDelete={handleDelete(ubp)} />
+                                        <li key={index}>
+                                            <Chip label={user.email} className={classes.chip} onDelete={handleDelete(user)} />
                                         </li>
                                     )
                                 })}
