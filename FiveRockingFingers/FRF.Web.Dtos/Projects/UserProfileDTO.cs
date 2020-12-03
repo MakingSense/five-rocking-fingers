@@ -5,7 +5,6 @@ namespace FRF.Web.Dtos.Projects
 {
     public class UserProfileDTO
     {
-        [Required]
         public Guid? UserId { get; set; }
         public string? Fullname { get; set; }
         public string? Email { get; set; }
