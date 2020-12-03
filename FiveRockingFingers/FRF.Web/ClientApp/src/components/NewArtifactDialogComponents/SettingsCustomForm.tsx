@@ -1,8 +1,7 @@
 ﻿import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, IconButton, ButtonGroup } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import * as React from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
-import { ErrorMessage } from '@hookform/error-message';
+import { useForm } from 'react-hook-form';
 import ArtifactService from '../../services/ArtifactService';
 import Typography from '@material-ui/core/Typography';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
@@ -35,7 +34,7 @@ interface Setting {
 const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, provider: string | null, name: string | null, projectId: number, artifactTypeId: number | null, updateList: Function, setOpenSnackbar: Function, setSnackbarSettings: Function, handleNextStep: Function, handlePreviousStep: Function }) => {
 
     const classes = useStyles();
-    const { handleSubmit, register, errors, setError, clearErrors, control } = useForm();
+    const { handleSubmit, register, errors, setError, clearErrors } = useForm();
     const { showNewArtifactDialog, closeNewArtifactDialog, provider, name, projectId, artifactTypeId, updateList, setOpenSnackbar, setSnackbarSettings } = props;
 
     //Hook for save the user's settings input
@@ -75,10 +74,6 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
             setOpenSnackbar(true);
         }
         closeNewArtifactDialog();
-    }
-
-    const handleError = () => {
-
     }
 
     //Handle changes in the inputs fields
@@ -249,7 +244,7 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
             </DialogContent>
             <DialogActions>
                 <Button size="small" color="primary" onClick={event => goPrevStep()}>Atrás</Button>
-                <Button size="small" color="primary" type="submit" onClick={handleSubmit(handleConfirm, handleError)}>Finalizar</Button>
+                <Button size="small" color="primary" type="submit" onClick={handleSubmit(handleConfirm)}>Finalizar</Button>
                 <Button size="small" color="secondary" onClick={handleCancel}>Cancelar</Button>
             </DialogActions>
         </Dialog>
