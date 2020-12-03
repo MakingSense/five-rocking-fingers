@@ -1,7 +1,8 @@
-﻿import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, IconButton } from '@material-ui/core';
+﻿import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, IconButton, ButtonGroup } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import * as React from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
+import { ErrorMessage } from '@hookform/error-message';
 import ArtifactService from '../../services/ArtifactService';
 import Typography from '@material-ui/core/Typography';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
@@ -26,27 +27,28 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Setting {
-    settingName: string;
-    settingValue: string;
+    name: string;
+    value: string;
     [key: string]: string;
 }
 
 const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, provider: string | null, name: string | null, projectId: number, artifactTypeId: number | null, updateList: Function, setOpenSnackbar: Function, setSnackbarSettings: Function, handleNextStep: Function, handlePreviousStep: Function }) => {
 
     const classes = useStyles();
-
-    const { handleSubmit, register, errors, setError, clearErrors } = useForm();
+    const { handleSubmit, register, errors, setError, clearErrors, control } = useForm();
     const { showNewArtifactDialog, closeNewArtifactDialog, provider, name, projectId, artifactTypeId, updateList, setOpenSnackbar, setSnackbarSettings } = props;
 
-    const [settings, setSettings] = React.useState<{}>({});
-    const [settingsList, setSettingsList] = React.useState<Setting[]>([{ settingName: "", settingValue: "" }]);
-
-    const [areNamesRepeate, setAreNameRepeate] = React.useState<boolean>(false);
+    //Hook for save the user's settings input
+    const [settingsList, setSettingsList] = React.useState<Setting[]>([{ name: "", value: "" }]);
+    //Hook for saving the numbers of times a setting's name input is repeated
+    const [settingsMap, setSettingMap] = React.useState<{ [key: string]: number[] }>({});
 
     React.useEffect(() => {
-        console.log(settings);
-    }, [settings]);
+        console.log(settingsMap);
+        setNameSettingsErrors();
+    }, [settingsMap]);
 
+    //Create the artifact after submit
     const handleConfirm = async () => {
 
         const artifactToCreate = {
@@ -56,8 +58,6 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
             projectId: projectId,
             settings: { settings: createSettingsObject()}
         };
-
-        console.log(artifactToCreate);
 
         try {
             const response = await ArtifactService.save(artifactToCreate);
@@ -81,28 +81,83 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
 
     }
 
+    //Handle changes in the inputs fields
     const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, index: number) => {
-        checkSettingNameRepeat(event);
-        const { name, value } = event.target;
+        let { name, value } = event.target;
+        name = name.split(".")[1];
+        if (name === 'name') {
+            checkSettingName(value, index);
+        }
         const list = [...settingsList];
         list[index][name] = value;
         setSettingsList(list);
     }
 
-    const checkSettingNameRepeat = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-        if (event.target.name === "settingName") {
-            if (settingsList.find(setting => setting.settingName === event.target.value)) {
-                setError("settingName", {
-                    type: "manual",
-                    message: "Los nombres no pueden repetirse"
-                });
-                setAreNameRepeate(true);
-            }
-            else {
-                clearErrors("settingName");
-                setAreNameRepeate(false);
+    //Check if the setting's name the user enters has already have been used
+    const checkSettingName = (settingName: string, index: number) => {
+        let mapList = { ...settingsMap };
+        let key = searchIndexInObject(mapList, index);
+        if (key != null) {
+            deleteIndexFromObject(mapList, index, key);
+        }
+        if (!settingsMap.hasOwnProperty(settingName)) {
+            mapList[settingName] = [index];
+            setSettingMap(mapList);
+        }
+        else {
+            mapList[settingName].push(index);
+            setSettingMap(mapList);
+        }
+    }
+
+    //Search the key of the input index in settingsMap
+    const searchIndexInObject = (object: { [key: string]: number[] }, index: number) => {
+        for (let [key, array] of Object.entries(object)) {
+            console.log("Key: " + key);
+            console.log("Index: " + index);
+            for (let i = 0; i < array.length; i++) {
+                if (index === array[i]) {
+                    return key;
+                }
             }
         }
+        return null;
+    }
+
+    //Delete the input index in settingsMap
+    const deleteIndexFromObject = (object: { [key: string]: number[] }, index: number, key: string) => {
+        if (key !== null) {
+            object[key] = object[key].filter(number => number !== index);
+            if (object[key].length === 0) {
+                delete object[key];
+            }
+        }
+    }
+
+    //Set errors if the setting's name the user enters are repeat
+    const setNameSettingsErrors = () => {
+        for (let [key, array] of Object.entries(settingsMap)) {
+            if (array.length > 1) {
+                for (let i = 0; i < array.length; i++) {
+                    setError(`settings[${array[i]}].name`, {
+                        type: "repeat",
+                        message: "Los nombres no pueden repetirse"
+                    });
+                }
+            }
+            else if (array.length === 1) {
+                clearErrors(`settings[${array[0]}].name`);
+            }
+        }
+    }
+
+    //Check if there are names repeated in settingsMap
+    const areNamesRepeated = (index: number) => {
+        let key = searchIndexInObject(settingsMap, index);
+        if (key !=null && settingsMap[key].length > 1) {
+            return true;
+        }
+        return false;
     }
 
     const handleCancel = () => {
@@ -110,7 +165,7 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
     }
 
     const handleAddSetting = () => {
-        setSettingsList([...settingsList, { settingName: "", settingValue: "" }]);
+        setSettingsList([...settingsList, { name: "", value: "" }]);
     }
 
     const handleDeleteSetting = (index: number) => {
@@ -119,11 +174,12 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
         setSettingsList(list);
     }
 
+    //Create and return the settings object for the create the artifact
     const createSettingsObject = () => {
         let settingsObject: { [key: string]: string } = {};
 
         for (let i = 0; i < settingsList.length; i++) {
-            settingsObject[settingsList[i].settingName] = settingsList[i].settingValue
+            settingsObject[settingsList[i].name] = settingsList[i].value
             console.log(settingsObject);
         }
 
@@ -146,43 +202,45 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
                         return (
                             <React.Fragment>
                                 <TextField
-                                    inputRef={register({ required: true, validate: { isValid: value => value.trim() != "", isRepeate: () => !areNamesRepeate } })}
-                                    error={errors.settingName ? true : false}
-                                    id="settingName"
-                                    name="settingName"
+                                    inputRef={register({ required: true, validate: { isValid: value => value.trim() != "", isRepeate: () => !areNamesRepeated(index) } })}
+                                    error={errors.settings && errors.settings[index] && typeof errors.settings[index]?.name !== 'undefined'}
+                                    id={`name[${index}]`}
+                                    name={`settings[${index}].name`}
                                     label="Nombre de la setting"
-                                    helperText={errors.settingName ? errors.settingName.message : "Requerido*"}
+                                    helperText={areNamesRepeated(index) ? "Los nombres no pueden repetirse" : "Requerido*"}
                                     variant="outlined"
-                                    value={setting.settingName}
-                                    required
+                                    defaultValue={setting.name}
                                     className={classes.inputF}
                                     onChange={event => handleInputChange(event, index)}
+                                    autoComplete='off'
                                 />
 
                                 <TextField
                                     inputRef={register({ required: true, validate: { isValid: value => value.trim() != "" } })}
-                                    error={errors.name ? true : false}
-                                    id="settingValue"
-                                    name="settingValue"
+                                    error={errors.settings && errors.settings[index] && typeof errors.settings[index]?.value !== 'undefined'}
+                                    id={`value[${index}]`}
+                                    name={"settings[${index}].value"}
                                     label="Valor de la setting"
                                     helperText="Requerido*"
                                     variant="outlined"
-                                    value={setting.settingValue}
-                                    required
+                                    defaultValue={setting.value}
                                     className={classes.inputF}
                                     onChange={event => handleInputChange(event, index)}
+                                    autoComplete='off'
                                 />
-                                {settingsList.length - 1 === index &&
-                                    <IconButton onClick={handleAddSetting } aria-label="add" color="primary">
-                                        <AddCircleIcon />
-                                    </IconButton>
-                                }
+                                <ButtonGroup>
+                                    {settingsList.length - 1 === index &&
+                                        <IconButton onClick={handleAddSetting } aria-label="add" color="primary">
+                                            <AddCircleIcon />
+                                        </IconButton>
+                                    }
 
-                                {settingsList.length !== 1 &&
-                                    <IconButton onClick={event => handleDeleteSetting(index)} aria-label="delete" color="secondary">
-                                        <DeleteIcon />
-                                    </IconButton>
-                                }
+                                    {settingsList.length !== 1 &&
+                                        <IconButton onClick={event => handleDeleteSetting(index)} aria-label="delete" color="secondary">
+                                            <DeleteIcon />
+                                        </IconButton>
+                                    }
+                                </ButtonGroup>
                         </React.Fragment>
                         ); 
                     })}
