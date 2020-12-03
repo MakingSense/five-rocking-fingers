@@ -59,10 +59,10 @@ const ViewProject = (props: { project: Project, changeEdit: any }) => {
                     Usuarios:
                 </Typography>
                 <Paper component="ul" className={classes.categoryList} >
-                    {props.project.usersByProject.map((up) => {
+                    {props.project.users.map((user,index) => {
                         return (
-                            <li key={up.id}>
-                                <Chip label={up.userId} className={classes.chip} />
+                            <li key={index}>
+                                <Chip label={user.email} className={classes.chip} />
                             </li>
                         )
                     })}

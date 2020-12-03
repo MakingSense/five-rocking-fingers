@@ -15,6 +15,6 @@ namespace FRF.Core.Models
         public DateTime CreatedDate { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public IList<ProjectCategory> ProjectCategories { get; set; }
-        public ICollection<UsersByProject> UsersByProject { get; set; }
+        public ICollection<UsersProfile> UsersByProject { get; set; }
     }
 }
