@@ -231,6 +231,8 @@ namespace FRF.Web.Tests.Controllers
 
             // Assert
             Assert.IsType<NoContentResult>(result);
+            _categoriesService.Verify(mock => mock.GetAsync(It.IsAny<int>()), Times.Once);
+            _categoriesService.Verify(mock => mock.DeleteAsync(It.IsAny<int>()), Times.Once);
         }
 
         [Fact]
@@ -241,6 +243,7 @@ namespace FRF.Web.Tests.Controllers
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
+            _categoriesService.Verify(mock => mock.GetAsync(It.IsAny<int>()), Times.Once);
             _categoriesService.Verify(mock => mock.DeleteAsync(It.IsAny<int>()), Times.Never);
         }
     }
