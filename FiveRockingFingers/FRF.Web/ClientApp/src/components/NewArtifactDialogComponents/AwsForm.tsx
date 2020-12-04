@@ -1,32 +1,9 @@
-﻿import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField } from '@material-ui/core';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+﻿import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core';
 import * as React from 'react';
-import { Controller, useForm } from 'react-hook-form';
 import Typography from '@material-ui/core/Typography';
-
-
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        container: {
-            display: 'flex',
-            flexWrap: 'wrap',
-        },
-        formControl: {
-            margin: theme.spacing(1),
-            width: '100%'
-        },
-        inputF: {
-            padding: 2,
-            marginTop: 10
-        }
-    }),
-);
 
 const AwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, handlePreviousStep: Function }) => {
 
-    const classes = useStyles();
-
-    const { register, handleSubmit, errors, control } = useForm();
     const { showNewArtifactDialog, closeNewArtifactDialog } = props;
 
     const handlePreviousStep = () => {
