@@ -9,7 +9,6 @@ using Microsoft.Extensions.Configuration;
 using Moq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -19,18 +18,19 @@ namespace FRF.Web.Tests.Controllers
     {
         private readonly ProjectsController _classUnderTest;
         private readonly Mock<IConfiguration> _configuration;
-        private readonly Mock<IMapper> _mapper;
         private readonly Mock<IProjectsService> _projectsService;
         private readonly Mock<IUserService> _userService;
+        private readonly IMapper _mapper = MapperBuilder.Build();
 
         public ProjectsControllerTests()
         {
-            _mapper = new Mock<IMapper>();
             _projectsService = new Mock<IProjectsService>();
             _userService = new Mock<IUserService>();
             _configuration = new Mock<IConfiguration>();
 
-            _classUnderTest = new ProjectsController(_projectsService.Object, _mapper.Object, _userService.Object,
+            _classUnderTest = new ProjectsController(_projectsService.Object,
+                _mapper,
+                _userService.Object,
                 _configuration.Object);
         }
 
@@ -42,7 +42,7 @@ namespace FRF.Web.Tests.Controllers
         private Project CreateProject(int projectId)
         {
             var projectCategories = new Mock<ProjectCategory>();
-            var userByProject = new Mock<UsersByProject>();
+            var user = new Mock<UsersProfile>();
             var project = new Project
             {
                 Budget = 900,
@@ -56,43 +56,19 @@ namespace FRF.Web.Tests.Controllers
                 {
                     projectCategories.Object
                 },
-                UsersByProject = new List<UsersByProject>
+                UsersByProject = new List<UsersProfile>
                 {
-                    userByProject.Object
+                    user.Object
                 }
             };
 
             return project;
         }
 
-        private ProjectDTO CreateProjectDto(Project project)
-        {
-            var projectCategories = new Mock<ProjectCategoryDTO>();
-            var userByProject = new Mock<UsersByProjectDTO>();
-            var projectDto = new ProjectDTO
-            {
-                Id = project.Id,
-                Budget = project.Budget,
-                Client = project.Client,
-                Name = project.Name,
-                Owner = project.Owner,
-                CreatedDate = project.CreatedDate,
-                ProjectCategories = new List<ProjectCategoryDTO>
-                {
-                    projectCategories.Object
-                },
-                UsersByProject = new List<UsersByProjectDTO>
-                {
-                    userByProject.Object
-                }
-            };
-            return projectDto;
-        }
-
         private ProjectUpsertDTO CreateProjectUpsertDto(Project project)
         {
             var projectCategories = new Mock<ProjectCategoryDTO>();
-            var userByProject = new Mock<UsersByProjectDTO>();
+            var user = new Mock<UserProfileUpsertDTO>();
             var projectUpsertDTO = new ProjectUpsertDTO
             {
                 Budget = project.Budget,
@@ -103,9 +79,9 @@ namespace FRF.Web.Tests.Controllers
                 {
                     projectCategories.Object
                 },
-                UsersByProject = new List<UsersByProjectDTO>
+                Users = new List<UserProfileUpsertDTO>
                 {
-                    userByProject.Object
+                    user.Object
                 }
             };
             return projectUpsertDTO;
@@ -121,9 +97,6 @@ namespace FRF.Web.Tests.Controllers
             _projectsService
                 .Setup(mock => mock.GetAsync(It.IsAny<int>()))
                 .ReturnsAsync(project);
-            _mapper
-                .Setup(mock => mock.Map<ProjectDTO>(It.IsAny<Project>()))
-                .Returns(CreateProjectDto(project));
 
             // Act
             var result = await _classUnderTest.GetAsync(projectId);
@@ -137,7 +110,6 @@ namespace FRF.Web.Tests.Controllers
             Assert.Equal(project.Budget, returnValue.Budget);
 
             _projectsService.Verify(mock => mock.GetAsync(projectId), Times.Once);
-            _mapper.Verify(mock => mock.Map<ProjectDTO>(It.Is<Project>(c => c.Name == project.Name)), Times.Once);
         }
 
         [Fact]
@@ -146,7 +118,6 @@ namespace FRF.Web.Tests.Controllers
             // Arrange
             var rnd = new Random();
             var projectId = rnd.Next(1, 99999);
-            var project = CreateProject(projectId);
 
             // Act
             var result = await _classUnderTest.GetAsync(projectId);
@@ -155,7 +126,6 @@ namespace FRF.Web.Tests.Controllers
             Assert.IsType<NotFoundResult>(result);
 
             _projectsService.Verify(mock => mock.GetAsync(projectId), Times.Once);
-            _mapper.Verify(mock => mock.Map<ProjectDTO>(It.Is<Project>(c => c.Name == project.Name)), Times.Never);
         }
 
         [Fact]
@@ -173,12 +143,6 @@ namespace FRF.Web.Tests.Controllers
                 .Setup(mock => mock.GetAllAsync(It.IsAny<Guid>()))
                 .ReturnsAsync(listOfMockProject);
 
-            var listOfMockProjectDto = listOfMockProject.Select(CreateProjectDto)
-                .ToList();
-
-            _mapper
-                .Setup(mock => mock.Map<IEnumerable<ProjectDTO>>(It.IsAny<List<Project>>()))
-                .Returns(listOfMockProjectDto);
             // Act
             var result = await _classUnderTest.GetAllAsync();
 
@@ -189,9 +153,6 @@ namespace FRF.Web.Tests.Controllers
             Assert.Equal(sizeOfList, returnValue.Count);
             //_userService.Verify(mock => mock.GetCurrentUserId(), Times.Once);
             _projectsService.Verify(mock => mock.GetAllAsync(It.IsAny<Guid>()), Times.Once);
-            _mapper.Verify(
-                mock => mock.Map<IEnumerable<ProjectDTO>>(It.Is<List<Project>>(p =>
-                    p.Count == listOfMockProjectDto.Count)), Times.Once);
         }
 
         [Fact]
@@ -199,15 +160,11 @@ namespace FRF.Web.Tests.Controllers
         {
             // Arrange
             var listOfMockProjectEmpty = new List<Project>();
-            var listOfMockProjectDtoEmpty = listOfMockProjectEmpty.Select(CreateProjectDto)
-                .ToList();
 
             _projectsService
                 .Setup(mock => mock.GetAllAsync(It.IsAny<Guid>()))
                 .ReturnsAsync(listOfMockProjectEmpty);
-            _mapper
-                .Setup(mock => mock.Map<IEnumerable<ProjectDTO>>(It.IsAny<List<Project>>()))
-                .Returns(listOfMockProjectDtoEmpty);
+
             // Act
             var result = await _classUnderTest.GetAllAsync();
 
@@ -218,9 +175,6 @@ namespace FRF.Web.Tests.Controllers
             //_userService.Verify(mock => mock.GetCurrentUserId(), Times.Once);
             Assert.Empty(returnValue);
             _projectsService.Verify(mock => mock.GetAllAsync(It.IsAny<Guid>()), Times.Once);
-            _mapper.Verify(
-                mock => mock.Map<IEnumerable<ProjectDTO>>(It.Is<List<Project>>(p =>
-                    p.Count == 0)), Times.Once);
         }
 
         [Fact]
@@ -230,17 +184,12 @@ namespace FRF.Web.Tests.Controllers
             var rnd = new Random();
             var projectId = rnd.Next(1, 99999);
             var project = CreateProject(projectId);
-            var projectDTO = CreateProjectDto(project);
             var projectUpsertDTO = CreateProjectUpsertDto(project);
 
-            _mapper
-                .Setup(mock => mock.Map<Project>(It.IsAny<ProjectUpsertDTO>()))
-                .Returns(project);
             _projectsService
                 .Setup(mock => mock.SaveAsync(It.IsAny<Project>()))
                 .ReturnsAsync(project);
-            _mapper
-                .Setup(mock => mock.Map<ProjectDTO>(It.IsAny<Project>())).Returns(projectDTO);
+
             // Act
             var result = await _classUnderTest.SaveAsync(projectUpsertDTO);
 
@@ -251,11 +200,9 @@ namespace FRF.Web.Tests.Controllers
             Assert.Equal(project.Name, returnValue.Name);
             Assert.Equal(project.Budget, returnValue.Budget);
 
-            _projectsService.Verify(mock => mock.SaveAsync(project), Times.Once);
-            _mapper.Verify(mock => mock.Map<Project>(It.Is<ProjectUpsertDTO>(p => p.Owner == project.Owner)),
-                Times.Once);
-            _mapper.Verify(mock => mock.Map<ProjectDTO>(It.Is<Project>(p => p.Owner == project.Owner)),
-                Times.Once);
+            _projectsService.Verify(mock => mock.SaveAsync(It.Is<Project>(p =>
+                p.Name == returnValue.Name
+                && p.Budget == returnValue.Budget)), Times.Once);
         }
 
         [Fact]
@@ -274,7 +221,6 @@ namespace FRF.Web.Tests.Controllers
             Assert.IsType<BadRequestResult>(result);
 
             _projectsService.Verify(mock => mock.SaveAsync(project), Times.Never);
-            _mapper.Verify(mock => mock.Map<ProjectDTO>(It.IsAny<Project>()), Times.Never);
         }
 
         [Fact]
@@ -285,7 +231,6 @@ namespace FRF.Web.Tests.Controllers
             var projectId = rnd.Next(1, 99999);
             var project = CreateProject(projectId);
             var projectUpsertDTO = CreateProjectUpsertDto(project);
-
 
             // Act
             var result = await _classUnderTest.UpdateAsync(9, projectUpsertDTO);
@@ -305,19 +250,15 @@ namespace FRF.Web.Tests.Controllers
             var projectId = rnd.Next(1, 99999);
             var project = CreateProject(projectId);
             var projectUpsertDTO = CreateProjectUpsertDto(project);
-            _mapper
-                .Setup(mock => mock.Map<Project>(It.IsAny<ProjectDTO>()))
-                .Returns(project);
+
             _projectsService
                 .Setup(mock => mock.GetAsync(It.IsAny<int>()))
                 .ReturnsAsync(project);
-            _mapper
-                .Setup(mock => mock.Map(projectUpsertDTO, project));
+
             _projectsService
                 .Setup(mock => mock.UpdateAsync(It.IsAny<Project>()))
                 .ReturnsAsync(project);
-            _mapper
-                .Setup(mock => mock.Map<ProjectDTO>(It.IsAny<Project>())).Returns(CreateProjectDto(project));
+
             // Act
             var result = await _classUnderTest.UpdateAsync(projectId, projectUpsertDTO);
 
@@ -329,26 +270,28 @@ namespace FRF.Web.Tests.Controllers
             Assert.Equal(project.Budget, returnValue.Budget);
 
             _projectsService.Verify(mock => mock.UpdateAsync(project), Times.Once);
-            _mapper.Verify(mock => mock.Map<ProjectDTO>(It.Is<Project>(p => p.Owner == project.Owner)),
-                Times.Once);
         }
 
         [Fact]
         public async Task Delete_WhenProjectIsDeleted_NoContent()
         {
-            //Arrange
+            // Arrange
             var rnd = new Random();
             var projectId = rnd.Next(1, 99999);
             var project = CreateProject(projectId);
+
             _projectsService
                 .Setup(mock => mock.GetAsync(It.IsAny<int>()))
                 .ReturnsAsync(project);
+
             _projectsService
                 .Setup(mock => mock.DeleteAsync(It.IsAny<int>()))
                 .ReturnsAsync(true);
-            //Act
+
+            // Act
             var result = await _classUnderTest.DeleteAsync(projectId);
-            //Assert
+
+            // Assert
             Assert.IsType<NoContentResult>(result);
 
             _projectsService.Verify(mock => mock.GetAsync(It.Is<int>(p => p.Equals(projectId))), Times.Once);
@@ -358,11 +301,11 @@ namespace FRF.Web.Tests.Controllers
         [Fact]
         public async Task Delete_WhenProjectDoesntExist_NotFound()
         {
-            //Arrange
+            // Arrange
             var rnd = new Random();
             var projectId = rnd.Next(1, 99999);
 
-            //Act
+            // Act
             var result = await _classUnderTest.DeleteAsync(projectId);
 
             // Assert
@@ -382,10 +325,12 @@ namespace FRF.Web.Tests.Controllers
             _projectsService
                 .Setup(mock => mock.GetAsync(It.IsAny<int>()))
                 .ReturnsAsync(project);
+
             _projectsService
                 .Setup(mock => mock.DeleteAsync(It.IsAny<int>()))
                 .ReturnsAsync(false);
-            //Act
+
+            // Act
             var result = await _classUnderTest.DeleteAsync(projectId);
 
             // Assert
