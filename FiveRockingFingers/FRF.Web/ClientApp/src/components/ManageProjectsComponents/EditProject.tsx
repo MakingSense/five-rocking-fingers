@@ -107,9 +107,9 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
         if (state.users.length > 1) {
             let auxState: UserProfile[] = state.users.filter(c => c.userId !== user.userId);
             setState({ ...state, users: auxState });
-            props.openSnackbar("Usuario desvinculado correctamente!", "info");
+            props.openSnackbar({ message: "Usuario desvinculado correctamente!", severity: "info" });
         }
-        else props.openSnackbar("No puede eliminar todos los usuarios de un proyecto!", "error");
+        else props.openSnackbar({ message: "No puede eliminar todos los usuarios de un proyecto!", severity: "error" });
         return { state };
     };
 
