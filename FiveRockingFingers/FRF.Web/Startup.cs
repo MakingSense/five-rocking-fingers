@@ -73,6 +73,7 @@ namespace FiveRockingFingers
 			services.AddTransient<IUserService, UserService>();
 			services.AddTransient<IArtifactsService, ArtifactsService>();
 			services.AddTransient<ICategoriesService, CategoriesService>();
+			services.AddTransient<IProviderService, AwsProviderService>();
 
 			services.AddSwaggerGen(c =>
 			{
