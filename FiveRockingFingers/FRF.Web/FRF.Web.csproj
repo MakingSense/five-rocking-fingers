@@ -43,6 +43,7 @@
     <None Remove="ClientApp\src\interfaces\Category.ts" />
     <None Remove="ClientApp\src\interfaces\Project.ts" />
     <None Remove="ClientApp\src\interfaces\ProjectCategory.ts" />
+    <None Remove="ClientApp\src\interfaces\Setting.ts" />
     <None Remove="ClientApp\src\interfaces\SnackbarSettings.ts" />
     <None Remove="ClientApp\src\router\Routes.tsx" />
   </ItemGroup>
