@@ -9,9 +9,9 @@ import { useForm } from 'react-hook-form';
 import Category from '../../interfaces/Category';
 import Project from '../../interfaces/Project';
 import ProjectCategory from '../../interfaces/ProjectCategory';
-import UserByProject from '../../interfaces/UserByProject';
-import UserPublicProfile from '../../interfaces/UserPublicProfile';
+import UserProfile from '../../interfaces/UserProfile';
 import ProjectService from '../../services/ProjectService';
+import { HelperAddUser } from './HelperAddUser';
 import { ValidateEmail } from "./ValidateEmail";
 
 const useStyles = makeStyles({
@@ -37,7 +37,7 @@ const useStyles = makeStyles({
     }
 });
 
-const EditProject = (props: { project: Project, cancelEdit: any, categories: Category[], openSnackbar: Function }) => {
+const EditProject = (props: { project: Project, cancelEdit: any, categories: Category[], openSnackbar: Function, updateProjects: Function }) => {
     const classes = useStyles();
     const email = React.useRef<TextFieldProps>(null);
     const [fieldEmail, setFieldEmail] = React.useState<string | null>("")
@@ -51,7 +51,7 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
         createdDate: props.project.createdDate,
         id: props.project.id,
         projectCategories: props.project.projectCategories,
-        usersByProject: props.project.usersByProject
+        users: props.project.users
     });
 
     const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -85,42 +85,43 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
         userEmail = ValidateEmail(email.current?.value as string, emailField, props.openSnackbar);
         if (userEmail != null) {
             const response = await ProjectService.searchUser(userEmail);
-
             switch (response.status) {
                 case 200:
-                    const User: UserPublicProfile = response.data;
-                    const aux: UserByProject = {
-                        id: 0,
-                        userId: User.userId,
-                        projectId: 0,
-                    }
-                    var auxState = state.usersByProject;
-                    auxState.push(aux);
-                    setState({ ...state, usersByProject: auxState });
-                    props.openSnackbar("Usuario asignado correctamente!", "success");
-                    setFieldEmail("");
+                    let newUsersList: UserProfile[] | null;
+                    newUsersList = HelperAddUser(response.data, state.users, emailField, props.openSnackbar);
+                    if (newUsersList != null) setState({ ...state, users: newUsersList });
                     break;
                 case 404:
-                    props.openSnackbar("Usuario no encontrado", "warning");
+                    props.openSnackbar({ message: "Usuario no encontrado", severity: "warning" });
                     setFieldEmail("");
                     break;
                 default:
-                    props.openSnackbar("Ocurri\u00F3 un error al asignar un usuario", "error");
+                    props.openSnackbar({ message: "Ocurrió un error al asignar un usuario", severity: "error" });
                     setFieldEmail("");
                     break;
             }
         }
     }
 
-    const handleConfirm = async () => {
-        const { name, client, owner, budget, id, createdDate, projectCategories, usersByProject } = state;
-        const project = { name, client, owner, budget, id, createdDate, projectCategories, usersByProject }
+    const handleDelete = (user: UserProfile) => () => {
+        if (state.users.length > 1) {
+            let auxState: UserProfile[] = state.users.filter(c => c.userId !== user.userId);
+            setState({ ...state, users: auxState });
+            props.openSnackbar({ message: "Usuario desvinculado correctamente!", severity: "info" });
+        }
+        else props.openSnackbar({ message: "No puede eliminar todos los usuarios de un proyecto!", severity: "error" });
+        return { state };
+    };
 
-        const response = await ProjectService.update(id, project);
+    const handleConfirm = async () => {
+        const { name, client, owner, budget, id, createdDate, projectCategories, users } = state;
+        const project = { name, client, owner, budget, id, createdDate, projectCategories, users }
+        const response = await ProjectService.update(id, project as Project);
         if (response.status === 200) {
-            props.openSnackbar("Se modific\u00F3 el proyecto de manera correcta", "success");
+            props.openSnackbar({ message: "El proyecto ha sido modificado con éxito", severity: "success" });
+            props.updateProjects();
         } else {
-            props.openSnackbar("Ocurri\u00F3 un error al modificar el proyecto", "warning");
+            props.openSnackbar({ message: "Ocurrió un error al modificar el proyecto", severity: "error" });
         }
         props.cancelEdit();
     }
@@ -214,10 +215,10 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
                     <FormControl component="fieldset">
                         <FormGroup>
                             <Paper component="ul" className={classes.categoryList} >
-                                {props.project.usersByProject.map((up) => {
+                                {state.users.map((user, index) => {
                                     return (
-                                        <li key={up.id}>
-                                            <Chip label={up.userId} className={classes.chip} />
+                                        <li key={index}>
+                                            <Chip label={user.email} className={classes.chip} onDelete={handleDelete(user)} />
                                         </li>
                                     )
                                 })}

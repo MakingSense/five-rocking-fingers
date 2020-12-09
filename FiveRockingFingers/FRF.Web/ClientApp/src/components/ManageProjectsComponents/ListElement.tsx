@@ -3,11 +3,20 @@ import { Delete } from '@material-ui/icons';
 import * as React from 'react';
 
 const ListElement = (props: { selected: boolean, key: Number, id: Number, selectProject: Function, deleteProject: Function, name: String }) => {
+
+    const handleOnClick = () => {
+        props.selectProject(props.id);
+    }
+
+    const handleDelete = () => {
+        props.deleteProject(props.id);
+    }
+
     return (
         <>
-            <ListItem button onClick={props.selectProject.bind(this, props.id)} selected={props.selected}>
+            <ListItem button onClick={handleOnClick} selected={props.selected}>
                 <ListItemText>{props.name}</ListItemText>
-                <ListItemSecondaryAction onClick={props.deleteProject.bind(this, props.id)}>
+                <ListItemSecondaryAction onClick={handleDelete}>
                     <IconButton edge="end" aria-label="comments">
                         <Delete />
                     </IconButton>

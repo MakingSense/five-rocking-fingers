@@ -1,5 +1,5 @@
 ﻿import ProjectCategory from "./ProjectCategory";
-import UserByProject from "./UserByProject";
+import UserProfile from "./UserProfile";
 
 export default interface Project {
     id: number;
@@ -10,5 +10,5 @@ export default interface Project {
     createdDate: Date;
     modifiedDate: Date;
     projectCategories: ProjectCategory[];
-    usersByProject: UserByProject[];
+    users: UserProfile[];
 }
