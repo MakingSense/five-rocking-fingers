@@ -58,7 +58,7 @@ Then, they can start working on [GitHub repository](https://github.com/MakingSen
 
 ## Secret keys
 
-The scret keys are store in:
+The scret keys are stored in:
 
-* For Windows: %APPDATA%\Microsoft\UserSecrets\5c16a8aa-20f7-4767-af6c-0383666f04f4\secrets.json
+* For Windows: %APPDATA%\Roaming\Microsoft\UserSecrets\5c16a8aa-20f7-4767-af6c-0383666f04f4\secrets.json
 * For Linux/MacOS: ~/.microsoft/usersecrets/5c16a8aa-20f7-4767-af6c-0383666f04f4/secrets.json
