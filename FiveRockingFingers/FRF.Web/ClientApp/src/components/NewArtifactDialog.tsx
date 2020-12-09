@@ -4,19 +4,26 @@ import AwsForm from './NewArtifactDialogComponents/AwsForm';
 import ProviderForm from './NewArtifactDialogComponents/ProviderForm';
 import SettingsCustomForm from './NewArtifactDialogComponents/SettingsCustomForm';
 
+interface Setting {
+    name: string;
+    value: string;
+    [key: string]: string;
+}
+
 const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, projectId: number, updateList: Function, setOpenSnackbar: Function , setSnackbarSettings: Function }) => {
 
     const [step, setStep] = React.useState<number>(1);
     const [artifactTypeId, setArtifactTypeId] = React.useState<number | null>(null);
     const [name, setName] = React.useState<string | null>(null);
     const [provider, setProvider] = React.useState<string | null>(null);
+    const [settingsList, setSettingsList] = React.useState<Setting[]>([{ name: "", value: "" }]);
+    const [settingsMap, setSettingsMap] = React.useState<{ [key: string]: number[] }>({});
 
     React.useEffect(() => {
     }, [step]);
 
     const handleNextStep = () => {
         setStep(step + 1);
-        console.log(step);
     }
 
     const handlePreviousStep = () => {
@@ -28,6 +35,8 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
         setArtifactTypeId(null);
         setName(null);
         setProvider(null);
+        setSettingsList([{ name: "", value: "" }]);
+        setSettingsMap({});
         props.closeNewArtifactDialog()
     }
 
@@ -83,6 +92,10 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
                     setSnackbarSettings={props.setSnackbarSettings}
                     handleNextStep={handleNextStep}
                     handlePreviousStep={handlePreviousStep}
+                    settingsList={settingsList}
+                    setSettingsList={setSettingsList}
+                    settingsMap={settingsMap}
+                    setSettingsMap={setSettingsMap}
                 />
             );
 

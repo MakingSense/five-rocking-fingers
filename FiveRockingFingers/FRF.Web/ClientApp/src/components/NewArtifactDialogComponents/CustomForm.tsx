@@ -48,7 +48,7 @@ const CustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDia
 
     const classes = useStyles();
 
-    const { register, handleSubmit, errors, control } = useForm();
+    const { register, handleSubmit, errors, control, getValues } = useForm();
     const { showNewArtifactDialog, closeNewArtifactDialog } = props;
 
     const [artifactTypes, setArtifactTypes] = React.useState([] as ArtifactType[]);
@@ -64,6 +64,9 @@ const CustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDia
     }
 
     const handlePreviousStep = () => {
+        let data = getValues();
+        props.setName(data.name);
+        props.setArtifactTypeId(data.artifactType);
         props.handlePreviousStep();
     }
 
@@ -73,10 +76,10 @@ const CustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDia
 
     return (
         <Dialog open={showNewArtifactDialog}>
-            <DialogTitle id="alert-dialog-title">Bienvenido al asistente para la creación de un nuevo artefacto</DialogTitle>
+            <DialogTitle id="alert-dialog-title">Formulario de artefactos custom</DialogTitle>
             <DialogContent>
                 <Typography gutterBottom>
-                    A continuación ingrese el tipo y el nombre de su nuevo artefacto
+                    A continuación ingrese el tipo y el nombre de su nuevo artefacto custom
                 </Typography>
                 <form className={classes.container}>
                     <FormControl className={classes.formControl} error={Boolean(errors.artifactType)}>
@@ -112,7 +115,7 @@ const CustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDia
                         variant="outlined"
                         className={classes.inputF}
                         fullWidth
-                        value={props.name}
+                        defaultValue={props.name}
                     />
                 </form>
             </DialogContent>

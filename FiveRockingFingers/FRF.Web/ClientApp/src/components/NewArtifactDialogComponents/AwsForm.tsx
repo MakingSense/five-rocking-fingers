@@ -16,7 +16,7 @@ const AwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog
 
     return (
         <Dialog open={showNewArtifactDialog}>
-            <DialogTitle id="alert-dialog-title">Bienvenido al asistente para la creación de un nuevo artefacto</DialogTitle>
+            <DialogTitle id="alert-dialog-title">Formulario de artefactos AWS</DialogTitle>
             <DialogContent>
                 <Typography gutterBottom>
                     El formulario de artefactos AWS todavía no ha sido implementado
