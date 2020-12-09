@@ -12,12 +12,12 @@ export function HelperAddUser(user: UserProfile, usersProfile: UserProfile[], em
 
     if (indexItem === -1) {
         auxState.push(aux);
-        openSnackbar("Usuario asignado correctamente!", "success");
+        openSnackbar({ message: "Usuario asignado correctamente!", severity: "success"});
         emailField("");
         return auxState;
     }
     else {
-        openSnackbar("Usuario ya ha sido asignado al projecto!", "warning");
+        openSnackbar({ message: "Usuario ya ha sido asignado al projecto!", severity: "warning" });
         emailField("");
         return null;
     }

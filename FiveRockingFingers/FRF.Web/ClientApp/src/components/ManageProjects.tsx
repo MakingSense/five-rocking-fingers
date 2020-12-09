@@ -48,7 +48,7 @@ export default function ManageProjects() {
     return (
         <div className="App">
             <Navbar />
-            <ProjectsList projects={projects} categories={categories} />
+            <ProjectsList projects={projects} categories={categories} updateProjects={getProjectList} />
         </div>
     )
 }

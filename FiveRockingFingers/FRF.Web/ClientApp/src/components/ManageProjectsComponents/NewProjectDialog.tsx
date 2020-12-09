@@ -31,7 +31,8 @@ const useStyles = makeStyles({
     }
 });
 
-const NewProjectDialog = (props: { create: boolean, categories: Category[], finishCreation: Function, openSnackbar: Function }) => {
+const NewProjectDialog = (props: { create: boolean, categories: Category[], finishCreation: Function, openSnackbar: Function, updateProjects: Function }) => {
+
     const email = React.useRef<TextFieldProps>(null);
     const [fieldEmail, setFieldEmail] = React.useState<string | null>("")
     const classes = useStyles();
@@ -74,7 +75,7 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
     const handleDelete = (user: UserProfile) => () => {
         let auxState: UserProfile[] = state.users.filter(c => c.userId !== user.userId);
         setState({ ...state, users: auxState });
-        props.openSnackbar("Usuario desvinculado correctamente!", "info");
+        props.openSnackbar({ message: "Usuario desvinculado correctamente!", severity: "info" });
         return { state };
     };
 
@@ -108,11 +109,11 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
                     if (newUserList != null) setState({ ...state, users: newUserList });
                     break;
                 case 404:
-                    props.openSnackbar("Usuario no encontrado", "warning");
+                    props.openSnackbar({ message: "Usuario no entontrado", severity: "warning" });
                     setFieldEmail("");
                     break;
                 default:
-                    props.openSnackbar("Ocurri\u00F3 un error al asignar un usuario", "error");
+                    props.openSnackbar({ message: "Ocurrió un error al asignar un usuario", severity: "error" });
                     setFieldEmail("");
                     break;
             }
@@ -124,9 +125,10 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
         const project = { name, client, owner, budget, projectCategories, users }
         const response = await ProjectService.save(project as Project);
         if (response.status === 200) {
-            props.openSnackbar("Creaci\u00F3n del proyecto exitosa", "success");
+            props.openSnackbar({ message: "El proyecto ha sido creado con éxito", severity: "success" });
+            props.updateProjects();
         } else {
-            props.openSnackbar("Ocurri\u00F3 un error al crear el proyecto", "warning");
+            props.openSnackbar({ message: "Ocurrió un error al crear el proyecto", severity: "error" });
         }
         clearState();
         props.finishCreation();

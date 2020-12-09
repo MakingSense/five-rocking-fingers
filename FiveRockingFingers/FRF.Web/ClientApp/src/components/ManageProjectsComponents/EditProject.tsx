@@ -37,7 +37,7 @@ const useStyles = makeStyles({
     }
 });
 
-const EditProject = (props: { project: Project, cancelEdit: any, categories: Category[], openSnackbar: Function }) => {
+const EditProject = (props: { project: Project, cancelEdit: any, categories: Category[], openSnackbar: Function, updateProjects: Function }) => {
     const classes = useStyles();
     const email = React.useRef<TextFieldProps>(null);
     const [fieldEmail, setFieldEmail] = React.useState<string | null>("")
@@ -92,11 +92,11 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
                     if (newUsersList != null) setState({ ...state, users: newUsersList });
                     break;
                 case 404:
-                    props.openSnackbar("Usuario no encontrado", "warning");
+                    props.openSnackbar({ message: "Usuario no encontrado", severity: "warning" });
                     setFieldEmail("");
                     break;
                 default:
-                    props.openSnackbar("Ocurri\u00F3 un error al asignar un usuario", "error");
+                    props.openSnackbar({ message: "Ocurrió un error al asignar un usuario", severity: "error" });
                     setFieldEmail("");
                     break;
             }
@@ -107,9 +107,9 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
         if (state.users.length > 1) {
             let auxState: UserProfile[] = state.users.filter(c => c.userId !== user.userId);
             setState({ ...state, users: auxState });
-            props.openSnackbar("Usuario desvinculado correctamente!", "info");
+            props.openSnackbar({ message: "Usuario desvinculado correctamente!", severity: "info" });
         }
-        else props.openSnackbar("No puede eliminar todos los usuarios de un proyecto!", "error");
+        else props.openSnackbar({ message: "No puede eliminar todos los usuarios de un proyecto!", severity: "error" });
         return { state };
     };
 
@@ -118,9 +118,10 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
         const project = { name, client, owner, budget, id, createdDate, projectCategories, users }
         const response = await ProjectService.update(id, project as Project);
         if (response.status === 200) {
-            props.openSnackbar("Se modific\u00F3 el proyecto de manera correcta", "success");
+            props.openSnackbar({ message: "El proyecto ha sido modificado con éxito", severity: "success" });
+            props.updateProjects();
         } else {
-            props.openSnackbar("Ocurri\u00F3 un error al modificar el proyecto", "warning");
+            props.openSnackbar({ message: "Ocurrió un error al modificar el proyecto", severity: "error" });
         }
         props.cancelEdit();
     }
