@@ -95,7 +95,7 @@ const CustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDia
                                     <MenuItem value="">
                                         <em>None</em>
                                     </MenuItem>
-                                    {artifactTypes.map(at => <MenuItem value={at.id}>{at.name}</MenuItem>)}
+                                    {artifactTypes.map(at => <MenuItem key={at.id} value={at.id}>{at.name}</MenuItem>)}
                                 </Select>
                             }
                             name="artifactType"

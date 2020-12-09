@@ -3,12 +3,7 @@ import CustomForm from './NewArtifactDialogComponents/CustomForm';
 import AwsForm from './NewArtifactDialogComponents/AwsForm';
 import ProviderForm from './NewArtifactDialogComponents/ProviderForm';
 import SettingsCustomForm from './NewArtifactDialogComponents/SettingsCustomForm';
-
-interface Setting {
-    name: string;
-    value: string;
-    [key: string]: string;
-}
+import Setting from '../interfaces/Setting';
 
 const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, projectId: number, updateList: Function, setOpenSnackbar: Function , setSnackbarSettings: Function }) => {
 

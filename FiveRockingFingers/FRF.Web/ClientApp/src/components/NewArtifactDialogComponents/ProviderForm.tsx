@@ -61,7 +61,7 @@ const ProviderForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactD
                                     <MenuItem value="">
                                         None
                                     </MenuItem>
-                                    {PROVIDERS.map(p => <MenuItem value={p}>{p}</MenuItem>)}
+                                    {PROVIDERS.map(p => <MenuItem key={p} value={p}>{p}</MenuItem>)}
                                 </Select>
                             }
                             name="provider"

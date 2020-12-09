@@ -6,6 +6,7 @@ import ArtifactService from '../../services/ArtifactService';
 import Typography from '@material-ui/core/Typography';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import DeleteIcon from '@material-ui/icons/Delete';
+import Setting from '../../interfaces/Setting';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -24,12 +25,6 @@ const useStyles = makeStyles((theme: Theme) =>
         }
     }),
 );
-
-interface Setting {
-    name: string;
-    value: string;
-    [key: string]: string;
-}
 
 const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, provider: string | null, name: string | null, projectId: number, artifactTypeId: number | null, updateList: Function, setOpenSnackbar: Function, setSnackbarSettings: Function, handleNextStep: Function, handlePreviousStep: Function, settingsList: Setting[], setSettingsList: Function, settingsMap: { [key: string]: number[] }, setSettingsMap: Function }) => {
 
@@ -76,7 +71,6 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
 
     //Handle changes in the inputs fields
     const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, index: number) => {
-        console.log(event.target.value);
         let { name, value } = event.target;
         name = name.split(".")[1];
         if (name === 'name') {
@@ -216,9 +210,8 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
                 </Typography>
                 <form className={classes.container}>
                     {settingsList.map((setting: Setting, index: number) => {
-                        let value = getValues(`settings[${index}].name`)
                         return (
-                            <React.Fragment>
+                            <React.Fragment key={index}>
                                 <Controller
                                     control={control}
                                     name={`settings[${index}].name`}
