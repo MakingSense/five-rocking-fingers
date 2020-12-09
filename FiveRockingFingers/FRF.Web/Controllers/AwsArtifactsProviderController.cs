@@ -6,11 +6,11 @@ namespace FRF.Web.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class AwsArtifactProviderController : ControllerBase
+    public class AwsArtifactsProviderController : ControllerBase
     {
         private readonly IArtifactsProviderService _artifactsProviderService;
 
-        public AwsArtifactProviderController(IArtifactsProviderService artifactsProviderService)
+        public AwsArtifactsProviderController(IArtifactsProviderService artifactsProviderService)
         {
             _artifactsProviderService = artifactsProviderService;
         }

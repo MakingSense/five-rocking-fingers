@@ -29,7 +29,7 @@ namespace FRF.Core.Services
             var httpClient = new HttpClient();
 
             var awsPricingList =
-                await httpClient.GetStringAsync(_configuration.GetValue<string>("AWSPricingApi:Url"));
+                await httpClient.GetStringAsync(_configuration.GetValue<string>("AWSPricingApi"));
 
             var awsArtifactsNames = JObject
                 .Parse(awsPricingList)
