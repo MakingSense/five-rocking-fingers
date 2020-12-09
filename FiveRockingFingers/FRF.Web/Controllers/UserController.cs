@@ -86,7 +86,7 @@ namespace FRF.Web.Controllers
                 if (userId == null) return NotFound();
                 userPublicProfile.FullName = await _userService.GetFullname(email);
                 */
-                UserId = new Guid("a2s0b740-1c8f-49a0-a5d7-2354cb9b6eba"),
+                UserId = new Guid("3F2504E0-4F89-11D3-9A0C-0305E82C3301"),
                 Email = email
             };
             return Ok(userPublicProfile);
