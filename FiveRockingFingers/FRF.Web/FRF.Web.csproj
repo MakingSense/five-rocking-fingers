@@ -6,7 +6,8 @@
     <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
     <IsPackable>false</IsPackable>
     <SpaRoot>ClientApp\</SpaRoot>
-    <DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
+    <DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>  
+    <UserSecretsId>5c16a8aa-20f7-4767-af6c-0383666f04f4</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
