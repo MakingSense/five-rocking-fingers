@@ -12,7 +12,7 @@ export function ValidateEmail(email: string, emailField: Function, openSnackbar:
     if (typeof email === "string") userEmail = email;
     
     if (!emailSchema.isValidSync({ email: userEmail })) {
-        openSnackbar("Formato de email invalido!", "warning");
+        openSnackbar({ message: "Formato de email invalido!", severity: "warning" });
         emailField("");
         return null;
     }
