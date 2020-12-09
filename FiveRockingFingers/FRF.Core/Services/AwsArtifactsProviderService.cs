@@ -10,11 +10,11 @@ using System.Threading.Tasks;
 
 namespace FRF.Core.Services
 {
-    public class AwsProviderService : IProviderService
+    public class AwsArtifactsProviderService : IArtifactsProviderService
     {
         private readonly IConfiguration _configuration;
 
-        public AwsProviderService(IConfiguration configuration)
+        public AwsArtifactsProviderService(IConfiguration configuration)
         {
             _configuration = configuration;
         }
@@ -25,7 +25,7 @@ namespace FRF.Core.Services
         /// <returns>List of KeyValuePair</returns>
         public async Task<List<KeyValuePair<string, string>>> GetAllNamesAsync()
         {
-            IDictionary<string, string> artifactsNames = new Dictionary<string, string>();
+            var artifactsNames = new Dictionary<string, string>();
             var httpClient = new HttpClient();
 
             var awsPricingList =
@@ -43,24 +43,6 @@ namespace FRF.Core.Services
             }
 
             return artifactsNames.ToList();
-        }
-
-        public async Task<IList> GetAllAsync()
-        {
-            //TODO
-            throw new NotImplementedException();
-        }
-
-        public async Task<T> GetAsync<T>(string serviceCode)
-        {
-            //TODO
-            throw new NotImplementedException();
-        }
-
-        public async Task<T> GetAsync<T>(string serviceCode, string nextToken)
-        {
-            //TODO
-            throw new NotImplementedException();
         }
 
         private static string SplitCamelCase(string str)
