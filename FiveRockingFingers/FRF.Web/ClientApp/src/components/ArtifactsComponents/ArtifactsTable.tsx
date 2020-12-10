@@ -5,6 +5,7 @@ import ArtifactsTableRow from './ArtifactsTableRow';
 import SnackbarMessage from '../../commons/SnackbarMessage';
 import SnackbarSettings from '../../interfaces/SnackbarSettings'
 import NewArtifactDialog from '../NewArtifactDialog';
+import ProviderForm from '../NewArtifactDialogComponents/ProviderForm';
 import ArtifactService from '../../services/ArtifactService';
 
 const ArtifactsTable = (props: { projectId: number }) => {
