@@ -22,10 +22,7 @@ namespace FRF.Core.Tests.Services
         {
             _configuration = new Mock<IConfiguration>();
 
-            contextOptions = new DbContextOptionsBuilder<DataAccessContextForTest>()
-                .UseInMemoryDatabase(databaseName: "Test")
-                .Options;
-            _dataAccess = new DataAccessContextForTest(contextOptions, _configuration.Object);
+            _dataAccess = new DataAccessContextForTest("CategoriesTestsDB", _configuration.Object);
 
             _dataAccess.Database.EnsureDeleted();
             _dataAccess.Database.EnsureCreated();
@@ -130,7 +127,7 @@ namespace FRF.Core.Tests.Services
         public async Task GetAsync_ReturnsNull()
         {
             // Arrange
-            var categoryId = 99;
+            var categoryId = 0;
 
             // Act
             var result = await _classUnderTest.GetAsync(categoryId);
@@ -160,7 +157,6 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(result.Description, categoryToSave.Description);
             Assert.Empty(result.ProjectCategories);
         }
-        // The case of saving a category with an empty name is solved in the controller (name can't be null)
 
         [Fact]
         public async Task UpdateAsync_ReturnsCategory()
@@ -196,8 +192,6 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(result.ProjectCategories[0].Project.Budget, project.Budget);
             Assert.Equal(result.ProjectCategories[0].Project.Id, project.Id);
         }
-        // The case of updating a non existent category is solved in the controller (an Id that doesn't exist)
-        // The case of updating a category to have an empty name is solved in the controller (name can't be null)
 
         [Fact]
         public async Task DeleteAsync_Returns()

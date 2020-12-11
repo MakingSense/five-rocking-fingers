@@ -7,8 +7,8 @@ namespace FRF.Core.Tests
     public class DataAccessContextForTest : DataAccessContext
     {
         private readonly IConfiguration _configuration;
-        public DataAccessContextForTest(DbContextOptions<DataAccessContextForTest> options, IConfiguration configuration) : base(
-            new DbContextOptionsBuilder<DataAccessContext>().UseInMemoryDatabase(databaseName: "Test").Options, configuration)
+        public DataAccessContextForTest(string dbName, IConfiguration configuration) : base(
+            new DbContextOptionsBuilder<DataAccessContext>().UseInMemoryDatabase(databaseName: dbName).Options, configuration)
         {
             _configuration = configuration;
         }
