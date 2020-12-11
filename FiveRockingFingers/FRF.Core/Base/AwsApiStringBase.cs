@@ -2,8 +2,8 @@
 {
     public class AwsApiStringBase
     {
-        public const string AwsApi = "AWSPricingApi";
+        public const string AwsPricingOptions = "AWSPricingApi";
 
-        public string UrlApiString { get; set; }
+        public string ApiUrl { get; set; }
     }
 }

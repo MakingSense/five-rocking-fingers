@@ -13,11 +13,11 @@ namespace FRF.Core.Services
     public class AwsArtifactsProviderService : IArtifactsProviderService
     {
         private const string OffersCodeIndex = "offers.*.offerCode";
-        private readonly AwsApiStringBase _awsApiString;
+        private readonly AwsApiStringBase _awsPricingOptions;
 
         public AwsArtifactsProviderService(IOptions<AwsApiStringBase> awsApiString)
         {
-            _awsApiString = awsApiString.Value;
+            _awsPricingOptions = awsApiString.Value;
         }
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace FRF.Core.Services
             var httpClient = new HttpClient();
 
             var pricingList =
-                await httpClient.GetStringAsync(_awsApiString.UrlApiString);
+                await httpClient.GetStringAsync(_awsPricingOptions.ApiUrl);
             var awsArtifactsNames = JObject
                 .Parse(pricingList)
                 .SelectTokens(OffersCodeIndex);
