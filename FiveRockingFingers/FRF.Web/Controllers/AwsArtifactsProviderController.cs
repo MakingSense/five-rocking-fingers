@@ -15,10 +15,14 @@ namespace FRF.Web.Controllers
             _artifactsProviderService = artifactsProviderService;
         }
 
+        /// <summary>
+        /// Retrieve all the artifact names from AWS provider.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
-        public async Task<IActionResult> GetAllNamesAsync()
+        public async Task<IActionResult> GetNamesAsync()
         {
-            var productsNames = await _artifactsProviderService.GetAllNamesAsync();
+            var productsNames = await _artifactsProviderService.GetNamesAsync();
 
             return Ok(productsNames);
         }
