@@ -68,7 +68,7 @@ namespace FiveRockingFingers
 			*/
 			//End Cognito
             
-            services.Configure<AwsApiStringBase>(Configuration.GetSection(AwsApiStringBase.AwsPricingOptions));
+            services.Configure<AwsPricing>(Configuration.GetSection(AwsPricing.AwsPricingOptions));
 
 			services.AddTransient<IProjectsService, ProjectsService>();
 			services.AddTransient<ISignUpService, SignUpService>();

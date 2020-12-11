@@ -13,9 +13,9 @@ namespace FRF.Core.Services
     public class AwsArtifactsProviderService : IArtifactsProviderService
     {
         private const string OffersCodeIndex = "offers.*.offerCode";
-        private readonly AwsApiStringBase _awsPricingOptions;
+        private readonly AwsPricing _awsPricingOptions;
 
-        public AwsArtifactsProviderService(IOptions<AwsApiStringBase> awsApiString)
+        public AwsArtifactsProviderService(IOptions<AwsPricing> awsApiString)
         {
             _awsPricingOptions = awsApiString.Value;
         }

@@ -1,6 +1,6 @@
 ﻿namespace FRF.Core.Base
 {
-    public class AwsApiStringBase
+    public class AwsPricing
     {
         public const string AwsPricingOptions = "AWSPricingApi";
 
