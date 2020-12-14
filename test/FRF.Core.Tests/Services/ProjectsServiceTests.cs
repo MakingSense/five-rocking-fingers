@@ -27,10 +27,7 @@ namespace FRF.Core.Tests.Services
             _configuration = new Mock<IConfiguration>();
 
             _userService = new Mock<IUserService>();
-        }
 
-        private void SetupContext()
-        {
             _dataAccess = new DataAccessContextForTest(Guid.NewGuid(), _configuration.Object);
 
             _dataAccess.Database.EnsureDeleted();
@@ -83,7 +80,6 @@ namespace FRF.Core.Tests.Services
         public async Task GetAllAsync_ReturnsList()
         {
             // Arange
-            SetupContext();
             var project = CreateProject();
             var userByProject = CreateUserByProject(project);
 
@@ -112,7 +108,6 @@ namespace FRF.Core.Tests.Services
         public async Task GetAllAsync_ReturnsEmptyList()
         {
             // Arange
-            SetupContext();
             var userId = new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba");
 
             // Act
@@ -127,7 +122,6 @@ namespace FRF.Core.Tests.Services
         public async Task GetAsync_ReturnsProject()
         {
             // Arange
-            SetupContext();
             var project = CreateProject();
             var userByProject = CreateUserByProject(project);
 
@@ -156,7 +150,6 @@ namespace FRF.Core.Tests.Services
         public async Task GetAsync_ReturnsNull()
         {
             // Arange
-            SetupContext();
             var projectId = 0;
 
             // Act
@@ -170,7 +163,6 @@ namespace FRF.Core.Tests.Services
         public async Task SaveAsync_ReturnsProject()
         {
             // Arange
-            SetupContext();
             var userByProject = new UsersProfile()
             {
                 UserId = new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba")
@@ -203,7 +195,6 @@ namespace FRF.Core.Tests.Services
         public async Task SaveAsync_ReturnsNullNoCategory()
         {
             // Arange
-            SetupContext();
             var project = CreateProject();
             CreateUserByProject(project);
 
@@ -238,7 +229,6 @@ namespace FRF.Core.Tests.Services
         public async Task UpdateAsync_ReturnsProject()
         {
             // Arange
-            SetupContext();
             var project = CreateProject();
             CreateUserByProject(project);
             var category = CreateCategory();
@@ -291,7 +281,6 @@ namespace FRF.Core.Tests.Services
         public async Task UpdateAsync_ReturnsNullNoCategory()
         {
             // Arange
-            SetupContext();
             var project = CreateProject();
             CreateUserByProject(project);
 
@@ -324,7 +313,6 @@ namespace FRF.Core.Tests.Services
         public async Task UpdateAsync_ReturnsNullNoResult()
         {
             // Arange
-            SetupContext();
             var project = CreateProject();
             CreateUserByProject(project);
             var category = CreateCategory();
@@ -370,7 +358,6 @@ namespace FRF.Core.Tests.Services
         public async Task DeleteAsync_ReturnsTrue()
         {
             // Arange
-            SetupContext();
             var project = CreateProject();
             CreateUserByProject(project);
 
@@ -385,7 +372,6 @@ namespace FRF.Core.Tests.Services
         public async Task DeleteAsync_ReturnsFalse()
         {
             // Arange
-            SetupContext();
             var projectId = 0;
 
             // Act
