@@ -2,7 +2,7 @@
 {
     public class AwsPricing
     {
-        public const string AwsPricingOptions = "AWSPricingApi";
+        public const string AwsPricingOptions = "AWSPricing";
 
         public string ApiUrl { get; set; }
     }
