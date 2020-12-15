@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -14,9 +13,12 @@ namespace FRF.Core.Services
     {
         private const string OffersCodeIndex = "offers.*.offerCode";
         private readonly AwsPricing _awsPricingOptions;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public AwsArtifactsProviderService(IOptions<AwsPricing> awsApiString)
+        public AwsArtifactsProviderService(IOptions<AwsPricing> awsApiString,
+            IHttpClientFactory httpClientFactory)
         {
+            _httpClientFactory = httpClientFactory;
             _awsPricingOptions = awsApiString.Value;
         }
 
@@ -27,10 +29,15 @@ namespace FRF.Core.Services
         public async Task<List<KeyValuePair<string, string>>> GetNamesAsync()
         {
             var artifactsNames = new Dictionary<string, string>();
-            var httpClient = new HttpClient();
+            var httpClient = _httpClientFactory.CreateClient();
 
-            var pricingList =
-                await httpClient.GetStringAsync(_awsPricingOptions.ApiUrl);
+            var response = await httpClient.GetAsync(_awsPricingOptions.ApiUrl);
+            if (!response.IsSuccessStatusCode)
+            {
+                return null;
+            }
+
+            var pricingList = await response.Content.ReadAsStringAsync();
             var awsArtifactsNames = JObject
                 .Parse(pricingList)
                 .SelectTokens(OffersCodeIndex);

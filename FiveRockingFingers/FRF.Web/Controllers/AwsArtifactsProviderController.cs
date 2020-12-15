@@ -1,4 +1,5 @@
-﻿using FRF.Core.Services;
+﻿using System.Net;
+using FRF.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -23,7 +24,10 @@ namespace FRF.Web.Controllers
         public async Task<IActionResult> GetNamesAsync()
         {
             var productsNames = await _artifactsProviderService.GetNamesAsync();
-
+            if (productsNames==null)
+            {
+                return StatusCode(503);
+            }
             return Ok(productsNames);
         }
     }

@@ -69,7 +69,7 @@ namespace FiveRockingFingers
 			//End Cognito
             
             services.Configure<AwsPricing>(Configuration.GetSection(AwsPricing.AwsPricingOptions));
-
+            services.AddHttpClient();
 			services.AddTransient<IProjectsService, ProjectsService>();
 			services.AddTransient<ISignUpService, SignUpService>();
 			services.AddTransient<ISignInService, SignInService>();
