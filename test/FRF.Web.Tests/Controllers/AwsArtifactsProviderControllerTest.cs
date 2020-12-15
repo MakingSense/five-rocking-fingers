@@ -54,5 +54,22 @@ namespace FRF.Web.Tests.Controllers
             Assert.Contains(artifactList[1].Key, returnValue[1].Key);
             Assert.Contains(artifactList[1].Key, returnValue[1].Key);
         }
+
+        [Fact]
+        public async Task GetNamesAsync_ReturnsServiceUnavailable()
+        {
+            // Arrange
+            List<KeyValuePair<string, string>> artifactList = null;
+            _artifactProviderService
+                .Setup(mock => mock.GetNamesAsync())
+                .ReturnsAsync(artifactList);
+            // Act
+            var result = await _classUnderTest.GetNamesAsync();
+
+            // Assert
+            var response = Assert.IsType<StatusCodeResult>(result);
+
+            Assert.Equal(503,response.StatusCode);
+        }
     }
 }
