@@ -1,4 +1,5 @@
-﻿using FRF.Core.Services;
+﻿using System.Net;
+using FRF.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -15,11 +16,18 @@ namespace FRF.Web.Controllers
             _artifactsProviderService = artifactsProviderService;
         }
 
+        /// <summary>
+        /// Retrieve all the artifact names from AWS provider.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
-        public async Task<IActionResult> GetAllNamesAsync()
+        public async Task<IActionResult> GetNamesAsync()
         {
-            var productsNames = await _artifactsProviderService.GetAllNamesAsync();
-
+            var productsNames = await _artifactsProviderService.GetNamesAsync();
+            if (productsNames==null)
+            {
+                return StatusCode(503);
+            }
             return Ok(productsNames);
         }
     }
