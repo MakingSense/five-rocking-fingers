@@ -67,6 +67,10 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
                     <AwsForm
                         showNewArtifactDialog={props.showNewArtifactDialog}
                         closeNewArtifactDialog={handleCancel}
+                        projectId={props.projectId}
+                        updateList={props.updateList}
+                        setOpenSnackbar={props.setOpenSnackbar}
+                        setSnackbarSettings={props.setSnackbarSettings}
                         handlePreviousStep={handlePreviousStep}
                     />
                 );
