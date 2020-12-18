@@ -169,13 +169,9 @@ namespace FRF.Core.Services
             {
                 var innerException = except.InnerException as SqlException;
                 if (innerException != null && (innerException.Number == 2627 || innerException.Number == 2601))
-                {
                     return null;
-                }
-                else
-                {
-                    throw;
-                }
+
+                else throw;
             }
             
             return resultArtifactRelations;
