@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using FRF.Core.Models;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace FRF.Core.Services
@@ -9,5 +10,7 @@ namespace FRF.Core.Services
     public interface IArtifactsProviderService
     {
         Task<List<KeyValuePair<string, string>>> GetNamesAsync();
+        Task<List<ProviderArtifactSetting>> GetAttributes(string serviceCode);
+        Task<List<PricingDetail>> GetProducts(List<KeyValuePair<string, string>> settings, string serviceCode);
     }
 }

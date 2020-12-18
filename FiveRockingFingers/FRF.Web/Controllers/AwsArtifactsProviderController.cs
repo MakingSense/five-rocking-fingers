@@ -2,6 +2,7 @@
 using FRF.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace FRF.Web.Controllers
 {
@@ -29,6 +30,22 @@ namespace FRF.Web.Controllers
                 return StatusCode(503);
             }
             return Ok(productsNames);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAttributesAsync(string serviceCode)
+        {
+            var attributes = await _artifactsProviderService.GetAttributes(serviceCode);
+
+            return Ok(attributes);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetProducts(List<KeyValuePair<string, string>> settings, string serviceCode)
+        {
+            var products = await _artifactsProviderService.GetProducts(settings, serviceCode);
+
+            return Ok(products);
         }
     }
 }

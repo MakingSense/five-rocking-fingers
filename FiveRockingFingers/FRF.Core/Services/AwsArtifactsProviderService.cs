@@ -6,6 +6,10 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using FRF.Core.Base;
 using Microsoft.Extensions.Options;
+using Amazon.Pricing;
+using Amazon.Pricing.Model;
+using Amazon;
+using FRF.Core.Models;
 
 namespace FRF.Core.Services
 {
@@ -50,6 +54,84 @@ namespace FRF.Core.Services
             }
 
             return artifactsNames.ToList();
+        }
+
+        public async Task<List<ProviderArtifactSetting>> GetAttributes(string serviceCode)
+        {
+            var attributes = new List<ProviderArtifactSetting>();
+
+            var client = new AmazonPricingClient("AKIAIXYTIP4OAHZ5C6LQ", "YvTfqjK5HQJIXAceBH6b657y9GiLTSJiKyA44gkM", RegionEndpoint.USEast1);
+            var response = await client.DescribeServicesAsync(new DescribeServicesRequest
+            {
+                FormatVersion = "aws_v1",
+                ServiceCode = serviceCode
+            });
+
+            foreach (var service in response.Services)
+            {
+                foreach (var a in service.AttributeNames)
+                {
+                    var attribute = new ProviderArtifactSetting();
+                    attribute.Name = a;
+                    attribute.Values = new List<string>();
+
+                    var response2 = await client.GetAttributeValuesAsync(new GetAttributeValuesRequest
+                    {
+                        AttributeName = a,
+                        ServiceCode = serviceCode
+                    });
+
+                    foreach (var attribute2 in response2.AttributeValues)
+                    {
+                        attribute.Values.Add(attribute2.Value);
+                    }
+                    attributes.Add(attribute);
+                }
+            }
+            return attributes;
+        }
+
+        public async Task<List<PricingDetail>> GetProducts(List<KeyValuePair<string, string>> settings, string serviceCode)
+        {
+            var client = new AmazonPricingClient("AKIAIXYTIP4OAHZ5C6LQ", "YvTfqjK5HQJIXAceBH6b657y9GiLTSJiKyA44gkM", RegionEndpoint.USEast1);
+            var filters = new List<Filter>();
+
+            var pricingDetailsList = new List<PricingDetail>();
+            
+            foreach(var setting in settings)
+            {
+                var filter = new Filter
+                {
+                    Field = setting.Key,
+                    Type = "TERM_MATCH",
+                    Value = setting.Value
+                };
+
+                filters.Add(filter);
+            }
+
+            var response = await client.GetProductsAsync(new GetProductsRequest
+            {
+                Filters = filters,
+                FormatVersion = "aws_v1",
+                ServiceCode = serviceCode
+            });
+
+            foreach (var price in response.PriceList)
+            {
+                var priceJson = JObject.Parse(price);
+
+                var sku = priceJson.SelectTokens("product.sku");
+
+                var pricingDetails = new PricingDetail()
+                {
+                    Sku = (string)sku.ToList()[0]
+                };
+
+                pricingDetailsList.Add(pricingDetails);
+            }
+
+            return pricingDetailsList;
         }
 
         private static string ExtractName(string str)
