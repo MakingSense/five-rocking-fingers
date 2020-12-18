@@ -37,7 +37,7 @@ namespace FRF.Web.Dtos
             CreateMap<ProjectUpsertDTO, Project>()
                 .ForMember(dest => dest.UsersByProject, opt => opt.MapFrom(src => src.Users));
             CreateMap<UserProfileUpsertDTO, UsersProfile>();
-            CreateMap<ArtifactRelationDTO, ArtifactRelation>()
+            CreateMap<ArtifactsRelationDTO, ArtifactsRelation>()
                 .ReverseMap();
         }
     }

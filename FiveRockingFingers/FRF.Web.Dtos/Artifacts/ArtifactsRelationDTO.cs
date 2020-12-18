@@ -2,7 +2,7 @@
 
 namespace FRF.Web.Dtos.Artifacts
 {
-    public class ArtifactRelationDTO
+    public class ArtifactsRelationDTO
     {
         [Required]
         [Range(1,int.MaxValue)]

@@ -14,7 +14,7 @@ namespace FRF.DataAccess
         public DbSet<UsersByProject> UsersByProject { get; set; }
         public DbSet<Artifact> Artifacts { get; set; }
         public DbSet<ArtifactType> ArtifactType { get; set; }
-        public DbSet<ArtifactRelation> ArtifactRelation { get; set; }
+        public DbSet<ArtifactsRelation> ArtifactsRelation { get; set; }
 
         public DataAccessContext(DbContextOptions<DataAccessContext> options, IConfiguration configuration) : base(options)
         {
@@ -27,7 +27,7 @@ namespace FRF.DataAccess
             builder.Entity<ArtifactType>().HasKey(at => new { at.Id });
             builder.Entity<UsersByProject>().HasKey(up => new {up.Id});
             builder.Entity<UsersByProject>().HasOne(up=>up.Project).WithMany(u=>u.UsersByProject).HasForeignKey(up=>up.ProjectId);
-            builder.Entity<ArtifactRelation>().HasKey(ar => new {ar.Artifact1Id, ar.Artifact2Id,ar.Artifact1Property,ar.Artifact2Property});
+            builder.Entity<ArtifactsRelation>().HasKey(ar => new {ar.Artifact1Id, ar.Artifact2Id,ar.Artifact1Property,ar.Artifact2Property});
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

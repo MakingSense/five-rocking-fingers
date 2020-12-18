@@ -1,6 +1,6 @@
 ﻿namespace FRF.Core.Models
 {
-    public class ArtifactRelation
+    public class ArtifactsRelation
     {
         public int Artifact1Id { get; set; }
         public Artifact Artifact1 { get; set; }
