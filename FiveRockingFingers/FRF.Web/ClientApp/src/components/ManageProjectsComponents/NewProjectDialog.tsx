@@ -226,11 +226,12 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
                         options={tempCategories}
                         fullWidth
                         onChange={handleChangeCategories}
+                        autoHighlight
                         filterOptions={(options, params) => {
                             var filtered = filter(options, params);
 
-                            if (params.inputValue !== '' && tempCategories.find(c => c.name === params.inputValue) === undefined) { // and not in tempcategories
-                                filtered.push({
+                            if (params.inputValue !== '' && tempCategories.find(c => c.name === params.inputValue) === undefined) {
+                                filtered.unshift({
                                     id: -1,
                                     name: params.inputValue,
                                     description: ""

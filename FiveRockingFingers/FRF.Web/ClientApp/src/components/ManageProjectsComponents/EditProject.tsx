@@ -220,13 +220,14 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
                             id="tags-standard"
                             options={tempCategories}
                             fullWidth
+                            autoHighlight
                             onChange={handleChangeCategories}
                             defaultValue={state.projectCategories.map(pc => pc.category)}
                             filterOptions={(options, params) => {
                                 var filtered = filter(options, params);
 
-                                if (params.inputValue !== '' && tempCategories.find(c => c.name === params.inputValue) === undefined) { // and not in tempcategories
-                                    filtered.push({
+                                if (params.inputValue !== '' && tempCategories.find(c => c.name === params.inputValue) === undefined) {
+                                    filtered.unshift({
                                         id: -1,
                                         name: params.inputValue,
                                         description: ""
