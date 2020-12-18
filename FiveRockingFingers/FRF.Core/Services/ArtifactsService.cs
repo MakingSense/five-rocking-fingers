@@ -143,10 +143,10 @@ namespace FRF.Core.Services
             return;
         }
 
-        public async Task<IList<ArtifactsRelation>> SetRelation(IList<ArtifactsRelation> artifactRelations)
+        public async Task<IList<ArtifactsRelation>> SetRelationAsync(IList<ArtifactsRelation> artifactRelations)
         {
             var resultArtifactRelations = new List<ArtifactsRelation>();
-            var dbArtifactsId = _dataContext.Artifacts.Select(a => a.Id).ToList();
+            var dbArtifactsId = await _dataContext.Artifacts.Select(a => a.Id).ToListAsync();
             var artifactsRelationIds = artifactRelations
                 .Select(ar => ar.Artifact1Id)
                 .Concat(artifactRelations.Select(ar=>ar.Artifact2Id));

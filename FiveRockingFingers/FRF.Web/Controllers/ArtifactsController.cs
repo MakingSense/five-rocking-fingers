@@ -1,12 +1,10 @@
 ﻿using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using FRF.Core.Models;
 using FRF.Core.Services;
-using Microsoft.AspNetCore.Mvc;
 using FRF.Web.Dtos.Artifacts;
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace FRF.Web.Controllers
 {
@@ -98,18 +96,6 @@ namespace FRF.Web.Controllers
             await _artifactsService.Delete(id);
 
             return NoContent();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> SetRelation(IList<ArtifactsRelationDTO> artifactRelationList)
-        {
-            var artifactsRelations = _mapper.Map<IList<ArtifactsRelation>>(artifactRelationList);
-            var result = await _artifactsService.SetRelation(artifactsRelations);
-            var artifactsResult = _mapper.Map<IList<ArtifactsRelationDTO>>(result);
-            
-            if (artifactsResult == null) return BadRequest();
-
-            return Ok(artifactsResult);
         }
     }
 }
