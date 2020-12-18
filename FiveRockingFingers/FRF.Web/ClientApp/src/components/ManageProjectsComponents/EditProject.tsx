@@ -1,15 +1,17 @@
 ﻿import {
     Button, Card, CardActions, CardContent,
-    Checkbox, Chip, FormControl, FormControlLabel, FormGroup, IconButton, InputAdornment, Paper, TextField, TextFieldProps, Typography
+    Chip, FormControl, FormGroup, IconButton, InputAdornment, Paper, TextField, TextFieldProps, Typography
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
+import Autocomplete, { createFilterOptions } from '@material-ui/lab/Autocomplete';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import Category from '../../interfaces/Category';
 import Project from '../../interfaces/Project';
 import ProjectCategory from '../../interfaces/ProjectCategory';
 import UserProfile from '../../interfaces/UserProfile';
+import CategoryService from '../../services/CategoryService';
 import ProjectService from '../../services/ProjectService';
 import { HelperAddUser } from './HelperAddUser';
 import { ValidateEmail } from "./ValidateEmail";
@@ -37,12 +39,15 @@ const useStyles = makeStyles({
     }
 });
 
-const EditProject = (props: { project: Project, cancelEdit: any, categories: Category[], openSnackbar: Function, updateProjects: Function }) => {
+const filter = createFilterOptions<Category>();
+
+const EditProject = (props: { project: Project, cancelEdit: any, categories: Category[], openSnackbar: Function, updateProjects: Function, updateCategories: Function }) => {
     const classes = useStyles();
     const email = React.useRef<TextFieldProps>(null);
     const [fieldEmail, setFieldEmail] = React.useState<string | null>("")
     const { register, handleSubmit, errors } = useForm();
     const [isValid] = React.useState<boolean>(true);
+    const [tempCategories, setTempCategories] = React.useState([...props.categories]);
     const [state, setState] = React.useState({
         name: props.project.name,
         client: props.project.client,
@@ -51,8 +56,17 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
         createdDate: props.project.createdDate,
         id: props.project.id,
         projectCategories: props.project.projectCategories,
-        users: props.project.users
+        users: props.project.users,
+        selectedCategories: [] as Category[]
     });
+
+    React.useEffect(() => {
+        setTempCategories([...props.categories]);
+        setState({ ...state, selectedCategories: [] });
+        state.projectCategories.forEach(pc => {
+            state.selectedCategories.push(pc.category);
+        });
+    }, [props.categories.length])
 
     const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         setState({ ...state, [event.target.id]: event.target.value });
@@ -60,24 +74,6 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
 
     const emailField = () => {
         setFieldEmail("");
-    }
-
-    const handleChangeCategory = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.checked) {
-            const aux: ProjectCategory = {
-                category: {
-                    name: event.target.name,
-                    id: parseInt(event.target.id),
-                    description: ""
-                }
-            }
-            var auxState = state.projectCategories;
-            auxState.push(aux);
-            setState({ ...state, projectCategories: auxState });
-        } else {
-            const aux = state.projectCategories.filter(c => c.category.id !== parseInt(event.target.id));
-            setState({ ...state, projectCategories: aux });
-        }
     }
 
     const handleAddUser = async () => {
@@ -113,8 +109,40 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
         return { state };
     };
 
+    const handleChangeCategories = (event: React.ChangeEvent<{}>, value: Category[]) => {
+        if (value.length === 0) {
+            setState({ ...state, selectedCategories: [] });
+            return
+        }
+        if (tempCategories.filter(c => c.name === value[value.length - 1].name).length === 0) {
+            let aux = [...tempCategories];
+            aux.push(value[value.length - 1]);
+            setTempCategories(aux);
+        }
+        setState({ ...state, selectedCategories: value });
+    }
+
+    const fillProjectCategories = async () => {
+        let aux = [] as ProjectCategory[];
+        for (const category of state.selectedCategories) {
+            let categoryToAdd = props.categories.find(c => c.name === category.name);
+            if (categoryToAdd === undefined) {
+                const response = await CategoryService.save(category);
+                if (response.status === 200) {
+                    let aux2: ProjectCategory = { category: response.data };
+                    aux.push(aux2);
+                }
+            } else {
+                let aux2: ProjectCategory = { category: categoryToAdd };
+                aux.push(aux2);
+            }
+        };
+        return aux;
+    }
+
     const handleConfirm = async () => {
-        const { name, client, owner, budget, id, createdDate, projectCategories, users } = state;
+        var projectCategories = await fillProjectCategories();
+        const { name, client, owner, budget, id, createdDate, users } = state;
         const project = { name, client, owner, budget, id, createdDate, projectCategories, users }
         const response = await ProjectService.update(id, project as Project);
         if (response.status === 200) {
@@ -123,6 +151,7 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
         } else {
             props.openSnackbar({ message: "Ocurrió un error al modificar el proyecto", severity: "error" });
         }
+        props.updateCategories();
         props.cancelEdit();
     }
 
@@ -186,29 +215,39 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
                                 startAdornment: <InputAdornment position="start">$</InputAdornment>,
                             }}
                         />
-                    </Typography>
-                    <Typography className={classes.title} color="textSecondary" gutterBottom>
-                        Categorias
-                    </Typography>
-                    <FormControl component="fieldset">
-                        <FormGroup>
+                        <Autocomplete
+                            multiple
+                            id="tags-standard"
+                            options={tempCategories}
+                            fullWidth
+                            onChange={handleChangeCategories}
+                            defaultValue={state.projectCategories.map(pc => pc.category)}
+                            filterOptions={(options, params) => {
+                                var filtered = filter(options, params);
 
-                            {props.categories.map((category: Category) =>
-                                <FormControlLabel
-                                    key={category.id}
-                                    control={
-                                        <Checkbox
-                                            checked={state.projectCategories.filter(stateC => stateC.category.id === category.id).length > 0}
-                                            onChange={handleChangeCategory}
-                                            key={category.id}
-                                            id={category.id.toString()}
-                                            name={category.name}
-                                        />}
-                                    label={category.name}
+                                if (params.inputValue !== '' && tempCategories.find(c => c.name === params.inputValue) === undefined) { // and not in tempcategories
+                                    filtered.push({
+                                        id: -1,
+                                        name: params.inputValue,
+                                        description: ""
+                                    });
+                                }
+                                return filtered;
+                            }}
+                            getOptionLabel={(option) => {
+                                return option.name
+                            }}
+                            getOptionSelected={(option, value) => option.name === value.name}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    variant="outlined"
+                                    label="Categorías"
+                                    placeholder="Escriba el nombre de la categoría"
                                 />
                             )}
-                        </FormGroup>
-                    </FormControl>
+                        />
+                    </Typography>
                     <Typography className={classes.title} color="textSecondary" gutterBottom>
                         Usuarios
                     </Typography>

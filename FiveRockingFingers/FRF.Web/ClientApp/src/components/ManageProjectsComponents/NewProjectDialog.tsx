@@ -1,18 +1,20 @@
 ﻿import {
-    Button, Checkbox, Chip, Dialog, DialogActions, DialogContent, DialogContentText,
-    DialogTitle, FormControl, FormControlLabel, FormGroup, IconButton, InputAdornment, Paper, TextField, TextFieldProps
+    Button, Chip, Dialog, DialogActions, DialogContent, DialogContentText,
+    DialogTitle, FormGroup, IconButton, InputAdornment, Paper, TextField, TextFieldProps
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import PersonAddIcon from '@material-ui/icons/PersonAdd';
+import Autocomplete, { createFilterOptions } from '@material-ui/lab/Autocomplete';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import Category from '../../interfaces/Category';
+import Project from '../../interfaces/Project';
 import ProjectCategory from '../../interfaces/ProjectCategory';
 import UserProfile from '../../interfaces/UserProfile';
-import PersonAddIcon from '@material-ui/icons/PersonAdd';
+import CategoryService from "../../services/CategoryService";
 import ProjectService from '../../services/ProjectService';
-import Project from '../../interfaces/Project';
-import { ValidateEmail } from "./ValidateEmail";
 import { HelperAddUser } from "./HelperAddUser";
+import { ValidateEmail } from "./ValidateEmail";
 
 const useStyles = makeStyles({
     inputF: {
@@ -31,11 +33,14 @@ const useStyles = makeStyles({
     }
 });
 
-const NewProjectDialog = (props: { create: boolean, categories: Category[], finishCreation: Function, openSnackbar: Function, updateProjects: Function }) => {
+const filter = createFilterOptions<Category>();
+
+const NewProjectDialog = (props: { create: boolean, categories: Category[], finishCreation: Function, openSnackbar: Function, updateProjects: Function, updateCategories: Function }) => {
 
     const email = React.useRef<TextFieldProps>(null);
     const [fieldEmail, setFieldEmail] = React.useState<string | null>("")
     const classes = useStyles();
+    const [tempCategories, setTempCategories] = React.useState([...props.categories]);
 
     const { register, handleSubmit, errors } = useForm();
 
@@ -44,9 +49,13 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
         client: "",
         owner: "",
         budget: -1,
-        projectCategories: [] as ProjectCategory[],
-        users: [] as UserProfile[]
+        users: [] as UserProfile[],
+        selectedCategories: [] as Category[]
     });
+
+    React.useEffect(() => {
+        setTempCategories([...props.categories]);
+    }, [props.categories.length])
 
     const clearState = () => {
         setState({
@@ -54,8 +63,8 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
             client: "",
             owner: "",
             budget: -1,
-            projectCategories: [],
-            users: []
+            users: [],
+            selectedCategories: []
         });
     }
 
@@ -79,22 +88,17 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
         return { state };
     };
 
-    const handleChangeCategory = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.checked) {
-            const aux: ProjectCategory = {
-                category: {
-                    name: event.target.name,
-                    id: parseInt(event.target.id),
-                    description: ""
-                }
-            }
-            var auxState = state.projectCategories;
-            auxState.push(aux);
-            setState({ ...state, projectCategories: auxState });
-        } else {
-            const aux = state.projectCategories.filter(c => c.category.id !== parseInt(event.target.id));
-            setState({ ...state, projectCategories: aux });
+    const handleChangeCategories = (event: React.ChangeEvent<{}>, value: Category[]) => {
+        if (value.length === 0) {
+            setState({ ...state, selectedCategories: [] });
+            return
         }
+        if (tempCategories.filter(c => c.name === value[value.length - 1].name).length === 0) {
+            let aux = [...tempCategories];
+            aux.push(value[value.length - 1]);
+            setTempCategories(aux);
+        }
+        setState({ ...state, selectedCategories: value });
     }
 
     const handleAddUser = async () => {
@@ -120,8 +124,28 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
         }
     }
 
+    const fillProjectCategories = async () => {
+        let aux = [] as ProjectCategory[];
+        for (const category of state.selectedCategories) {
+            let categoryToAdd = props.categories.find(c => c.name === category.name);
+            if (categoryToAdd === undefined) {
+                const response = await CategoryService.save(category);
+                if (response.status === 200)
+                {
+                    let aux2: ProjectCategory = { category: response.data };
+                    aux.push(aux2);
+                }
+            } else {
+                let aux2: ProjectCategory = { category: categoryToAdd };
+                aux.push(aux2);
+            }
+        };
+        return aux;
+    }
+
     const handleConfirm = async () => {
-        const { name, client, owner, budget, projectCategories, users } = state;
+        var projectCategories = await fillProjectCategories();
+        const { name, client, owner, budget, users } = state;
         const project = { name, client, owner, budget, projectCategories, users }
         const response = await ProjectService.save(project as Project);
         if (response.status === 200) {
@@ -131,6 +155,7 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
             props.openSnackbar({ message: "Ocurrió un error al crear el proyecto", severity: "error" });
         }
         clearState();
+        props.updateCategories();
         props.finishCreation();
     }
 
@@ -195,6 +220,37 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
                         }}
                         fullWidth
                     />
+                    <Autocomplete
+                        multiple
+                        id="tags-standard"
+                        options={tempCategories}
+                        fullWidth
+                        onChange={handleChangeCategories}
+                        filterOptions={(options, params) => {
+                            var filtered = filter(options, params);
+
+                            if (params.inputValue !== '' && tempCategories.find(c => c.name === params.inputValue) === undefined) { // and not in tempcategories
+                                filtered.push({
+                                    id: -1,
+                                    name: params.inputValue,
+                                    description: ""
+                                });
+                            }
+                            return filtered;
+                        }}
+                        getOptionLabel={(option) => {
+                            return option.name
+                        }}
+                        getOptionSelected={(option, value) => option.name === value.name}
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                variant="outlined"
+                                label="Categorías"
+                                placeholder="Escriba el nombre de la categoría"
+                            />
+                        )}
+                    />
                     <FormGroup>
                         <Paper component="ul" className={classes.addUser} >
                             {state.users.map((user,index) => {
@@ -223,27 +279,6 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
                                 <PersonAddIcon />
                             </IconButton></span>
                     </FormGroup>
-                    <DialogContentText>
-                        Categorías:
-                    </DialogContentText>
-                    <FormControl component="fieldset">
-                        <FormGroup>
-                            {props.categories.map((category: Category) =>
-                                <FormControlLabel
-                                    key={category.id}
-                                    control={
-                                        <Checkbox
-                                            checked={state.projectCategories.filter(stateC => stateC.category.id === category.id).length > 0}
-                                            onChange={handleChangeCategory}
-                                            key={category.id}
-                                            id={category.id.toString()}
-                                            name={category.name}
-                                        />}
-                                    label={category.name}
-                                />
-                            )}
-                        </FormGroup>
-                    </FormControl>
                 </DialogContent>
                 <DialogActions>
                     <Button size="small" type="submit"> Aceptar</Button>

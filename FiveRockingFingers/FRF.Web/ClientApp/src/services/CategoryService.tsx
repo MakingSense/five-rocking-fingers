@@ -1,8 +1,8 @@
 ﻿import axios from 'axios';
-import { BASE_URL } from '../Constants'
+import { BASE_URL } from '../Constants';
 import Category from '../interfaces/Category';
 
-const CATEGORIES_URL = `${BASE_URL}api/Category/`
+const CATEGORIES_URL = `${BASE_URL}api/Categories/`;
 
 class CategoryService {
 
@@ -30,5 +30,6 @@ class CategoryService {
         const response = await axios.delete(`${CATEGORIES_URL}Delete/${id}`);
         return response;
     }
-
 }
+
+export default CategoryService;
