@@ -11,6 +11,6 @@ namespace FRF.Core.Services
     {
         Task<List<KeyValuePair<string, string>>> GetNamesAsync();
         Task<List<ProviderArtifactSetting>> GetAttributes(string serviceCode);
-        Task<List<PricingDetail>> GetProducts(List<KeyValuePair<string, string>> settings, string serviceCode);
+        Task<List<PricingTerm>> GetProducts(List<KeyValuePair<string, string>> settings, string serviceCode);
     }
 }
