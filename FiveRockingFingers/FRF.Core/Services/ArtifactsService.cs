@@ -1,14 +1,14 @@
 ﻿using AutoMapper;
 using FRF.Core.Models;
 using FRF.DataAccess;
-using EntityModels = FRF.DataAccess.EntityModels;
-using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Data.SqlClient;
+using EntityModels = FRF.DataAccess.EntityModels;
 
 namespace FRF.Core.Services
 {
@@ -154,6 +154,18 @@ namespace FRF.Core.Services
             var isAnyArtifactExcept= artifactsRelationIds.Except(dbArtifactsId).Any();
             if (isAnyArtifactExcept) return null;
 
+            var dbArtifactRelations = await _dataContext.ArtifactsRelation.ToListAsync();
+            var isAnyArtifactRepeated = artifactRelations
+                .Any(ar => dbArtifactRelations
+                    .Any(dbAr => 
+                        dbAr.Artifact1Id == ar.Artifact1Id
+                        && dbAr.Artifact2Id == ar.Artifact2Id
+                        && dbAr.Artifact1Property.Equals(ar.Artifact1Property, StringComparison.InvariantCultureIgnoreCase)
+                        && dbAr.Artifact2Property.Equals(ar.Artifact2Property, StringComparison.InvariantCultureIgnoreCase)
+                        )
+                );
+            if (isAnyArtifactRepeated) return null;
+
             foreach (var artifactRelation in artifactRelations)
             { 
                 var mappedArtifactRelation = _mapper.Map<EntityModels.ArtifactsRelation>(artifactRelation);
@@ -161,19 +173,6 @@ namespace FRF.Core.Services
                 resultArtifactRelations.Add(artifactRelation);
             }
 
-            try
-            {
-                await _dataContext.SaveChangesAsync();
-            }
-            catch (DbUpdateException except)
-            {
-                var innerException = except.InnerException as SqlException;
-                if (innerException != null && (innerException.Number == 2627 || innerException.Number == 2601))
-                    return null;
-
-                else throw;
-            }
-            
             return resultArtifactRelations;
         }
     }
