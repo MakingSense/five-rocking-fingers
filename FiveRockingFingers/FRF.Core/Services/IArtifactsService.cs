@@ -12,5 +12,6 @@ namespace FRF.Core.Services
         Task<Artifact> Update(Artifact artifact);
         Task Delete(int id);
         Task<Artifact> Save(Artifact artifact);
+        Task<IList<ArtifactsRelation>> SetRelation(IList<ArtifactsRelation> artifactRelations);
     }
 }

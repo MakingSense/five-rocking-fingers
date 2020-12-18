@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 
 namespace FRF.Core.Services
 {
@@ -140,6 +141,44 @@ namespace FRF.Core.Services
             _dataContext.Artifacts.Remove(artifactToDelete);
             await _dataContext.SaveChangesAsync();
             return;
+        }
+
+        public async Task<IList<ArtifactsRelation>> SetRelation(IList<ArtifactsRelation> artifactRelations)
+        {
+            var resultArtifactRelations = new List<ArtifactsRelation>();
+            var dbArtifactsId = _dataContext.Artifacts.Select(a => a.Id).ToList();
+            var artifactsRelationIds = artifactRelations
+                .Select(ar => ar.Artifact1Id)
+                .Concat(artifactRelations.Select(ar=>ar.Artifact2Id));
+
+            var isAnyArtifactExcept= artifactsRelationIds.Except(dbArtifactsId).Any();
+            if (isAnyArtifactExcept) return null;
+
+            foreach (var artifactRelation in artifactRelations)
+            { 
+                var mappedArtifactRelation = _mapper.Map<EntityModels.ArtifactsRelation>(artifactRelation);
+                await _dataContext.ArtifactsRelation.AddAsync(mappedArtifactRelation);
+                resultArtifactRelations.Add(artifactRelation);
+            }
+
+            try
+            {
+                await _dataContext.SaveChangesAsync();
+            }
+            catch (DbUpdateException except)
+            {
+                var innerException = except.InnerException as SqlException;
+                if (innerException != null && (innerException.Number == 2627 || innerException.Number == 2601))
+                {
+                    return null;
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            
+            return resultArtifactRelations;
         }
     }
 }
