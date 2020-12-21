@@ -3,7 +3,6 @@ using FRF.Core.Models;
 using FRF.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,13 +13,11 @@ namespace FRF.Core.Services
 {
     public class ArtifactsService : IArtifactsService
     {
-        private readonly IConfiguration _configuration;
         private readonly DataAccessContext _dataContext;
         private readonly IMapper _mapper;
 
-        public ArtifactsService(IConfiguration configuration, DataAccessContext dataContext, IMapper mapper)
+        public ArtifactsService(DataAccessContext dataContext, IMapper mapper)
         {
-            _configuration = configuration;
             _dataContext = dataContext;
             _mapper = mapper;
         }
@@ -173,6 +170,7 @@ namespace FRF.Core.Services
                 resultArtifactRelations.Add(artifactRelation);
             }
 
+            await _dataContext.SaveChangesAsync();
             return resultArtifactRelations;
         }
     }
