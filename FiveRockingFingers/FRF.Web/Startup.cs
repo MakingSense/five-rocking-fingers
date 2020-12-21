@@ -14,13 +14,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using FRF.Core.Base;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Amazon.Pricing;
+using Amazon;
 
 namespace FiveRockingFingers
 {
 	public class Startup
 	{
 
-	public static readonly IEnumerable<Profile> AutoMapperProfiles = new Profile[]
+		public static readonly IEnumerable<Profile> AutoMapperProfiles = new Profile[]
         {
             new FRF.Web.Dtos.AutoMapperProfile(),
             new FRF.Core.AutoMapperProfile(),
@@ -70,6 +72,7 @@ namespace FiveRockingFingers
             
             services.Configure<AwsPricing>(Configuration.GetSection(AwsPricing.AwsPricingOptions));
             services.AddHttpClient();
+			services.AddSingleton(new AmazonPricingClient(Configuration["AwsAccessKeys:AccessKeyId"], Configuration["AwsAccessKeys:SecretAccessKey"], RegionEndpoint.USEast1));
 			services.AddTransient<IProjectsService, ProjectsService>();
 			services.AddTransient<ISignUpService, SignUpService>();
 			services.AddTransient<ISignInService, SignInService>();

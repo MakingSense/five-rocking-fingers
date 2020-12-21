@@ -10,6 +10,7 @@ using Amazon.Pricing;
 using Amazon.Pricing.Model;
 using Amazon;
 using FRF.Core.Models;
+using Microsoft.Extensions.Configuration;
 
 namespace FRF.Core.Services
 {
@@ -18,12 +19,14 @@ namespace FRF.Core.Services
         private const string OffersCodeIndex = "offers.*.offerCode";
         private readonly AwsPricing _awsPricingOptions;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly AmazonPricingClient _client;
 
         public AwsArtifactsProviderService(IOptions<AwsPricing> awsApiString,
-            IHttpClientFactory httpClientFactory)
+            IHttpClientFactory httpClientFactory, AmazonPricingClient client)
         {
             _httpClientFactory = httpClientFactory;
             _awsPricingOptions = awsApiString.Value;
+            _client = client;
         }
 
         /// <summary>
@@ -56,12 +59,10 @@ namespace FRF.Core.Services
             return artifactsNames.ToList();
         }
 
-        public async Task<List<ProviderArtifactSetting>> GetAttributes(string serviceCode)
+        public async Task<List<ProviderArtifactSetting>> GetAttributesAsync(string serviceCode)
         {
             var attributes = new List<ProviderArtifactSetting>();
-
-            var client = new AmazonPricingClient("AKIAIXYTIP4OAHZ5C6LQ", "YvTfqjK5HQJIXAceBH6b657y9GiLTSJiKyA44gkM", RegionEndpoint.USEast1);
-            var response = await client.DescribeServicesAsync(new DescribeServicesRequest
+            var response = await _client.DescribeServicesAsync(new DescribeServicesRequest
             {
                 FormatVersion = "aws_v1",
                 ServiceCode = serviceCode
@@ -69,21 +70,21 @@ namespace FRF.Core.Services
 
             foreach (var service in response.Services)
             {
-                foreach (var a in service.AttributeNames)
+                foreach (var attributeName in service.AttributeNames)
                 {
                     var attribute = new ProviderArtifactSetting();
-                    attribute.Name = a;
+                    attribute.Name = attributeName;
                     attribute.Values = new List<string>();
 
-                    var response2 = await client.GetAttributeValuesAsync(new GetAttributeValuesRequest
+                    var response2 = await _client.GetAttributeValuesAsync(new GetAttributeValuesRequest
                     {
-                        AttributeName = a,
+                        AttributeName = attributeName,
                         ServiceCode = serviceCode
                     });
 
-                    foreach (var attribute2 in response2.AttributeValues)
+                    foreach (var attributeValues in response2.AttributeValues)
                     {
-                        attribute.Values.Add(attribute2.Value);
+                        attribute.Values.Add(attributeValues.Value);
                     }
                     attributes.Add(attribute);
                 }
@@ -91,14 +92,13 @@ namespace FRF.Core.Services
             return attributes;
         }
 
-        public async Task<JObject> GetProducts(List<KeyValuePair<string, string>> settings, string serviceCode)
+        public async Task<List<PricingTerm>> GetProductsAsync(List<KeyValuePair<string, string>> settings, string serviceCode)
         {
-            var client = new AmazonPricingClient("AKIAIXYTIP4OAHZ5C6LQ", "YvTfqjK5HQJIXAceBH6b657y9GiLTSJiKyA44gkM", RegionEndpoint.USEast1);
             var filters = new List<Filter>();
 
             var pricingDetailsList = new List<PricingTerm>();
-            
-            foreach(var setting in settings)
+
+            foreach (var setting in settings)
             {
                 var filter = new Filter
                 {
@@ -110,14 +110,80 @@ namespace FRF.Core.Services
                 filters.Add(filter);
             }
 
-            var response = await client.GetProductsAsync(new GetProductsRequest
+            var response = await _client.GetProductsAsync(new GetProductsRequest
             {
                 Filters = filters,
                 FormatVersion = "aws_v1",
                 ServiceCode = serviceCode
             });
 
-            return JObject.Parse(response.PriceList[0]);
+            foreach (var price in response.PriceList)
+            {
+                var priceJson = JObject.Parse(price);
+
+                var sku = (string)priceJson.SelectTokens("product.sku").ToList()[0];
+                var terms = priceJson.SelectToken("terms").ToObject<JObject>();
+
+                foreach (var term in terms.Properties())
+                {
+                    var termName = term.Name;
+
+                    var termProperties = term.Value.ToObject<JObject>();
+                    foreach (var termOption in termProperties)
+                    {
+                        var termOptionProperties = termOption.Value;
+                        var leaseContractLength = (string)termOptionProperties.SelectToken("termAttributes.LeaseContractLength");
+                        var offeringClass = (string)termOptionProperties.SelectToken("termAttributes.OfferingClass");
+                        var purchaseOption = (string)termOptionProperties.SelectToken("termAttributes.PurchaseOption");
+                        var termPriceDimensions = termOptionProperties.SelectToken("priceDimensions").ToObject<JObject>().Properties().ToList();
+                        var termPriceDimension = termPriceDimensions[0];
+                        var pricingDimension = new PricingDimension()
+                        {
+                            Unit = (string)termPriceDimension.Value.SelectToken("unit"),
+                            EndRange = (string)termPriceDimension.Value.SelectToken("endRange"),
+                            Description = (string)termPriceDimension.Value.SelectToken("description"),
+                            RateCode = (string)termPriceDimension.Value.SelectToken("rateCode"),
+                            BeginRange = (string)termPriceDimension.Value.SelectToken("beginRange"),
+                            Currency = termPriceDimension.Value.SelectToken("pricePerUnit").ToObject<JObject>().Properties().ElementAt(0).Name,
+                            PricePerUnit = (float)termPriceDimension.Value.SelectToken("pricePerUnit").ToObject<JObject>().Properties().ElementAt(0).Value,
+                        };
+                        var pricingDetails = new PricingDimension();
+                        if (termPriceDimensions.Count > 1)
+                        {
+                            var termPriceDetail = termPriceDimensions[1];
+                            pricingDetails = new PricingDimension()
+                            {
+                                Unit = (string)termPriceDetail.Value.SelectToken("unit"),
+                                EndRange = (string)termPriceDetail.Value.SelectToken("endRange"),
+                                Description = (string)termPriceDetail.Value.SelectToken("description"),
+                                RateCode = (string)termPriceDetail.Value.SelectToken("rateCode"),
+                                BeginRange = (string)termPriceDetail.Value.SelectToken("beginRange"),
+                                Currency = termPriceDetail.Value.SelectToken("pricePerUnit").ToObject<JObject>().Properties().ElementAt(0).Name,
+                                PricePerUnit = (float)termPriceDetail.Value.SelectToken("pricePerUnit").ToObject<JObject>().Properties().ElementAt(0).Value
+                            };
+                        }
+                        else
+                        {
+                            pricingDetails = null;
+                        }
+
+                        var pricingTerm = new PricingTerm()
+                        {
+                            Sku = sku,
+                            Term = termName,
+                            PricingDimension = pricingDimension,
+                            PricingDetail = pricingDetails,
+                            LeaseContractLength = leaseContractLength,
+                            OfferingClass = offeringClass,
+                            PurchaseOption = purchaseOption
+                        };
+
+                        pricingDetailsList.Add(pricingTerm);
+                    }
+                }  
+            }
+
+            return pricingDetailsList;
         }
 
         private static string ExtractName(string str)
