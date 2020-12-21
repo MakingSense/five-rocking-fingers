@@ -91,7 +91,7 @@ namespace FRF.Core.Services
             return attributes;
         }
 
-        public async Task<List<PricingTerm>> GetProducts(List<KeyValuePair<string, string>> settings, string serviceCode)
+        public async Task<JObject> GetProducts(List<KeyValuePair<string, string>> settings, string serviceCode)
         {
             var client = new AmazonPricingClient("AKIAIXYTIP4OAHZ5C6LQ", "YvTfqjK5HQJIXAceBH6b657y9GiLTSJiKyA44gkM", RegionEndpoint.USEast1);
             var filters = new List<Filter>();
@@ -117,22 +117,7 @@ namespace FRF.Core.Services
                 ServiceCode = serviceCode
             });
 
-            foreach (var price in response.PriceList)
-            {
-                var priceJson = JObject.Parse(price);
-
-                var sku = (string)priceJson.SelectTokens("product.sku").ToList()[0];
-                var termOnDemandJson = priceJson.SelectToken("terms");
-
-                var pricingDetails = new PricingTerm()
-                {
-                    Sku = sku
-                };
-
-                pricingDetailsList.Add(pricingDetails);
-            }
-
-            return pricingDetailsList;
+            return JObject.Parse(response.PriceList[0]);
         }
 
         private static string ExtractName(string str)
