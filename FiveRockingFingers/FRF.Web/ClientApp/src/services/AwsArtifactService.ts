@@ -9,4 +9,9 @@ export default class AwsArtifactsService {
         const response = await axios.get(`${AWS_ARTIFACTS_PROVIDER_URL}GetNames`);
         return response;
     }
+
+    static GetAttibutesAsync = async (serviceCode: string) => {
+        const response = await axios.post(`${AWS_ARTIFACTS_PROVIDER_URL}GetAttributes?serviceCode=${serviceCode}`);
+        return response;
+    }
 }
