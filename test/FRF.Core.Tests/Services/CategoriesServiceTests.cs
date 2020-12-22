@@ -4,6 +4,7 @@ using FRF.DataAccess.EntityModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
@@ -16,13 +17,12 @@ namespace FRF.Core.Tests.Services
         private readonly IMapper _mapper = MapperBuilder.Build();
         private readonly DataAccessContextForTest _dataAccess;
         private readonly CategoriesService _classUnderTest;
-        private readonly DbContextOptions<DataAccessContextForTest> contextOptions;
 
         public CategoriesServiceTests()
         {
             _configuration = new Mock<IConfiguration>();
 
-            _dataAccess = new DataAccessContextForTest("CategoriesTestsDB", _configuration.Object);
+            _dataAccess = new DataAccessContextForTest(Guid.NewGuid(), _configuration.Object);
 
             _dataAccess.Database.EnsureDeleted();
             _dataAccess.Database.EnsureCreated();
