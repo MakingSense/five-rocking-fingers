@@ -12,6 +12,7 @@ using Microsoft.OpenApi.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FRF.Core.Base;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace FiveRockingFingers
@@ -65,16 +66,21 @@ namespace FiveRockingFingers
 
 			services.AddCognitoIdentity();
 			*/
-			//End Cognito 
-
+			//End Cognito
+            
+            services.Configure<AwsPricing>(Configuration.GetSection(AwsPricing.AwsPricingOptions));
+            services.AddHttpClient();
 			services.AddTransient<IProjectsService, ProjectsService>();
 			services.AddTransient<ISignUpService, SignUpService>();
 			services.AddTransient<ISignInService, SignInService>();
 			services.AddTransient<IUserService, UserService>();
 			services.AddTransient<IArtifactsService, ArtifactsService>();
 			services.AddTransient<ICategoriesService, CategoriesService>();
+			services.AddTransient<IArtifactsProviderService, AwsArtifactsProviderService>();
 
-			services.AddSwaggerGen(c =>
+            
+			
+            services.AddSwaggerGen(c =>
 			{
 				c.SwaggerDoc("v1", new OpenApiInfo {Title = "Five Rocking Fingers", Version = "v1"});
 				c.CustomSchemaIds(i => i.FullName);

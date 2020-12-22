@@ -23,7 +23,7 @@ namespace FRF.Core.Tests.Services
         {
             _configuration = new Mock<IConfiguration>();
 
-            _dataAccess = new DataAccessContextForTest("ArtifactsTestsDB", _configuration.Object);
+            _dataAccess = new DataAccessContextForTest(Guid.NewGuid(), _configuration.Object);
 
             _dataAccess.Database.EnsureDeleted();
             _dataAccess.Database.EnsureCreated();

@@ -42,7 +42,7 @@ namespace FRF.Web.Tests.Controllers
         private Project CreateProject(int projectId)
         {
             var projectCategories = new Mock<ProjectCategory>();
-            var userByProject = new Mock<UsersByProject>();
+            var user = new Mock<UsersProfile>();
             var project = new Project
             {
                 Budget = 900,
@@ -56,9 +56,9 @@ namespace FRF.Web.Tests.Controllers
                 {
                     projectCategories.Object
                 },
-                UsersByProject = new List<UsersByProject>
+                UsersByProject = new List<UsersProfile>
                 {
-                    userByProject.Object
+                    user.Object
                 }
             };
 
@@ -68,7 +68,7 @@ namespace FRF.Web.Tests.Controllers
         private ProjectUpsertDTO CreateProjectUpsertDto(Project project)
         {
             var projectCategories = new Mock<ProjectCategoryDTO>();
-            var userByProject = new Mock<UsersByProjectDTO>();
+            var user = new Mock<UserProfileUpsertDTO>();
             var projectUpsertDTO = new ProjectUpsertDTO
             {
                 Budget = project.Budget,
@@ -79,9 +79,9 @@ namespace FRF.Web.Tests.Controllers
                 {
                     projectCategories.Object
                 },
-                UsersByProject = new List<UsersByProjectDTO>
+                Users = new List<UserProfileUpsertDTO>
                 {
-                    userByProject.Object
+                    user.Object
                 }
             };
             return projectUpsertDTO;
