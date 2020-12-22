@@ -22,11 +22,7 @@ namespace FRF.Core.Tests.Services
         public ArtifactsServiceTests()
         {
             _configuration = new Mock<IConfiguration>();
-
-            ContextOptions = new DbContextOptionsBuilder<DataAccessContextForTest>()
-                    .UseInMemoryDatabase(databaseName: "Test")
-                    .Options;
-            _dataAccess = new DataAccessContextForTest(ContextOptions, _configuration.Object);
+            _dataAccess = new DataAccessContextForTest(Guid.NewGuid(), _configuration.Object);
 
             _dataAccess.Database.EnsureDeleted();
             _dataAccess.Database.EnsureCreated();
