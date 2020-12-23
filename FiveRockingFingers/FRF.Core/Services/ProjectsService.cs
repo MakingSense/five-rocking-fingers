@@ -122,6 +122,11 @@ namespace FRF.Core.Services
                 .SingleOrDefaultAsync(p => p.Id == id);
             //
 
+            if(result == null)
+            {
+                return null;
+            }
+
             var project = _mapper.Map<Project>(result);
             foreach (var user in project.UsersByProject)
             {
