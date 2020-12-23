@@ -6,7 +6,7 @@ namespace FRF.Core.Models
 {
     public class ProviderArtifactSetting
     {
-        public string Name { get; set; }
+        public KeyValuePair<string, string> Name { get; set; }
         public IList<string> Values { get; set; }
     }
 }
