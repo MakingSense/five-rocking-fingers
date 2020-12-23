@@ -41,7 +41,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> GetProducts(List<KeyValuePair<string, string>> settings, string serviceCode)
+        public async Task<IActionResult> GetProductsAsync(List<KeyValuePair<string, string>> settings, string serviceCode)
         {
             var products = await _artifactsProviderService.GetProductsAsync(settings, serviceCode);
 
