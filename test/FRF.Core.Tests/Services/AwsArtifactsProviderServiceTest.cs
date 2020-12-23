@@ -1,4 +1,7 @@
-﻿using FRF.Core.Base;
+﻿using Amazon;
+using Amazon.Pricing;
+using Amazon.Pricing.Model;
+using FRF.Core.Base;
 using FRF.Core.Models;
 using FRF.Core.Services;
 using Microsoft.Extensions.Options;
@@ -19,6 +22,7 @@ namespace FRF.Core.Tests.Services
         private readonly IOptions<AwsPricing> _awsApi;
         private readonly AwsArtifactsProviderService _classUnderTest;
         private readonly Mock<IHttpClientFactory> _httpClientFactory;
+        private readonly Mock<AmazonPricingClient> _client;
 
         public AwsArtifactsProviderServiceTest()
         {
@@ -26,8 +30,9 @@ namespace FRF.Core.Tests.Services
                 {ApiUrl = "https://localhost/offers/v1.0/aws/index.json"};
             _awsApi = Options.Create(awsPricing);
             _httpClientFactory = new Mock<IHttpClientFactory>();
+            _client = new Mock<AmazonPricingClient>("[Mock] Key 1", "[Mock] Key 2", RegionEndpoint.USEast1);
             var httpClientFactory = _httpClientFactory.Object;
-            _classUnderTest = new AwsArtifactsProviderService(_awsApi, httpClientFactory);
+            _classUnderTest = new AwsArtifactsProviderService(_awsApi, httpClientFactory, _client.Object);
         }
 
         [Fact]
@@ -82,15 +87,185 @@ namespace FRF.Core.Tests.Services
         public async Task GetAttributesAsync_ReturnList()
         {
             // Arange
-            var serviceCode = "AmazonEC2";
+            var serviceCode = "[Mock] Service Code";
+            var attributeNames = new List<string>
+            {
+                "[Mock] Service Name"
+            };
+            var service = new Service
+            {
+                AttributeNames = attributeNames,
+                ServiceCode = serviceCode
+            };
+            var services = new List<Service>
+            {
+                service
+            };
+            var response = new DescribeServicesResponse
+            {
+                FormatVersion = "[Mock] Format Version",
+                NextToken = "[Mock] Next token",
+                Services = services
+            };
+
+            var attributeValue = new AttributeValue
+            {
+                Value = "[Mock] Attribute Value"
+            };
+
+            var attributeValues = new List<AttributeValue>
+            {
+                attributeValue
+            };
+
+            var response2 = new GetAttributeValuesResponse
+            {
+                NextToken = "[Mock] Next token",
+                AttributeValues = attributeValues
+            };
+
+            _client
+                .Setup(mock => mock.DescribeServicesAsync(It.IsAny<DescribeServicesRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(response);
+            _client
+                .Setup(mock => mock.GetAttributeValuesAsync(It.IsAny<GetAttributeValuesRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(response2);
 
             // Act
             var result = await _classUnderTest.GetAttributesAsync(serviceCode);
 
             // Assert
-            var response = Assert.IsType<List<ProviderArtifactSetting>>(result);
+            Assert.IsType<List<ProviderArtifactSetting>>(result);
+            Assert.NotEmpty(result);
+            Assert.Equal(result[0].Name.Key, service.AttributeNames[0]);
+            Assert.Equal(result[0].Values[0], attributeValue.Value);
+            _client.Verify(mock => mock.DescribeServicesAsync(It.IsAny<DescribeServicesRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            _client.Verify(mock => mock.GetAttributeValuesAsync(It.IsAny<GetAttributeValuesRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
 
-            Assert.NotEmpty(response);
+        [Fact]
+        public async Task GetAttributesAsync_ReturnsEmptyList()
+        {
+            // Arange
+            var serviceCode = "[Mock] Service Code";
+
+            // Act
+            var result = await _classUnderTest.GetAttributesAsync(serviceCode);
+
+            // Assert
+            Assert.IsType<List<ProviderArtifactSetting>>(result);
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task GetProductsAsync_ReturnList()
+        {
+            // Arange
+            var serviceCode = "[Mock] Service Code";
+            var sku = "[Mock] Sku";
+            var term = "[Mock] Term";
+            var unit = "[Mock] Unit";
+            var endRange = "[Mock] End Range";
+            var decription = "[Mock] Description";
+            var rateCode = "[Mock] Rate Code";
+            var beginRange = "[Mock] Begin Range";
+            var currency = "[Mock] Currency";
+            var pricePerUnit = "99.99";
+            var offerTermCode = "[Mock] Offer term code";
+            var leaseContractLength = "[Mock] Lease contract length";
+            var offeringClass = "[Mock] Offering class";
+            var purchaseOption = "[Mock] Purchase option";
+            var attributeName = "[Mock] Attribute name";
+            var attributeValue = "[Mock] Attribute value";
+            var settings = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("[Mock] Setting name", "[Mock] Setting value")
+            };
+
+            var response = new GetProductsResponse
+            {
+                FormatVersion = "[Mock] Format Version",
+                NextToken = "[Mock] Next token",
+                PriceList = new List<string>
+                {
+                    "{\"product\":" +
+                    "{ \"productFamily\":\"[Mock] product family\"," +
+                    "\"attributes\":" +
+                    "{ \"" + attributeName + "\":\"" + attributeValue + "\"}," +
+                    "\"sku\":\"" + sku + "\"}," +
+                    "\"serviceCode\":\"" + serviceCode + "\"," +
+                    "\"terms\":" +
+                    "{ \"" + term + "\":" +
+                    "{ \"2227U2PX8M4F95R6.JRTCKXETXF\":" +
+                    "{ \"priceDimensions\":" +
+                    "{ \"" + rateCode + "\":" +
+                    "{ \"unit\":\"" + unit +"\"," +
+                    "\"endRange\":\"" + endRange + "\"," +
+                    "\"description\":\"" + decription + "\"," +
+                    "\"appliesTo\":[]," +
+                    "\"rateCode\":\"" + rateCode +"\"," +
+                    "\"beginRange\":\"" + beginRange + "\"," +
+                    "\"pricePerUnit\":{ \"" + currency + "\":\"" + pricePerUnit + "\"} " +
+                    "} " +
+                    "}," +
+                    "\"sku\":\"" + sku + "\"," +
+                    "\"effectiveDate\":\"2020-12-01T00:00:00Z\"," +
+                    "\"offerTermCode\":\"" + offerTermCode + "\"," +
+                    "\"termAttributes\":" +
+                    "{ " +
+                    "\"LeaseContractLength\": \"" + leaseContractLength + "\"," +
+                    "\"OfferingClass\": \"" + offeringClass + "\"," +
+                    "\"PurchaseOption\": \"" + purchaseOption + "\"" +
+                    "}" +
+                    " }" +
+                    " }" +
+                    " }," +
+                    "\"version\":\"20201222221737\"," +
+                    "\"publicationDate\":\"2020-12-22T22:17:37Z\"" +
+                    "}"
+                }
+            };
+
+            _client
+                .Setup(mock => mock.GetProductsAsync(It.IsAny<GetProductsRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(response);
+
+            // Act
+            var result = await _classUnderTest.GetProductsAsync(settings, serviceCode);
+
+            // Assert
+            Assert.IsType<List<PricingTerm>>(result);
+            Assert.NotEmpty(result);
+            Assert.Equal(result[0].Sku, sku);
+            Assert.Equal(result[0].Term, term);
+            Assert.Equal(result[0].PurchaseOption, purchaseOption);
+            Assert.Equal(result[0].OfferingClass, offeringClass);
+            Assert.Equal(result[0].LeaseContractLength, leaseContractLength);
+            Assert.Equal(result[0].PricingDimension.BeginRange, beginRange);
+            Assert.Equal(result[0].PricingDimension.Currency, currency);
+            Assert.Equal(result[0].PricingDimension.Description, decription);
+            Assert.Equal(result[0].PricingDimension.EndRange, endRange);
+            Assert.Equal(result[0].PricingDimension.PricePerUnit, float.Parse(pricePerUnit));
+            Assert.Equal(result[0].PricingDimension.RateCode, rateCode);
+            Assert.Equal(result[0].PricingDimension.Unit, unit);
+        }
+
+        [Fact]
+        public async Task GetProductsAsync_ReturnsEmptyList()
+        {
+            // Arange
+            var serviceCode = "[Mock] Service Code";
+            var settings = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("[Mock] Setting name", "[Mock] Setting value")
+            };
+
+            // Act
+            var result = await _classUnderTest.GetProductsAsync(settings, serviceCode);
+
+            // Assert
+            Assert.IsType<List<PricingTerm>>(result);
+            Assert.Empty(result);
         }
     }
 }
