@@ -36,11 +36,12 @@ namespace FRF.Core.Services
 
             var projects = _mapper.Map<List<Project>>(result);
 
-            foreach (var project in projects)
-            foreach (var user in project.UsersByProject)
+            foreach (var user in projects.SelectMany(project => project.UsersByProject))
             {
-                var uId = user.UserId.ToString();
-                user.Email = await _userService.GetEmailByUserId(uId);
+                var userPublicProfile =await _userService.GetUserPublicProfile(user.UserId);
+                if (userPublicProfile == null) continue;
+                user.Fullname = userPublicProfile.Fullname;
+                user.Email = userPublicProfile.Email;
             }
 
             return projects;
@@ -101,32 +102,24 @@ namespace FRF.Core.Services
 
         public async Task<Project> GetAsync(int id)
         {
-            /* TODO:Pending AWS Credentials. Login is bypassed![FIVE-6] */
-            /*Uncomment this after do.*/
-            /*
-            var userId = _userService.GetCurrentUserId();
-            var result = await _dataContext.UsersProfile
+            var userId =await _userService.GetCurrentUserId();
+            var result = await _dataContext.UsersByProject
                 .Where(up => up.UserId == userId)
-                .Include(pr => pr.Project)
-                .ThenInclude(c => c.ProjectCategories)
-                .ThenInclude(ca => ca.Category)
-                .Include(pp => pp.Project)
-                .ThenInclude(upp=>upp.UsersProfile)
-                .SingleOrDefaultAsync(p => p.ProjectId == id);
-            */
-            /*Then delete this*/
-            var result = await _dataContext.Projects
-                .Include(p => p.ProjectCategories)
-                .ThenInclude(pc => pc.Category)
-                .Include(up => up.UsersByProject)
-                .SingleOrDefaultAsync(p => p.Id == id);
-            //
+                .Include(pr=>pr.Project)
+                .ThenInclude(c=>c.ProjectCategories)
+                .ThenInclude(ca=>ca.Category).Include(pp=>pp.Project)
+                .ThenInclude(upp=>upp.UsersByProject)
+                .SingleOrDefaultAsync(p=>p.ProjectId==id);
 
-            var project = _mapper.Map<Project>(result);
+            if (result == null) return null;
+
+            var project = _mapper.Map<Project>(result.Project);
             foreach (var user in project.UsersByProject)
             {
-                var uId = user.UserId.ToString();
-                user.Email = await _userService.GetEmailByUserId(uId);
+                var userPublicProfile = await _userService.GetUserPublicProfile(user.UserId);
+                if (userPublicProfile == null) continue;
+                user.Fullname = userPublicProfile.Fullname;
+                user.Email = userPublicProfile.Email;
             }
 
             return project;
@@ -185,24 +178,15 @@ namespace FRF.Core.Services
 
         public async Task<bool> DeleteAsync(int id)
         {
-            /* TODO:Pending AWS Credentials. Login is bypassed![FIVE-6] */
-            /*Uncomment this after do.*/
-            /* var userId = _userService.GetCurrentUserId();
-            var projectToDelete = await _dataContext.UsersProfile
+            var userId = await _userService.GetCurrentUserId();
+            var projectToDelete = await _dataContext.UsersByProject
                 .Where(up => up.UserId == userId)
                 .Include(pr => pr.Project)
-                .ThenInclude(c => c.ProjectCategories)
-                .ThenInclude(upp=>upp.UsersProfile)
-                .SingleOrDefaultAsync(p => p.Id == id);
-             */
-
-            var projectToDelete = await _dataContext.Projects
-                .Include(p => p.ProjectCategories)
-                .SingleOrDefaultAsync(p => p.Id == id);
+                .SingleOrDefaultAsync(p => p.ProjectId == id);
 
             if (projectToDelete == null) return false;
 
-            _dataContext.Projects.Remove(projectToDelete);
+            _dataContext.Projects.Remove(projectToDelete.Project);
             await _dataContext.SaveChangesAsync();
             return true;
         }

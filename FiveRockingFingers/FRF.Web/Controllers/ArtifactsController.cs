@@ -7,11 +7,13 @@ using FRF.Core.Models;
 using FRF.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 using FRF.Web.Dtos.Artifacts;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FRF.Web.Controllers
 {
     [ApiController]
     [Route("api/[controller]/[action]")]
+    [Authorize]
     public class ArtifactsController : ControllerBase
     {
         private readonly IMapper _mapper;

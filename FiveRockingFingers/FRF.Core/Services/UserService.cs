@@ -1,14 +1,14 @@
-﻿using System;
-using System.Threading.Tasks;
-using Amazon.Extensions.CognitoAuthentication;
+﻿using Amazon.Extensions.CognitoAuthentication;
+using FRF.Core.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging.Abstractions;
+using System;
+using System.Threading.Tasks;
 
 namespace FRF.Core.Services
 {
     public class UserService : IUserService
     {
-        /*private readonly SignInManager<CognitoUser> _signInManager;
+        private readonly SignInManager<CognitoUser> _signInManager;
         private readonly UserManager<CognitoUser> _userManager;
 
         public UserService(UserManager<CognitoUser> userManager, SignInManager<CognitoUser> signInManager)
@@ -17,74 +17,49 @@ namespace FRF.Core.Services
             _signInManager = signInManager;
         }
 
-
-        public async Task<string> GetFullname(string email)
-        {
-            if (string.IsNullOrEmpty(email)) return null;
-
-            var fullName = "";
-            try
-            {
-                var user = await _userManager.FindByEmailAsync(email);
-                foreach (var (key, value) in user.Attributes)
-                    fullName = key switch
-                    {
-                        "name" => value,
-                        "family_name" => fullName + " " + value,
-                        _ => fullName
-                    };
-            }
-            catch (Exception e)
-            {
-                throw new ArgumentException("Failed to search user :" + e.Message);
-            }
-
-            return fullName;
-        }
-
         public async Task Logout()
         {
-            try
-            {
-                await _signInManager.SignOutAsync();
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Logout fail: " + e.Message);
-            }
+           await _signInManager.SignOutAsync();
         }
 
-        public async Task<string> GetCurrentUserId()
+        public async Task<Guid> GetCurrentUserId()
         {
-            try
-            {
-                var currentUser = SignInManager.Context.User;
-                var result = await UserManager.GetUserAsync(currentUser).ConfigureAwait(false);
-                return result.UserID;
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
+            var currentUser = _signInManager.Context.User;
+            var result = await _userManager.GetUserAsync(currentUser);
+            if (result == null) return Guid.Empty;
+
+            var userId = new Guid(result.UserID);
+            return userId;
         }
 
-        public async Task<string> GetUserIdByEmail(string email)
+        public async Task<UsersProfile> GetUserPublicProfile(string email)
         {
-            var user = await _userManager.FindByEmailAsync(email);
+            var response = await _userManager.FindByEmailAsync(email);
+            if (response == null) return null;
 
-            return user == null ? null : user.UserID;
-        }*/
+            var user = new UsersProfile
+            {
+                Email = email,
+                Fullname = $"{response.Attributes["name"]} {response.Attributes["family_name"]}",
+                UserId = new Guid(response.UserID)
+            };
 
-        public async Task<string> GetEmailByUserId(string userId)
+            return user;
+        }
+
+        public async Task<UsersProfile> GetUserPublicProfile(Guid userId)
         {
-            // TODO: AWS Credentials, Loggin bypassed.Uncomment after do:
-            //var userEmail = await _userManager.FindByIdAsync(userId);
-            //return userEmail == null ? null : userEmail.Username;
+            var response = await _userManager.FindByIdAsync(userId.ToString());
+            if (response == null) return null;
 
-            // AND DELETE THIS:
-            const string currentUserId = "c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba";
-            return userId.ToLower() == currentUserId ? "fiverockingfingers@making.com" : "cooluser@mock.org";
-            //
+            var user = new UsersProfile
+            {
+                Email = response.Attributes["email"],
+                Fullname = $"{response.Attributes["name"]} {response.Attributes["family_name"]}",
+                UserId = new Guid(response.UserID)
+            };
+
+            return user;
         }
     }
 }

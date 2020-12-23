@@ -8,8 +8,8 @@ import { Link } from 'react-router-dom';
 import Project from '../interfaces/Project';
 import '../styles/NavMenu.css';
 import NavMenuItem from './NavMenuItem';
-import { useUserContext } from "../components/auth/contextLib";
 import ProjectService from '../services/ProjectService';
+import UserProfile from '../interfaces/UserProfile'
 
 const FaHome = () => (
     <div className='d-inline-block m-2'>
@@ -20,29 +20,33 @@ const FaHome = () => (
 const NavMenu = () => {
 
     const [projects, setProjects] = React.useState<Project[]>([]);
-    const [user, setUser] = React.useState<string | null>("");
+    const [user, setUser] = React.useState<UserProfile | null>(null);
     React.useEffect(() => {
             getProjects();
             getUser();
         },
         []);
 
-    const { isAuthenticated } = useUserContext();
     const getProjects = async () => {
 
-        const response = await ProjectService.getAll(isAuthenticated);
+        const response = await ProjectService.getAll();
 
         setProjects(response.data);
     }
     const getUser = async () => {
-        const response = await axios.get("https://localhost:44346/api/User/getfullname");
-        setUser(response.data);
+        const response = await axios.get("https://localhost:44346/api/User");
+        setUser({
+            fullName : response.data["fullname"],
+            email : response.data["email"],
+            userId : response.data["userId"],
+            avatar : response.data["avatar"]
+        });
     }
     return (
         <ProSidebar>
             <SidebarHeader>
                 {FaHome()}
-                {user}
+                {user?.fullName}
                 <Link to="/"/>
             </SidebarHeader>
             <SidebarContent>

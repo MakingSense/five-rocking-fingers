@@ -4,7 +4,7 @@ export function HelperAddUser(user: UserProfile, usersProfile: UserProfile[], em
     const aux: UserProfile = {
         userId: user.userId,
         email: user.email,
-        fullName: "",
+        fullName: user.fullName,
         avatar: ""
     }
     var auxState = usersProfile;
