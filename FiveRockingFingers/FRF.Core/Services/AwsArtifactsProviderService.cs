@@ -68,25 +68,32 @@ namespace FRF.Core.Services
                 ServiceCode = serviceCode
             });
 
-            foreach (var service in response.Services)
+            if(response != null)
             {
-                foreach (var attributeName in service.AttributeNames)
+                foreach (var service in response.Services)
                 {
-                    var attribute = new ProviderArtifactSetting();
-                    attribute.Name = attributeName;
-                    attribute.Values = new List<string>();
-
-                    var response2 = await _client.GetAttributeValuesAsync(new GetAttributeValuesRequest
+                    foreach (var attributeName in service.AttributeNames)
                     {
-                        AttributeName = attributeName,
-                        ServiceCode = serviceCode
-                    });
+                        var attributeKeyValue = new KeyValuePair<string, string>(attributeName, ExtractName(attributeName));
+                        var attribute = new ProviderArtifactSetting();
+                        attribute.Name = attributeKeyValue;
+                        attribute.Values = new List<string>();
 
-                    foreach (var attributeValues in response2.AttributeValues)
-                    {
-                        attribute.Values.Add(attributeValues.Value);
+                        var response2 = await _client.GetAttributeValuesAsync(new GetAttributeValuesRequest
+                        {
+                            AttributeName = attributeName,
+                            ServiceCode = serviceCode
+                        });
+
+                        if(response2 != null)
+                        {
+                            foreach (var attributeValues in response2.AttributeValues)
+                            {
+                                attribute.Values.Add(attributeValues.Value);
+                            }
+                        }
+                        attributes.Add(attribute);
                     }
-                    attributes.Add(attribute);
                 }
             }
             return attributes;
@@ -117,72 +124,81 @@ namespace FRF.Core.Services
                 ServiceCode = serviceCode
             });
 
-            foreach (var price in response.PriceList)
+            if(response != null)
             {
-                var priceJson = JObject.Parse(price);
-
-                var sku = (string)priceJson.SelectTokens("product.sku").ToList()[0];
-                var terms = priceJson.SelectToken("terms").ToObject<JObject>();
-
-                foreach (var term in terms.Properties())
+                foreach (var price in response.PriceList)
                 {
-                    var termName = term.Name;
+                    var priceJson = JObject.Parse(price);
 
-                    var termProperties = term.Value.ToObject<JObject>();
-                    foreach (var termOption in termProperties)
+                    var sku = (string)priceJson.SelectTokens("product.sku").ToList()[0];
+                    var terms = priceJson.SelectToken("terms").ToObject<JObject>();
+
+                    if(terms != null)
                     {
-                        var termOptionProperties = termOption.Value;
-                        var leaseContractLength = (string)termOptionProperties.SelectToken("termAttributes.LeaseContractLength");
-                        var offeringClass = (string)termOptionProperties.SelectToken("termAttributes.OfferingClass");
-                        var purchaseOption = (string)termOptionProperties.SelectToken("termAttributes.PurchaseOption");
-                        var termPriceDimensions = termOptionProperties.SelectToken("priceDimensions").ToObject<JObject>().Properties().ToList();
-                        var termPriceDimension = termPriceDimensions[0];
-                        var pricingDimension = new PricingDimension()
+                        foreach (var term in terms.Properties())
                         {
-                            Unit = (string)termPriceDimension.Value.SelectToken("unit"),
-                            EndRange = (string)termPriceDimension.Value.SelectToken("endRange"),
-                            Description = (string)termPriceDimension.Value.SelectToken("description"),
-                            RateCode = (string)termPriceDimension.Value.SelectToken("rateCode"),
-                            BeginRange = (string)termPriceDimension.Value.SelectToken("beginRange"),
-                            Currency = termPriceDimension.Value.SelectToken("pricePerUnit").ToObject<JObject>().Properties().ElementAt(0).Name,
-                            PricePerUnit = (float)termPriceDimension.Value.SelectToken("pricePerUnit").ToObject<JObject>().Properties().ElementAt(0).Value,
-                        };
-                        var pricingDetails = new PricingDimension();
-                        if (termPriceDimensions.Count > 1)
-                        {
-                            var termPriceDetail = termPriceDimensions[1];
-                            pricingDetails = new PricingDimension()
+                            var termName = term.Name;
+
+                            var termProperties = term.Value.ToObject<JObject>();
+
+                            if(termProperties != null)
                             {
-                                Unit = (string)termPriceDetail.Value.SelectToken("unit"),
-                                EndRange = (string)termPriceDetail.Value.SelectToken("endRange"),
-                                Description = (string)termPriceDetail.Value.SelectToken("description"),
-                                RateCode = (string)termPriceDetail.Value.SelectToken("rateCode"),
-                                BeginRange = (string)termPriceDetail.Value.SelectToken("beginRange"),
-                                Currency = termPriceDetail.Value.SelectToken("pricePerUnit").ToObject<JObject>().Properties().ElementAt(0).Name,
-                                PricePerUnit = (float)termPriceDetail.Value.SelectToken("pricePerUnit").ToObject<JObject>().Properties().ElementAt(0).Value
-                            };
-                        }
-                        else
-                        {
-                            pricingDetails = null;
-                        }
+                                foreach (var termOption in termProperties)
+                                {
+                                    var termOptionProperties = termOption.Value;
+                                    var leaseContractLength = (string)termOptionProperties.SelectToken("termAttributes.LeaseContractLength");
+                                    var offeringClass = (string)termOptionProperties.SelectToken("termAttributes.OfferingClass");
+                                    var purchaseOption = (string)termOptionProperties.SelectToken("termAttributes.PurchaseOption");
+                                    var termPriceDimensions = termOptionProperties.SelectToken("priceDimensions").ToObject<JObject>().Properties().ToList();
+                                    var termPriceDimension = termPriceDimensions[0];
+                                    var pricingDimension = new PricingDimension()
+                                    {
+                                        Unit = (string)termPriceDimension.Value.SelectToken("unit"),
+                                        EndRange = (string)termPriceDimension.Value.SelectToken("endRange"),
+                                        Description = (string)termPriceDimension.Value.SelectToken("description"),
+                                        RateCode = (string)termPriceDimension.Value.SelectToken("rateCode"),
+                                        BeginRange = (string)termPriceDimension.Value.SelectToken("beginRange"),
+                                        Currency = termPriceDimension.Value.SelectToken("pricePerUnit").ToObject<JObject>().Properties().ElementAt(0).Name,
+                                        PricePerUnit = (float)termPriceDimension.Value.SelectToken("pricePerUnit").ToObject<JObject>().Properties().ElementAt(0).Value,
+                                    };
+                                    var pricingDetails = new PricingDimension();
+                                    if (termPriceDimensions.Count > 1)
+                                    {
+                                        var termPriceDetail = termPriceDimensions[1];
+                                        pricingDetails = new PricingDimension()
+                                        {
+                                            Unit = (string)termPriceDetail.Value.SelectToken("unit"),
+                                            EndRange = (string)termPriceDetail.Value.SelectToken("endRange"),
+                                            Description = (string)termPriceDetail.Value.SelectToken("description"),
+                                            RateCode = (string)termPriceDetail.Value.SelectToken("rateCode"),
+                                            BeginRange = (string)termPriceDetail.Value.SelectToken("beginRange"),
+                                            Currency = termPriceDetail.Value.SelectToken("pricePerUnit").ToObject<JObject>().Properties().ElementAt(0).Name,
+                                            PricePerUnit = (float)termPriceDetail.Value.SelectToken("pricePerUnit").ToObject<JObject>().Properties().ElementAt(0).Value
+                                        };
+                                    }
+                                    else
+                                    {
+                                        pricingDetails = null;
+                                    }
 
-                        var pricingTerm = new PricingTerm()
-                        {
-                            Sku = sku,
-                            Term = termName,
-                            PricingDimension = pricingDimension,
-                            PricingDetail = pricingDetails,
-                            LeaseContractLength = leaseContractLength,
-                            OfferingClass = offeringClass,
-                            PurchaseOption = purchaseOption
-                        };
+                                    var pricingTerm = new PricingTerm()
+                                    {
+                                        Sku = sku,
+                                        Term = termName,
+                                        PricingDimension = pricingDimension,
+                                        PricingDetail = pricingDetails,
+                                        LeaseContractLength = leaseContractLength,
+                                        OfferingClass = offeringClass,
+                                        PurchaseOption = purchaseOption
+                                    };
 
-                        pricingDetailsList.Add(pricingTerm);
+                                    pricingDetailsList.Add(pricingTerm);
+                                }
+                            } 
+                        }
                     }
-                }  
+                }
             }
-
             return pricingDetailsList;
         }
 
