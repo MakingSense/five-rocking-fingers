@@ -417,7 +417,7 @@ namespace FRF.Core.Tests.Services
         }
 
         [Fact]
-        public async Task Delete_Returns()
+        public async Task Delete_ReturnsArtifact()
         {
             // Arange
             var artifactType = CreateArtifactType();
@@ -425,10 +425,36 @@ namespace FRF.Core.Tests.Services
             var artifact = CreateArtifact(project, artifactType);
 
             // Act
-            await _classUnderTest.Delete(artifact.Id);
+            var result = await _classUnderTest.Delete(artifact.Id);
 
             // Assert
-            Assert.Null(await _dataAccess.Artifacts.FirstOrDefaultAsync(a => a.Id == artifact.Id));
+            Assert.IsType<Models.Artifact>(result);
+
+            Assert.Equal(artifact.Id, result.Id);
+            Assert.Equal(artifact.Name, result.Name);
+            Assert.Equal(artifact.Provider, result.Provider);
+            Assert.Equal(artifact.CreatedDate, result.CreatedDate);
+            Assert.Equal(artifact.ProjectId, result.ProjectId);
+            Assert.Equal(artifact.ArtifactTypeId, result.ArtifactTypeId);
+
+            Assert.Equal(artifact.Project.Id, result.Project.Id);
+            Assert.Equal(artifact.Project.Name, result.Project.Name);
+
+            Assert.Equal(artifact.ArtifactType.Id, result.ArtifactType.Id);
+            Assert.Equal(artifact.ArtifactType.Name, result.ArtifactType.Name);
+            Assert.Equal(artifact.ArtifactType.Description, result.ArtifactType.Description);
+        }
+
+        [Fact]
+        public async Task Delete_ReturnsNull()
+        {
+            // Arange
+            var artifactType = CreateArtifactType();
+            var project = CreateProject();
+            var artifact = CreateArtifact(project, artifactType);
+
+            // Act/Assert
+            Assert.Null(await _classUnderTest.Delete(0));
         }
     }
 }
