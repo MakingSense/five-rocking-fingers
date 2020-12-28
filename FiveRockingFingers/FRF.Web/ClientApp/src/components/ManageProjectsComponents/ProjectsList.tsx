@@ -88,21 +88,21 @@ const ProjectsList = (props: { projects: Project[], categories: Category[], upda
     }
 
     const fillProjectCategories = async (selectedCategories: Category[]) => {
-        let aux = [] as ProjectCategory[];
+        let projectCategories = [] as ProjectCategory[];
         for (const category of selectedCategories) {
             let categoryToAdd = props.categories.find(c => c.name === category.name);
             if (categoryToAdd === undefined) {
                 const response = await CategoryService.save(category);
                 if (response.status === 200) {
-                    let aux2: ProjectCategory = { category: response.data };
-                    aux.push(aux2);
+                    let projectCategory: ProjectCategory = { category: response.data };
+                    projectCategories.push(projectCategory);
                 }
             } else {
-                let aux2: ProjectCategory = { category: categoryToAdd };
-                aux.push(aux2);
+                let projectCategory: ProjectCategory = { category: categoryToAdd };
+                projectCategories.push(projectCategory);
             }
         };
-        return aux;
+        return projectCategories;
     }
 
     // Turn edit on/off

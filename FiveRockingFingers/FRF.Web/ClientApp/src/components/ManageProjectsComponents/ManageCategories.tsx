@@ -18,9 +18,9 @@ const ManageCategories = (props: { categories: Category[], selectedCategories: C
             return
         }
         if (tempCategories.filter(c => c.name === value[value.length - 1].name).length === 0) {
-            let aux = [...tempCategories];
-            aux.push(value[value.length - 1]);
-            setTempCategories(aux);
+            let categories = [...tempCategories];
+            categories.push(value[value.length - 1]);
+            setTempCategories(categories);
         }
         props.setSelectedCategories(value);
     }
