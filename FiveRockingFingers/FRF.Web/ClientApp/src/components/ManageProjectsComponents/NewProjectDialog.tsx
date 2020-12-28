@@ -4,16 +4,14 @@
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
-import Autocomplete, { createFilterOptions } from '@material-ui/lab/Autocomplete';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import Category from '../../interfaces/Category';
 import Project from '../../interfaces/Project';
-import ProjectCategory from '../../interfaces/ProjectCategory';
 import UserProfile from '../../interfaces/UserProfile';
-import CategoryService from "../../services/CategoryService";
 import ProjectService from '../../services/ProjectService';
 import { HelperAddUser } from "./HelperAddUser";
+import ManageCategories from "./ManageCategories";
 import { ValidateEmail } from "./ValidateEmail";
 
 const useStyles = makeStyles({
@@ -33,14 +31,12 @@ const useStyles = makeStyles({
     }
 });
 
-const filter = createFilterOptions<Category>();
-
-const NewProjectDialog = (props: { create: boolean, categories: Category[], finishCreation: Function, openSnackbar: Function, updateProjects: Function, updateCategories: Function }) => {
+const NewProjectDialog = (props: { create: boolean, categories: Category[], finishCreation: Function, openSnackbar: Function, updateProjects: Function, updateCategories: Function, fillProjectCategories: Function }) => {
 
     const email = React.useRef<TextFieldProps>(null);
     const [fieldEmail, setFieldEmail] = React.useState<string | null>("")
+    const [selectedCategories, setSelectedCategories] = React.useState([] as Category[]);
     const classes = useStyles();
-    const [tempCategories, setTempCategories] = React.useState([...props.categories]);
 
     const { register, handleSubmit, errors } = useForm();
 
@@ -50,12 +46,7 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
         owner: "",
         budget: -1,
         users: [] as UserProfile[],
-        selectedCategories: [] as Category[]
     });
-
-    React.useEffect(() => {
-        setTempCategories([...props.categories]);
-    }, [props.categories.length])
 
     const clearState = () => {
         setState({
@@ -63,8 +54,7 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
             client: "",
             owner: "",
             budget: -1,
-            users: [],
-            selectedCategories: []
+            users: []
         });
     }
 
@@ -87,19 +77,6 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
         props.openSnackbar({ message: "Usuario desvinculado correctamente!", severity: "info" });
         return { state };
     };
-
-    const handleChangeCategories = (event: React.ChangeEvent<{}>, value: Category[]) => {
-        if (value.length === 0) {
-            setState({ ...state, selectedCategories: [] });
-            return
-        }
-        if (tempCategories.filter(c => c.name === value[value.length - 1].name).length === 0) {
-            let aux = [...tempCategories];
-            aux.push(value[value.length - 1]);
-            setTempCategories(aux);
-        }
-        setState({ ...state, selectedCategories: value });
-    }
 
     const handleAddUser = async () => {
         let userEmail: string | null = "";
@@ -124,27 +101,8 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
         }
     }
 
-    const fillProjectCategories = async () => {
-        let aux = [] as ProjectCategory[];
-        for (const category of state.selectedCategories) {
-            let categoryToAdd = props.categories.find(c => c.name === category.name);
-            if (categoryToAdd === undefined) {
-                const response = await CategoryService.save(category);
-                if (response.status === 200)
-                {
-                    let aux2: ProjectCategory = { category: response.data };
-                    aux.push(aux2);
-                }
-            } else {
-                let aux2: ProjectCategory = { category: categoryToAdd };
-                aux.push(aux2);
-            }
-        };
-        return aux;
-    }
-
     const handleConfirm = async () => {
-        var projectCategories = await fillProjectCategories();
+        var projectCategories = await props.fillProjectCategories(selectedCategories);
         const { name, client, owner, budget, users } = state;
         const project = { name, client, owner, budget, projectCategories, users }
         const response = await ProjectService.save(project as Project);
@@ -220,38 +178,7 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
                         }}
                         fullWidth
                     />
-                    <Autocomplete
-                        multiple
-                        id="tags-standard"
-                        options={tempCategories}
-                        fullWidth
-                        onChange={handleChangeCategories}
-                        autoHighlight
-                        filterOptions={(options, params) => {
-                            var filtered = filter(options, params);
-
-                            if (params.inputValue !== '' && tempCategories.find(c => c.name === params.inputValue) === undefined) {
-                                filtered.unshift({
-                                    id: -1,
-                                    name: params.inputValue,
-                                    description: ""
-                                });
-                            }
-                            return filtered;
-                        }}
-                        getOptionLabel={(option) => {
-                            return option.name
-                        }}
-                        getOptionSelected={(option, value) => option.name === value.name}
-                        renderInput={(params) => (
-                            <TextField
-                                {...params}
-                                variant="outlined"
-                                label="Categorías"
-                                placeholder="Escriba el nombre de la categoría"
-                            />
-                        )}
-                    />
+                    <ManageCategories categories={props.categories} selectedCategories={selectedCategories} setSelectedCategories={setSelectedCategories} />
                     <FormGroup>
                         <Paper component="ul" className={classes.addUser} >
                             {state.users.map((user,index) => {

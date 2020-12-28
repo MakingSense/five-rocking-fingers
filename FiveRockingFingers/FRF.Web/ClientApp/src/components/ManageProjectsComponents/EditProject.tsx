@@ -9,9 +9,7 @@ import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import Category from '../../interfaces/Category';
 import Project from '../../interfaces/Project';
-import ProjectCategory from '../../interfaces/ProjectCategory';
 import UserProfile from '../../interfaces/UserProfile';
-import CategoryService from '../../services/CategoryService';
 import ProjectService from '../../services/ProjectService';
 import { HelperAddUser } from './HelperAddUser';
 import { ValidateEmail } from "./ValidateEmail";
@@ -41,7 +39,7 @@ const useStyles = makeStyles({
 
 const filter = createFilterOptions<Category>();
 
-const EditProject = (props: { project: Project, cancelEdit: any, categories: Category[], openSnackbar: Function, updateProjects: Function, updateCategories: Function }) => {
+const EditProject = (props: { project: Project, cancelEdit: any, categories: Category[], openSnackbar: Function, updateProjects: Function, updateCategories: Function, fillProjectCategories: Function }) => {
     const classes = useStyles();
     const email = React.useRef<TextFieldProps>(null);
     const [fieldEmail, setFieldEmail] = React.useState<string | null>("")
@@ -122,26 +120,8 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
         setState({ ...state, selectedCategories: value });
     }
 
-    const fillProjectCategories = async () => {
-        let aux = [] as ProjectCategory[];
-        for (const category of state.selectedCategories) {
-            let categoryToAdd = props.categories.find(c => c.name === category.name);
-            if (categoryToAdd === undefined) {
-                const response = await CategoryService.save(category);
-                if (response.status === 200) {
-                    let aux2: ProjectCategory = { category: response.data };
-                    aux.push(aux2);
-                }
-            } else {
-                let aux2: ProjectCategory = { category: categoryToAdd };
-                aux.push(aux2);
-            }
-        };
-        return aux;
-    }
-
     const handleConfirm = async () => {
-        var projectCategories = await fillProjectCategories();
+        var projectCategories = await props.fillProjectCategories(state.selectedCategories);
         const { name, client, owner, budget, id, createdDate, users } = state;
         const project = { name, client, owner, budget, id, createdDate, projectCategories, users }
         const response = await ProjectService.update(id, project as Project);
