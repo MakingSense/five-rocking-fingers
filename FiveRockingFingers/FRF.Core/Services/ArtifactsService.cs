@@ -1,25 +1,23 @@
 ﻿using AutoMapper;
 using FRF.Core.Models;
 using FRF.DataAccess;
-using EntityModels = FRF.DataAccess.EntityModels;
-using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EntityModels = FRF.DataAccess.EntityModels;
 
 namespace FRF.Core.Services
 {
     public class ArtifactsService : IArtifactsService
     {
-        private readonly IConfiguration _configuration;
         private readonly DataAccessContext _dataContext;
         private readonly IMapper _mapper;
 
-        public ArtifactsService(IConfiguration configuration, DataAccessContext dataContext, IMapper mapper)
+        public ArtifactsService(DataAccessContext dataContext, IMapper mapper)
         {
-            _configuration = configuration;
             _dataContext = dataContext;
             _mapper = mapper;
         }
@@ -140,6 +138,40 @@ namespace FRF.Core.Services
             _dataContext.Artifacts.Remove(artifactToDelete);
             await _dataContext.SaveChangesAsync();
             return;
+        }
+
+        public async Task<IList<ArtifactsRelation>> SetRelationAsync(IList<ArtifactsRelation> artifactRelations)
+        {
+            var resultArtifactRelations = new List<ArtifactsRelation>();
+            var dbArtifactsId = await _dataContext.Artifacts.Select(a => a.Id).ToListAsync();
+            var artifactsRelationIds = artifactRelations
+                .Select(ar => ar.Artifact1Id)
+                .Concat(artifactRelations.Select(ar=>ar.Artifact2Id));
+
+            var isAnyArtifactExcept= artifactsRelationIds.Except(dbArtifactsId).Any();
+            if (isAnyArtifactExcept) return null;
+
+            var dbArtifactRelations = await _dataContext.ArtifactsRelation.ToListAsync();
+            var isAnyArtifactRepeated = artifactRelations
+                .Any(ar => dbArtifactRelations
+                    .Any(dbAr => 
+                        dbAr.Artifact1Id == ar.Artifact1Id
+                        && dbAr.Artifact2Id == ar.Artifact2Id
+                        && dbAr.Artifact1Property.Equals(ar.Artifact1Property, StringComparison.InvariantCultureIgnoreCase)
+                        && dbAr.Artifact2Property.Equals(ar.Artifact2Property, StringComparison.InvariantCultureIgnoreCase)
+                        )
+                );
+            if (isAnyArtifactRepeated) return null;
+
+            foreach (var artifactRelation in artifactRelations)
+            { 
+                var mappedArtifactRelation = _mapper.Map<EntityModels.ArtifactsRelation>(artifactRelation);
+                await _dataContext.ArtifactsRelation.AddAsync(mappedArtifactRelation);
+                resultArtifactRelations.Add(artifactRelation);
+            }
+
+            await _dataContext.SaveChangesAsync();
+            return resultArtifactRelations;
         }
     }
 }

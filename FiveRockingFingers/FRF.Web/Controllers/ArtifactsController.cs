@@ -1,12 +1,10 @@
 ﻿using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using FRF.Core.Models;
 using FRF.Core.Services;
-using Microsoft.AspNetCore.Mvc;
 using FRF.Web.Dtos.Artifacts;
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace FRF.Web.Controllers
 {
