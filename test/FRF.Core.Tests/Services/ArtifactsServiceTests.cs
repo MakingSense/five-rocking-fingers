@@ -8,6 +8,7 @@ using Xunit;
 using System.Threading.Tasks;
 using FRF.DataAccess.EntityModels;
 using Microsoft.Extensions.Configuration;
+using ArtifactsRelation = FRF.Core.Models.ArtifactsRelation;
 
 namespace FRF.Core.Tests.Services
 {
@@ -27,7 +28,7 @@ namespace FRF.Core.Tests.Services
             _dataAccess.Database.EnsureDeleted();
             _dataAccess.Database.EnsureCreated();
 
-            _classUnderTest = new ArtifactsService(_configuration.Object, _dataAccess, _mapper);
+            _classUnderTest = new ArtifactsService(_dataAccess, _mapper);
         }
 
         private ArtifactType CreateArtifactType()
@@ -69,6 +70,22 @@ namespace FRF.Core.Tests.Services
             _dataAccess.SaveChanges();
 
             return artifact;
+        }
+
+        private Models.ArtifactsRelation CreateArtifactsRelationModel(int artifact1Id,int artifact2Id)
+        {
+            var random = new Random();
+            var propertyId = random.Next(1000);
+            var artifactRelation = new Models.ArtifactsRelation()
+            {
+                Artifact1Id = artifact1Id,
+                Artifact2Id = artifact2Id,
+                Artifact1Property = "Mock 1 Property "+propertyId,
+                Artifact2Property = "Mock 2 Property "+propertyId,
+                RelationTypeId = 1
+            };
+
+            return artifactRelation;
         }
 
         [Fact]
@@ -430,5 +447,107 @@ namespace FRF.Core.Tests.Services
             // Assert
             Assert.Null(await _dataAccess.Artifacts.FirstOrDefaultAsync(a => a.Id == artifact.Id));
         }
+        
+        [Fact]
+        public async Task SetRelationAsync_ReturnsListOfRelations()
+        {
+            // Arange
+            var artifactsRelationToSave = new List<ArtifactsRelation>();
+            var artifactsRelationInDb = new List<DataAccess.EntityModels.ArtifactsRelation>();
+            var i = 0;
+            while (i < 3)
+            {
+                var artifactType = CreateArtifactType();
+                var project = CreateProject();
+                var artifact = CreateArtifact(project, artifactType);
+                var artifact1Id = artifact.Id;
+                var artifact2Id = artifact1Id++;
+
+                var artifactRelation = CreateArtifactsRelationModel(artifact1Id, artifact2Id);
+                artifactsRelationToSave.Add(artifactRelation);
+
+                var artifactRelationDb =
+                    _mapper.Map<DataAccess.EntityModels.ArtifactsRelation>(
+                        CreateArtifactsRelationModel(artifact1Id, artifact2Id));
+                await _dataAccess.ArtifactsRelation.AddAsync(artifactRelationDb);
+                artifactsRelationInDb.Add(artifactRelationDb);
+                var art = CreateArtifact(project, artifactType);
+                i++;
+            }
+
+            await _dataAccess.SaveChangesAsync();
+
+            // Act
+            var response = await _classUnderTest.SetRelationAsync(artifactsRelationToSave);
+
+            // Assert
+            var result = Assert.IsAssignableFrom<IList<ArtifactsRelation>>(response);
+            for (var j = 0; j < result.Count; j++)
+            {
+                Assert.Equal(artifactsRelationToSave[j].Artifact1Id, result[j].Artifact1Id);
+                Assert.Equal(artifactsRelationToSave[j].Artifact2Id, result[j].Artifact2Id);
+                Assert.Equal(artifactsRelationToSave[j].Artifact1Property, result[j].Artifact1Property);
+                Assert.Equal(artifactsRelationToSave[j].Artifact2Property, result[j].Artifact2Property);
+            }
+        }
+
+        [Fact]
+        public async Task SetRelationAsync_ReturnsNull_WhenIsAnyArtifactExcept()
+        {
+            // Arange
+            var artifactsRelationToSave = new List<ArtifactsRelation>();
+            var i = 0;
+            while (i < 3)
+            {
+                var artifactRelation = CreateArtifactsRelationModel(i, ++i);
+                artifactsRelationToSave.Add(artifactRelation);
+            }
+
+            await _dataAccess.SaveChangesAsync();
+
+            // Act
+            var response = await _classUnderTest.SetRelationAsync(artifactsRelationToSave);
+
+            // Assert
+            Assert.Null(response);
+        }
+
+        [Fact]
+        public async Task SetRelationAsync_ReturnsNull_WhenIsAnyArtifactRepeated()
+        {
+            // Arange
+            var artifactsRelationToSave = new List<ArtifactsRelation>();
+            var artifactsRelationInDb = new List<DataAccess.EntityModels.ArtifactsRelation>();
+            var i = 0;
+            while (i < 3)
+            {
+                var artifactType = CreateArtifactType();
+                var project = CreateProject();
+                var artifact = CreateArtifact(project, artifactType);
+                var artifact1Id = artifact.Id;
+                var artifact2Id = artifact1Id++;
+
+                var artifactRelation = CreateArtifactsRelationModel(artifact1Id, artifact2Id);
+                artifactsRelationToSave.Add(artifactRelation);
+
+                var artifactRelationDb = _mapper.Map<DataAccess.EntityModels.ArtifactsRelation>(artifactRelation);
+                await _dataAccess.ArtifactsRelation.AddAsync(artifactRelationDb);
+                artifactsRelationInDb.Add(artifactRelationDb);
+                i++;
+            }
+
+            await _dataAccess.SaveChangesAsync();
+
+            // Act
+            var response = await _classUnderTest.SetRelationAsync(artifactsRelationToSave);
+
+            // Assert
+            Assert.Null(response);
+            Assert.Equal(artifactsRelationInDb[0].Artifact1Property, artifactsRelationToSave[0].Artifact1Property);
+            Assert.Equal(artifactsRelationInDb[0].Artifact2Property, artifactsRelationToSave[0].Artifact2Property);
+            Assert.Equal(artifactsRelationInDb[0].Artifact2Id, artifactsRelationToSave[0].Artifact2Id);
+            Assert.Equal(artifactsRelationInDb[0].Artifact1Id, artifactsRelationToSave[0].Artifact1Id);
+        }
+
     }
 }
