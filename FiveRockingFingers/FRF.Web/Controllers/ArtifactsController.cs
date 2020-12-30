@@ -97,5 +97,16 @@ namespace FRF.Web.Controllers
 
             return NoContent();
         }
+
+        [HttpPost]
+        public async Task<IActionResult> SetRelationAsync(IList<ArtifactsRelationDTO> artifactRelationList)
+        {
+            var artifactsRelations = _mapper.Map<IList<ArtifactsRelation>>(artifactRelationList);
+            var result = await _artifactsService.SetRelationAsync(artifactsRelations);
+            if (result == null) return BadRequest();
+
+            var artifactsResult = _mapper.Map<IList<ArtifactsRelationDTO>>(result);
+            return Ok(artifactsResult);
+        }
     }
 }
