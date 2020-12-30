@@ -1,4 +1,6 @@
-﻿export default interface ProviderArtifactSetting {
-    name: string;
+﻿import AwsArtifactSettingName from './AwsArtifactSettingName';
+
+export default interface ProviderArtifactSetting {
+    name: AwsArtifactSettingName;
     values: string[];
 }

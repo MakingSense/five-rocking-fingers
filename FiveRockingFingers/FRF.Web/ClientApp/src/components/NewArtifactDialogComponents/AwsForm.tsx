@@ -4,9 +4,19 @@ import Typography from '@material-ui/core/Typography';
 import Autocomplete from '@material-ui/lab/Autocomplete/Autocomplete';
 import AwsArtifactService from '../../services/AwsArtifactService';
 import AwsArtifact from '../../interfaces/AwsArtifact';
-import { PROVIDERS } from '../../Constants'
+import ArtifactType from '../../interfaces/ArtifactType';
+import { PROVIDERS } from '../../Constants';
 import ArtifactService from '../../services/ArtifactService';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import { useForm } from 'react-hook-form';
+
+const constArtifactTypes = [
+    {
+        "id": 5,
+        "name": "Atype",
+        "description": "ADescription"
+    }
+]
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -27,15 +37,18 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-const AwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, projectId: number, updateList: Function, setOpenSnackbar: Function, setSnackbarSettings: Function, handlePreviousStep: Function }) => {
+const AwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, projectId: number, updateList: Function, setArtifactTypeId: Function, setOpenSnackbar: Function, setSnackbarSettings: Function, handleNextStep: Function, handlePreviousStep: Function, setName: Function }) => {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
   const [awsNames, setAwsNames] = React.useState([] as AwsArtifact[]);
-  const [selectedName, setSelectedName] = React.useState<AwsArtifact | null>({ key: "", value: "" });
+    const [selectedName, setSelectedName] = React.useState<AwsArtifact | null>({ key: "", value: "" });
+    const [artifactTypes, setArtifactTypes] = React.useState([] as ArtifactType[]);
   const { showNewArtifactDialog, closeNewArtifactDialog, projectId, updateList, setOpenSnackbar, setSnackbarSettings } = props;
-  const loading = open && awsNames.length === 0;
+    const loading = open && awsNames.length === 0;
+    const { register, handleSubmit, errors, control, getValues } = useForm();
 
-  React.useEffect(() => {
+    React.useEffect(() => {
+        setArtifactTypes(constArtifactTypes);
     let active = true;
     let statusOk = 200;
     if (!loading) {
@@ -59,38 +72,12 @@ const AwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog
   }, [loading])
 
   //Create the artifact after submit
-  const handleConfirm = async () => {
-    if (Boolean(selectedName?.key === "")) {
-      setSnackbarSettings({ message: "Seleccione un artefacto!", severity: "error" });
-      setOpenSnackbar(true);
+    const handleConfirm = async () => {
+        props.setArtifactTypeId(artifactTypes[0].id);
+        const name = selectedName?.key;
+        props.setName(name);
+        props.handleNextStep();
     }
-    else {
-      const artifactToCreate = {
-        name: selectedName?.value,
-        provider: PROVIDERS[0],
-        artifactTypeId: 1,
-        projectId: projectId,
-        settings: null
-      };
-
-      try {
-        const response = await ArtifactService.save(artifactToCreate);
-        if (response.status === 200) {
-          setSnackbarSettings({ message: "El artefacto ha sido creado con éxito", severity: "success" });
-          setOpenSnackbar(true);
-          updateList();
-        } else {
-          setSnackbarSettings({ message: "Hubo un error al crear el artefacto", severity: "error" });
-          setOpenSnackbar(true);
-        }
-      }
-      catch (error) {
-        setSnackbarSettings({ message: "Hubo un error al crear el artefacto", severity: "error" });
-        setOpenSnackbar(true);
-      }
-      closeNewArtifactDialog();
-    }
-  }
 
   const handlePreviousStep = () => {
     props.handlePreviousStep();

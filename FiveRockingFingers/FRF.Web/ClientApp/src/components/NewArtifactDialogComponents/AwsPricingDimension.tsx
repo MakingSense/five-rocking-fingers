@@ -1,0 +1,162 @@
+﻿import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormHelperText, InputLabel, MenuItem, Radio, RadioGroup, Select } from '@material-ui/core';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
+import * as React from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import ProviderArtifactSetting from '../../interfaces/ProviderArtifactSetting';
+import Setting from '../../interfaces/Setting';
+import AwsArtifactSetting from '../../interfaces/AwsArtifactSetting';
+import PricingTerm from '../../interfaces/PricingTerm';
+import ArtifactService from '../../services/ArtifactService';
+import AwsArtifactService from '../../services/AwsArtifactService';
+
+
+const useStyles = makeStyles((theme: Theme) =>
+    createStyles({
+        container: {
+            display: 'flex',
+            flexWrap: 'wrap',
+        },
+        formControl: {
+            margin: theme.spacing(1),
+            width: '100%'
+        },
+        inputF: {
+            padding: 2,
+            marginTop: 10
+        },
+        circularProgress: {
+            width: '30%',
+            margin: 'auto'
+        }
+    }),
+);
+
+const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, provider: string | null, name: string | null, projectId: number, artifactTypeId: number | null, updateList: Function, setOpenSnackbar: Function, setSnackbarSettings: Function, handleNextStep: Function, handlePreviousStep: Function, settingsList: Setting[], setSettingsList: Function, settingsMap: { [key: string]: number[] }, setSettingsMap: Function, awsSettingsList: AwsArtifactSetting[], settings: object, setSettings: Function, setAwsPricingTerm: Function }) => {
+
+    const classes = useStyles();
+    const { handleSubmit, register, errors, setError, clearErrors, control, getValues } = useForm();
+    const { showNewArtifactDialog, closeNewArtifactDialog, provider, name, projectId, artifactTypeId, updateList, setOpenSnackbar, setSnackbarSettings, awsSettingsList } = props;
+
+    //Hook for save the user's settings input
+    const [awsSettingsValuesList, setAwsSettingsValuesList] = React.useState<ProviderArtifactSetting[]>([]);
+    const [loading, setLoading] = React.useState<Boolean>(true);
+    const [awsPricingDimensionList, setPricingDimensionList] = React.useState<PricingTerm[]>([]);
+
+    React.useEffect(() => {
+        getPricingDimensions();
+    }, [name, awsSettingsList]);
+
+    const getPricingDimensions = async () => {
+        if (name) {
+            setLoading(true);
+            const response = await AwsArtifactService.GetProductsAsync(name, awsSettingsList);
+            setPricingDimensionList(response.data);
+            setLoading(false);
+        }
+    }
+
+    //Create the artifact after submit
+    const handleConfirm = async (data: { term: number }) => {
+        props.setAwsPricingTerm(awsPricingDimensionList[data.term]);
+        props.setSettings({ settings: createSettingsObject(data.term) });
+        props.handleNextStep();
+    }
+
+    const createSettingsObject = (index: number) => {
+        let settingFinalObject: object = {};
+        let settingsObject: { [key: string]: string } = {};
+
+        for (let i = 0; i < props.settingsList.length; i++) {
+            settingsObject[props.settingsList[i].name] = props.settingsList[i].value;
+        }
+        Object.assign(settingFinalObject, settingsObject, awsPricingDimensionList[index]);
+        console.log(awsPricingDimensionList[index]);
+        console.log(settingFinalObject);
+        return settingFinalObject;
+    }
+
+    //Handle changes in the inputs fields
+    const createPropertieLabel = (propertie: string, value: string | null) => {
+        if (value !== null) {
+            return (
+                <Typography gutterBottom>
+                    {propertie}: {value}
+                </Typography>
+            );
+        } else {
+            return null;
+        }
+    }
+
+    const pricingTermToString = (pricingTerm: PricingTerm) => {
+        /*const pricingTermString = "Unit: " + pricingTerm.pricingDimension.unit +
+            "\r\nBegin range: " + pricingTerm.pricingDimension.beginRange + "\nEnd range: " +
+            pricingTerm.pricingDimension.endRange + "\nDescription: " + pricingTerm.pricingDimension.description + "\nCurrency: "
+            + pricingTerm.pricingDimension.currency + "\nPrice per unit: " + pricingTerm.pricingDimension;
+
+        return pricingTermString;*/
+        return (
+            <React.Fragment>
+                {createPropertieLabel("Unit", pricingTerm.pricingDimension.unit)}
+                {createPropertieLabel("Lease Contract Length", pricingTerm.leaseContractLength)}
+                {createPropertieLabel("Purchase Option", pricingTerm.purchaseOption)}
+                {createPropertieLabel("Description", pricingTerm.pricingDimension.description)}
+                {createPropertieLabel("Currency", pricingTerm.pricingDimension.currency)}
+                {createPropertieLabel("Price per unit", pricingTerm.pricingDimension.pricePerUnit.toString())}
+                {createPropertieLabel("Term", pricingTerm.term)}
+                <hr/>
+            </React.Fragment>
+        );
+    }
+
+    const handleCancel = () => {
+        closeNewArtifactDialog();
+    }
+
+    const goPrevStep = () => {
+        props.handlePreviousStep();
+    }
+
+    return (
+        <Dialog open={showNewArtifactDialog}>
+            <DialogTitle id="alert-dialog-title">Formulario de artefactos custom</DialogTitle>
+            <DialogContent>
+                <Typography gutterBottom>
+                    A continuación ingrese las propiedades de su nuevo artefacto custom y el valor que tomarán esas propiedades
+                </Typography>
+                <form className={classes.container}>
+                    {loading ?
+                        <div className={classes.circularProgress}>
+                            <CircularProgress color="inherit" size={30} />
+                        </div> :
+                    <Controller
+                            as={
+
+                                <RadioGroup aria-label="term" name="term">
+                                    {awsPricingDimensionList.map((awsPricingTerm: PricingTerm, index: number) => {
+                                        return (
+                                            <FormControlLabel key={index} value={String(index)} control={<Radio />} label={pricingTermToString(awsPricingTerm)} />
+                                        );
+                                    })}
+                                </RadioGroup>
+                            }
+                            name="term"
+                            rules={{ required: true }}
+                            control={control}
+                            defaultValue={props.provider}
+                        />                   
+                    }
+                </form>
+
+            </DialogContent>
+            <DialogActions>
+                <Button size="small" color="primary" onClick={event => goPrevStep()}>Atrás</Button>
+                <Button size="small" color="primary" type="submit" onClick={handleSubmit(handleConfirm)}>Siguiente</Button>
+                <Button size="small" color="secondary" onClick={handleCancel}>Cancelar</Button>
+            </DialogActions>
+        </Dialog>
+    );
+}
+
+export default AwsPricingDimension;

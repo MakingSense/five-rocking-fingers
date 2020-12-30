@@ -1,12 +1,14 @@
-﻿import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, IconButton, ButtonGroup, Select, MenuItem } from '@material-ui/core';
+﻿import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormHelperText, InputLabel, MenuItem, Select } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import * as React from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import ArtifactService from '../../services/ArtifactService';
 import Typography from '@material-ui/core/Typography';
-import AddCircleIcon from '@material-ui/icons/AddCircle';
-import DeleteIcon from '@material-ui/icons/Delete';
+import * as React from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import ProviderArtifactSetting from '../../interfaces/ProviderArtifactSetting';
+import Setting from '../../interfaces/Setting';
+import AwsArtifactSetting from '../../interfaces/AwsArtifactSetting';
+import ArtifactService from '../../services/ArtifactService';
+import AwsArtifactService from '../../services/AwsArtifactService';
+import { Settings } from '@material-ui/icons';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -22,182 +24,68 @@ const useStyles = makeStyles((theme: Theme) =>
         inputF: {
             padding: 2,
             marginTop: 10
+        },
+        circularProgress: {
+            width: '30%',
+            margin: 'auto'
         }
     }),
 );
 
-const SettingsAwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, provider: string | null, name: string | null, projectId: number, artifactTypeId: number | null, updateList: Function, setOpenSnackbar: Function, setSnackbarSettings: Function, handleNextStep: Function, handlePreviousStep: Function, settingsList: Setting[], setSettingsList: Function, settingsMap: { [key: string]: number[] }, setSettingsMap: Function }) => {
+const SettingsAwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, provider: string | null, name: string | null, projectId: number, artifactTypeId: number | null, updateList: Function, setOpenSnackbar: Function, setSnackbarSettings: Function, handleNextStep: Function, handlePreviousStep: Function, setAwsSettingsList: Function, setSettingsList: Function }) => {
 
     const classes = useStyles();
     const { handleSubmit, register, errors, setError, clearErrors, control, getValues } = useForm();
     const { showNewArtifactDialog, closeNewArtifactDialog, provider, name, projectId, artifactTypeId, updateList, setOpenSnackbar, setSnackbarSettings } = props;
 
     //Hook for save the user's settings input
-    const [settingsList, setSettingsList] = React.useState<Setting[]>(props.settingsList);
-    //Hook for saving the numbers of times a setting's name input is repeated
-    const [settingsMap, setSettingsMap] = React.useState<{ [key: string]: number[] }>(props.settingsMap);
+    const [awsSettingsValuesList, setAwsSettingsValuesList] = React.useState<ProviderArtifactSetting[]>([]);
+    const [loading, setLoading] = React.useState<Boolean>(true);
+    const [awsSettingsList, setAwsSettingsList] = React.useState<AwsArtifactSetting[]>([]);
 
     React.useEffect(() => {
-        setNameSettingsErrors();
-    }, [settingsMap]);
+        getArtifactSettings();
+    }, [name]);
+
+    const getArtifactSettings = async () => {
+        if (name) {
+            setLoading(true);
+            const response = await AwsArtifactService.GetAttibutesAsync(name);
+            setAwsSettingsValuesList(response.data);
+            setLoading(false);
+        }
+    }
 
     //Create the artifact after submit
     const handleConfirm = async () => {
-        const artifactToCreate = {
-            name: name,
-            provider: provider,
-            artifactTypeId: artifactTypeId,
-            projectId: projectId,
-            settings: { settings: createSettingsObject() }
-        };
-
-        try {
-            const response = await ArtifactService.save(artifactToCreate);
-            if (response.status === 200) {
-                setSnackbarSettings({ message: "El artefacto ha sido creado con éxito", severity: "success" });
-                setOpenSnackbar(true);
-                updateList();
-            } else {
-                setSnackbarSettings({ message: "Hubo un error al crear el artefacto", severity: "error" });
-                setOpenSnackbar(true);
-            }
-        }
-        catch (error) {
-            setSnackbarSettings({ message: "Hubo un error al crear el artefacto", severity: "error" });
-            setOpenSnackbar(true);
-        }
-        closeNewArtifactDialog();
+        let awsSettingsListFiltered = awsSettingsList.filter(awsSetting => awsSetting !== undefined && awsSetting !== null);
+        console.log(awsSettingsListFiltered);
+        props.setSettingsList(awsSettingsListToSettingsList(awsSettingsListFiltered));
+        props.setAwsSettingsList(awsSettingsListFiltered);
+        props.handleNextStep();
     }
 
     //Handle changes in the inputs fields
-    const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, index: number) => {
-        let { name, value } = event.target;
-        name = name.split(".")[1];
-        if (name === 'name') {
-            checkSettingName(value, index);
-        }
-        const list = [...settingsList];
-        list[index][name] = value;
-        setSettingsList(list);
+    const handleInputChange = (artifactSettingKey: string, artifactSettingValue: string, index: number) => {
+        let awsSettingListCopy = [...awsSettingsList];
+        awsSettingListCopy[index] = { key: artifactSettingKey, value: artifactSettingValue };
+        setAwsSettingsList(awsSettingListCopy);
     }
 
-    //Check if the setting's name the user enters has already have been used
-    const checkSettingName = (settingName: string, index: number) => {
-        let mapList = { ...settingsMap };
-        let key = searchIndexInObject(mapList, index);
-        if (key != null) {
-            deleteIndexFromObject(mapList, index, key);
-        }
-        if (!settingsMap.hasOwnProperty(settingName)) {
-            mapList[settingName] = [index];
-            setSettingsMap(mapList);
-        }
-        else {
-            mapList[settingName].push(index);
-            setSettingsMap(mapList);
-        }
-    }
-
-    //Search the key of the input index in settingsMap
-    const searchIndexInObject = (object: { [key: string]: number[] }, index: number) => {
-        for (let [key, array] of Object.entries(object)) {
-            for (let i = 0; i < array.length; i++) {
-                if (index === array[i]) {
-                    return key;
-                }
-            }
-        }
-        return null;
-    }
-
-    //Delete the input index in settingsMap
-    const deleteIndexFromObject = (object: { [key: string]: number[] }, index: number, key: string) => {
-        if (key !== null) {
-            object[key] = object[key].filter(number => number !== index);
-            if (object[key].length === 0) {
-                delete object[key];
-            }
-        }
-    }
-
-    //Set errors if the setting's name the user enters are repeat
-    const setNameSettingsErrors = () => {
-        for (let [key, array] of Object.entries(settingsMap)) {
-            if (array.length > 1) {
-                for (let i = 0; i < array.length; i++) {
-                    setError(`settings[${array[i]}].name`, {
-                        type: "repeat",
-                        message: "Los nombres no pueden repetirse"
-                    });
-                }
-            }
-            else if (array.length === 1) {
-                clearErrors(`settings[${array[0]}].name`);
-            }
-        }
-    }
-
-    //Check if there are names repeated in settingsMap
-    const areNamesRepeated = (index: number) => {
-        let key = searchIndexInObject(settingsMap, index);
-        if (key != null && settingsMap[key].length > 1) {
-            return true;
-        }
-        return false;
-    }
-
-    const isFieldEmpty = (index: number, field: string) => {
-        if (settingsList[index][field].trim() === "") {
-            return true;
-        }
-        return false;
+    const awsSettingsListToSettingsList = (awsSettingsListFiltered: AwsArtifactSetting[]) => {
+        let settingsList: Setting[] = []
+        awsSettingsListFiltered.forEach(awsSetting => {
+            let setting: Setting = { name: awsSetting.key, value: awsSetting.value }
+            settingsList.push(setting);
+        });
+        return settingsList;
     }
 
     const handleCancel = () => {
         closeNewArtifactDialog();
     }
 
-    const handleAddSetting = () => {
-        setSettingsList([...settingsList, { name: "", value: "" }]);
-    }
-
-    const handleDeleteSetting = (index: number) => {
-        const list = [...settingsList];
-        list.splice(index, 1);
-        setSettingsList(list);
-        let mapList = { ...settingsMap };
-        let key = searchIndexInObject(mapList, index);
-        if (key != null) {
-            deleteIndexFromObject(mapList, index, key);
-            updateSettingsMap(mapList, index);
-        }
-        setSettingsMap(mapList);
-    }
-
-    const updateSettingsMap = (object: { [key: string]: number[] }, index: number) => {
-        for (let [key, array] of Object.entries(object)) {
-            for (let i = 0; i < array.length; i++) {
-                if (array[i] > index) {
-                    array[i] = array[i] - 1;
-                }
-            }
-        }
-    }
-
-    //Create and return the settings object for the create the artifact
-    const createSettingsObject = () => {
-        let settingsObject: { [key: string]: string } = {};
-
-        for (let i = 0; i < settingsList.length; i++) {
-            settingsObject[settingsList[i].name] = settingsList[i].value;
-        }
-
-        return settingsObject;
-    }
-
     const goPrevStep = () => {
-        props.setSettingsList(settingsList);
-        props.setSettingsMap(settingsMap);
         props.handlePreviousStep();
     }
 
@@ -208,74 +96,48 @@ const SettingsAwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifa
                 <Typography gutterBottom>
                     A continuación ingrese las propiedades de su nuevo artefacto custom y el valor que tomarán esas propiedades
                 </Typography>
-                <form className={classes.container}>
-                    {settingsList.map((setting: Setting, index: number) => {
-                        return (
-                            <React.Fragment key={index}>
-                                <Controller
-                                    control={control}
-                                    name={`settings[${index}].name`}
-                                    rules={{ validate: { isValid: () => !isFieldEmpty(index, "name"), isRepeate: () => !areNamesRepeated(index) } }}
-                                    render={({ onChange }) => (
-                                        <TextField
-                                            error={errors.settings && errors.settings[index] && typeof errors.settings[index]?.name !== 'undefined'}
-                                            id={`name[${index}]`}
-                                            name={`settings[${index}].name`}
-                                            label="Nombre de la setting"
-                                            helperText={areNamesRepeated(index) ? "Los nombres no pueden repetirse" : "Requerido*"}
-                                            variant="outlined"
-                                            defaultValue={setting.name}
-                                            value={setting.name}
-                                            className={classes.inputF}
-                                            onChange={event => { handleInputChange(event, index); onChange(event); }}
-                                            autoComplete='off'
-                                        />
-                                    )}
-                                />
-
-                                <Controller
-                                    as={
-
-                                        <Select
-                                            inputProps={{
-                                                name: 'Valor de la setting',
-                                                id: 'provider-select'
-                                            }}
-                                        >
-                                            <MenuItem value="">
-                                                None
-                                    </MenuItem>
-                                            {PROVIDERS.map(p => <MenuItem key={p} value={p}>{p}</MenuItem>)}
-                                        </Select>
-                                    }
-                                    name="provider"
-                                    rules={{ required: true }}
-                                    control={control}
-                                    defaultValue={props.provider}
-                                />
-
-                                <ButtonGroup>
-                                    {settingsList.length - 1 === index &&
-                                        <IconButton onClick={handleAddSetting} aria-label="add" color="primary">
-                                            <AddCircleIcon />
-                                        </IconButton>
-                                    }
-
-                                    {settingsList.length !== 1 &&
-                                        <IconButton onClick={event => handleDeleteSetting(index)} aria-label="delete" color="secondary">
-                                            <DeleteIcon />
-                                        </IconButton>
-                                    }
-                                </ButtonGroup>
-                            </React.Fragment>
-                        );
-                    })}
-
-                </form>
+                {loading ?
+                    <div className={classes.circularProgress}>
+                        <CircularProgress color="inherit" size={30} />
+                    </div> :
+                    <form className={classes.container}>
+                        {awsSettingsValuesList.map((awsSetting: ProviderArtifactSetting, index: number) => {
+                            console.log(awsSetting);
+                            return (
+                                <FormControl key={index} className={classes.formControl} error={Boolean(errors.setting)}>
+                                    <InputLabel htmlFor={`provider-select-label${index}`}>{awsSetting.name.value}</InputLabel>
+                                    <Controller
+                                        render={({ onChange }) => (
+                                            <Select
+                                                labelId={`provider-select-label${index}`}
+                                                inputProps={{
+                                                    name: `Valor de la setting${index}`,
+                                                    id: 'provider-select'
+                                                }}
+                                                onChange={event => handleInputChange(awsSetting.name.key, event.target.value as string, index)}
+                                            >
+                                                <MenuItem value="">
+                                                    None
+                                                </MenuItem>
+                                                {awsSetting.values.map(p => <MenuItem key={p} value={p}>{p}</MenuItem>)}
+                                            </Select>
+                                        )}
+                                        name={`setting[${index}]`}
+                                        control={control}
+                                        defaultValue=""
+                                        value={awsSettingsList[index] !== undefined ? awsSettingsList[index] : ''}
+                                    />
+                                    <FormHelperText>Requerido*</FormHelperText>
+                                </FormControl>
+                            );
+                        })}
+                    </form>
+                }
+                
             </DialogContent>
             <DialogActions>
                 <Button size="small" color="primary" onClick={event => goPrevStep()}>Atrás</Button>
-                <Button size="small" color="primary" type="submit" onClick={handleSubmit(handleConfirm)}>Finalizar</Button>
+                <Button size="small" color="primary" type="submit" onClick={handleSubmit(handleConfirm)}>Siguiente</Button>
                 <Button size="small" color="secondary" onClick={handleCancel}>Cancelar</Button>
             </DialogActions>
         </Dialog>
