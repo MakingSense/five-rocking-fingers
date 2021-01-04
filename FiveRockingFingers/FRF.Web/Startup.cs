@@ -54,8 +54,6 @@ namespace FRF.Web
 
 			//Start Cognito Authorization and Identity
 			
-			services.AddScoped<IConfigurationService, ConfigurationService>();
-
 			var provider = new AmazonCognitoIdentityProviderClient(
                 Configuration["AWSCognitoCredentials:AccessKeyId"],
                 Configuration["AWSCognitoCredentials:SecretAccKey"],
@@ -71,8 +69,6 @@ namespace FRF.Web
 			//End Cognito
             
             services.Configure<AwsPricing>(Configuration.GetSection(AwsPricing.AwsPricingOptions));
-            services.Configure<CognitoConfigurationBase>(
-                Configuration.GetSection(CognitoConfigurationBase.AwsPricingOptions));
             services.AddHttpClient();
 			services.AddTransient<IProjectsService, ProjectsService>();
 			services.AddTransient<ISignUpService, SignUpService>();
