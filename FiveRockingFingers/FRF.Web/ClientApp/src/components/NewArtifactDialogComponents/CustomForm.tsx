@@ -9,17 +9,17 @@ import Typography from '@material-ui/core/Typography';
 // Until then, you might an error if you don't have this 3 types created on your local DataBase before using this
 const constArtifactTypes = [
     {
-        "id": 5,
+        "id": 1,
         "name": "Atype",
         "description": "ADescription"
     },
     {
-        "id": 6,
+        "id": 2,
         "name": "Btype",
         "description": "BDescription"
     },
     {
-        "id": 7,
+        "id": 3,
         "name": "Ctype",
         "description": "CDescription"
     }

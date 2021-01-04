@@ -12,7 +12,7 @@ import { useForm } from 'react-hook-form';
 
 const constArtifactTypes = [
     {
-        "id": 5,
+        "id": 1,
         "name": "Atype",
         "description": "ADescription"
     }
