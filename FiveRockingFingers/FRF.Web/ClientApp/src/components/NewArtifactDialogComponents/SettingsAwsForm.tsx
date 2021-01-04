@@ -26,6 +26,9 @@ const useStyles = makeStyles((theme: Theme) =>
         circularProgress: {
             width: '30%',
             margin: 'auto'
+        },
+        error: {
+            color: 'red'
         }
     }),
 );
@@ -80,8 +83,9 @@ const SettingsAwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifa
         return settingsList;
     }
 
-    const isFieldEmpty = (index: number) => {
-        if (awsSettingsList[index] === undefined || awsSettingsList[index].value === "") {
+    const isOneValueCompleted = () => {
+        let awsSettingsListFiltered = awsSettingsList.filter(awsSetting => awsSetting !== undefined && awsSetting !== null);
+        if (awsSettingsListFiltered.length !== 0) {
             return true;
         }
         return false;
@@ -133,16 +137,20 @@ const SettingsAwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifa
                                             </Select>
                                         )}
                                         name={`settings[${index}].name`}
-                                        rules={{ validate: { isValid: () => !isFieldEmpty(index) } }}
+                                        rules={{ validate: { isValid: () => isOneValueCompleted() } }}
                                         control={control}
                                         defaultValue={''}
                                         value={awsSettingsList[index] === undefined ? '' : awsSettingsList[index].value}
                                         error={errors.settings && errors.settings[index] && typeof errors.settings[index]?.name !== 'undefined'}
                                     />
-                                    <FormHelperText>Requerido*</FormHelperText>
                                 </FormControl>
                             );
                         })}
+                        {errors.settings ?
+                            <Typography gutterBottom className={classes.error}>
+                                Al menos un campo debe ser completado
+                            </Typography> : null
+                        }
                     </form>
                 }
                 
