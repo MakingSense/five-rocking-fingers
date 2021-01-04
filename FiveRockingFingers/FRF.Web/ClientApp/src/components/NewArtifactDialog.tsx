@@ -7,7 +7,7 @@ import SettingsAwsForm from './NewArtifactDialogComponents/SettingsAwsForm';
 import AwsPricingDimension from './NewArtifactDialogComponents/AwsPricingDimension';
 import Confirmation from './NewArtifactDialogComponents/Confirmation';
 import Setting from '../interfaces/Setting';
-import AwsArtifactSetting from '../interfaces/AwsArtifactSetting';
+import KeyValueStringPair from '../interfaces/KeyValueStringPair';
 import PricingTerm from '../interfaces/PricingTerm';
 
 const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, projectId: number, updateList: Function, setOpenSnackbar: Function , setSnackbarSettings: Function }) => {
@@ -19,7 +19,7 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
     const [settingsList, setSettingsList] = React.useState<Setting[]>([{ name: "", value: "" }]);
     const [settings, setSettings] = React.useState<object>({});
     const [settingsMap, setSettingsMap] = React.useState<{ [key: string]: number[] }>({});
-    const [awsSettingsList, setAwsSettingsList] = React.useState<AwsArtifactSetting[]>([]);
+    const [awsSettingsList, setAwsSettingsList] = React.useState<KeyValueStringPair[]>([]);
     const [awsPricingTerm, setAwsPricingTerm] = React.useState<PricingTerm | null>(null);
 
     React.useEffect(() => {
@@ -94,10 +94,6 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
                     <SettingsCustomForm
                         showNewArtifactDialog={props.showNewArtifactDialog}
                         closeNewArtifactDialog={handleCancel}
-                        provider={provider}
-                        name={name}
-                        projectId={props.projectId}
-                        artifactTypeId={artifactTypeId}
                         updateList={props.updateList}
                         setOpenSnackbar={props.setOpenSnackbar}
                         setSnackbarSettings={props.setSnackbarSettings}
@@ -116,13 +112,8 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
                     <SettingsAwsForm
                         showNewArtifactDialog={props.showNewArtifactDialog}
                         closeNewArtifactDialog={handleCancel}
-                        provider={provider}
                         name={name}
-                        projectId={props.projectId}
-                        artifactTypeId={artifactTypeId}
                         updateList={props.updateList}
-                        setOpenSnackbar={props.setOpenSnackbar}
-                        setSnackbarSettings={props.setSnackbarSettings}
                         handleNextStep={handleNextStep}
                         handlePreviousStep={handlePreviousStep}
                         setAwsSettingsList={setAwsSettingsList}
@@ -137,13 +128,7 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
                     <AwsPricingDimension
                         showNewArtifactDialog={props.showNewArtifactDialog}
                         closeNewArtifactDialog={handleCancel}
-                        provider={provider}
                         name={name}
-                        projectId={props.projectId}
-                        artifactTypeId={artifactTypeId}
-                        updateList={props.updateList}
-                        setOpenSnackbar={props.setOpenSnackbar}
-                        setSnackbarSettings={props.setSnackbarSettings}
                         handleNextStep={handleNextStep}
                         handlePreviousStep={handlePreviousStep}
                         settingsList={settingsList}

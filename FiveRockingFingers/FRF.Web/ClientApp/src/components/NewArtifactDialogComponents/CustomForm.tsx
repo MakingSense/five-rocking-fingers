@@ -2,9 +2,7 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import * as React from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { PROVIDERS } from '../../Constants';
 import ArtifactType from '../../interfaces/ArtifactType';
-import ArtifactService from '../../services/ArtifactService';
 import Typography from '@material-ui/core/Typography';
 
 // Once the ArtifactType API and service are running, this should be replaced with a call to that API

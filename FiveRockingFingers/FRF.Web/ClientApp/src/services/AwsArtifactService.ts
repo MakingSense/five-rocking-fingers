@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { BASE_URL } from '../Constants';
-import AwsArtifactSetting from '../interfaces/AwsArtifactSetting';
+import KeyValueStringPair from '../interfaces/KeyValueStringPair';
 
 const AWS_ARTIFACTS_PROVIDER_URL = `${BASE_URL}api/AwsArtifactsProvider/`;
 
@@ -16,7 +16,7 @@ export default class AwsArtifactsService {
         return response;
     }
 
-    static GetProductsAsync = async (serviceCode: string, artifactSettings: AwsArtifactSetting[]) => {
+    static GetProductsAsync = async (serviceCode: string, artifactSettings: KeyValueStringPair[]) => {
         const response = await axios.post(`${AWS_ARTIFACTS_PROVIDER_URL}GetProducts?serviceCode=${serviceCode}`, artifactSettings);
         return response;
     }

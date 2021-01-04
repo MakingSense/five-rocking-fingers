@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import ProviderArtifactSetting from '../../interfaces/ProviderArtifactSetting';
 import Setting from '../../interfaces/Setting';
-import AwsArtifactSetting from '../../interfaces/AwsArtifactSetting';
+import KeyValueStringPair from '../../interfaces/KeyValueStringPair';
 import PricingTerm from '../../interfaces/PricingTerm';
 import ArtifactService from '../../services/ArtifactService';
 import AwsArtifactService from '../../services/AwsArtifactService';
@@ -32,14 +32,12 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, provider: string | null, name: string | null, projectId: number, artifactTypeId: number | null, updateList: Function, setOpenSnackbar: Function, setSnackbarSettings: Function, handleNextStep: Function, handlePreviousStep: Function, settingsList: Setting[], setSettingsList: Function, settingsMap: { [key: string]: number[] }, setSettingsMap: Function, awsSettingsList: AwsArtifactSetting[], settings: object, setSettings: Function, setAwsPricingTerm: Function }) => {
+const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function,name: string | null, handleNextStep: Function, handlePreviousStep: Function, settingsList: Setting[], setSettingsList: Function, settingsMap: { [key: string]: number[] }, setSettingsMap: Function, awsSettingsList: KeyValueStringPair[], settings: object, setSettings: Function, setAwsPricingTerm: Function }) => {
 
     const classes = useStyles();
-    const { handleSubmit, register, errors, setError, clearErrors, control, getValues } = useForm();
-    const { showNewArtifactDialog, closeNewArtifactDialog, provider, name, projectId, artifactTypeId, updateList, setOpenSnackbar, setSnackbarSettings, awsSettingsList } = props;
+    const { handleSubmit, control } = useForm();
+    const { showNewArtifactDialog, closeNewArtifactDialog, name, awsSettingsList } = props;
 
-    //Hook for save the user's settings input
-    const [awsSettingsValuesList, setAwsSettingsValuesList] = React.useState<ProviderArtifactSetting[]>([]);
     const [loading, setLoading] = React.useState<Boolean>(true);
     const [awsPricingDimensionList, setPricingDimensionList] = React.useState<PricingTerm[]>([]);
 
@@ -76,7 +74,6 @@ const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewAr
         return settingFinalObject;
     }
 
-    //Handle changes in the inputs fields
     const createPropertieLabel = (propertie: string, value: string | null) => {
         if (value !== null) {
             return (
@@ -90,12 +87,6 @@ const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewAr
     }
 
     const pricingTermToString = (pricingTerm: PricingTerm) => {
-        /*const pricingTermString = "Unit: " + pricingTerm.pricingDimension.unit +
-            "\r\nBegin range: " + pricingTerm.pricingDimension.beginRange + "\nEnd range: " +
-            pricingTerm.pricingDimension.endRange + "\nDescription: " + pricingTerm.pricingDimension.description + "\nCurrency: "
-            + pricingTerm.pricingDimension.currency + "\nPrice per unit: " + pricingTerm.pricingDimension;
-
-        return pricingTermString;*/
         return (
             <React.Fragment>
                 {createPropertieLabel("Unit", pricingTerm.pricingDimension.unit)}
@@ -144,7 +135,7 @@ const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewAr
                             name="term"
                             rules={{ required: true }}
                             control={control}
-                            defaultValue={props.provider}
+                            defaultValue={''}
                         />                   
                     }
                 </form>

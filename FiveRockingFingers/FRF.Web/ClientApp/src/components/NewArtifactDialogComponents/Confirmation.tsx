@@ -1,33 +1,20 @@
-﻿import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormHelperText, InputLabel, MenuItem, Radio, RadioGroup, Select } from '@material-ui/core';
+﻿import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import * as React from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import ProviderArtifactSetting from '../../interfaces/ProviderArtifactSetting';
+import { useForm } from 'react-hook-form';
 import Setting from '../../interfaces/Setting';
-import AwsArtifactSetting from '../../interfaces/AwsArtifactSetting';
 import PricingTerm from '../../interfaces/PricingTerm';
 import ArtifactService from '../../services/ArtifactService';
-import AwsArtifactService from '../../services/AwsArtifactService';
 
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-        container: {
-            display: 'flex',
-            flexWrap: 'wrap',
+        title: {
+            fontWeight: 'bold'
         },
-        formControl: {
-            margin: theme.spacing(1),
-            width: '100%'
-        },
-        inputF: {
-            padding: 2,
-            marginTop: 10
-        },
-        circularProgress: {
-            width: '30%',
-            margin: 'auto'
+        settingName: {
+            fontStyle: 'italic'
         }
     }),
 );
@@ -70,7 +57,7 @@ const Confirmation = (props: { showNewArtifactDialog: boolean, closeNewArtifactD
         if (value !== null) {
             return (
                 <Typography gutterBottom>
-                    {propertie}: {value}
+                    <span className={classes.settingName}>{propertie}</span>: {value}
                 </Typography>
             );
         } else {
@@ -94,19 +81,19 @@ const Confirmation = (props: { showNewArtifactDialog: boolean, closeNewArtifactD
                     A continuación ingrese las propiedades de su nuevo artefacto custom y el valor que tomarán esas propiedades
                 </Typography>
                 <Typography gutterBottom>
-                    Nombre: {name}
+                    <span className={classes.title}>Nombre:</span> {name}
                 </Typography>
                 <Typography gutterBottom>
-                    Provedor: {provider}
+                    <span className={classes.title}>Provedor:</span> {provider}
                 </Typography>
                 <Typography gutterBottom>
-                    Propiedades:
+                    <span className={classes.title}>Propiedades:</span>                    
                 </Typography>
                 {
                     settingsList.map((setting: Setting, index: number) => {
                         return (
                             <Typography gutterBottom>
-                                {setting.name}: {setting.value}
+                                <span className={classes.settingName}>{setting.name}</span>: {setting.value}
                             </Typography>
                         );
                     })

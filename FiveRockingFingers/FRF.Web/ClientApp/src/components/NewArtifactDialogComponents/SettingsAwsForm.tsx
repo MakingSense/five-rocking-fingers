@@ -5,10 +5,8 @@ import * as React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import ProviderArtifactSetting from '../../interfaces/ProviderArtifactSetting';
 import Setting from '../../interfaces/Setting';
-import AwsArtifactSetting from '../../interfaces/AwsArtifactSetting';
-import ArtifactService from '../../services/ArtifactService';
+import KeyValueStringPair from '../../interfaces/KeyValueStringPair';
 import AwsArtifactService from '../../services/AwsArtifactService';
-import { Settings } from '@material-ui/icons';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -32,16 +30,16 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const SettingsAwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, provider: string | null, name: string | null, projectId: number, artifactTypeId: number | null, updateList: Function, setOpenSnackbar: Function, setSnackbarSettings: Function, handleNextStep: Function, handlePreviousStep: Function, setAwsSettingsList: Function, setSettingsList: Function }) => {
+const SettingsAwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, name: string | null, updateList: Function, handleNextStep: Function, handlePreviousStep: Function, setAwsSettingsList: Function, setSettingsList: Function }) => {
 
     const classes = useStyles();
-    const { handleSubmit, register, errors, setError, clearErrors, control, getValues } = useForm();
-    const { showNewArtifactDialog, closeNewArtifactDialog, provider, name, projectId, artifactTypeId, updateList, setOpenSnackbar, setSnackbarSettings } = props;
+    const { handleSubmit, errors, setError, clearErrors, control } = useForm();
+    const { showNewArtifactDialog, closeNewArtifactDialog, name } = props;
 
     //Hook for save the user's settings input
     const [awsSettingsValuesList, setAwsSettingsValuesList] = React.useState<ProviderArtifactSetting[]>([]);
     const [loading, setLoading] = React.useState<Boolean>(true);
-    const [awsSettingsList, setAwsSettingsList] = React.useState<AwsArtifactSetting[]>([]);
+    const [awsSettingsList, setAwsSettingsList] = React.useState<KeyValueStringPair[]>([]);
 
     React.useEffect(() => {
         getArtifactSettings();
@@ -58,6 +56,7 @@ const SettingsAwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifa
 
     //Create the artifact after submit
     const handleConfirm = async () => {
+        console.log(awsSettingsList);
         let awsSettingsListFiltered = awsSettingsList.filter(awsSetting => awsSetting !== undefined && awsSetting !== null);
         console.log(awsSettingsListFiltered);
         props.setSettingsList(awsSettingsListToSettingsList(awsSettingsListFiltered));
@@ -72,13 +71,20 @@ const SettingsAwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifa
         setAwsSettingsList(awsSettingListCopy);
     }
 
-    const awsSettingsListToSettingsList = (awsSettingsListFiltered: AwsArtifactSetting[]) => {
+    const awsSettingsListToSettingsList = (awsSettingsListFiltered: KeyValueStringPair[]) => {
         let settingsList: Setting[] = []
         awsSettingsListFiltered.forEach(awsSetting => {
             let setting: Setting = { name: awsSetting.key, value: awsSetting.value }
             settingsList.push(setting);
         });
         return settingsList;
+    }
+
+    const isFieldEmpty = (index: number) => {
+        if (awsSettingsList[index] === undefined || awsSettingsList[index].value === "") {
+            return true;
+        }
+        return false;
     }
 
     const handleCancel = () => {
@@ -104,28 +110,34 @@ const SettingsAwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifa
                         {awsSettingsValuesList.map((awsSetting: ProviderArtifactSetting, index: number) => {
                             console.log(awsSetting);
                             return (
-                                <FormControl key={index} className={classes.formControl} error={Boolean(errors.setting)}>
-                                    <InputLabel htmlFor={`provider-select-label${index}`}>{awsSetting.name.value}</InputLabel>
+                                <FormControl key={index} className={classes.formControl}>
+                                    <InputLabel htmlFor={`settings[${index}].name`}>{awsSetting.name.value}</InputLabel>
                                     <Controller
-                                        render={({ onChange }) => (
+                                        render={({ onChange, value }) => (
                                             <Select
-                                                labelId={`provider-select-label${index}`}
+                                                labelId={`settings[${index}].name`}
                                                 inputProps={{
-                                                    name: `Valor de la setting${index}`,
-                                                    id: 'provider-select'
+                                                    name: `settings[${index}].name`,
+                                                    id: `settings[${index}].name`
                                                 }}
                                                 onChange={event => handleInputChange(awsSetting.name.key, event.target.value as string, index)}
+                                                name={`settings[${index}].name`}
+                                                defaultValue={''}
+                                                value={awsSettingsList[index] === undefined ? '' : awsSettingsList[index].value}
+                                                error={errors.settings && errors.settings[index] && typeof errors.settings[index]?.name !== 'undefined'}
                                             >
-                                                <MenuItem value="">
+                                                <MenuItem value={''}>
                                                     None
                                                 </MenuItem>
                                                 {awsSetting.values.map(p => <MenuItem key={p} value={p}>{p}</MenuItem>)}
                                             </Select>
                                         )}
-                                        name={`setting[${index}]`}
+                                        name={`settings[${index}].name`}
+                                        rules={{ validate: { isValid: () => !isFieldEmpty(index) } }}
                                         control={control}
-                                        defaultValue=""
-                                        value={awsSettingsList[index] !== undefined ? awsSettingsList[index] : ''}
+                                        defaultValue={''}
+                                        value={awsSettingsList[index] === undefined ? '' : awsSettingsList[index].value}
+                                        error={errors.settings && errors.settings[index] && typeof errors.settings[index]?.name !== 'undefined'}
                                     />
                                     <FormHelperText>Requerido*</FormHelperText>
                                 </FormControl>

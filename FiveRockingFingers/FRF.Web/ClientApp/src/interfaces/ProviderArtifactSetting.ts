@@ -1,6 +1,6 @@
-﻿import AwsArtifactSettingName from './AwsArtifactSettingName';
+﻿import KeyValueStringPair from './KeyValueStringPair';
 
 export default interface ProviderArtifactSetting {
-    name: AwsArtifactSettingName;
+    name: KeyValueStringPair;
     values: string[];
 }

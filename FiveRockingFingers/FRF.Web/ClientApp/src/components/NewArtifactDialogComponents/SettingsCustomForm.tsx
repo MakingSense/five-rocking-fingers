@@ -26,11 +26,11 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, provider: string | null, name: string | null, projectId: number, artifactTypeId: number | null, updateList: Function, setOpenSnackbar: Function, setSnackbarSettings: Function, handleNextStep: Function, handlePreviousStep: Function, settingsList: Setting[], setSettingsList: Function, settingsMap: { [key: string]: number[] }, setSettingsMap: Function, setSettings: Function }) => {
+const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, updateList: Function, setOpenSnackbar: Function, setSnackbarSettings: Function, handleNextStep: Function, handlePreviousStep: Function, settingsList: Setting[], setSettingsList: Function, settingsMap: { [key: string]: number[] }, setSettingsMap: Function, setSettings: Function }) => {
 
     const classes = useStyles();
-    const { handleSubmit, register, errors, setError, clearErrors, control, getValues } = useForm();
-    const { showNewArtifactDialog, closeNewArtifactDialog, provider, name, projectId, artifactTypeId, updateList, setOpenSnackbar, setSnackbarSettings } = props;
+    const { handleSubmit, errors, setError, clearErrors, control } = useForm();
+    const { showNewArtifactDialog, closeNewArtifactDialog } = props;
 
     //Hook for save the user's settings input
     const [settingsList, setSettingsList] = React.useState<Setting[]>(props.settingsList);
@@ -43,6 +43,8 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
 
     //Create the artifact after submit
     const handleConfirm = async () => {
+        props.setSettingsList(settingsList);
+        props.setSettingsMap(settingsMap);
         props.setSettings({ settings: createSettingsObject() });
         props.handleNextStep();
     }
