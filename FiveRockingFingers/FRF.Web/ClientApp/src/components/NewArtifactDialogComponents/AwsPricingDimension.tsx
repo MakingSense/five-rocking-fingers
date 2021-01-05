@@ -69,8 +69,7 @@ const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewAr
             settingsObject[props.settingsList[i].name] = props.settingsList[i].value;
         }
         Object.assign(settingFinalObject, settingsObject, awsPricingDimensionList[index]);
-        console.log(awsPricingDimensionList[index]);
-        console.log(settingFinalObject);
+
         return settingFinalObject;
     }
 
