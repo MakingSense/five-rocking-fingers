@@ -8,8 +8,8 @@ namespace FRF.Core.Services
     {
         
         Task Logout();
-        Task<Guid> GetCurrentUserId();
-        Task<UsersProfile> GetUserPublicProfile(string email);
-        Task<UsersProfile> GetUserPublicProfile(Guid userId);
+        Task<Guid> GetCurrentUserIdAsync();
+        Task<UsersProfile> GetUserPublicProfileAsync(string email);
+        Task<UsersProfile> GetUserPublicProfileAsync(Guid userId);
     }
 }

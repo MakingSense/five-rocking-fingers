@@ -38,7 +38,7 @@ namespace FRF.Core.Services
 
             foreach (var user in projects.SelectMany(project => project.UsersByProject))
             {
-                var userPublicProfile =await _userService.GetUserPublicProfile(user.UserId);
+                var userPublicProfile =await _userService.GetUserPublicProfileAsync(user.UserId);
                 if (userPublicProfile == null) continue;
                 user.Fullname = userPublicProfile.Fullname;
                 user.Email = userPublicProfile.Email;
@@ -102,7 +102,7 @@ namespace FRF.Core.Services
 
         public async Task<Project> GetAsync(int id)
         {
-            var userId =await _userService.GetCurrentUserId();
+            var userId =await _userService.GetCurrentUserIdAsync();
             var result = await _dataContext.UsersByProject
                 .Where(up => up.UserId == userId)
                 .Include(pr=>pr.Project)
@@ -116,7 +116,7 @@ namespace FRF.Core.Services
             var project = _mapper.Map<Project>(result.Project);
             foreach (var user in project.UsersByProject)
             {
-                var userPublicProfile = await _userService.GetUserPublicProfile(user.UserId);
+                var userPublicProfile = await _userService.GetUserPublicProfileAsync(user.UserId);
                 if (userPublicProfile == null) continue;
                 user.Fullname = userPublicProfile.Fullname;
                 user.Email = userPublicProfile.Email;
@@ -178,15 +178,16 @@ namespace FRF.Core.Services
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var userId = await _userService.GetCurrentUserId();
+            var userId = await _userService.GetCurrentUserIdAsync();
             var projectToDelete = await _dataContext.UsersByProject
-                .Where(up => up.UserId == userId)
+                .Where(ubp => ubp.UserId == userId)
                 .Include(pr => pr.Project)
-                .SingleOrDefaultAsync(p => p.ProjectId == id);
+                .Select(ubp=> ubp.Project)
+                .SingleOrDefaultAsync(p => p.Id == id);
 
             if (projectToDelete == null) return false;
 
-            _dataContext.Projects.Remove(projectToDelete.Project);
+            _dataContext.Projects.Remove(projectToDelete);
             await _dataContext.SaveChangesAsync();
             return true;
         }

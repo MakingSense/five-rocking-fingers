@@ -92,7 +92,7 @@ namespace FRF.Core.Tests.Services
             var userByProject = CreateUserByProject(project);
             var userProfile = CreateUsersProfile();
             _userService
-                .Setup(mock => mock.GetUserPublicProfile(It.IsAny<Guid>()))
+                .Setup(mock => mock.GetUserPublicProfileAsync(It.IsAny<Guid>()))
                 .ReturnsAsync(userProfile);
 
             // Act
@@ -114,7 +114,7 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(userProfile.UserId, usersProfiles[0].UserId);
             Assert.Equal(userProfile.Fullname, usersProfiles[0].Fullname);
 
-            _userService.Verify(mock => mock.GetUserPublicProfile(It.IsAny<Guid>()), Times.Once);
+            _userService.Verify(mock => mock.GetUserPublicProfileAsync(It.IsAny<Guid>()), Times.Once);
         }
 
         [Fact]
@@ -140,10 +140,10 @@ namespace FRF.Core.Tests.Services
             var userProfile = CreateUsersProfile();
 
             _userService
-                .Setup(mock => mock.GetCurrentUserId())
+                .Setup(mock => mock.GetCurrentUserIdAsync())
                 .ReturnsAsync(new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba"));
             _userService
-                .Setup(mock => mock.GetUserPublicProfile(It.IsAny<Guid>()))
+                .Setup(mock => mock.GetUserPublicProfileAsync(It.IsAny<Guid>()))
                 .ReturnsAsync(userProfile);
 
             // Act
@@ -165,8 +165,8 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(userProfile.UserId, usersProfiles[0].UserId);
             Assert.Equal(userProfile.Fullname, usersProfiles[0].Fullname);
 
-            _userService.Verify(mock => mock.GetUserPublicProfile(It.IsAny<Guid>()), Times.Once);
-            _userService.Verify(mock => mock.GetCurrentUserId(), Times.Once);
+            _userService.Verify(mock => mock.GetUserPublicProfileAsync(It.IsAny<Guid>()), Times.Once);
+            _userService.Verify(mock => mock.GetCurrentUserIdAsync(), Times.Once);
         }
 
         [Fact]
@@ -384,7 +384,7 @@ namespace FRF.Core.Tests.Services
             var project = CreateProject();
             CreateUserByProject(project);
             _userService
-                .Setup(mock => mock.GetCurrentUserId())
+                .Setup(mock => mock.GetCurrentUserIdAsync())
                 .ReturnsAsync(new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba"));
 
             // Act
@@ -400,7 +400,7 @@ namespace FRF.Core.Tests.Services
             // Arange
             var projectId = 0;
             _userService
-                .Setup(mock => mock.GetCurrentUserId())
+                .Setup(mock => mock.GetCurrentUserIdAsync())
                 .ReturnsAsync(new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba"));
             // Act
             var result = await _classUnderTest.DeleteAsync(projectId);
