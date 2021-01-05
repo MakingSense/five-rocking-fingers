@@ -60,6 +60,7 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(string.Empty, result.Item2);
 
             _userManagerMock.Verify(mock => mock.FindByEmailAsync(It.IsAny<string>()), Times.Once);
+
             _signInManagerMock.Verify(
                 mock => mock.PasswordSignInAsync(It.IsAny<CognitoUser>(), It.IsAny<string>(), false, false),
                 Times.Once);
@@ -76,6 +77,7 @@ namespace FRF.Core.Tests.Services
             _userManagerMock
                 .Setup(mock => mock.FindByEmailAsync(It.IsAny<string>()))
                 .ReturnsAsync(cognitoUser);
+
             _signInManagerMock.Setup(mock =>
                     mock.PasswordSignInAsync(cognitoUser, userSignin.Password, userSignin.RememberMe, false))
                 .ReturnsAsync(signInResult);
@@ -89,6 +91,7 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(cognitoUser.UserID, result.Item2);
 
             _userManagerMock.Verify(mock => mock.FindByEmailAsync(It.IsAny<string>()), Times.Once);
+
             _signInManagerMock.Verify(
                 mock => mock.PasswordSignInAsync(It.IsAny<CognitoUser>(), It.IsAny<string>(), false, false),
                 Times.Once);

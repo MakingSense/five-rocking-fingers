@@ -72,9 +72,11 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(string.Empty, result.Item2);
 
             _userManagerMock.Verify(mock => mock.CreateAsync(It.IsAny<CognitoUser>(), It.IsAny<string>()), Times.Once);
+
             _cognitoClientMock.Verify(
                 mock => mock.AdminUpdateUserAttributesAsync(It.IsAny<AdminUpdateUserAttributesRequest>(),
                     It.IsAny<CancellationToken>()), Times.Once);
+
             _signInManagerMock.Verify(
                 mock => mock.PasswordSignInAsync(It.IsAny<CognitoUser>(), It.IsAny<string>(), false, false),
                 Times.Never);
@@ -109,12 +111,15 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(string.Empty, result.Item2);
 
             _userManagerMock.Verify(mock => mock.CreateAsync(It.IsAny<CognitoUser>(), It.IsAny<string>()), Times.Once);
+
             _cognitoClientMock.Verify(
                 mock => mock.AdminUpdateUserAttributesAsync(It.IsAny<AdminUpdateUserAttributesRequest>(),
                     It.IsAny<CancellationToken>()), Times.Once);
+
             _cognitoClientMock.Verify(
                 mock => mock.AdminConfirmSignUpAsync(It.IsAny<AdminConfirmSignUpRequest>(),
                     It.IsAny<CancellationToken>()), Times.Once);
+
             _signInManagerMock.Verify(
                 mock => mock.PasswordSignInAsync(It.IsAny<CognitoUser>(), It.IsAny<string>(), false, false),
                 Times.Never);
@@ -160,13 +165,17 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(cognitoUser.UserID, result.Item2);
 
             _userManagerMock.Verify(mock => mock.FindByEmailAsync(It.IsAny<string>()), Times.Once);
+
             _signInManagerMock.Verify(
                 mock => mock.PasswordSignInAsync(It.IsAny<CognitoUser>(), It.IsAny<string>(), false, false),
                 Times.Once);
+
             _userManagerMock.Verify(mock => mock.CreateAsync(It.IsAny<CognitoUser>(), It.IsAny<string>()), Times.Once);
+
             _cognitoClientMock.Verify(
                 mock => mock.AdminUpdateUserAttributesAsync(It.IsAny<AdminUpdateUserAttributesRequest>(),
                     It.IsAny<CancellationToken>()), Times.Once);
+
             _cognitoClientMock.Verify(
                 mock => mock.AdminConfirmSignUpAsync(It.IsAny<AdminConfirmSignUpRequest>(),
                     It.IsAny<CancellationToken>()), Times.Once);

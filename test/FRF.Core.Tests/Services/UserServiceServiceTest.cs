@@ -86,11 +86,11 @@ namespace FRF.Core.Tests.Services
             // Assert
             Assert.IsType<UsersProfile>(result);
             _userManagerMock.Verify(mock => mock.FindByEmailAsync(It.IsAny<string>()), Times.Once);
-
-            Assert.Equal(cognitoUser.Attributes["email"], result.Email);
-            Assert.Equal($"{cognitoUser.Attributes["name"]} {cognitoUser.Attributes["family_name"]}", result.Fullname);
+            
             Assert.IsType<Guid>(result.UserId);
             Assert.Equal(cognitoUser.UserID, result.UserId.ToString());
+            Assert.Equal(cognitoUser.Attributes["email"], result.Email);
+            Assert.Equal($"{cognitoUser.Attributes["name"]} {cognitoUser.Attributes["family_name"]}", result.Fullname);
         }
 
         [Fact]
@@ -123,10 +123,10 @@ namespace FRF.Core.Tests.Services
             Assert.IsType<UsersProfile>(result);
             _userManagerMock.Verify(mock => mock.FindByIdAsync(It.IsAny<string>()), Times.Once);
 
-            Assert.Equal(cognitoUser.Attributes["email"], result.Email);
-            Assert.Equal($"{cognitoUser.Attributes["name"]} {cognitoUser.Attributes["family_name"]}", result.Fullname);
             Assert.IsType<Guid>(result.UserId);
             Assert.Equal(cognitoUser.UserID, result.UserId.ToString());
+            Assert.Equal(cognitoUser.Attributes["email"], result.Email);
+            Assert.Equal($"{cognitoUser.Attributes["name"]} {cognitoUser.Attributes["family_name"]}", result.Fullname);
         }
     }
 }
