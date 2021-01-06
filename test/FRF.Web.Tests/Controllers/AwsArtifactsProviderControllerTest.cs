@@ -1,6 +1,8 @@
-﻿using FRF.Core.Models;
+﻿using AutoMapper;
+using FRF.Core.Models;
 using FRF.Core.Services;
 using FRF.Web.Controllers;
+using FRF.Web.Dtos.Artifacts;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System.Collections.Generic;
@@ -11,13 +13,14 @@ namespace FRF.Web.Tests.Controllers
 {
     public class AwsArtifactsProviderControllerTest
     {
+        private readonly IMapper _mapper = MapperBuilder.Build();
         private readonly AwsArtifactsProviderController _classUnderTest;
         private readonly Mock<IArtifactsProviderService> _artifactProviderService;
 
         public AwsArtifactsProviderControllerTest()
         {
             _artifactProviderService = new Mock<IArtifactsProviderService>();
-            _classUnderTest= new AwsArtifactsProviderController(_artifactProviderService.Object);
+            _classUnderTest= new AwsArtifactsProviderController(_artifactProviderService.Object, _mapper);
         }
 
         private List<KeyValuePair<string, string>> CreateArtifactsNamesList()
@@ -148,7 +151,7 @@ namespace FRF.Web.Tests.Controllers
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
-            var returnValue = Assert.IsType<List<ProviderArtifactSetting>>(okResult.Value);
+            var returnValue = Assert.IsType<List<ProviderArtifactSettingDTO>>(okResult.Value);
 
             Assert.Equal(artifactSettings[0].Name.Key, returnValue[0].Name.Key);
             Assert.Equal(artifactSettings[0].Name.Value, returnValue[0].Name.Value);
@@ -177,7 +180,7 @@ namespace FRF.Web.Tests.Controllers
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
-            var returnValue = Assert.IsType<List<PricingTerm>>(okResult.Value);
+            var returnValue = Assert.IsType<List<PricingTermDTO>>(okResult.Value);
 
             Assert.Equal(pricingTermList[0].Sku, returnValue[0].Sku);
             Assert.Equal(pricingTermList[0].Term, returnValue[0].Term);
