@@ -28,14 +28,14 @@ namespace FRF.Web.Controllers
         public async Task<IActionResult> GetUserPublicProfileAsync()
         {
             var email = HttpContext.User.FindFirst(ClaimTypes.Email).Value;
-            var userPublicProfile = await _userService.GetUserPublicProfile(email);
+            var userPublicProfile = await _userService.GetUserPublicProfileAsync(email);
             if (userPublicProfile == null) return BadRequest();
             
             return Ok(userPublicProfile);
         }
 
         [HttpGet("logout")]
-        [AllowAnonymous]
+        [Authorize]
         public async Task<IActionResult> Logout()
         {
             await _userService.Logout();
@@ -53,10 +53,10 @@ namespace FRF.Web.Controllers
         {
             if (string.IsNullOrWhiteSpace(email)) return BadRequest();
             
-            var userId = await _userService.GetUserPublicProfile(email); 
-            if (userId == null) return NotFound();
+            var userProfile = await _userService.GetUserPublicProfileAsync(email); 
+            if (userProfile == null) return NotFound();
 
-            var userPublicProfile = _mapper.Map<UserProfileDTO>(userId);
+            var userPublicProfile = _mapper.Map<UserProfileDTO>(userProfile);
             
             return Ok(userPublicProfile);
         }

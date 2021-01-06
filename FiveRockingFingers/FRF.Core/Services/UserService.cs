@@ -22,7 +22,7 @@ namespace FRF.Core.Services
            await _signInManager.SignOutAsync();
         }
 
-        public async Task<Guid> GetCurrentUserId()
+        public async Task<Guid> GetCurrentUserIdAsync()
         {
             var currentUser = _signInManager.Context.User;
             var result = await _userManager.GetUserAsync(currentUser);
@@ -32,7 +32,7 @@ namespace FRF.Core.Services
             return userId;
         }
 
-        public async Task<UsersProfile> GetUserPublicProfile(string email)
+        public async Task<UsersProfile> GetUserPublicProfileAsync(string email)
         {
             var response = await _userManager.FindByEmailAsync(email);
             if (response == null) return null;
@@ -47,7 +47,7 @@ namespace FRF.Core.Services
             return user;
         }
 
-        public async Task<UsersProfile> GetUserPublicProfile(Guid userId)
+        public async Task<UsersProfile> GetUserPublicProfileAsync(Guid userId)
         {
             var response = await _userManager.FindByIdAsync(userId.ToString());
             if (response == null) return null;

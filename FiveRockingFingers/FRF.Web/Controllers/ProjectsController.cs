@@ -31,7 +31,7 @@ namespace FiveRockingFingers.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllAsync()
         {
-            var currentUserId = await _userService.GetCurrentUserId();
+            var currentUserId = await _userService.GetCurrentUserIdAsync();
             var projects = await _projectService.GetAllAsync(currentUserId);
 
             var projectsDto = _mapper.Map<IEnumerable<ProjectDTO>>(projects);
@@ -51,7 +51,7 @@ namespace FiveRockingFingers.Controllers
         [HttpPost]
         public async Task<IActionResult> SaveAsync(ProjectUpsertDTO projectDto)
         {
-            var currentUserId = await _userService.GetCurrentUserId();
+            var currentUserId = await _userService.GetCurrentUserIdAsync();
 
             projectDto.Users.Add(new UserProfileUpsertDTO() {UserId = currentUserId});
 

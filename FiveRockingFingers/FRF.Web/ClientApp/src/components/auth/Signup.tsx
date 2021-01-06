@@ -7,7 +7,8 @@ import { useHistory } from 'react-router-dom';
 import { Form, FormGroup, Label, Row } from 'reactstrap';
 import * as yup from "yup";
 import { LoadingButton } from '../../commons/LoadingButton';
-import { SnackbarError } from '../../commons/SnackbarError';
+import SnackbarMessage from '../../commons/SnackbarMessage';
+import SnackbarSettings from '../../interfaces/SnackbarSettings';
 import "./authStyle.css";
 import { useUserContext } from "./contextLib";
 
@@ -34,6 +35,7 @@ const UserSignupSchema = yup.object().shape({
         .trim()
         .min(8, 'Debe tener al menos 8 caracteres.')
         .max(20, 'No puede ser mayor a 20 caracteres.')
+        .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[@#$%^&+=.\-_*])(?=.*[A-Z]).{8,}$/, 'Debe incluir al menos un numero, un caracter en mayuscula y un simbolo.')
         .required('Requerido.'),
     confirm: yup.string()
         .oneOf([yup.ref('password'), ''], 'El password no coincide.')
@@ -41,10 +43,17 @@ const UserSignupSchema = yup.object().shape({
 
 const Signup: React.FC<userSignUp> = ({ }) => {
     const history = useHistory();
-    const { userHasAuthenticated } = useUserContext();
+    const { setCurrentUser } = useUserContext();
     const { register, handleSubmit, errors, reset } = useForm<userSignUp>({ resolver: yupResolver(UserSignupSchema) });
     const [loading, setLoading] = React.useState(false);
     const [errorLogin, setErrorLogin] = React.useState<string>("");
+    const [snackbarSettings, setSnackbarSettings] = React.useState<SnackbarSettings>({ message: "", severity: undefined });
+    const [openSnackbar, setOpenSnackbar] = React.useState(false);
+
+    const manageOpenSnackbar = (settings: SnackbarSettings) => {
+        setSnackbarSettings(settings);
+        setOpenSnackbar(true);
+    }
 
     const onSubmit = (e: userSignUp) => {
         setLoading(true);
@@ -58,19 +67,21 @@ const Signup: React.FC<userSignUp> = ({ }) => {
             })
             .then(response => {
                 if (response.status === 200) {
-                    userHasAuthenticated(response.data);
+                    setCurrentUser(response.data);
                     history.push("/Home");
                 }
-                if (response.status === 400) {
-                    setErrorLogin("Sign Up Failed!");
+            })
+            .catch(function (error) {
+                if (error.response.status === 400) {
+                    manageOpenSnackbar({ message: "Error al registrarse! Verifique que los datos sean correctos.", severity: "error" });
                     setLoading(false);
                     reset();
                 }
-            })
-            .catch(error => {
-                setErrorLogin("Sign Up Failed!");
-                setLoading(false);
-                reset();
+                else {
+                    manageOpenSnackbar({ message: "Error al registrarse! Intente nuevamente más tarde.", severity: "error" });
+                    setLoading(false);
+                    reset();
+                }
             });
     }
 
@@ -166,7 +177,12 @@ const Signup: React.FC<userSignUp> = ({ }) => {
                 <Button className="buttonStyle" variant="outlined" href="/" size="small" value="Sign In">Acceder</Button></Box>
             <br />
             <br />
-            <SnackbarError error={errorLogin} />
+            <SnackbarMessage
+                message={snackbarSettings.message}
+                severity={snackbarSettings.severity}
+                open={openSnackbar}
+                setOpen={setOpenSnackbar}
+            />
         </Paper>
     );
 };

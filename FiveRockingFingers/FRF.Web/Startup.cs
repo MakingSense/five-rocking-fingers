@@ -53,16 +53,11 @@ namespace FRF.Web
 			});
 
 			//Start Cognito Authorization and Identity
-			
-			var provider = new AmazonCognitoIdentityProviderClient(
-                Configuration["AWSCognitoCredentials:AccessKeyId"],
-                Configuration["AWSCognitoCredentials:SecretAccKey"],
-                RegionEndpoint.USEast1);
+            var awsCognitoCredential = Configuration.GetSection(AwsCognito.AwsCognitoCredential).Get<AwsCognito>();
+			var provider = 
+                new AmazonCognitoIdentityProviderClient(awsCognitoCredential.AccessKeyId, awsCognitoCredential.SecretAccKey, RegionEndpoint.USEast1);
 			var cognitoUserPool =
-				new CognitoUserPool(
-                    Configuration["AWSCognitoCredentials:UserPoolId"],
-                    Configuration["AWSCognitoCredentials:ClientId"],
-                    provider);
+				new CognitoUserPool(awsCognitoCredential.UserPoolId,awsCognitoCredential.ClientId, provider);
 			services.AddSingleton<IAmazonCognitoIdentityProvider>(provider);
 			services.AddSingleton(cognitoUserPool);
 			services.AddCognitoIdentity();
