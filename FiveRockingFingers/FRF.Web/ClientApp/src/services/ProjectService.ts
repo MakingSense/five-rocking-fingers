@@ -7,14 +7,23 @@ const PROJECTS_URL = `${BASE_URL}api/Projects/`;
 export default class ProjectService {
 
     static searchUser = async (email: string) => {
-        const response = axios.get("https://localhost:44346/api/User/search", {
+        return axios.get("https://localhost:44346/api/User/search", {
             params: { email: email }
         })
-        return response;
+        .then(response => {
+            if (response.status === 200) {
+                return response;
+            }
+        }
+        ).catch(function (error) {
+            if (error.response) {
+                return error.response;
+            }
+        });
     }
 
     static save = async (project: Project) => {
-        const response = await axios.post(`${PROJECTS_URL}Save`,
+        return await axios.post(`${PROJECTS_URL}Save`,
             {
                 name: project.name,
                 owner: project.owner,
@@ -22,12 +31,21 @@ export default class ProjectService {
                 budget: project.budget,
                 projectCategories: project.projectCategories,
                 users: project.users.map((parameter) => ({ userId:parameter.userId}))
+            })
+            .then(response => {
+                if (response.status === 200) {
+                    return response;
+                }
+            }
+            ).catch(function (error) {
+                if (error.response) {
+                    return error.response;
+                }
             });
-        return response;
     }
 
     static update = async (id: number, project: Project) => {
-        const response = await axios.put(`${PROJECTS_URL}Update?id=${id}`, {
+        return await axios.put(`${PROJECTS_URL}Update?id=${id}`, {
             name: project.name,
             id: id,
             owner: project.owner,
@@ -36,17 +54,44 @@ export default class ProjectService {
             budget: project.budget,
             projectCategories: project.projectCategories,
             users: project.users.map((parameter) => ({ userId:parameter.userId}))
+        })
+        .then(response => {
+            if (response.status === 200) {
+                return response;
+            }
+        }
+        ).catch(function (error) {
+            if (error.response) {
+                return error.response;
+            }
         });
-        return response;
     }
 
     static delete = async (id: string) => {
-        const response = await axios.delete(`${PROJECTS_URL}Delete/${id}`)
-        return response;
+        return await axios.delete(`${PROJECTS_URL}Delete/${id}`)
+        .then(response => {
+            if (response.status === 204) {
+                return response;
+            }
+        }
+        ).catch(function (error) {
+            if (error.response) {
+                return error.response;
+            }
+        });
     }
 
     static getAll = async () => {
-        const response = await axios.get(`${PROJECTS_URL}GetAll/`);
-        return response;
+        return await axios.get(`${PROJECTS_URL}GetAll/`)
+        .then(response => {
+            if (response.status === 200) {
+                return response;
+            }
+        }
+        ).catch(function (error) {
+            if (error.response) {
+                return error.response;
+            }
+        });
     }
 }
