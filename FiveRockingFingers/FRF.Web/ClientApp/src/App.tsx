@@ -12,13 +12,13 @@ function App() {
     function handleLogout() {
         axios.get("https://localhost:44346/api/User/logout");
         History.push("/");
-        userHasAuthenticated(null);
+        setCurrentUser(null);
     }
 
-    const [isAuthenticated, userHasAuthenticated] = useState<string | null>(null);
+    const [currentUser, setCurrentUser] = useState<string | null>(null);
     return (
-        <UserContext.Provider value={{ isAuthenticated, userHasAuthenticated }}>
-            {isAuthenticated
+        <UserContext.Provider value={{ currentUser, setCurrentUser }}>
+            {currentUser
                 ? <Button display= "flex" flexDirection="row-reverse" onClick={handleLogout}>Logout</Button>
                 : <></>
             }
