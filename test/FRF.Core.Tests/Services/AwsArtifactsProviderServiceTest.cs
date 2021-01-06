@@ -1,4 +1,5 @@
 ﻿using FRF.Core.Base;
+using FRF.Core.Models;
 using FRF.Core.Services;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -75,6 +76,21 @@ namespace FRF.Core.Tests.Services
             Assert.Equal("AwsArtifact2", response[1].Key);
             Assert.Equal("AwsArtifact3", response[2].Key);
             Assert.Equal("AwsArtifact4", response[3].Key);
+        }
+
+        [Fact]
+        public async Task GetAttributesAsync_ReturnList()
+        {
+            // Arange
+            var serviceCode = "AmazonEC2";
+
+            // Act
+            var result = await _classUnderTest.GetAttributesAsync(serviceCode);
+
+            // Assert
+            var response = Assert.IsType<List<ProviderArtifactSetting>>(result);
+
+            Assert.NotEmpty(response);
         }
     }
 }
