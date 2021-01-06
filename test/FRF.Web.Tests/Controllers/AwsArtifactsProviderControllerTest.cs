@@ -1,4 +1,5 @@
-﻿using FRF.Core.Services;
+﻿using FRF.Core.Models;
+using FRF.Core.Services;
 using FRF.Web.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -30,6 +31,65 @@ namespace FRF.Web.Tests.Controllers
             };
 
             return namesList;
+        }
+
+        private List<ProviderArtifactSetting> CreateArtifactSetting()
+        {
+            var artifactName = new KeyValuePair<string, string>("awsArtifact", "Aws Artifact");
+            var artifactValues = new List<string>
+            {
+                "Valor 1"
+            };
+            var providerArtifactSetting = new ProviderArtifactSetting
+            {
+                Name = artifactName,
+                Values = artifactValues
+            };
+            var providerArtifactSettings = new List<ProviderArtifactSetting>
+            {
+                providerArtifactSetting
+            };
+            return providerArtifactSettings;
+        }
+
+        private List<PricingTerm> CreatePricingTermList()
+        {
+            var pricingDimension = new PricingDimension
+            {
+                Unit = "[Mock] Unit",
+                EndRange = "[Mock] End range",
+                Description = "[Mock] Description",
+                RateCode = "[Mock] Rate code",
+                BeginRange = "[Mock] Begin range",
+                Currency = "[Mock] Currency",
+                PricePerUnit = 99.99f
+            };
+            var pricingDetail = new PricingDimension
+            {
+                Unit = "[Mock] Unit 2",
+                EndRange = "[Mock] End range 2",
+                Description = "[Mock] Description 2",
+                RateCode = "[Mock] Rate code 2",
+                BeginRange = "[Mock] Begin range 2",
+                Currency = "[Mock] Currency 2",
+                PricePerUnit = 99.99f
+            };
+            var pricingTerm = new PricingTerm()
+            {
+                Sku = "[Mock] Sku",
+                Term = "[Mock] Term",
+                PricingDimension = pricingDimension,
+                PricingDetail = pricingDetail,
+                LeaseContractLength = "[Mock] Contract length",
+                OfferingClass = "[Mock] Offering class",
+                PurchaseOption = "[Mock] Purchase option"
+            };
+
+            var pricingTermList = new List<PricingTerm>
+            {
+                pricingTerm
+            };
+            return pricingTermList;
         }
 
         [Fact]
@@ -70,6 +130,75 @@ namespace FRF.Web.Tests.Controllers
             var response = Assert.IsType<StatusCodeResult>(result);
 
             Assert.Equal(503,response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetAttributesAsync_ReturnsOk()
+        {
+            // Arrange
+            var serviceCode = "[Mock] Service code";
+            var artifactSettings = CreateArtifactSetting();
+
+            _artifactProviderService
+                .Setup(mock => mock.GetAttributesAsync(It.IsAny<string>()))
+                .ReturnsAsync(artifactSettings);
+
+            // Act
+            var result = await _classUnderTest.GetAttributesAsync(serviceCode);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var returnValue = Assert.IsType<List<ProviderArtifactSetting>>(okResult.Value);
+
+            Assert.Equal(artifactSettings[0].Name.Key, returnValue[0].Name.Key);
+            Assert.Equal(artifactSettings[0].Name.Value, returnValue[0].Name.Value);
+            Assert.Equal(artifactSettings[0].Values[0], returnValue[0].Values[0]);
+            _artifactProviderService.Verify(mock => mock.GetAttributesAsync(serviceCode), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetProductsAsync_ReturnsOk()
+        {
+            // Arrange
+            var serviceCode = "[Mock] Service code";
+            var artifactSettings = new KeyValuePair<string, string>("[Mock] Setting Name", "[Mock] Setting Value");
+            var artifactSettingsList = new List<KeyValuePair<string, string>>
+            {
+                artifactSettings
+            };
+            var pricingTermList = CreatePricingTermList();
+
+            _artifactProviderService
+                .Setup(mock => mock.GetProductsAsync(It.IsAny<List<KeyValuePair<string, string>>>(), It.IsAny<string>()))
+                .ReturnsAsync(pricingTermList);
+
+            // Act
+            var result = await _classUnderTest.GetProductsAsync(artifactSettingsList, serviceCode);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var returnValue = Assert.IsType<List<PricingTerm>>(okResult.Value);
+
+            Assert.Equal(pricingTermList[0].Sku, returnValue[0].Sku);
+            Assert.Equal(pricingTermList[0].Term, returnValue[0].Term);
+            Assert.Equal(pricingTermList[0].LeaseContractLength, returnValue[0].LeaseContractLength);
+            Assert.Equal(pricingTermList[0].OfferingClass, returnValue[0].OfferingClass);
+            Assert.Equal(pricingTermList[0].PurchaseOption, returnValue[0].PurchaseOption);
+            Assert.Equal(pricingTermList[0].PricingDimension.BeginRange, returnValue[0].PricingDimension.BeginRange);
+            Assert.Equal(pricingTermList[0].PricingDimension.Currency, returnValue[0].PricingDimension.Currency);
+            Assert.Equal(pricingTermList[0].PricingDimension.Description, returnValue[0].PricingDimension.Description);
+            Assert.Equal(pricingTermList[0].PricingDimension.EndRange, returnValue[0].PricingDimension.EndRange);
+            Assert.Equal(pricingTermList[0].PricingDimension.PricePerUnit, returnValue[0].PricingDimension.PricePerUnit);
+            Assert.Equal(pricingTermList[0].PricingDimension.RateCode, returnValue[0].PricingDimension.RateCode);
+            Assert.Equal(pricingTermList[0].PricingDimension.Unit, returnValue[0].PricingDimension.Unit);
+            Assert.Equal(pricingTermList[0].PricingDetail.BeginRange, returnValue[0].PricingDetail.BeginRange);
+            Assert.Equal(pricingTermList[0].PricingDetail.Currency, returnValue[0].PricingDetail.Currency);
+            Assert.Equal(pricingTermList[0].PricingDetail.Description, returnValue[0].PricingDetail.Description);
+            Assert.Equal(pricingTermList[0].PricingDetail.EndRange, returnValue[0].PricingDetail.EndRange);
+            Assert.Equal(pricingTermList[0].PricingDetail.PricePerUnit, returnValue[0].PricingDetail.PricePerUnit);
+            Assert.Equal(pricingTermList[0].PricingDetail.RateCode, returnValue[0].PricingDetail.RateCode);
+            Assert.Equal(pricingTermList[0].PricingDetail.Unit, returnValue[0].PricingDetail.Unit);
+            _artifactProviderService.Verify(mock => mock.GetProductsAsync(artifactSettingsList, serviceCode), Times.Once);
         }
     }
 }
