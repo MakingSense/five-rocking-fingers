@@ -26,7 +26,7 @@ namespace FRF.Core.Tests.Services
             _signInManagerMock.Object.Context = new DefaultHttpContext();
 
             // Act
-            var result = await _classUnderTest.GetCurrentUserId();
+            var result = await _classUnderTest.GetCurrentUserIdAsync();
 
             // Assert
             Assert.IsType<Guid>(result);
@@ -47,7 +47,7 @@ namespace FRF.Core.Tests.Services
                 .Verifiable();
 
             // Act
-            var result = await _classUnderTest.GetCurrentUserId();
+            var result = await _classUnderTest.GetCurrentUserIdAsync();
 
             // Assert
             Assert.IsType<Guid>(result);
@@ -65,7 +65,7 @@ namespace FRF.Core.Tests.Services
                 .Setup(mock => mock.FindByEmailAsync(It.IsAny<string>()))
                 .ReturnsAsync(cognitoUser);
             // Act
-            var result = await _classUnderTest.GetUserPublicProfile(It.IsAny<string>());
+            var result = await _classUnderTest.GetUserPublicProfileAsync(It.IsAny<string>());
             // Assert
             Assert.Null(result);
             _userManagerMock.Verify(mock => mock.FindByEmailAsync(It.IsAny<string>()), Times.Once);
@@ -81,7 +81,7 @@ namespace FRF.Core.Tests.Services
                 .ReturnsAsync(cognitoUser);
 
             // Act
-            var result = await _classUnderTest.GetUserPublicProfile(cognitoUser.Attributes["email"]);
+            var result = await _classUnderTest.GetUserPublicProfileAsync(cognitoUser.Attributes["email"]);
 
             // Assert
             Assert.IsType<UsersProfile>(result);
@@ -102,7 +102,7 @@ namespace FRF.Core.Tests.Services
                 .Setup(mock => mock.FindByIdAsync(It.IsAny<string>()))
                 .ReturnsAsync(cognitoUser);
             // Act
-            var result = await _classUnderTest.GetUserPublicProfile(It.IsAny<string>());
+            var result = await _classUnderTest.GetUserPublicProfileAsync(It.IsAny<string>());
             // Assert
             Assert.Null(result);
         }
@@ -117,7 +117,7 @@ namespace FRF.Core.Tests.Services
                 .ReturnsAsync(cognitoUser);
 
             // Act
-            var result = await _classUnderTest.GetUserPublicProfile(new Guid(cognitoUser.UserID));
+            var result = await _classUnderTest.GetUserPublicProfileAsync(new Guid(cognitoUser.UserID));
 
             // Assert
             Assert.IsType<UsersProfile>(result);
