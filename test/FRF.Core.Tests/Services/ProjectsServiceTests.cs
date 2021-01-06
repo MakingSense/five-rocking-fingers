@@ -2,13 +2,11 @@
 using FRF.Core.Models;
 using FRF.Core.Services;
 using FRF.DataAccess.EntityModels;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -76,16 +74,26 @@ namespace FRF.Core.Tests.Services
             return userByProject;
         }
 
-        [Fact]
+        private UsersProfile CreateUsersProfile()
+        {
+            return new UsersProfile()
+            {
+                Avatar = null,
+                UserId = new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba"),
+                Email = "email@mock.moq",
+                Fullname = "Mock User"
+            };
+        }
+      [Fact]
         public async Task GetAllAsync_ReturnsList()
         {
             // Arange
             var project = CreateProject();
             var userByProject = CreateUserByProject(project);
-
+            var userProfile = CreateUsersProfile();
             _userService
-                .Setup(mock => mock.GetEmailByUserId(It.IsAny<string>()))
-                .ReturnsAsync("fiverockingfingers@making.com");
+                .Setup(mock => mock.GetUserPublicProfileAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(userProfile);
 
             // Act
             var result = await _classUnderTest.GetAllAsync(userByProject.UserId);
@@ -101,7 +109,12 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(project.CreatedDate, result[0].CreatedDate);
             Assert.Equal(project.ModifiedDate, result[0].ModifiedDate);
 
-            _userService.Verify(mock => mock.GetEmailByUserId(userByProject.UserId.ToString()), Times.Once);
+            var usersProfiles = result[0].UsersByProject.ToList();
+            Assert.Equal(userProfile.Email, usersProfiles[0].Email);
+            Assert.Equal(userProfile.UserId, usersProfiles[0].UserId);
+            Assert.Equal(userProfile.Fullname, usersProfiles[0].Fullname);
+
+            _userService.Verify(mock => mock.GetUserPublicProfileAsync(It.IsAny<Guid>()), Times.Once);
         }
 
         [Fact]
@@ -118,16 +131,20 @@ namespace FRF.Core.Tests.Services
             Assert.Empty(result);
         }
 
-        [Fact]
+       [Fact]
         public async Task GetAsync_ReturnsProject()
         {
             // Arange
             var project = CreateProject();
             var userByProject = CreateUserByProject(project);
+            var userProfile = CreateUsersProfile();
 
             _userService
-                .Setup(mock => mock.GetEmailByUserId(It.IsAny<string>()))
-                .ReturnsAsync("fiverockingfingers@making.com");
+                .Setup(mock => mock.GetCurrentUserIdAsync())
+                .ReturnsAsync(new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba"));
+            _userService
+                .Setup(mock => mock.GetUserPublicProfileAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(userProfile);
 
             // Act
             var result = await _classUnderTest.GetAsync(project.Id);
@@ -143,7 +160,13 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(project.CreatedDate, result.CreatedDate);
             Assert.Equal(project.ModifiedDate, result.ModifiedDate);
 
-            _userService.Verify(mock => mock.GetEmailByUserId(userByProject.UserId.ToString()), Times.Once);
+            var usersProfiles = result.UsersByProject.ToList();
+            Assert.Equal(userProfile.Email, usersProfiles[0].Email);
+            Assert.Equal(userProfile.UserId, usersProfiles[0].UserId);
+            Assert.Equal(userProfile.Fullname, usersProfiles[0].Fullname);
+
+            _userService.Verify(mock => mock.GetUserPublicProfileAsync(It.IsAny<Guid>()), Times.Once);
+            _userService.Verify(mock => mock.GetCurrentUserIdAsync(), Times.Once);
         }
 
         [Fact]
@@ -360,6 +383,9 @@ namespace FRF.Core.Tests.Services
             // Arange
             var project = CreateProject();
             CreateUserByProject(project);
+            _userService
+                .Setup(mock => mock.GetCurrentUserIdAsync())
+                .ReturnsAsync(new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba"));
 
             // Act
             var result = await _classUnderTest.DeleteAsync(project.Id);
@@ -373,7 +399,9 @@ namespace FRF.Core.Tests.Services
         {
             // Arange
             var projectId = 0;
-
+            _userService
+                .Setup(mock => mock.GetCurrentUserIdAsync())
+                .ReturnsAsync(new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba"));
             // Act
             var result = await _classUnderTest.DeleteAsync(projectId);
 

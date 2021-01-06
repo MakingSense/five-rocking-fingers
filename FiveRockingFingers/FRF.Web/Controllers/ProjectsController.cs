@@ -5,53 +5,33 @@ using FRF.Core.Services;
 using FRF.Web.Dtos;
 using FRF.Web.Dtos.Projects;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FiveRockingFingers.Controllers
 {
     [ApiController]
     [Route("api/[controller]/[action]")]
-    // [Authorize] 
+    [Authorize]
     public class ProjectsController : ControllerBase
     {
         private readonly IMapper _mapper;
         private readonly IProjectsService _projectService;
         private readonly IUserService _userService;
-        private readonly IConfiguration _configuration;
 
-        public ProjectsController(IProjectsService projectsService, IMapper mapper, IUserService userService,
-            IConfiguration configuration)
+        public ProjectsController(IProjectsService projectsService, IMapper mapper, IUserService userService)
         {
             _projectService = projectsService;
             _mapper = mapper;
             _userService = userService;
-            _configuration = configuration;
-        }
-
-        //TODO: AWS Credentials, Loggin bypassed.Delete this method and Uncomment GetAll() after do:
-        [HttpGet("{userId}")]
-        public async Task<IActionResult> GetAllAsync(Guid userId)
-        {
-            //TODO: AWS Credentials, Loggin bypassed. Use the method argument Guid userId instead of GetValue.
-            var currentUserId = Guid.Parse(_configuration.GetValue<string>("MockUsers:UserId"));
-
-            if (currentUserId != userId) return Unauthorized();
-
-            var projects = await _projectService.GetAllAsync(currentUserId);
-
-            var projectsDto = _mapper.Map<IEnumerable<ProjectDTO>>(projects);
-            return Ok(projectsDto);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllAsync()
         {
-            // TODO: AWS Credentials, Loggin bypassed.Uncomment after do:
-            //var currentUserId = await _userService.GetCurrentUserId();
-            var currentUserId = new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba");
+            var currentUserId = await _userService.GetCurrentUserIdAsync();
             var projects = await _projectService.GetAllAsync(currentUserId);
 
             var projectsDto = _mapper.Map<IEnumerable<ProjectDTO>>(projects);
@@ -71,9 +51,7 @@ namespace FiveRockingFingers.Controllers
         [HttpPost]
         public async Task<IActionResult> SaveAsync(ProjectUpsertDTO projectDto)
         {
-            // TODO: AWS Credentials, Loggin bypassed.Uncomment after do:
-            //var currentUserId = await _userService.GetCurrentUserId();
-            var currentUserId = new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba");
+            var currentUserId = await _userService.GetCurrentUserIdAsync();
 
             projectDto.Users.Add(new UserProfileUpsertDTO() {UserId = currentUserId});
 
@@ -92,6 +70,7 @@ namespace FiveRockingFingers.Controllers
         {
             var project = await _projectService.GetAsync(id);
             if (project == null) return NotFound();
+
             //To improve
             if (!projectDto.Users.Any()) return BadRequest();
 

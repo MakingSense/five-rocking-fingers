@@ -11,6 +11,7 @@ import Project from '../../interfaces/Project';
 import UserProfile from '../../interfaces/UserProfile';
 import ProjectService from '../../services/ProjectService';
 import { HelperAddUser } from "./HelperAddUser";
+import { useUserContext } from "../auth/contextLib";
 import ManageCategories from "./ManageCategories";
 import { ValidateEmail } from "./ValidateEmail";
 
@@ -37,6 +38,7 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
     const [fieldEmail, setFieldEmail] = React.useState<string | null>("")
     const [selectedCategories, setSelectedCategories] = React.useState([] as Category[]);
     const classes = useStyles();
+    const { currentUser } = useUserContext();
 
     const { register, handleSubmit, errors } = useForm();
 
@@ -86,7 +88,7 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
             switch (response.status) {
                 case 200:
                     let newUserList: UserProfile[] | null;
-                    newUserList = HelperAddUser(response.data, state.users, emailField, props.openSnackbar);
+                    newUserList = HelperAddUser(response.data, state.users, emailField, props.openSnackbar,currentUser);
                     if (newUserList != null) setState({ ...state, users: newUserList });
                     break;
                 case 404:

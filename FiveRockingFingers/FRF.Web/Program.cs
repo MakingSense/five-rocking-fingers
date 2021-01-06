@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
-namespace FiveRockingFingers
+namespace FRF.Web
 {
     public class Program
     {

@@ -7,7 +7,8 @@ import { useHistory } from "react-router-dom";
 import { Col, Form, FormGroup, Label, Row } from "reactstrap";
 import * as yup from "yup";
 import { LoadingButton } from '../../commons/LoadingButton';
-import { SnackbarError } from '../../commons/SnackbarError';
+import SnackbarMessage from '../../commons/SnackbarMessage';
+import SnackbarSettings from '../../interfaces/SnackbarSettings';
 import "./authStyle.css";
 import { useUserContext } from "./contextLib";
 
@@ -25,15 +26,22 @@ const UserLoginSchema = yup.object().shape({
         .trim()
         .min(8, 'Debe tener al menos 8 caracteres.')
         .max(20, 'No puede ser mayor a 20 caracteres.')
+        .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[@#$%^&+=.\-_*])(?=.*[A-Z]).{8,}$/, 'Debe incluir al menos un numero, un caracter en mayuscula y un simbolo.')
         .required('Requerido.'),
 });
 
 const Login: React.FC<userLogin> = () => {
     const history = useHistory();
-    const { userHasAuthenticated } = useUserContext();
+    const { setCurrentUser } = useUserContext();
     const { register, handleSubmit, errors, reset } = useForm<userLogin>({ resolver: yupResolver(UserLoginSchema) });
     const [loading, setLoading] = React.useState(false);
-    const [errorLogin, setErrorLogin] = React.useState<string>("");
+    const [snackbarSettings, setSnackbarSettings] = React.useState<SnackbarSettings>({ message: "", severity: undefined });
+    const [openSnackbar, setOpenSnackbar] = React.useState(false);
+
+    const manageOpenSnackbar = (settings: SnackbarSettings) => {
+        setSnackbarSettings(settings);
+        setOpenSnackbar(true);
+    }
 
     const onSumit = (e: userLogin) => {
         setLoading(true);
@@ -45,19 +53,21 @@ const Login: React.FC<userLogin> = () => {
             })
             .then(response => {
                 if (response.status === 200) {
-                    userHasAuthenticated(response.data);
+                    setCurrentUser(response.data);
                     history.push("/home");
-                }
-                if (response.status === 400) {
-                    setErrorLogin("Login Failed! Invalid email or password.");
-                    setLoading(false);
-                    reset();
                 }
             })
             .catch(error => {
-                setErrorLogin("Login Failed!");
-                setLoading(false);
-                reset();
+                if (error.response.status === 400) {
+                    manageOpenSnackbar({ message: "Error al iniciar sesion! Correo electrónico o contraseña no válidos.", severity: "error" });
+                    setLoading(false);
+                    reset();
+                }
+                else {
+                    manageOpenSnackbar({ message: "Error al iniciar sesion!", severity: "error" });
+                    setLoading(false);
+                    reset();
+                }
             });
     };
 
@@ -108,7 +118,12 @@ const Login: React.FC<userLogin> = () => {
             </Row>
             <br />
             <br />
-            <SnackbarError error={errorLogin} />
+            <SnackbarMessage
+                message={snackbarSettings.message}
+                severity={snackbarSettings.severity}
+                open={openSnackbar}
+                setOpen={setOpenSnackbar}
+            />
         </Paper>
     );
 };
