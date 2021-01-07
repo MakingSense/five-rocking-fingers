@@ -165,10 +165,10 @@ namespace FRF.Core.Tests.Services
             var sku = "[Mock] Sku";
             var term = "[Mock] Term";
             var unit = "[Mock] Unit";
-            var endRange = "[Mock] End Range";
+            var endRange = "inf";
             var decription = "[Mock] Description";
             var rateCode = "[Mock] Rate Code";
-            var beginRange = "[Mock] Begin Range";
+            var beginRange = "10";
             var currency = "[Mock] Currency";
             var pricePerUnit = "99.99";
             var offerTermCode = "[Mock] Offer term code";
@@ -234,6 +234,9 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetProductsAsync(settings, serviceCode);
 
             // Assert
+            float.TryParse(beginRange, out float beginRangeFloat);
+            float.TryParse(endRange, out float endRangeFloat);
+
             Assert.IsType<List<PricingTerm>>(result);
             Assert.NotEmpty(result);
             Assert.Equal(result[0].Sku, sku);
@@ -241,10 +244,10 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(result[0].PurchaseOption, purchaseOption);
             Assert.Equal(result[0].OfferingClass, offeringClass);
             Assert.Equal(result[0].LeaseContractLength, leaseContractLength);
-            Assert.Equal(result[0].PricingDimension.BeginRange, beginRange);
+            Assert.Equal(result[0].PricingDimension.BeginRange, beginRangeFloat);
             Assert.Equal(result[0].PricingDimension.Currency, currency);
             Assert.Equal(result[0].PricingDimension.Description, decription);
-            Assert.Equal(result[0].PricingDimension.EndRange, endRange);
+            Assert.Equal(result[0].PricingDimension.EndRange, endRangeFloat);
             Assert.Equal(result[0].PricingDimension.PricePerUnit, float.Parse(pricePerUnit));
             Assert.Equal(result[0].PricingDimension.RateCode, rateCode);
             Assert.Equal(result[0].PricingDimension.Unit, unit);

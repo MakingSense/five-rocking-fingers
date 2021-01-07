@@ -3,27 +3,17 @@ using FRF.Core.Models;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 
 namespace FRF.Core.Services
 {
     public class SignInService : ISignInService
     {
-        /* TODO:Pending AWS Credentials. Login is bypassed![FIVE-6] */
-        /*Uncomment this after do.*/
-        /*
+        
         private readonly SignInManager<CognitoUser> _signInManager;
 
         public SignInService(SignInManager<CognitoUser> signInManager)
         {
             _signInManager = signInManager;
-        }
-        */
-        private readonly IConfiguration _configuration;
-
-        public SignInService(IConfiguration configuration)
-        {
-            _configuration = configuration;
         }
 
         /// <summary>
@@ -36,17 +26,6 @@ namespace FRF.Core.Services
             var userEmail = userSignIn.Email.Trim();
             var userPassword = userSignIn.Password.Trim();
 
-            /* TODO:Pending AWS Credentials. Login is bypassed![FIVE-6] */
-            /*Clear this after do.*/
-            if (userEmail == _configuration.GetValue<string>("MockUsers:Email")
-                && userPassword == _configuration.GetValue<string>("MockUsers:Password"))
-                return new Tuple<bool, string>(true, "c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba");
-
-            return new Tuple<bool, string>(false, "");
-            /**/
-
-            /*Uncomment this after do.*/
-            /*
             try
             {
                 //First Look if the email exist
@@ -63,7 +42,7 @@ namespace FRF.Core.Services
             {
                 //throw message exception from AWS Cognito User Pool
                 throw new Exception(e.Message);
-            }*/
+            }
         }
     }
 }

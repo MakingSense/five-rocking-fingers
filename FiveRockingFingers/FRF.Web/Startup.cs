@@ -1,6 +1,15 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Amazon;
+using Amazon.CognitoIdentityProvider;
+using Amazon.Extensions.CognitoAuthentication;
+using Amazon.Pricing;
 using AutoMapper;
+using FRF.Core.Base;
 using FRF.Core.Services;
 using FRF.DataAccess;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
@@ -9,15 +18,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using FRF.Core.Base;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Amazon.Pricing;
-using Amazon;
 
-namespace FiveRockingFingers
+namespace FRF.Web
 {
 	public class Startup
 	{
@@ -52,27 +54,23 @@ namespace FiveRockingFingers
 			});
 
 			//Start Cognito Authorization and Identity
-			/* TODO:Pending AWS Credentials. AWS is bypassed![FIVE-6]
-
-			services.AddScoped<IConfigurationService, ConfigurationService>();
-
-			var CognitoCredencials = services.BuildServiceProvider().GetService<IConfigurationService>()
-				.GetConfigurationSettings();
-			var provider = new AmazonCognitoIdentityProviderClient(CognitoCredencials.AccessKeyId,
-				CognitoCredencials.SecretAccKey,
-				RegionEndpoint.USWest2);
+            var awsCognitoCredential = Configuration.GetSection(AwsCognito.AwsCognitoCredential).Get<AwsCognito>();
+			var provider = 
+                new AmazonCognitoIdentityProviderClient(awsCognitoCredential.AccessKeyId, awsCognitoCredential.SecretAccKey, RegionEndpoint.USEast1);
 			var cognitoUserPool =
-				new CognitoUserPool(CognitoCredencials.UserPoolId, CognitoCredencials.ClientId, provider);
+				new CognitoUserPool(awsCognitoCredential.UserPoolId,awsCognitoCredential.ClientId, provider);
 			services.AddSingleton<IAmazonCognitoIdentityProvider>(provider);
 			services.AddSingleton(cognitoUserPool);
-
 			services.AddCognitoIdentity();
-			*/
 			//End Cognito
-            
-            services.Configure<AwsPricing>(Configuration.GetSection(AwsPricing.AwsPricingOptions));
+
+			//Start AWS SDK Access Keys
+			var awsSdk = Configuration.GetSection(AwsSdkOptions.AwsSDK).Get<AwsSdkOptions>();
+			services.AddSingleton(new AmazonPricingClient(awsSdk.AccessKeyId, awsSdk.SecretAccessKey, RegionEndpoint.USEast1));
+			//End AWS SDK
+
+			services.Configure<AwsPricing>(Configuration.GetSection(AwsPricing.AwsPricingOptions));
             services.AddHttpClient();
-			services.AddSingleton(new AmazonPricingClient(Configuration["AwsAccessKeys:AccessKeyId"], Configuration["AwsAccessKeys:SecretAccessKey"], RegionEndpoint.USEast1));
 			services.AddTransient<IProjectsService, ProjectsService>();
 			services.AddTransient<ISignUpService, SignUpService>();
 			services.AddTransient<ISignInService, SignInService>();
@@ -97,9 +95,7 @@ namespace FiveRockingFingers
 			// In production, the React files will be served from this directory
 			services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/build"; });
 
-			/* TODO:Pending AWS Credentials. AWS is bypassed![FIVE-6]
-			/*Uncomment this after do.*/
-			/*
+			
 			services.ConfigureApplicationCookie(option =>
 			{
 				option.Events = new CookieAuthenticationEvents()
@@ -123,7 +119,7 @@ namespace FiveRockingFingers
 						return Task.CompletedTask;
 					}
 				};
-			});*/
+			});
 
 			var autoMapperProfileTypes = AutoMapperProfiles.Select(p => p.GetType()).ToArray();
 			services.AddAutoMapper(autoMapperProfileTypes);
@@ -153,10 +149,10 @@ namespace FiveRockingFingers
 			app.UseSwagger();
 			app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "Five Rocking Fingers"); });
 
-			/*Uncomment this after do.*/
+			
 			app.UseRouting();
-			//app.UseAuthentication();
-			//app.UseAuthorization();
+			app.UseAuthentication();
+			app.UseAuthorization();
 
 			app.UseEndpoints(endpoints =>
 			{

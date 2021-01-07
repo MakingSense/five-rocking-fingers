@@ -210,13 +210,16 @@ namespace FRF.Core.Services
 
         private PricingDimension ExtractPricingDimension(JProperty termPriceDimension)
         {
+            float.TryParse((string)termPriceDimension.Value.SelectToken("beginRange"), out float beginRange);
+            float.TryParse((string)termPriceDimension.Value.SelectToken("beginRange"), out float endRange);
+
             var pricingDetails = new PricingDimension()
             {
                 Unit = (string)termPriceDimension.Value.SelectToken("unit"),
-                EndRange = (string)termPriceDimension.Value.SelectToken("endRange"),
+                EndRange = endRange,
                 Description = (string)termPriceDimension.Value.SelectToken("description"),
                 RateCode = (string)termPriceDimension.Value.SelectToken("rateCode"),
-                BeginRange = (string)termPriceDimension.Value.SelectToken("beginRange"),
+                BeginRange = beginRange,
                 Currency = termPriceDimension.Value.SelectToken("pricePerUnit").ToObject<JObject>().Properties().ElementAt(0).Name,
                 PricePerUnit = (float)termPriceDimension.Value.SelectToken("pricePerUnit").ToObject<JObject>().Properties().ElementAt(0).Value,
             };

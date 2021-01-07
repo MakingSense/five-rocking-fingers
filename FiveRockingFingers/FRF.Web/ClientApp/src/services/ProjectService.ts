@@ -45,8 +45,8 @@ export default class ProjectService {
         return response;
     }
 
-    static getAll = async (userId: string) => {
-        const response = await axios.get(`${PROJECTS_URL}GetAll/${userId}`);
+    static getAll = async () => {
+        const response = await axios.get(`${PROJECTS_URL}GetAll/`);
         return response;
     }
 }

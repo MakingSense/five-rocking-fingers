@@ -17,7 +17,6 @@ namespace FRF.Web.Tests.Controllers
     public class ProjectsControllerTests
     {
         private readonly ProjectsController _classUnderTest;
-        private readonly Mock<IConfiguration> _configuration;
         private readonly Mock<IProjectsService> _projectsService;
         private readonly Mock<IUserService> _userService;
         private readonly IMapper _mapper = MapperBuilder.Build();
@@ -26,12 +25,10 @@ namespace FRF.Web.Tests.Controllers
         {
             _projectsService = new Mock<IProjectsService>();
             _userService = new Mock<IUserService>();
-            _configuration = new Mock<IConfiguration>();
 
             _classUnderTest = new ProjectsController(_projectsService.Object,
                 _mapper,
-                _userService.Object,
-                _configuration.Object);
+                _userService.Object);
         }
 
         /// <summary>
@@ -135,10 +132,7 @@ namespace FRF.Web.Tests.Controllers
             var sizeOfList = 5;
             var listOfMockProject = new List<Project>();
             for (var i = 0; i < sizeOfList; i++) listOfMockProject.Add(CreateProject(i));
-
-            //TODO: AWS Credentials, Loggin bypassed. Uncomment after do:
-            //_userService.Setup(mock => mock.GetCurrentUserId()).ReturnsAsync("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba");
-
+            
             _projectsService
                 .Setup(mock => mock.GetAllAsync(It.IsAny<Guid>()))
                 .ReturnsAsync(listOfMockProject);
@@ -151,7 +145,7 @@ namespace FRF.Web.Tests.Controllers
             var returnValue = Assert.IsType<List<ProjectDTO>>(okResult.Value);
 
             Assert.Equal(sizeOfList, returnValue.Count);
-            //_userService.Verify(mock => mock.GetCurrentUserId(), Times.Once);
+            //_userService.Verify(mock => mock.GetCurrentUserIdAsync(), Times.Once);
             _projectsService.Verify(mock => mock.GetAllAsync(It.IsAny<Guid>()), Times.Once);
         }
 
@@ -172,7 +166,7 @@ namespace FRF.Web.Tests.Controllers
             var okResult = Assert.IsType<OkObjectResult>(result);
             var returnValue = Assert.IsType<List<ProjectDTO>>(okResult.Value);
 
-            //_userService.Verify(mock => mock.GetCurrentUserId(), Times.Once);
+            //_userService.Verify(mock => mock.GetCurrentUserIdAsync(), Times.Once);
             Assert.Empty(returnValue);
             _projectsService.Verify(mock => mock.GetAllAsync(It.IsAny<Guid>()), Times.Once);
         }
