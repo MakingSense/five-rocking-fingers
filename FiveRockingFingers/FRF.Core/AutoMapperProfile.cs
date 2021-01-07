@@ -1,9 +1,5 @@
 ﻿using AutoMapper;
 using FRF.Core.Models;
-using FRF.DataAccess.EntityModels;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace FRF.Core
 {
@@ -32,6 +28,8 @@ namespace FRF.Core
             CreateMap<DataAccess.EntityModels.UsersByProject, Models.UsersProfile>()
                 .ReverseMap()
                 .ForMember(dest => dest.Id, act => act.Ignore());
+            CreateMap<DataAccess.EntityModels.ArtifactsRelation, ArtifactsRelation>()
+                .ReverseMap();
         }
     }
 }

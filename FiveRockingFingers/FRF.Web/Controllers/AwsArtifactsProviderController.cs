@@ -2,11 +2,13 @@
 using FRF.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FRF.Web.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
+    [Authorize]
     public class AwsArtifactsProviderController : ControllerBase
     {
         private readonly IArtifactsProviderService _artifactsProviderService;

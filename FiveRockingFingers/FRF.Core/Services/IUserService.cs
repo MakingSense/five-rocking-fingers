@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using FRF.Core.Models;
+using System;
 using System.Threading.Tasks;
 
 namespace FRF.Core.Services
 {
     public interface IUserService
     {
-        /* TODO:Pending AWS Credentials. Login is bypassed![FIVE-6] */
-        /*Uncomment this after do.
-        Task<string> GetFullname(string email);
+        
         Task Logout();
-        Task<string> GetCurrentUserId();
-        Task<string> GetUserIdByEmail(string email);*/
-        Task<string> GetEmailByUserId(string userId);
+        Task<Guid> GetCurrentUserIdAsync();
+        Task<UsersProfile> GetUserPublicProfileAsync(string email);
+        Task<UsersProfile> GetUserPublicProfileAsync(Guid userId);
     }
 }

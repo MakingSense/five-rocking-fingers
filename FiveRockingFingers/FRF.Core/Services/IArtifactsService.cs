@@ -10,7 +10,8 @@ namespace FRF.Core.Services
         Task<List<Artifact>> GetAllByProjectId(int projectId);
         Task<Artifact> Get(int id);
         Task<Artifact> Update(Artifact artifact);
-        Task Delete(int id);
+        Task<Artifact> Delete(int id);
         Task<Artifact> Save(Artifact artifact);
+        Task<IList<ArtifactsRelation>> SetRelationAsync(IList<ArtifactsRelation> artifactRelations);
     }
 }

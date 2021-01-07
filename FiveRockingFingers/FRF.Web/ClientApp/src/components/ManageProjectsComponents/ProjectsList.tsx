@@ -5,7 +5,9 @@ import * as React from 'react';
 import SnackbarMessage from '../../commons/SnackbarMessage';
 import Category from '../../interfaces/Category';
 import Project from '../../interfaces/Project';
+import ProjectCategory from '../../interfaces/ProjectCategory';
 import SnackbarSettings from '../../interfaces/SnackbarSettings';
+import CategoryService from '../../services/CategoryService';
 import ConfirmationDialog from './ConfirmationDialog';
 import EditProject from './EditProject';
 import ListElement from './ListElement';
@@ -43,7 +45,7 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-const ProjectsList = (props: { projects: Project[], categories: Category[], updateProjects: Function }) => {
+const ProjectsList = (props: { projects: Project[], categories: Category[], updateProjects: Function, updateCategories: Function }) => {
 
     const classes = useStyles();
 
@@ -85,6 +87,24 @@ const ProjectsList = (props: { projects: Project[], categories: Category[], upda
         }
     }
 
+    const fillProjectCategories = async (selectedCategories: Category[]) => {
+        let projectCategories = [] as ProjectCategory[];
+        for (const category of selectedCategories) {
+            let categoryToAdd = props.categories.find(c => c.name === category.name);
+            if (categoryToAdd === undefined) {
+                const response = await CategoryService.save(category);
+                if (response.status === 200) {
+                    let projectCategory: ProjectCategory = { category: response.data };
+                    projectCategories.push(projectCategory);
+                }
+            } else {
+                let projectCategory: ProjectCategory = { category: categoryToAdd };
+                projectCategories.push(projectCategory);
+            }
+        };
+        return projectCategories;
+    }
+
     // Turn edit on/off
     const changeEdit = () => {
         setEdit(true);
@@ -117,7 +137,14 @@ const ProjectsList = (props: { projects: Project[], categories: Category[], upda
                     <Button size="large" variant="contained" className={classes.button} fullWidth={true} endIcon={<AddIcon />} onClick={createProject}>
                         Nuevo Proyecto
                     </Button>
-                    <NewProjectDialog create={create} finishCreation={finishCreation} categories={props.categories} openSnackbar={manageOpenSnackbar} updateProjects={props.updateProjects} />
+                    <NewProjectDialog
+                        create={create}
+                        finishCreation={finishCreation}
+                        categories={props.categories}
+                        openSnackbar={manageOpenSnackbar}
+                        updateProjects={props.updateProjects}
+                        updateCategories={props.updateCategories}
+                        fillProjectCategories={fillProjectCategories} />
                     <Divider />
                     <List>
                         {props.projects.map((project: Project) =>
@@ -132,7 +159,14 @@ const ProjectsList = (props: { projects: Project[], categories: Category[], upda
                     selectedIndex === -1 ?
                         (<h1>Seleccione un proyecto para ver sus detalles</h1>)
                         : (edit ?
-                            (<EditProject project={props.projects.filter(p => p.id === selectedIndex)[0]} cancelEdit={cancelEdit} categories={props.categories} openSnackbar={manageOpenSnackbar} updateProjects={props.updateProjects} />)
+                            (<EditProject
+                                project={props.projects.filter(p => p.id === selectedIndex)[0]}
+                                cancelEdit={cancelEdit}
+                                categories={props.categories}
+                                openSnackbar={manageOpenSnackbar}
+                                updateProjects={props.updateProjects}
+                                updateCategories={props.updateCategories}
+                                fillProjectCategories={fillProjectCategories} />)
                             : (<ViewProject project={props.projects.filter(p => p.id === selectedIndex)[0]} changeEdit={changeEdit} />))
                 }
                 <SnackbarMessage
