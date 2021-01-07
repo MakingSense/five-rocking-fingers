@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FRF.Core.Models;
+using FRF.Core.Response;
 using FRF.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -22,43 +23,87 @@ namespace FRF.Core.Services
             _mapper = mapper;
         }
 
-        public async Task<List<Artifact>> GetAll()
+        public async Task<ServiceResponse<List<Artifact>>> GetAll()
         {
             var result = await _dataContext.Artifacts.Include(a => a.ArtifactType).Include(a => a.Project).ThenInclude(p => p.ProjectCategories).ThenInclude(pc => pc.Category).ToListAsync();
-            return _mapper.Map<List<Artifact>>(result);
+            return new ServiceResponse<List<Artifact>>
+            {
+                Success = true,
+                Value = _mapper.Map<List<Artifact>>(result)
+            };
         }
 
-        public async Task<List<Artifact>> GetAllByProjectId(int projectId)
+        public async Task<ServiceResponse<List<Artifact>>> GetAllByProjectId(int projectId)
         {
             if (!await _dataContext.Projects.AnyAsync(p => p.Id == projectId))
             {
-                throw new System.ArgumentException("There is no project with Id = " + projectId, "projectId");
+                return new ServiceResponse<List<Artifact>>
+                {
+                    Success = false,
+                    Error = new Error
+                    {
+                        Code = 400,
+                        Message = "There is no project with Id = " + projectId
+                    }
+                };
             }
 
             var result = await _dataContext.Artifacts.Include(a => a.ArtifactType).Include(a => a.Project).ThenInclude(p => p.ProjectCategories).ThenInclude(pc => pc.Category).Where(a => a.ProjectId == projectId).ToListAsync();
-            return _mapper.Map<List<Artifact>>(result);
+            return new ServiceResponse<List<Artifact>>
+            {
+                Success = true,
+                Value = _mapper.Map<List<Artifact>>(result)
+            };
         }
 
-        public async Task<Artifact> Get(int id)
+        public async Task<ServiceResponse<Artifact>> Get(int id)
         {
             var artifact = await _dataContext.Artifacts.Include(a => a.ArtifactType).Include(a => a.Project).ThenInclude(p => p.ProjectCategories).ThenInclude(pc => pc.Category).SingleOrDefaultAsync(a => a.Id == id);
             if (artifact == null)
             {
-                return null;
+                return new ServiceResponse<Artifact>
+                {
+                    Success = false,
+                    Error = new Error
+                    {
+                        Code = 400,
+                        Message = "There is no artifact with Id = " + id
+                    }
+                };
             }
-            return _mapper.Map<Artifact>(artifact);
+            return new ServiceResponse<Artifact>
+            {
+                Success = true,
+                Value = _mapper.Map<Artifact>(artifact)
+            };
         }
 
-        public async Task<Artifact> Save(Artifact artifact)
+        public async Task<ServiceResponse<Artifact>> Save(Artifact artifact)
         {
             if(! await _dataContext.Projects.AnyAsync(p => p.Id == artifact.ProjectId))
             {
-                throw new System.ArgumentException("There is no project with Id = " + artifact.ProjectId, "artifact.ProjectId");
+                return new ServiceResponse<Artifact>
+                {
+                    Success = false,
+                    Error = new Error
+                    {
+                        Code = 400,
+                        Message = "There is no project with Id = " + artifact.ProjectId
+                    }
+                };
             }
 
             if(! await _dataContext.ArtifactType.AnyAsync(at => at.Id == artifact.ArtifactTypeId))
             {
-                throw new System.ArgumentException("There is no ArtifactType with Id = " + artifact.ArtifactTypeId, "artifact.ArtifactTypeId");
+                return new ServiceResponse<Artifact>
+                {
+                    Success = false,
+                    Error = new Error
+                    {
+                        Code = 400,
+                        Message = "There is no artifact type with Id = " + artifact.ArtifactTypeId
+                    }
+                };
             }
 
             // Maps the artifact into an EntityModel, deleting the Id if there was one, and setting the CreatedDate field
@@ -74,26 +119,54 @@ namespace FRF.Core.Services
             // Saves changes
             await _dataContext.SaveChangesAsync();
 
-            return _mapper.Map<Artifact>(mappedArtifact);
+            return new ServiceResponse<Artifact>
+            {
+                Success = true,
+                Value = _mapper.Map<Artifact>(mappedArtifact)
+            };
         }
 
-        public async Task<Artifact> Update(Artifact artifact)
+        public async Task<ServiceResponse<Artifact>> Update(Artifact artifact)
         {
             //Gets the artifact associated to it from the database
             var result = await _dataContext.Artifacts.Include(a => a.ArtifactType).Include(a => a.Project).SingleOrDefaultAsync(a => a.Id == artifact.Id);
             if (result == null)
             {
-                throw new System.ArgumentException("There is no artifact with Id = " + artifact.Id, "artifact,Id");
+                return new ServiceResponse<Artifact>
+                {
+                    Success = false,
+                    Error = new Error
+                    {
+                        Code = 400,
+                        Message = "There is no artifact with Id = " + artifact.Id
+                    }
+                };
             }
 
             if (! await _dataContext.Projects.AnyAsync(p => p.Id == artifact.ProjectId))
             {
-                throw new System.ArgumentException("There is no project with Id = " + artifact.ProjectId, "artifact.ProjectId");
+                return new ServiceResponse<Artifact>
+                {
+                    Success = false,
+                    Error = new Error
+                    {
+                        Code = 400,
+                        Message = "There is no project with Id = " + artifact.ProjectId
+                    }
+                };
             }
 
             if (!await _dataContext.ArtifactType.AnyAsync(at => at.Id == artifact.ArtifactTypeId))
             {
-                throw new System.ArgumentException("There is no ArtifactType with Id = " + artifact.ArtifactTypeId, "artifact.ArtifactTypeId");
+                return new ServiceResponse<Artifact>
+                {
+                    Success = false,
+                    Error = new Error
+                    {
+                        Code = 400,
+                        Message = "There is no artifact type with Id = " + artifact.ArtifactTypeId
+                    }
+                };
             }
 
             //Updates the artifact
@@ -107,22 +180,38 @@ namespace FRF.Core.Services
             //Saves the updated aritfact in the database
             await _dataContext.SaveChangesAsync();
 
-            return _mapper.Map<Artifact>(result);
+            return new ServiceResponse<Artifact>
+            {
+                Success = true,
+                Value = _mapper.Map<Artifact>(result)
+            };
         }
 
-        public async Task<Artifact> Delete(int id)
+        public async Task<ServiceResponse<Artifact>> Delete(int id)
         {
             var artifactToDelete = await _dataContext.Artifacts.SingleOrDefaultAsync(a => a.Id == id);
             if (artifactToDelete == null)
             {
-                return null;
+                return new ServiceResponse<Artifact>
+                {
+                    Success = false,
+                    Error = new Error
+                    {
+                        Code = 400,
+                        Message = "There is no artifact with Id = " + id
+                    }
+                };
             }
             _dataContext.Artifacts.Remove(artifactToDelete);
             await _dataContext.SaveChangesAsync();
-            return _mapper.Map<Artifact>(artifactToDelete);
+            return new ServiceResponse<Artifact>
+            {
+                Success = true,
+                Value = _mapper.Map<Artifact>(artifactToDelete)
+            };
         }
 
-        public async Task<IList<ArtifactsRelation>> SetRelationAsync(IList<ArtifactsRelation> artifactRelations)
+        public async Task<ServiceResponse<IList<ArtifactsRelation>>> SetRelationAsync(IList<ArtifactsRelation> artifactRelations)
         {
             var resultArtifactRelations = new List<ArtifactsRelation>();
             var dbArtifactsId = await _dataContext.Artifacts.Select(a => a.Id).ToListAsync();
@@ -131,7 +220,15 @@ namespace FRF.Core.Services
                 .Concat(artifactRelations.Select(ar=>ar.Artifact2Id));
 
             var isAnyArtifactExcept= artifactsRelationIds.Except(dbArtifactsId).Any();
-            if (isAnyArtifactExcept) return null;
+            if (isAnyArtifactExcept) return new ServiceResponse<IList<ArtifactsRelation>>
+            {
+                Success = false,
+                Error = new Error
+                {
+                    Code = 400,
+                    Message = "At least one of the artifact Ids provided doesn't exist"
+                }
+            };
 
             var dbArtifactRelations = await _dataContext.ArtifactsRelation.ToListAsync();
             var isAnyArtifactRepeated = artifactRelations
@@ -144,6 +241,15 @@ namespace FRF.Core.Services
                         )
                 );
             if (isAnyArtifactRepeated) return null;
+            if (isAnyArtifactRepeated) return new ServiceResponse<IList<ArtifactsRelation>>
+            {
+                Success = false,
+                Error = new Error
+                {
+                    Code = 400,
+                    Message = "At least one of the relations already existed"
+                }
+            };
 
             foreach (var artifactRelation in artifactRelations)
             { 
@@ -153,7 +259,11 @@ namespace FRF.Core.Services
             }
 
             await _dataContext.SaveChangesAsync();
-            return resultArtifactRelations;
+            return new ServiceResponse<IList<ArtifactsRelation>>
+            {
+                Success = true,
+                Value = resultArtifactRelations
+            };
         }
     }
 }

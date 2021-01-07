@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using FRF.DataAccess.EntityModels;
 using Microsoft.Extensions.Configuration;
 using ArtifactsRelation = FRF.Core.Models.ArtifactsRelation;
+using FRF.Core.Response;
 
 namespace FRF.Core.Tests.Services
 {
@@ -101,23 +102,23 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetAll();
 
             // Assert
-            var okResult = Assert.IsType<List<Models.Artifact>>(result);
+            Assert.IsType<ServiceResponse<List<Models.Artifact>>>(result);
+            Assert.True(result.Success);
+            var resultValue = Assert.Single(result.Value);
 
-            Assert.Single(result);
+            Assert.Equal(artifact.Id, resultValue.Id);
+            Assert.Equal(artifact.Name, resultValue.Name);
+            Assert.Equal(artifact.Provider, resultValue.Provider);
+            Assert.Equal(artifact.CreatedDate, resultValue.CreatedDate);
+            Assert.Equal(artifact.ProjectId, resultValue.ProjectId);
+            Assert.Equal(artifact.ArtifactTypeId, resultValue.ArtifactTypeId);
 
-            Assert.Equal(artifact.Id, result[0].Id);
-            Assert.Equal(artifact.Name, result[0].Name);
-            Assert.Equal(artifact.Provider, result[0].Provider);
-            Assert.Equal(artifact.CreatedDate, result[0].CreatedDate);
-            Assert.Equal(artifact.ProjectId, result[0].ProjectId);
-            Assert.Equal(artifact.ArtifactTypeId, result[0].ArtifactTypeId);
+            Assert.Equal(artifact.Project.Id, resultValue.Project.Id);
+            Assert.Equal(artifact.Project.Name, resultValue.Project.Name);
 
-            Assert.Equal(artifact.Project.Id, result[0].Project.Id);
-            Assert.Equal(artifact.Project.Name, result[0].Project.Name);
-
-            Assert.Equal(artifact.ArtifactType.Id, result[0].ArtifactType.Id);
-            Assert.Equal(artifact.ArtifactType.Name, result[0].ArtifactType.Name);
-            Assert.Equal(artifact.ArtifactType.Description, result[0].ArtifactType.Description);
+            Assert.Equal(artifact.ArtifactType.Id, resultValue.ArtifactType.Id);
+            Assert.Equal(artifact.ArtifactType.Name, resultValue.ArtifactType.Name);
+            Assert.Equal(artifact.ArtifactType.Description, resultValue.ArtifactType.Description);
         }
 
         [Fact]
@@ -127,8 +128,9 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetAll();
 
             // Assert
-            Assert.IsType<List<Models.Artifact>>(result);
-            Assert.Empty(result);
+            Assert.IsType<ServiceResponse<List<Models.Artifact>>>(result);
+            Assert.True(result.Success);
+            Assert.Empty(result.Value);
         }
 
         [Fact]
@@ -143,23 +145,23 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetAllByProjectId(project.Id);
 
             // Assert
-            var okResult = Assert.IsType<List<Models.Artifact>>(result);
+            Assert.IsType<ServiceResponse<List<Models.Artifact>>>(result);
+            Assert.True(result.Success);
+            var resultValue = Assert.Single(result.Value);
 
-            Assert.Single(result);
+            Assert.Equal(artifact.Id, resultValue.Id);
+            Assert.Equal(artifact.Name, resultValue.Name);
+            Assert.Equal(artifact.Provider, resultValue.Provider);
+            Assert.Equal(artifact.CreatedDate, resultValue.CreatedDate);
+            Assert.Equal(artifact.ProjectId, resultValue.ProjectId);
+            Assert.Equal(artifact.ArtifactTypeId, resultValue.ArtifactTypeId);
 
-            Assert.Equal(artifact.Id, result[0].Id);
-            Assert.Equal(artifact.Name, result[0].Name);
-            Assert.Equal(artifact.Provider, result[0].Provider);
-            Assert.Equal(artifact.CreatedDate, result[0].CreatedDate);
-            Assert.Equal(artifact.ProjectId, result[0].ProjectId);
-            Assert.Equal(artifact.ArtifactTypeId, result[0].ArtifactTypeId);
+            Assert.Equal(artifact.Project.Id, resultValue.Project.Id);
+            Assert.Equal(artifact.Project.Name, resultValue.Project.Name);
 
-            Assert.Equal(artifact.Project.Id, result[0].Project.Id);
-            Assert.Equal(artifact.Project.Name, result[0].Project.Name);
-
-            Assert.Equal(artifact.ArtifactType.Id, result[0].ArtifactType.Id);
-            Assert.Equal(artifact.ArtifactType.Name, result[0].ArtifactType.Name);
-            Assert.Equal(artifact.ArtifactType.Description, result[0].ArtifactType.Description);
+            Assert.Equal(artifact.ArtifactType.Id, resultValue.ArtifactType.Id);
+            Assert.Equal(artifact.ArtifactType.Name, resultValue.ArtifactType.Name);
+            Assert.Equal(artifact.ArtifactType.Description, resultValue.ArtifactType.Description);
         }
 
         [Fact]
@@ -168,8 +170,13 @@ namespace FRF.Core.Tests.Services
             // Arange
             var projectId = 1;
 
-            // Act/Assert
-            await Assert.ThrowsAsync<System.ArgumentException>(() => _classUnderTest.GetAllByProjectId(projectId));
+            // Act
+            var result = await _classUnderTest.GetAllByProjectId(projectId);
+
+            // Assert
+            Assert.IsType<ServiceResponse<List<Models.Artifact>>>(result);
+            Assert.False(result.Success);
+            Assert.NotNull(result.Error);
         }
 
         [Fact]
@@ -183,8 +190,9 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetAllByProjectId(project.Id);
 
             // Assert
-            Assert.IsType<List<Models.Artifact>>(result);
-            Assert.Empty(result);
+            Assert.IsType<ServiceResponse<List<Models.Artifact>>>(result);
+            Assert.True(result.Success);
+            Assert.Empty(result.Value);
         }
 
         [Fact]
@@ -199,21 +207,23 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.Get(artifact.Id);
 
             // Assert
-            var okResult = Assert.IsType<Models.Artifact>(result);
+            Assert.IsType<ServiceResponse<Models.Artifact>>(result);
+            Assert.True(result.Success);
+            var resultValue = Assert.IsType<Models.Artifact>(result.Value);
 
-            Assert.Equal(artifact.Id, result.Id);
-            Assert.Equal(artifact.Name, result.Name);
-            Assert.Equal(artifact.Provider, result.Provider);
-            Assert.Equal(artifact.CreatedDate, result.CreatedDate);
-            Assert.Equal(artifact.ProjectId, result.ProjectId);
-            Assert.Equal(artifact.ArtifactTypeId, result.ArtifactTypeId);
+            Assert.Equal(artifact.Id, resultValue.Id);
+            Assert.Equal(artifact.Name, resultValue.Name);
+            Assert.Equal(artifact.Provider, resultValue.Provider);
+            Assert.Equal(artifact.CreatedDate, resultValue.CreatedDate);
+            Assert.Equal(artifact.ProjectId, resultValue.ProjectId);
+            Assert.Equal(artifact.ArtifactTypeId, resultValue.ArtifactTypeId);
 
-            Assert.Equal(artifact.Project.Id, result.Project.Id);
-            Assert.Equal(artifact.Project.Name, result.Project.Name);
+            Assert.Equal(artifact.Project.Id, resultValue.Project.Id);
+            Assert.Equal(artifact.Project.Name, resultValue.Project.Name);
 
-            Assert.Equal(artifact.ArtifactType.Id, result.ArtifactType.Id);
-            Assert.Equal(artifact.ArtifactType.Name, result.ArtifactType.Name);
-            Assert.Equal(artifact.ArtifactType.Description, result.ArtifactType.Description);
+            Assert.Equal(artifact.ArtifactType.Id, resultValue.ArtifactType.Id);
+            Assert.Equal(artifact.ArtifactType.Name, resultValue.ArtifactType.Name);
+            Assert.Equal(artifact.ArtifactType.Description, resultValue.ArtifactType.Description);
         }
 
         [Fact]
@@ -226,7 +236,9 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.Get(artifactId);
 
             // Assert
-            Assert.Null(result);
+            Assert.IsType<ServiceResponse<Models.Artifact>>(result);
+            Assert.False(result.Success);
+            Assert.NotNull(result.Error);
         }
 
         [Fact]
@@ -246,18 +258,22 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.Save(artifactToSave);
 
             // Assert
-            Assert.Equal(artifactToSave.Name, result.Name);
-            Assert.Equal(artifactToSave.Provider, result.Provider);
-            Assert.Null(result.ModifiedDate);
-            Assert.Equal(artifactToSave.ProjectId, result.ProjectId);
-            Assert.Equal(artifactToSave.ArtifactTypeId, result.ArtifactTypeId);
+            Assert.IsType<ServiceResponse<Models.Artifact>>(result);
+            Assert.True(result.Success);
+            var resultValue = Assert.IsType<Models.Artifact>(result.Value);
 
-            Assert.Equal(project.Id, result.Project.Id);
-            Assert.Equal(project.Name, result.Project.Name);
+            Assert.Equal(artifactToSave.Name, resultValue.Name);
+            Assert.Equal(artifactToSave.Provider, resultValue.Provider);
+            Assert.Null(resultValue.ModifiedDate);
+            Assert.Equal(artifactToSave.ProjectId, resultValue.ProjectId);
+            Assert.Equal(artifactToSave.ArtifactTypeId, resultValue.ArtifactTypeId);
 
-            Assert.Equal(artifactType.Id, result.ArtifactType.Id);
-            Assert.Equal(artifactType.Name, result.ArtifactType.Name);
-            Assert.Equal(artifactType.Description, result.ArtifactType.Description);
+            Assert.Equal(project.Id, resultValue.Project.Id);
+            Assert.Equal(project.Name, resultValue.Project.Name);
+
+            Assert.Equal(artifactType.Id, resultValue.ArtifactType.Id);
+            Assert.Equal(artifactType.Name, resultValue.ArtifactType.Name);
+            Assert.Equal(artifactType.Description, resultValue.ArtifactType.Description);
         }
 
         [Fact]
@@ -281,8 +297,13 @@ namespace FRF.Core.Tests.Services
                 }
             };
 
-            // Act/Assert
-            await Assert.ThrowsAsync<System.ArgumentException>(() => _classUnderTest.Save(artifactToSave));
+            // Act
+            var result = await _classUnderTest.Save(artifactToSave);
+
+            // Assert
+            Assert.IsType<ServiceResponse<Models.Artifact>>(result);
+            Assert.False(result.Success);
+            Assert.NotNull(result.Error);
         }
 
         [Fact]
@@ -306,8 +327,13 @@ namespace FRF.Core.Tests.Services
                 ArtifactType = new Models.ArtifactType()
             };
 
-            // Act/Assert
-            await Assert.ThrowsAsync<System.ArgumentException>(() => _classUnderTest.Save(artifactToSave));
+            // Act
+            var result = await _classUnderTest.Save(artifactToSave);
+
+            // Assert
+            Assert.IsType<ServiceResponse<Models.Artifact>>(result);
+            Assert.False(result.Success);
+            Assert.NotNull(result.Error);
         }
 
         [Fact]
@@ -351,23 +377,25 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.Update(artifactToUpdate);
 
             // Assert
-            Assert.IsType<Models.Artifact>(result);
+            Assert.IsType<ServiceResponse<Models.Artifact>>(result);
+            Assert.True(result.Success);
+            var resultValue = Assert.IsType<Models.Artifact>(result.Value);
 
-            Assert.Equal(artifactToUpdate.Id, result.Id);
-            Assert.Equal(artifactToUpdate.Name, result.Name);
-            Assert.Equal(artifactToUpdate.Provider, result.Provider);
-            Assert.Equal(artifact.CreatedDate, result.CreatedDate);
-            Assert.NotEqual(artifactToUpdate.CreatedDate, result.CreatedDate); // This because it shouldn't allow CreatedDate change
-            Assert.NotNull(result.ModifiedDate);
-            Assert.Equal(artifactToUpdate.ProjectId, result.ProjectId);
-            Assert.Equal(artifactToUpdate.ArtifactTypeId, result.ArtifactTypeId);
+            Assert.Equal(artifactToUpdate.Id, resultValue.Id);
+            Assert.Equal(artifactToUpdate.Name, resultValue.Name);
+            Assert.Equal(artifactToUpdate.Provider, resultValue.Provider);
+            Assert.Equal(artifact.CreatedDate, resultValue.CreatedDate);
+            Assert.NotEqual(artifactToUpdate.CreatedDate, resultValue.CreatedDate); // This because it shouldn't allow CreatedDate change
+            Assert.NotNull(resultValue.ModifiedDate);
+            Assert.Equal(artifactToUpdate.ProjectId, resultValue.ProjectId);
+            Assert.Equal(artifactToUpdate.ArtifactTypeId, resultValue.ArtifactTypeId);
 
-            Assert.Equal(newProject.Id, result.Project.Id);
-            Assert.Equal(newProject.Name, result.Project.Name);
+            Assert.Equal(newProject.Id, resultValue.Project.Id);
+            Assert.Equal(newProject.Name, resultValue.Project.Name);
 
-            Assert.Equal(newArtifactType.Id, result.ArtifactType.Id);
-            Assert.Equal(newArtifactType.Name, result.ArtifactType.Name);
-            Assert.Equal(newArtifactType.Description, result.ArtifactType.Description);
+            Assert.Equal(newArtifactType.Id, resultValue.ArtifactType.Id);
+            Assert.Equal(newArtifactType.Name, resultValue.ArtifactType.Name);
+            Assert.Equal(newArtifactType.Description, resultValue.ArtifactType.Description);
         }
 
         [Fact]
@@ -386,8 +414,13 @@ namespace FRF.Core.Tests.Services
                 ArtifactTypeId = artifactType.Id
             };
 
-            // Act/Assert
-            await Assert.ThrowsAsync<System.ArgumentException>(() => _classUnderTest.Update(artifactToUpdate));
+            // Act
+            var result = await _classUnderTest.Update(artifactToUpdate);
+
+            // Assert
+            Assert.IsType<ServiceResponse<Models.Artifact>>(result);
+            Assert.False(result.Success);
+            Assert.NotNull(result.Error);
         }
 
         [Fact]
@@ -408,8 +441,13 @@ namespace FRF.Core.Tests.Services
                 ArtifactTypeId = artifactType.Id
             };
 
-            // Act/Assert
-            await Assert.ThrowsAsync<System.ArgumentException>(() => _classUnderTest.Update(artifactToUpdate));
+            // Act
+            var result = await _classUnderTest.Update(artifactToUpdate);
+
+            // Assert
+            Assert.IsType<ServiceResponse<Models.Artifact>>(result);
+            Assert.False(result.Success);
+            Assert.NotNull(result.Error);
         }
 
         [Fact]
@@ -430,8 +468,13 @@ namespace FRF.Core.Tests.Services
                 ArtifactTypeId = 999
             };
 
-            // Act/Assert
-            await Assert.ThrowsAsync<System.ArgumentException>(() => _classUnderTest.Update(artifactToUpdate));
+            // Act
+            var result = await _classUnderTest.Update(artifactToUpdate);
+
+            // Assert
+            Assert.IsType<ServiceResponse<Models.Artifact>>(result);
+            Assert.False(result.Success);
+            Assert.NotNull(result.Error);
         }
 
         [Fact]
@@ -446,21 +489,23 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.Delete(artifact.Id);
 
             // Assert
-            Assert.IsType<Models.Artifact>(result);
+            Assert.IsType<ServiceResponse<Models.Artifact>>(result);
+            Assert.True(result.Success);
+            var resultValue = Assert.IsType<Models.Artifact>(result.Value);
 
-            Assert.Equal(artifact.Id, result.Id);
-            Assert.Equal(artifact.Name, result.Name);
-            Assert.Equal(artifact.Provider, result.Provider);
-            Assert.Equal(artifact.CreatedDate, result.CreatedDate);
-            Assert.Equal(artifact.ProjectId, result.ProjectId);
-            Assert.Equal(artifact.ArtifactTypeId, result.ArtifactTypeId);
+            Assert.Equal(artifact.Id, resultValue.Id);
+            Assert.Equal(artifact.Name, resultValue.Name);
+            Assert.Equal(artifact.Provider, resultValue.Provider);
+            Assert.Equal(artifact.CreatedDate, resultValue.CreatedDate);
+            Assert.Equal(artifact.ProjectId, resultValue.ProjectId);
+            Assert.Equal(artifact.ArtifactTypeId, resultValue.ArtifactTypeId);
 
-            Assert.Equal(artifact.Project.Id, result.Project.Id);
-            Assert.Equal(artifact.Project.Name, result.Project.Name);
+            Assert.Equal(artifact.Project.Id, resultValue.Project.Id);
+            Assert.Equal(artifact.Project.Name, resultValue.Project.Name);
 
-            Assert.Equal(artifact.ArtifactType.Id, result.ArtifactType.Id);
-            Assert.Equal(artifact.ArtifactType.Name, result.ArtifactType.Name);
-            Assert.Equal(artifact.ArtifactType.Description, result.ArtifactType.Description);
+            Assert.Equal(artifact.ArtifactType.Id, resultValue.ArtifactType.Id);
+            Assert.Equal(artifact.ArtifactType.Name, resultValue.ArtifactType.Name);
+            Assert.Equal(artifact.ArtifactType.Description, resultValue.ArtifactType.Description);
         }
 
         [Fact]
@@ -471,8 +516,13 @@ namespace FRF.Core.Tests.Services
             var project = CreateProject();
             var artifact = CreateArtifact(project, artifactType);
 
-            // Act/Assert
-            Assert.Null(await _classUnderTest.Delete(0));
+            // Act
+            var result = await _classUnderTest.Delete(0);
+
+            // Assert
+            Assert.IsType<ServiceResponse<Models.Artifact>>(result);
+            Assert.False(result.Success);
+            Assert.NotNull(result.Error);
         }
         
         [Fact]
@@ -508,13 +558,15 @@ namespace FRF.Core.Tests.Services
             var response = await _classUnderTest.SetRelationAsync(artifactsRelationToSave);
 
             // Assert
-            var result = Assert.IsAssignableFrom<IList<ArtifactsRelation>>(response);
-            for (var j = 0; j < result.Count; j++)
+            Assert.True(response.Success);
+            Assert.IsType<ServiceResponse<IList<Models.ArtifactsRelation>>>(response);
+            var resultValue = Assert.IsAssignableFrom<IList<ArtifactsRelation>>(response.Value);
+            for (var j = 0; j < resultValue.Count; j++)
             {
-                Assert.Equal(artifactsRelationToSave[j].Artifact1Id, result[j].Artifact1Id);
-                Assert.Equal(artifactsRelationToSave[j].Artifact2Id, result[j].Artifact2Id);
-                Assert.Equal(artifactsRelationToSave[j].Artifact1Property, result[j].Artifact1Property);
-                Assert.Equal(artifactsRelationToSave[j].Artifact2Property, result[j].Artifact2Property);
+                Assert.Equal(artifactsRelationToSave[j].Artifact1Id, resultValue[j].Artifact1Id);
+                Assert.Equal(artifactsRelationToSave[j].Artifact2Id, resultValue[j].Artifact2Id);
+                Assert.Equal(artifactsRelationToSave[j].Artifact1Property, resultValue[j].Artifact1Property);
+                Assert.Equal(artifactsRelationToSave[j].Artifact2Property, resultValue[j].Artifact2Property);
             }
         }
 
@@ -536,7 +588,9 @@ namespace FRF.Core.Tests.Services
             var response = await _classUnderTest.SetRelationAsync(artifactsRelationToSave);
 
             // Assert
-            Assert.Null(response);
+            Assert.False(response.Success);
+            Assert.IsType<ServiceResponse<IList<Models.ArtifactsRelation>>>(response);
+            Assert.NotNull(response.Error);
         }
 
         [Fact]
@@ -569,7 +623,10 @@ namespace FRF.Core.Tests.Services
             var response = await _classUnderTest.SetRelationAsync(artifactsRelationToSave);
 
             // Assert
-            Assert.Null(response);
+            Assert.False(response.Success);
+            Assert.IsType<ServiceResponse<IList<Models.ArtifactsRelation>>>(response);
+            Assert.NotNull(response.Error);
+
             Assert.Equal(artifactsRelationInDb[0].Artifact1Property, artifactsRelationToSave[0].Artifact1Property);
             Assert.Equal(artifactsRelationInDb[0].Artifact2Property, artifactsRelationToSave[0].Artifact2Property);
             Assert.Equal(artifactsRelationInDb[0].Artifact2Id, artifactsRelationToSave[0].Artifact2Id);
