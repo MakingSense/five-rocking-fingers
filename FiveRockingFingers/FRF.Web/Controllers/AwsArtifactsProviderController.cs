@@ -1,6 +1,9 @@
-﻿using System.Net;
+﻿using AutoMapper;
 using FRF.Core.Services;
+using FRF.Web.Dtos.Artifacts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace FRF.Web.Controllers
