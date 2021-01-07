@@ -23,7 +23,7 @@ export default class ProjectService {
     }
 
     static save = async (project: Project) => {
-        return await axios.post(`${PROJECTS_URL}Save`,
+        return axios.post(`${PROJECTS_URL}Save`,
             {
                 name: project.name,
                 owner: project.owner,
@@ -45,7 +45,7 @@ export default class ProjectService {
     }
 
     static update = async (id: number, project: Project) => {
-        return await axios.put(`${PROJECTS_URL}Update?id=${id}`, {
+        return axios.put(`${PROJECTS_URL}Update?id=${id}`, {
             name: project.name,
             id: id,
             owner: project.owner,
@@ -68,7 +68,7 @@ export default class ProjectService {
     }
 
     static delete = async (id: string) => {
-        return await axios.delete(`${PROJECTS_URL}Delete/${id}`)
+        return axios.delete(`${PROJECTS_URL}Delete/${id}`)
         .then(response => {
             if (response.status === 204) {
                 return response;
@@ -82,7 +82,7 @@ export default class ProjectService {
     }
 
     static getAll = async () => {
-        return await axios.get(`${PROJECTS_URL}GetAll/`)
+        return axios.get(`${PROJECTS_URL}GetAll/`)
         .then(response => {
             if (response.status === 200) {
                 return response;

@@ -6,7 +6,7 @@ const ARTIFACTS_URL = `${BASE_URL}api/Artifacts/`
 class ArtifactService {
 
     static getAll = async () => {
-        return await axios.get(`${ARTIFACTS_URL}GetAll`).then(response => {
+        return axios.get(`${ARTIFACTS_URL}GetAll`).then(response => {
             if (response.status === 200) {
                 return response;
             }
@@ -19,7 +19,7 @@ class ArtifactService {
     }
 
     static getAllByProjectId = async (id: number) => {
-        return await axios.get(`${ARTIFACTS_URL}GetAllByProjectId/${id}`)
+        return axios.get(`${ARTIFACTS_URL}GetAllByProjectId/${id}`)
         .then(response => {
             if (response.status === 200) {
                 return response;
@@ -33,7 +33,7 @@ class ArtifactService {
     }
 
     static get = async (id: number) => {
-        return await axios.get(`${ARTIFACTS_URL}Get/${id}`)
+        return axios.get(`${ARTIFACTS_URL}Get/${id}`)
         .then(response => {
             if (response.status === 200) {
                 return response;
@@ -47,7 +47,7 @@ class ArtifactService {
     }
 
     static save = async (artifact: any) => {
-        return await axios.post(`${ARTIFACTS_URL}Save`, artifact)
+        return axios.post(`${ARTIFACTS_URL}Save`, artifact)
         .then(response => {
             if (response.status === 200) {
                 return response;
@@ -61,7 +61,7 @@ class ArtifactService {
     }
 
     static update = async (id: number, artifact: any) => {
-        return await axios.put(`${ARTIFACTS_URL}Update/${id}`, artifact)
+        return axios.put(`${ARTIFACTS_URL}Update/${id}`, artifact)
         .then(response => {
             if (response.status === 200) {
                 return response;
@@ -75,7 +75,7 @@ class ArtifactService {
     }
 
     static delete = async (id: number) => {
-        return await axios.delete(`${ARTIFACTS_URL}Delete/${id}`)
+        return axios.delete(`${ARTIFACTS_URL}Delete/${id}`)
         .then(response => {
             if (response.status === 204) {
                 return response;

@@ -7,7 +7,7 @@ const CATEGORIES_URL = `${BASE_URL}api/Categories/`;
 class CategoryService {
 
     static getAll = async () => {
-        return await axios.get(`${CATEGORIES_URL}GetAll`)
+        return axios.get(`${CATEGORIES_URL}GetAll`)
         .then(response => {
             if (response.status === 200) {
                 return response;
@@ -21,7 +21,7 @@ class CategoryService {
     }
 
     static get = async (id: number) => {
-        return await axios.get(`${CATEGORIES_URL}Get/${id}`)
+        return axios.get(`${CATEGORIES_URL}Get/${id}`)
         .then(response => {
             if (response.status === 200) {
                 return response;
@@ -35,7 +35,7 @@ class CategoryService {
     }
 
     static save = async (category: Category) => {
-        return await axios.post(`${CATEGORIES_URL}Save`, category)
+        return axios.post(`${CATEGORIES_URL}Save`, category)
         .then(response => {
             if (response.status === 200) {
                 return response;
@@ -49,7 +49,7 @@ class CategoryService {
     }
 
     static update = async (category: Category) => {
-        return await axios.put(`${CATEGORIES_URL}Delete/${category.id}`, category)
+        return axios.put(`${CATEGORIES_URL}Delete/${category.id}`, category)
         .then(response => {
             if (response.status === 200) {
                 return response;
@@ -63,7 +63,7 @@ class CategoryService {
     }
 
     static delete = async (id: number) => {
-        return await axios.delete(`${CATEGORIES_URL}Delete/${id}`)
+        return axios.delete(`${CATEGORIES_URL}Delete/${id}`)
         .then(response => {
             if (response.status === 204) {
                 return response;
