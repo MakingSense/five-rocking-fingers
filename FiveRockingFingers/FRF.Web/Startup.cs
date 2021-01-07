@@ -4,7 +4,9 @@ using System.Threading.Tasks;
 using Amazon;
 using Amazon.CognitoIdentityProvider;
 using Amazon.Extensions.CognitoAuthentication;
+using Amazon.Extensions.NETCore.Setup;
 using Amazon.Pricing;
+using Amazon.Runtime;
 using AutoMapper;
 using FRF.Core.Base;
 using FRF.Core.Services;
@@ -66,7 +68,12 @@ namespace FRF.Web
 
 			//Start AWS SDK Access Keys
 			var awsSdk = Configuration.GetSection(AwsSdkOptions.AwsSDK).Get<AwsSdkOptions>();
-			services.AddSingleton(new AmazonPricingClient(awsSdk.AccessKeyId, awsSdk.SecretAccessKey, RegionEndpoint.USEast1));
+			//services.AddSingleton(new AmazonPricingClient(awsSdk.AccessKeyId, awsSdk.SecretAccessKey, RegionEndpoint.USEast1));
+			services.AddAWSService<IAmazonPricing>(new AWSOptions 
+			{ 
+				Credentials = new BasicAWSCredentials(awsSdk.AccessKeyId, awsSdk.SecretAccessKey),
+				Region = RegionEndpoint.USEast1
+			});
 			//End AWS SDK
 
 			services.Configure<AwsPricing>(Configuration.GetSection(AwsPricing.AwsPricingOptions));
