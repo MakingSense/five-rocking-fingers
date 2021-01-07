@@ -8,7 +8,7 @@ namespace FRF.Core.Base
     {
         public const string AwsSDK = "AwsSDK";
 
-        public string AccessKeyId;
-        public string SecretAccessKey;
+        public string AccessKeyId { get; set; }
+        public string SecretAccessKey { get; set; }
     }
 }
