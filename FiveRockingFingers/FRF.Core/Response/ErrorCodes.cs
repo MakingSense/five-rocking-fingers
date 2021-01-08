@@ -1,6 +1,6 @@
 ﻿namespace FRF.Core.Response
 {
-    static class ErrorCodes
+    public static class ErrorCodes
     {
         // Not exists errors
         public const int ArtifactNotExists = 1;
