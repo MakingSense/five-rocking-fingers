@@ -82,7 +82,7 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
             switch (response.status) {
                 case 200:
                     let newUsersList: UserProfile[] | null;
-                    newUsersList = HelperAddUser(response.data, state.users, emailField, props.openSnackbar);
+                    newUsersList = HelperAddUser(response.data, state.users, emailField, props.openSnackbar,"");
                     if (newUsersList != null) setState({ ...state, users: newUsersList });
                     break;
                 case 404:
