@@ -74,15 +74,12 @@ const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewAr
     }
 
     const createPropertieLabel = (propertie: string, value: string | null) => {
-        if (value !== null) {
-            return (
-                <Typography gutterBottom>
-                    {propertie}: {value}
-                </Typography>
-            );
-        } else {
-            return null;
-        }
+        if (value === null) return null;
+        return (
+            <Typography gutterBottom>
+                {propertie}: {value}
+            </Typography>
+        );
     }
 
     const pricingTermToString = (pricingTerm: PricingTerm) => {
