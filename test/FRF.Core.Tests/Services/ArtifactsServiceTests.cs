@@ -177,6 +177,7 @@ namespace FRF.Core.Tests.Services
             Assert.IsType<ServiceResponse<List<Models.Artifact>>>(result);
             Assert.False(result.Success);
             Assert.NotNull(result.Error);
+            Assert.Equal(result.Error.Code, ErrorCodes.ProjectNotExists);
         }
 
         [Fact]
@@ -239,6 +240,7 @@ namespace FRF.Core.Tests.Services
             Assert.IsType<ServiceResponse<Models.Artifact>>(result);
             Assert.False(result.Success);
             Assert.NotNull(result.Error);
+            Assert.Equal(result.Error.Code, ErrorCodes.ArtifactNotExists);
         }
 
         [Fact]
@@ -304,6 +306,7 @@ namespace FRF.Core.Tests.Services
             Assert.IsType<ServiceResponse<Models.Artifact>>(result);
             Assert.False(result.Success);
             Assert.NotNull(result.Error);
+            Assert.Equal(result.Error.Code, ErrorCodes.ProjectNotExists);
         }
 
         [Fact]
@@ -334,6 +337,7 @@ namespace FRF.Core.Tests.Services
             Assert.IsType<ServiceResponse<Models.Artifact>>(result);
             Assert.False(result.Success);
             Assert.NotNull(result.Error);
+            Assert.Equal(result.Error.Code, ErrorCodes.ArtifactTypeNotExists);
         }
 
         [Fact]
@@ -421,6 +425,7 @@ namespace FRF.Core.Tests.Services
             Assert.IsType<ServiceResponse<Models.Artifact>>(result);
             Assert.False(result.Success);
             Assert.NotNull(result.Error);
+            Assert.Equal(result.Error.Code, ErrorCodes.ArtifactNotExists);
         }
 
         [Fact]
@@ -448,6 +453,7 @@ namespace FRF.Core.Tests.Services
             Assert.IsType<ServiceResponse<Models.Artifact>>(result);
             Assert.False(result.Success);
             Assert.NotNull(result.Error);
+            Assert.Equal(result.Error.Code, ErrorCodes.ProjectNotExists);
         }
 
         [Fact]
@@ -475,6 +481,7 @@ namespace FRF.Core.Tests.Services
             Assert.IsType<ServiceResponse<Models.Artifact>>(result);
             Assert.False(result.Success);
             Assert.NotNull(result.Error);
+            Assert.Equal(result.Error.Code, ErrorCodes.ArtifactTypeNotExists);
         }
 
         [Fact]
@@ -523,6 +530,7 @@ namespace FRF.Core.Tests.Services
             Assert.IsType<ServiceResponse<Models.Artifact>>(result);
             Assert.False(result.Success);
             Assert.NotNull(result.Error);
+            Assert.Equal(result.Error.Code, ErrorCodes.ArtifactNotExists);
         }
         
         [Fact]
@@ -591,6 +599,7 @@ namespace FRF.Core.Tests.Services
             Assert.False(response.Success);
             Assert.IsType<ServiceResponse<IList<Models.ArtifactsRelation>>>(response);
             Assert.NotNull(response.Error);
+            Assert.Equal(response.Error.Code, ErrorCodes.RelationNotValid);
         }
 
         [Fact]
@@ -604,9 +613,10 @@ namespace FRF.Core.Tests.Services
             {
                 var artifactType = CreateArtifactType();
                 var project = CreateProject();
-                var artifact = CreateArtifact(project, artifactType);
-                var artifact1Id = artifact.Id;
-                var artifact2Id = artifact1Id++;
+                var artifact1 = CreateArtifact(project, artifactType);
+                var artifact2 = CreateArtifact(project, artifactType);
+                var artifact1Id = artifact1.Id;
+                var artifact2Id = artifact2.Id;
 
                 var artifactRelation = CreateArtifactsRelationModel(artifact1Id, artifact2Id);
                 artifactsRelationToSave.Add(artifactRelation);
@@ -626,6 +636,7 @@ namespace FRF.Core.Tests.Services
             Assert.False(response.Success);
             Assert.IsType<ServiceResponse<IList<Models.ArtifactsRelation>>>(response);
             Assert.NotNull(response.Error);
+            Assert.Equal(response.Error.Code, ErrorCodes.RelationAlreadyExisted);
 
             Assert.Equal(artifactsRelationInDb[0].Artifact1Property, artifactsRelationToSave[0].Artifact1Property);
             Assert.Equal(artifactsRelationInDb[0].Artifact2Property, artifactsRelationToSave[0].Artifact2Property);
