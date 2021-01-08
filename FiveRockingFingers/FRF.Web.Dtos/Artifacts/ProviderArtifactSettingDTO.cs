@@ -4,9 +4,9 @@ using System.Text;
 
 namespace FRF.Web.Dtos.Artifacts
 {
-    class ProviderArtifactSettingDTO
+    public class ProviderArtifactSettingDTO
     {
-        public string Name { get; set; }
+        public KeyValuePair<string, string> Name { get; set; }
         public IList<string> Values { get; set; }
     }
 }

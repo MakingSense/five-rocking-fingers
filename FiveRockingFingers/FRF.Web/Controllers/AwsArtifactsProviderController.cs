@@ -1,20 +1,25 @@
-﻿using System.Net;
+﻿using AutoMapper;
 using FRF.Core.Services;
+using FRF.Web.Dtos.Artifacts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace FRF.Web.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
+    [Authorize]
     public class AwsArtifactsProviderController : ControllerBase
     {
         private readonly IArtifactsProviderService _artifactsProviderService;
+        private readonly IMapper _mapper;
 
-        public AwsArtifactsProviderController(IArtifactsProviderService artifactsProviderService)
+        public AwsArtifactsProviderController(IArtifactsProviderService artifactsProviderService, IMapper mapper)
         {
             _artifactsProviderService = artifactsProviderService;
+            _mapper = mapper;
         }
 
         /// <summary>
@@ -37,7 +42,7 @@ namespace FRF.Web.Controllers
         {
             var attributes = await _artifactsProviderService.GetAttributesAsync(serviceCode);
 
-            return Ok(attributes);
+            return Ok(_mapper.Map<List<ProviderArtifactSettingDTO>>(attributes));
         }
 
         [HttpPost]
@@ -45,7 +50,7 @@ namespace FRF.Web.Controllers
         {
             var products = await _artifactsProviderService.GetProductsAsync(settings, serviceCode);
 
-            return Ok(products);
+            return Ok(_mapper.Map<List<PricingTermDTO>>(products));
         }
     }
 }

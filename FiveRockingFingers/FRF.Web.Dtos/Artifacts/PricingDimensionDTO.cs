@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace FRF.Core.Models
+namespace FRF.Web.Dtos.Artifacts
 {
-    public class PricingDimension
+    public class PricingDimensionDTO
     {
         public string Unit { get; set; }
         public float EndRange { get; set; }

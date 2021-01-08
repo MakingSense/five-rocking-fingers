@@ -27,6 +27,22 @@ namespace FRF.Web.Tests.Controllers
             _classUnderTest = new ArtifactsController(_artifactsService.Object, _mapper);
         }
 
+        private ArtifactsRelationDTO CreateArtifactsRelationDTO(int artifact1Id, int artifact2Id)
+        {
+            var random = new Random();
+            var propertyId = random.Next(1000);
+            var artifactRelation = new ArtifactsRelationDTO()
+            {
+                Artifact1Id = artifact1Id,
+                Artifact2Id = artifact2Id,
+                Artifact1Property = "Mock 1 Property " + propertyId,
+                Artifact2Property = "Mock 2 Property " + propertyId,
+                RelationTypeId = 1
+            };
+
+            return artifactRelation;
+        }
+
         [Fact]
         public async Task GetAllAsync_ReturnsOk()
         {
@@ -474,6 +490,46 @@ namespace FRF.Web.Tests.Controllers
             Assert.IsType<NotFoundResult>(result);
             _artifactsService.Verify(mock => mock.Get(artifactId), Times.Once);
             _artifactsService.Verify(mock => mock.Delete(artifactId), Times.Never);
+        }
+
+        [Fact]
+        public async Task SetRelationAsync_ReturnOK()
+        {
+            // Arrange
+            var artifactsRelationDtos = new List<ArtifactsRelationDTO>();
+            for (var i = 0; i < 3; i++)
+            {
+                var artifactRelation = CreateArtifactsRelationDTO(i, ++i);
+                artifactsRelationDtos.Add(artifactRelation);
+            }
+            _artifactsService
+                .Setup(mock => mock.SetRelationAsync(It.IsAny<List<ArtifactsRelation>>()))
+                .ReturnsAsync(_mapper.Map<IList<ArtifactsRelation>>(artifactsRelationDtos));
+            // Act
+            var result = await _classUnderTest.SetRelationAsync(artifactsRelationDtos);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            Assert.IsType<List<ArtifactsRelationDTO>>(okResult.Value);
+            _artifactsService.Verify(mock=>mock.SetRelationAsync(It.IsAny<List<ArtifactsRelation>>()),Times.Once);
+
+        }
+
+        [Fact]
+        public async Task SetRelationAsync_ReturnBadRequest()
+        {
+            // Arrange
+            var artifactsRelationDtos = new List<ArtifactsRelationDTO>();
+            var artifactRelation = CreateArtifactsRelationDTO(1, 2);
+            artifactsRelationDtos.Add(artifactRelation);
+
+            // Act
+            var result = await _classUnderTest.SetRelationAsync(artifactsRelationDtos);
+
+            // Assert
+            var response = Assert.IsType<BadRequestResult>(result);
+            Assert.IsNotType<List<ArtifactsRelationDTO>>(response);
+            _artifactsService.Verify(mock => mock.SetRelationAsync(It.IsAny<List<ArtifactsRelation>>()), Times.Once);
         }
 
         internal void AssertCompareList(List<Artifact> artifacts, List<ArtifactDTO> returnValueList)

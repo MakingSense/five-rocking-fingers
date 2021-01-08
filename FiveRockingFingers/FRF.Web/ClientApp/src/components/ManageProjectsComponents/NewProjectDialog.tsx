@@ -1,18 +1,19 @@
 ﻿import {
-    Button, Checkbox, Chip, Dialog, DialogActions, DialogContent, DialogContentText,
-    DialogTitle, FormControl, FormControlLabel, FormGroup, IconButton, InputAdornment, Paper, TextField, TextFieldProps
+    Button, Chip, Dialog, DialogActions, DialogContent, DialogContentText,
+    DialogTitle, FormGroup, IconButton, InputAdornment, Paper, TextField, TextFieldProps
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import Category from '../../interfaces/Category';
-import ProjectCategory from '../../interfaces/ProjectCategory';
-import UserProfile from '../../interfaces/UserProfile';
-import PersonAddIcon from '@material-ui/icons/PersonAdd';
-import ProjectService from '../../services/ProjectService';
 import Project from '../../interfaces/Project';
-import { ValidateEmail } from "./ValidateEmail";
+import UserProfile from '../../interfaces/UserProfile';
+import ProjectService from '../../services/ProjectService';
 import { HelperAddUser } from "./HelperAddUser";
+import { useUserContext } from "../auth/contextLib";
+import ManageCategories from "./ManageCategories";
+import { ValidateEmail } from "./ValidateEmail";
 
 const useStyles = makeStyles({
     inputF: {
@@ -31,11 +32,13 @@ const useStyles = makeStyles({
     }
 });
 
-const NewProjectDialog = (props: { create: boolean, categories: Category[], finishCreation: Function, openSnackbar: Function, updateProjects: Function }) => {
+const NewProjectDialog = (props: { create: boolean, categories: Category[], finishCreation: Function, openSnackbar: Function, updateProjects: Function, updateCategories: Function, fillProjectCategories: Function }) => {
 
     const email = React.useRef<TextFieldProps>(null);
     const [fieldEmail, setFieldEmail] = React.useState<string | null>("")
+    const [selectedCategories, setSelectedCategories] = React.useState([] as Category[]);
     const classes = useStyles();
+    const { currentUser } = useUserContext();
 
     const { register, handleSubmit, errors } = useForm();
 
@@ -44,8 +47,7 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
         client: "",
         owner: "",
         budget: -1,
-        projectCategories: [] as ProjectCategory[],
-        users: [] as UserProfile[]
+        users: [] as UserProfile[],
     });
 
     const clearState = () => {
@@ -54,7 +56,6 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
             client: "",
             owner: "",
             budget: -1,
-            projectCategories: [],
             users: []
         });
     }
@@ -79,24 +80,6 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
         return { state };
     };
 
-    const handleChangeCategory = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.checked) {
-            const aux: ProjectCategory = {
-                category: {
-                    name: event.target.name,
-                    id: parseInt(event.target.id),
-                    description: ""
-                }
-            }
-            var auxState = state.projectCategories;
-            auxState.push(aux);
-            setState({ ...state, projectCategories: auxState });
-        } else {
-            const aux = state.projectCategories.filter(c => c.category.id !== parseInt(event.target.id));
-            setState({ ...state, projectCategories: aux });
-        }
-    }
-
     const handleAddUser = async () => {
         let userEmail: string | null = "";
         userEmail = ValidateEmail(email.current?.value as string, emailField, props.openSnackbar);
@@ -105,7 +88,7 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
             switch (response.status) {
                 case 200:
                     let newUserList: UserProfile[] | null;
-                    newUserList = HelperAddUser(response.data, state.users, emailField, props.openSnackbar);
+                    newUserList = HelperAddUser(response.data, state.users, emailField, props.openSnackbar,currentUser);
                     if (newUserList != null) setState({ ...state, users: newUserList });
                     break;
                 case 404:
@@ -121,7 +104,8 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
     }
 
     const handleConfirm = async () => {
-        const { name, client, owner, budget, projectCategories, users } = state;
+        var projectCategories = await props.fillProjectCategories(selectedCategories);
+        const { name, client, owner, budget, users } = state;
         const project = { name, client, owner, budget, projectCategories, users }
         const response = await ProjectService.save(project as Project);
         if (response.status === 200) {
@@ -131,6 +115,7 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
             props.openSnackbar({ message: "Ocurrió un error al crear el proyecto", severity: "error" });
         }
         clearState();
+        props.updateCategories();
         props.finishCreation();
     }
 
@@ -195,6 +180,7 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
                         }}
                         fullWidth
                     />
+                    <ManageCategories categories={props.categories} selectedCategories={selectedCategories} setSelectedCategories={setSelectedCategories} />
                     <FormGroup>
                         <Paper component="ul" className={classes.addUser} >
                             {state.users.map((user,index) => {
@@ -223,27 +209,6 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
                                 <PersonAddIcon />
                             </IconButton></span>
                     </FormGroup>
-                    <DialogContentText>
-                        Categorías:
-                    </DialogContentText>
-                    <FormControl component="fieldset">
-                        <FormGroup>
-                            {props.categories.map((category: Category) =>
-                                <FormControlLabel
-                                    key={category.id}
-                                    control={
-                                        <Checkbox
-                                            checked={state.projectCategories.filter(stateC => stateC.category.id === category.id).length > 0}
-                                            onChange={handleChangeCategory}
-                                            key={category.id}
-                                            id={category.id.toString()}
-                                            name={category.name}
-                                        />}
-                                    label={category.name}
-                                />
-                            )}
-                        </FormGroup>
-                    </FormControl>
                 </DialogContent>
                 <DialogActions>
                     <Button size="small" type="submit"> Aceptar</Button>
