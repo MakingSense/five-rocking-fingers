@@ -6,86 +6,63 @@ const ARTIFACTS_URL = `${BASE_URL}api/Artifacts/`
 class ArtifactService {
 
     static getAll = async () => {
-        return axios.get(`${ARTIFACTS_URL}GetAll`).then(response => {
-            if (response.status === 200) {
-                return response;
-            }
-        }
-        ).catch(function (error) {
+        try {
+            return await axios.get(`${ARTIFACTS_URL}GetAll`);
+        } catch (error) {
             if (error.response) {
                 return error.response;
             }
-        });
+        }
     }
 
     static getAllByProjectId = async (id: number) => {
-        return axios.get(`${ARTIFACTS_URL}GetAllByProjectId/${id}`)
-        .then(response => {
-            if (response.status === 200) {
-                return response;
-            }
-        }
-        ).catch(function (error) {
+        try {
+            return await axios.get(`${ARTIFACTS_URL}GetAllByProjectId/${id}`);
+        } catch (error) {
             if (error.response) {
                 return error.response;
             }
-        });
+        }
     }
 
     static get = async (id: number) => {
-        return axios.get(`${ARTIFACTS_URL}Get/${id}`)
-        .then(response => {
-            if (response.status === 200) {
-                return response;
-            }
-        }
-        ).catch(function (error) {
+        try {
+            return await axios.get(`${ARTIFACTS_URL}Get/${id}`);
+        } catch (error) {
             if (error.response) {
                 return error.response;
             }
-        });
+        }
     }
 
     static save = async (artifact: any) => {
-        return axios.post(`${ARTIFACTS_URL}Save`, artifact)
-        .then(response => {
-            if (response.status === 200) {
-                return response;
-            }
-        }
-        ).catch(function (error) {
+        try {
+            return await axios.post(`${ARTIFACTS_URL}Save`, artifact);
+        } catch (error) {
             if (error.response) {
                 return error.response;
             }
-        });
+        }
     }
 
     static update = async (id: number, artifact: any) => {
-        return axios.put(`${ARTIFACTS_URL}Update/${id}`, artifact)
-        .then(response => {
-            if (response.status === 200) {
-                return response;
-            }
-        }
-        ).catch(function (error) {
+        try {
+            return await axios.put(`${ARTIFACTS_URL}Update/${id}`, artifact);
+        } catch (error) {
             if (error.response) {
                 return error.response;
             }
-        });
+        }
     }
 
     static delete = async (id: number) => {
-        return axios.delete(`${ARTIFACTS_URL}Delete/${id}`)
-        .then(response => {
-            if (response.status === 204) {
-                return response;
-            }
-        }
-        ).catch(function (error) {
+        try {
+            return await axios.delete(`${ARTIFACTS_URL}Delete/${id}`);
+        } catch (error) {
             if (error.response) {
                 return error.response;
             }
-        });
+        }
     }
 }
 
