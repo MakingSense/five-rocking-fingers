@@ -67,13 +67,13 @@ namespace FRF.Web
 			//End Cognito
 
 			//Start AWS SDK Access Keys
-			var awsSdk = Configuration.GetSection(AwsSdkOptions.AwsSDK).Get<AwsSdkOptions>();
+			var awsSdk = Configuration.GetSection(AwsSdkOptions.AwsSdk).Get<AwsSdkOptions>();
 			//services.AddSingleton(new AmazonPricingClient(awsSdk.AccessKeyId, awsSdk.SecretAccessKey, RegionEndpoint.USEast1));
 			services.AddAWSService<IAmazonPricing>(new AWSOptions 
 			{ 
 				Credentials = new BasicAWSCredentials(awsSdk.AccessKeyId, awsSdk.SecretAccessKey),
 				Region = RegionEndpoint.USEast1
-			});
+			}, ServiceLifetime.Scoped);
 			//End AWS SDK
 
 			services.Configure<AwsPricing>(Configuration.GetSection(AwsPricing.AwsPricingOptions));
