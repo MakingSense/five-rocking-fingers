@@ -15,9 +15,12 @@ const useStyles = makeStyles((theme: Theme) =>
             margin: theme.spacing(1),
             width: '100%'
         },
-        inputF: {
-            padding: 2,
-            marginTop: 10
+        select: {
+            margin: theme.spacing(1),
+            width: '40%'
+        },
+        inputSelect: {
+            width: '100%'
         }
     }),
 );
@@ -26,6 +29,29 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
 
     const classes = useStyles();
     const { register, handleSubmit, errors, control, getValues } = useForm();
+    const [artifact1, setArtifact1] = React.useState<Artifact | null>(null);
+    const [artifact2, setArtifact2] = React.useState<Artifact | null>(null);
+    const [artifact1Settings, setArtifact1Settings] = React.useState<Object | null>(null);
+
+    React.useEffect(() => {
+        if (artifact1 !== undefined) {
+            setArtifact1Settings(artifact1?.settings as Object);
+        }        
+    }, [artifact1])
+
+    const handleCancel = () => {
+        props.closeNewArtifactsRelation();
+    }
+
+    let parser = new DOMParser();
+
+    const handleConfirm = () => {
+
+    }
+
+    const handleChange = (event: React.ChangeEvent<{name?: string | undefined; value: unknown}>) => {
+        setArtifact1(props.artifacts.find(a => a.id === event.target.value) as Artifact);        
+    }
 
     return (
         <Dialog open={props.showNewArtifactsRelation}>
@@ -35,6 +61,52 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                     Seleccione los artefactos que desea relacionar.
                 </Typography>
                 <form className={classes.container}>
+                    <FormControl className={classes.select} error={Boolean(errors.artifactType)}>
+                        <InputLabel htmlFor="type-select1">Artefacto 1</InputLabel>
+                        <Controller
+                            render={({onChange}) =>
+                                <Select
+                                    inputProps={{
+                                        name: 'artifactType',
+                                        id: 'type-select1'
+                                    }}
+                                    onChange={(event) => handleChange(event)}
+                                >
+                                    <MenuItem value="">
+                                        <em>None</em>
+                                    </MenuItem>
+                                    {props.artifacts.map(a => <MenuItem key={a.id} value={a.id}>{a.name}</MenuItem>)}
+                                </Select>
+                            }
+                            name="artifactType"
+                            rules={{ required: true }}
+                            control={control}
+                        />
+                    </FormControl>
+                    <FormControl className={classes.select} error={Boolean(errors.artifactType)}>
+                        <InputLabel htmlFor="type-select2">Artefacto 2</InputLabel>
+                        <Controller
+                            as={
+                                <Select
+                                    inputProps={{
+                                        name: 'artifactType',
+                                        id: 'type-select2'
+                                    }}
+                                >
+                                    <MenuItem value="">
+                                        <em>None</em>
+                                    </MenuItem>
+                                    {props.artifacts.map(a => <MenuItem key={a.id} value={a.id}>{a.name}</MenuItem>)}
+                                </Select>
+                            }
+                            name="artifactType"
+                            rules={{ required: true }}
+                            control={control}
+                        />
+                    </FormControl>
+                    <Typography gutterBottom>
+                        Ahora seleccione las propiedades que desea relacionar y las direcciones de la relación
+                    </Typography>
                     <FormControl className={classes.formControl} error={Boolean(errors.artifactType)}>
                         <InputLabel htmlFor="type-select">Tipo de artefacto</InputLabel>
                         <Controller
@@ -48,16 +120,15 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                                     <MenuItem value="">
                                         <em>None</em>
                                     </MenuItem>
-                                    {props.artifacts.map(a => <MenuItem key={a.id} value={a.id}>{a.name}</MenuItem>)}
+                                    {artifact1Settings !== null ? Object.entries(artifact1Settings).map((key, value) => console.log(key, value)) : null}
                                 </Select>
                             }
                             name="artifactType"
                             rules={{ required: true }}
                             control={control}
                         />
-                        <FormHelperText>Requerido*</FormHelperText>
                     </FormControl>
-                    <FormControl className={classes.formControl} error={Boolean(errors.artifactType)}>
+                    <FormControl className={classes.formControl} error={Boolean(errors.artifactType)}>                        
                         <InputLabel htmlFor="type-select">Tipo de artefacto</InputLabel>
                         <Controller
                             as={

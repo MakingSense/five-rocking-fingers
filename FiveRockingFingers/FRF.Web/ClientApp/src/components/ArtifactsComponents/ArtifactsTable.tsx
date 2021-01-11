@@ -5,6 +5,7 @@ import ArtifactsTableRow from './ArtifactsTableRow';
 import SnackbarMessage from '../../commons/SnackbarMessage';
 import SnackbarSettings from '../../interfaces/SnackbarSettings'
 import NewArtifactDialog from '../NewArtifactDialog';
+import NewArtifactsRelation from '../NewArtifactsRelation';
 import ProviderForm from '../NewArtifactDialogComponents/ProviderForm';
 import ArtifactService from '../../services/ArtifactService';
 
@@ -14,6 +15,7 @@ const ArtifactsTable = (props: { projectId: number }) => {
     const [openSnackbar, setOpenSnackbar] = React.useState(false);
     const [snackbarSettings, setSnackbarSettings] = React.useState<SnackbarSettings>({ message: "", severity: undefined });
     const [showNewArtifactDialog, setShowNewArtifactDialog] = React.useState(false);
+    const [showNewArtifactsRelation, setShowNewArtifactsRelation] = React.useState(false);
 
     const getArtifacts = async () => {
         try {
@@ -39,6 +41,14 @@ const ArtifactsTable = (props: { projectId: number }) => {
         setShowNewArtifactDialog(true);
     }
 
+    const openNewArtifactsRelation = () => {
+        setShowNewArtifactsRelation(true);
+    }
+
+    const closeNewArtifactsRelation = () => {
+        setShowNewArtifactsRelation(false);
+    }
+
     React.useEffect(() => {
         getArtifacts();
     }, [props.projectId]);
@@ -57,7 +67,10 @@ const ArtifactsTable = (props: { projectId: number }) => {
                         <th>Provedor</th>
                         <th>Tipo</th>
                         <th>
-                            <Button color="success" onClick={openNewArtifactDialog}>Nuevo</Button>
+                            <Button color="success" onClick={openNewArtifactsRelation}>Nueva relación</Button>
+                        </th>
+                        <th>
+                            <Button color="success" onClick={openNewArtifactDialog}>Nuevo artefacto</Button>
                         </th>
                     </tr>
                 </thead>
@@ -87,7 +100,14 @@ const ArtifactsTable = (props: { projectId: number }) => {
                 setOpenSnackbar={setOpenSnackbar}
                 setSnackbarSettings={setSnackbarSettings}
             />
-
+            <NewArtifactsRelation
+                showNewArtifactsRelation={showNewArtifactsRelation}
+                closeNewArtifactsRelation={closeNewArtifactsRelation}
+                projectId={props.projectId}
+                setOpenSnackbar={setOpenSnackbar}
+                setSnackbarSettings={setSnackbarSettings}
+                artifacts={artifacts}
+            />
         </React.Fragment>
     );
 };
