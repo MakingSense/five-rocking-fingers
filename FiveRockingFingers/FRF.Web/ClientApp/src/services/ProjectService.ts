@@ -7,46 +7,63 @@ const PROJECTS_URL = `${BASE_URL}api/Projects/`;
 export default class ProjectService {
 
     static searchUser = async (email: string) => {
-        const response = axios.get("https://localhost:44346/api/User/search", {
-            params: { email: email }
-        })
-        return response;
-    }
+        try {
+            return await axios.get(`${BASE_URL}api/User/search`,
+                {
+                    params: { email: email }
+                });
+        } catch (error) {
+            return error.response ? error.response : error.message;
+        }
+    };
 
     static save = async (project: Project) => {
-        const response = await axios.post(`${PROJECTS_URL}Save`,
-            {
-                name: project.name,
-                owner: project.owner,
-                client: project.client,
-                budget: project.budget,
-                projectCategories: project.projectCategories,
-                users: project.users.map((parameter) => ({ userId:parameter.userId}))
-            });
-        return response;
-    }
+        try {
+            return await axios.post(`${PROJECTS_URL}Save`,
+                {
+                    name: project.name,
+                    owner: project.owner,
+                    client: project.client,
+                    budget: project.budget,
+                    projectCategories: project.projectCategories,
+                    users: project.users.map((parameter) => ({ userId: parameter.userId }))
+                });
+        } catch (error) {
+            return error.response ? error.response : error.message;
+        }
+    };
 
     static update = async (id: number, project: Project) => {
-        const response = await axios.put(`${PROJECTS_URL}Update?id=${id}`, {
-            name: project.name,
-            id: id,
-            owner: project.owner,
-            client: project.client,
-            createdDate: project.createdDate,
-            budget: project.budget,
-            projectCategories: project.projectCategories,
-            users: project.users.map((parameter) => ({ userId:parameter.userId}))
-        });
-        return response;
-    }
+        try {
+            return await axios.put(`${PROJECTS_URL}Update?id=${id}`,
+                {
+                    name: project.name,
+                    id: id,
+                    owner: project.owner,
+                    client: project.client,
+                    createdDate: project.createdDate,
+                    budget: project.budget,
+                    projectCategories: project.projectCategories,
+                    users: project.users.map((parameter) => ({ userId: parameter.userId }))
+                });
+        } catch (error) {
+            return error.response ? error.response : error.message;
+        }
+    };
 
     static delete = async (id: string) => {
-        const response = await axios.delete(`${PROJECTS_URL}Delete/${id}`)
-        return response;
-    }
+        try {
+            return await axios.delete(`${PROJECTS_URL}Delete/${id}`);
+        } catch (error) {
+            return error.response ? error.response : error.message;
+        }
+    };
 
     static getAll = async () => {
-        const response = await axios.get(`${PROJECTS_URL}GetAll/`);
-        return response;
-    }
+        try {
+            return await axios.get(`${PROJECTS_URL}GetAll/`);
+        } catch (error) {
+            return error.response ? error.response : error.message;
+        }
+    };
 }
