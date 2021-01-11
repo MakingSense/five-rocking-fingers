@@ -19,10 +19,10 @@ namespace FRF.Core.Services
         private const string OffersCodeIndex = "offers.*.offerCode";
         private readonly AwsPricing _awsPricingOptions;
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly AmazonPricingClient _pricingClient;
+        private readonly IAmazonPricing _pricingClient;
 
         public AwsArtifactsProviderService(IOptions<AwsPricing> awsApiString,
-            IHttpClientFactory httpClientFactory, AmazonPricingClient pricingClient)
+            IHttpClientFactory httpClientFactory, IAmazonPricing pricingClient)
         {
             _httpClientFactory = httpClientFactory;
             _awsPricingOptions = awsApiString.Value;

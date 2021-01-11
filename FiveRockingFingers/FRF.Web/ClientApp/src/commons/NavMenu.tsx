@@ -1,5 +1,4 @@
-import { faHome } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import HomeIcon from '@material-ui/icons/Home';
 import axios from 'axios';
 import * as React from 'react';
 import { Menu, ProSidebar, SidebarContent, SidebarHeader, SidebarFooter } from 'react-pro-sidebar';
@@ -12,9 +11,7 @@ import ProjectService from '../services/ProjectService';
 import UserProfile from '../interfaces/UserProfile'
 
 const FaHome = () => (
-    <div className='d-inline-block m-2'>
-        <FontAwesomeIcon icon={faHome}/>
-    </div>
+        <HomeIcon />
 );
 
 const NavMenu = () => {
