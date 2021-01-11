@@ -92,7 +92,7 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
                     if (newUserList != null) setState({ ...state, users: newUserList });
                     break;
                 case 404:
-                    props.openSnackbar({ message: "Usuario no entontrado", severity: "warning" });
+                    props.openSnackbar({ message: "Usuario no encontrado", severity: "warning" });
                     setFieldEmail("");
                     break;
                 default:
