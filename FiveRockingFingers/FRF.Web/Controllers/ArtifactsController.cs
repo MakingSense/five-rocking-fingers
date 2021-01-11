@@ -110,5 +110,21 @@ namespace FRF.Web.Controllers
             var artifactsResult = _mapper.Map<IList<ArtifactsRelationDTO>>(result);
             return Ok(artifactsResult);
         }
+
+        [HttpGet("{arifactId}")]
+        public async Task<IActionResult> GetRelationAsync(int artifactId)
+        {
+            var result = await _artifactsService.GetRelationsAsync(artifactId);
+
+            return Ok(_mapper.Map<ArtifactsRelationDTO>(result));
+        }
+
+        [HttpGet("{arifactRelation}")]
+        public async Task<IActionResult> DeleteRelationAsync(int artifactId1, int artifactId2)
+        {
+            var result = await _artifactsService.DeleteRelationAsync(artifactId1, artifactId2);
+
+            return Ok(_mapper.Map<ArtifactsRelationDTO>(result));
+        }
     }
 }
