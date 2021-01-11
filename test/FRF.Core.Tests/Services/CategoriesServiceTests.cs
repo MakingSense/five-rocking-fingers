@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FRF.Core.Response;
 using FRF.Core.Services;
 using FRF.DataAccess.EntityModels;
 using Microsoft.EntityFrameworkCore;
@@ -76,17 +77,18 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetAllAsync();
 
             // Assert
-            Assert.IsType<List<Models.Category>>(result);
-            Assert.Single(result);
+            Assert.IsType<ServiceResponse<List<Models.Category>>>(result);
+            Assert.True(result.Success);
+            var resultValue = Assert.Single(result.Value);
 
-            Assert.Equal(category.Name, result[0].Name);
-            Assert.Equal(category.Description, result[0].Description);
-            Assert.Equal(category.Id, result[0].Id);
-            Assert.Single(result[0].ProjectCategories);
+            Assert.Equal(category.Name, resultValue.Name);
+            Assert.Equal(category.Description, resultValue.Description);
+            Assert.Equal(category.Id, resultValue.Id);
+            Assert.Single(resultValue.ProjectCategories);
 
-            Assert.Equal(result[0].ProjectCategories[0].Project.Name, project.Name);
-            Assert.Equal(result[0].ProjectCategories[0].Project.Budget, project.Budget);
-            Assert.Equal(result[0].ProjectCategories[0].Project.Id, project.Id);
+            Assert.Equal(resultValue.ProjectCategories[0].Project.Name, project.Name);
+            Assert.Equal(resultValue.ProjectCategories[0].Project.Budget, project.Budget);
+            Assert.Equal(resultValue.ProjectCategories[0].Project.Id, project.Id);
         }
 
         [Fact]
@@ -96,8 +98,9 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetAllAsync();
 
             // Assert
-            Assert.IsType<List<Models.Category>>(result);
-            Assert.Empty(result);
+            Assert.IsType<ServiceResponse<List<Models.Category>>>(result);
+            Assert.True(result.Success);
+            Assert.Empty(result.Value);
         }
 
         [Fact]
@@ -111,16 +114,18 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetAsync(category.Id);
 
             // Assert
-            Assert.IsType<Models.Category>(result);
+            Assert.IsType<ServiceResponse<Models.Category>>(result);
+            Assert.True(result.Success);
+            var resultValue = result.Value;
 
-            Assert.Equal(category.Name, result.Name);
-            Assert.Equal(category.Description, result.Description);
-            Assert.Equal(category.Id, result.Id);
-            Assert.Single(result.ProjectCategories);
+            Assert.Equal(category.Name, resultValue.Name);
+            Assert.Equal(category.Description, resultValue.Description);
+            Assert.Equal(category.Id, resultValue.Id);
+            Assert.Single(resultValue.ProjectCategories);
 
-            Assert.Equal(result.ProjectCategories[0].Project.Name, project.Name);
-            Assert.Equal(result.ProjectCategories[0].Project.Budget, project.Budget);
-            Assert.Equal(result.ProjectCategories[0].Project.Id, project.Id);
+            Assert.Equal(resultValue.ProjectCategories[0].Project.Name, project.Name);
+            Assert.Equal(resultValue.ProjectCategories[0].Project.Budget, project.Budget);
+            Assert.Equal(resultValue.ProjectCategories[0].Project.Id, project.Id);
         }
 
         [Fact]
@@ -133,7 +138,10 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetAsync(categoryId);
 
             // Assert
-            Assert.Null(result);
+            Assert.IsType<ServiceResponse<Models.Category>>(result);
+            Assert.False(result.Success);
+            Assert.NotNull(result.Error);
+            Assert.Equal(result.Error.Code, ErrorCodes.CategoryNotExists);
         }
 
         [Fact]
@@ -151,11 +159,13 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.SaveAsync(categoryToSave);
 
             // Assert
-            Assert.IsType<Models.Category>(result);
+            Assert.IsType<ServiceResponse<Models.Category>>(result);
+            Assert.True(result.Success);
+            var resultValue = result.Value;
 
-            Assert.Equal(result.Name, categoryToSave.Name);
-            Assert.Equal(result.Description, categoryToSave.Description);
-            Assert.Empty(result.ProjectCategories);
+            Assert.Equal(resultValue.Name, categoryToSave.Name);
+            Assert.Equal(resultValue.Description, categoryToSave.Description);
+            Assert.Empty(resultValue.ProjectCategories);
         }
 
         [Fact]
@@ -176,21 +186,23 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.UpdateAsync(updatedCategory);
 
             // Assert
-            Assert.IsType<Models.Category>(result);
+            Assert.IsType<ServiceResponse<Models.Category>>(result);
+            Assert.True(result.Success);
+            var resultValue = result.Value;
 
-            Assert.Equal(result.Id, category.Id);
-            Assert.Equal(result.Id, updatedCategory.Id);
+            Assert.Equal(resultValue.Id, category.Id);
+            Assert.Equal(resultValue.Id, updatedCategory.Id);
 
-            Assert.Equal(result.Name, category.Name);
-            Assert.Equal(result.Name, updatedCategory.Name);
+            Assert.Equal(resultValue.Name, category.Name);
+            Assert.Equal(resultValue.Name, updatedCategory.Name);
 
-            Assert.Equal(result.Description, category.Description);
-            Assert.Equal(result.Description, updatedCategory.Description);
+            Assert.Equal(resultValue.Description, category.Description);
+            Assert.Equal(resultValue.Description, updatedCategory.Description);
 
-            Assert.Single(result.ProjectCategories);
-            Assert.Equal(result.ProjectCategories[0].Project.Name, project.Name);
-            Assert.Equal(result.ProjectCategories[0].Project.Budget, project.Budget);
-            Assert.Equal(result.ProjectCategories[0].Project.Id, project.Id);
+            Assert.Single(resultValue.ProjectCategories);
+            Assert.Equal(resultValue.ProjectCategories[0].Project.Name, project.Name);
+            Assert.Equal(resultValue.ProjectCategories[0].Project.Budget, project.Budget);
+            Assert.Equal(resultValue.ProjectCategories[0].Project.Id, project.Id);
         }
 
         [Fact]
@@ -198,12 +210,24 @@ namespace FRF.Core.Tests.Services
         {
             // Arrange
             var category = CreateCategory();
+            var project = CreateProject(category);
 
             // Act
-            await _classUnderTest.DeleteAsync(category.Id);
+            var result = await _classUnderTest.DeleteAsync(category.Id);
 
             // Assert
-            Assert.Null(await _dataAccess.Categories.FirstOrDefaultAsync(c => c.Id == category.Id));
+            Assert.IsType<ServiceResponse<Models.Category>>(result);
+            Assert.True(result.Success);
+            var resultValue = result.Value;
+
+            Assert.Equal(category.Name, resultValue.Name);
+            Assert.Equal(category.Description, resultValue.Description);
+            Assert.Equal(category.Id, resultValue.Id);
+            Assert.Single(resultValue.ProjectCategories);
+
+            Assert.Equal(resultValue.ProjectCategories[0].Project.Name, project.Name);
+            Assert.Equal(resultValue.ProjectCategories[0].Project.Budget, project.Budget);
+            Assert.Equal(resultValue.ProjectCategories[0].Project.Id, project.Id);
         }
     }
 }
