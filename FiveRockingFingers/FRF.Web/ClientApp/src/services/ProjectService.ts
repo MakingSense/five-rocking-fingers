@@ -13,7 +13,7 @@ export default class ProjectService {
                     params: { email: email }
                 });
         } catch (error) {
-            return error.response ? error.response : null;
+            return error.response ? error.response : error.message;
         }
     };
 
@@ -29,7 +29,7 @@ export default class ProjectService {
                     users: project.users.map((parameter) => ({ userId: parameter.userId }))
                 });
         } catch (error) {
-            return error.response ? error.response : null;
+            return error.response ? error.response : error.message;
         }
     };
 
@@ -47,7 +47,7 @@ export default class ProjectService {
                     users: project.users.map((parameter) => ({ userId: parameter.userId }))
                 });
         } catch (error) {
-            return error.response ? error.response : null;
+            return error.response ? error.response : error.message;
         }
     };
 
@@ -55,7 +55,7 @@ export default class ProjectService {
         try {
             return await axios.delete(`${PROJECTS_URL}Delete/${id}`);
         } catch (error) {
-            return error.response ? error.response : null;
+            return error.response ? error.response : error.message;
         }
     };
 
@@ -63,7 +63,7 @@ export default class ProjectService {
         try {
             return await axios.get(`${PROJECTS_URL}GetAll/`);
         } catch (error) {
-            return error.response ? error.response : null;
+            return error.response ? error.response : error.message;
         }
     };
 }

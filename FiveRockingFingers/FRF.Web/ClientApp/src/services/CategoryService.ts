@@ -10,7 +10,7 @@ class CategoryService {
         try {
             return await axios.get(`${CATEGORIES_URL}GetAll`);
         } catch (error) {
-            return error.response ? error.response : null;
+            return error.response ? error.response : error.message;
         }
     };
 
@@ -18,7 +18,7 @@ class CategoryService {
         try {
             return await axios.get(`${CATEGORIES_URL}Get/${id}`);
         } catch (error) {
-            return error.response ? error.response : null;
+            return error.response ? error.response : error.message;
         }
     };
 
@@ -26,7 +26,7 @@ class CategoryService {
         try {
             return await axios.post(`${CATEGORIES_URL}Save`, category);
         } catch (error) {
-            return error.response ? error.response : null;
+            return error.response ? error.response : error.message;
         }
     };
 
@@ -34,7 +34,7 @@ class CategoryService {
         try {
             return await axios.put(`${CATEGORIES_URL}Delete/${category.id}`, category);
         } catch (error) {
-            return error.response ? error.response : null;
+            return error.response ? error.response : error.message;
         }
     };
 
@@ -42,7 +42,7 @@ class CategoryService {
         try {
             return await axios.delete(`${CATEGORIES_URL}Delete/${id}`);
         } catch (error) {
-            return error.response ? error.response : null;
+            return error.response ? error.response : error.message;
         }
     };
 }

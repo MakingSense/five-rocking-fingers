@@ -9,7 +9,7 @@ class ArtifactService {
         try {
             return await axios.get(`${ARTIFACTS_URL}GetAll`);
         } catch (error) {
-            return error.response ? error.response : null;
+            return error.response ? error.response : error.message;
         }
     };
 
@@ -17,7 +17,7 @@ class ArtifactService {
         try {
             return await axios.get(`${ARTIFACTS_URL}GetAllByProjectId/${id}`);
         } catch (error) {
-            return error.response ? error.response : null;
+            return error.response ? error.response : error.message;
         }
     };
 
@@ -25,7 +25,7 @@ class ArtifactService {
         try {
             return await axios.get(`${ARTIFACTS_URL}Get/${id}`);
         } catch (error) {
-            return error.response ? error.response : null;
+            return error.response ? error.response : error.message;
         }
     };
 
@@ -33,7 +33,7 @@ class ArtifactService {
         try {
             return await axios.post(`${ARTIFACTS_URL}Save`, artifact);
         } catch (error) {
-            return error.response ? error.response : null;
+            return error.response ? error.response : error.message;
         }
     };
 
@@ -41,7 +41,7 @@ class ArtifactService {
         try {
             return await axios.put(`${ARTIFACTS_URL}Update/${id}`, artifact);
         } catch (error) {
-            return error.response ? error.response : null;
+            return error.response ? error.response : error.message;
         }
     };
 
@@ -49,7 +49,7 @@ class ArtifactService {
         try {
             return await axios.delete(`${ARTIFACTS_URL}Delete/${id}`);
         } catch (error) {
-            return error.response ? error.response : null;
+            return error.response ? error.response : error.message;
         }
     };
 }

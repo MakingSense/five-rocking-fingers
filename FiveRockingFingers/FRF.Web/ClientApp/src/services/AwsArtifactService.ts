@@ -9,7 +9,7 @@ export default class AwsArtifactsService {
         try {
             return await axios.get(`${AWS_ARTIFACTS_PROVIDER_URL}GetNames`);
         } catch (error) {
-            return error.response ? error.response : null;
+            return error.response ? error.response : error.message;
         }
     }
 }
