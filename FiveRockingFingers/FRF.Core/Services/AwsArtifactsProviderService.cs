@@ -211,7 +211,7 @@ namespace FRF.Core.Services
         private PricingDimension ExtractPricingDimension(JProperty termPriceDimension)
         {
             float.TryParse((string)termPriceDimension.Value.SelectToken("beginRange"), out float beginRange);
-            float.TryParse((string)termPriceDimension.Value.SelectToken("beginRange"), out float endRange);
+            float.TryParse((string)termPriceDimension.Value.SelectToken("endRange"), out float endRange);
 
             var pricingDetails = new PricingDimension()
             {
