@@ -60,20 +60,20 @@ namespace FRF.Web.Tests.Controllers
             var pricingDimension = new PricingDimension
             {
                 Unit = "[Mock] Unit",
-                EndRange = "[Mock] End range",
+                EndRange = 100000f,
                 Description = "[Mock] Description",
                 RateCode = "[Mock] Rate code",
-                BeginRange = "[Mock] Begin range",
+                BeginRange = 0f,
                 Currency = "[Mock] Currency",
                 PricePerUnit = 99.99f
             };
             var pricingDetail = new PricingDimension
             {
                 Unit = "[Mock] Unit 2",
-                EndRange = "[Mock] End range 2",
+                EndRange = 100000f,
                 Description = "[Mock] Description 2",
                 RateCode = "[Mock] Rate code 2",
-                BeginRange = "[Mock] Begin range 2",
+                BeginRange = 0f,
                 Currency = "[Mock] Currency 2",
                 PricePerUnit = 99.99f
             };
