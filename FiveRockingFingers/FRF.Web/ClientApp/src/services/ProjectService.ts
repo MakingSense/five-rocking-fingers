@@ -8,15 +8,14 @@ export default class ProjectService {
 
     static searchUser = async (email: string) => {
         try {
-            return await axios.get("https://localhost:44346/api/User/search", {
-                params: { email: email }
-            });
+            return await axios.get(`${BASE_URL}api/User/search`,
+                {
+                    params: { email: email }
+                });
         } catch (error) {
-            if (error.response) {
-                return error.response;
-            }
+            return error.response ? error.response : null;
         }
-    }
+    };
 
     static save = async (project: Project) => {
         try {
@@ -30,48 +29,41 @@ export default class ProjectService {
                     users: project.users.map((parameter) => ({ userId: parameter.userId }))
                 });
         } catch (error) {
-            if (error.response) {
-                return error.response;
-            }
+            return error.response ? error.response : null;
         }
-    }
+    };
 
     static update = async (id: number, project: Project) => {
         try {
-            return await axios.put(`${PROJECTS_URL}Update?id=${id}`, {
-                name: project.name,
-                id: id,
-                owner: project.owner,
-                client: project.client,
-                createdDate: project.createdDate,
-                budget: project.budget,
-                projectCategories: project.projectCategories,
-                users: project.users.map((parameter) => ({ userId: parameter.userId }))
-            });
+            return await axios.put(`${PROJECTS_URL}Update?id=${id}`,
+                {
+                    name: project.name,
+                    id: id,
+                    owner: project.owner,
+                    client: project.client,
+                    createdDate: project.createdDate,
+                    budget: project.budget,
+                    projectCategories: project.projectCategories,
+                    users: project.users.map((parameter) => ({ userId: parameter.userId }))
+                });
         } catch (error) {
-            if (error.response) {
-                return error.response;
-            }
+            return error.response ? error.response : null;
         }
-    }
+    };
 
     static delete = async (id: string) => {
         try {
             return await axios.delete(`${PROJECTS_URL}Delete/${id}`);
         } catch (error) {
-            if (error.response) {
-                return error.response;
-            }
+            return error.response ? error.response : null;
         }
-    }
+    };
 
     static getAll = async () => {
         try {
             return await axios.get(`${PROJECTS_URL}GetAll/`);
         } catch (error) {
-            if (error.response) {
-                return error.response;
-            }
+            return error.response ? error.response : null;
         }
-    }
+    };
 }

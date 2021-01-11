@@ -10,51 +10,41 @@ class CategoryService {
         try {
             return await axios.get(`${CATEGORIES_URL}GetAll`);
         } catch (error) {
-            if (error.response) {
-                return error.response;
-            }
+            return error.response ? error.response : null;
         }
-    }
+    };
 
     static get = async (id: number) => {
         try {
             return await axios.get(`${CATEGORIES_URL}Get/${id}`);
         } catch (error) {
-            if (error.response) {
-                return error.response;
-            }
+            return error.response ? error.response : null;
         }
-    }
+    };
 
     static save = async (category: Category) => {
         try {
             return await axios.post(`${CATEGORIES_URL}Save`, category);
         } catch (error) {
-            if (error.response) {
-                return error.response;
-            }
+            return error.response ? error.response : null;
         }
-    }
+    };
 
     static update = async (category: Category) => {
         try {
             return await axios.put(`${CATEGORIES_URL}Delete/${category.id}`, category);
         } catch (error) {
-            if (error.response) {
-                return error.response;
-            }
+            return error.response ? error.response : null;
         }
-    }
+    };
 
     static delete = async (id: number) => {
         try {
             return await axios.delete(`${CATEGORIES_URL}Delete/${id}`);
         } catch (error) {
-            if (error.response) {
-                return error.response;
-            }
+            return error.response ? error.response : null;
         }
-    }
+    };
 }
 
 export default CategoryService;
