@@ -155,5 +155,25 @@ namespace FRF.Core.Services
             await _dataContext.SaveChangesAsync();
             return resultArtifactRelations;
         }
+
+        public async Task<IList<ArtifactsRelation>> GetRelationsAsync(int artifactId)
+        {
+            var artifactsRelations = await _dataContext.ArtifactsRelation.Where(ar => ar.Artifact1Id == artifactId || ar.Artifact2Id == artifactId).ToListAsync();
+            var resultArtifactRelations = _mapper.Map<List<ArtifactsRelation>>(artifactsRelations);
+            return resultArtifactRelations;
+        }
+
+        public async Task<ArtifactsRelation> DeleteRelationAsync(int artifact1Id, int artifact2Id)
+        {
+            var artifactsRelation = await _dataContext.ArtifactsRelation.SingleOrDefaultAsync(ar => ar.Artifact1Id == artifact1Id || ar.Artifact2Id == artifact1Id && ar.Artifact1Id == artifact2Id || ar.Artifact2Id == artifact2Id);
+            if(artifactsRelation == null)
+            {
+                return null;
+            }
+            _dataContext.ArtifactsRelation.Remove(artifactsRelation);
+            await _dataContext.SaveChangesAsync();
+
+            return _mapper.Map<ArtifactsRelation>(artifactsRelation);
+        }
     }
 }
