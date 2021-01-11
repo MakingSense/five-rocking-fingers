@@ -118,6 +118,8 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
                         handlePreviousStep={handlePreviousStep}
                         setAwsSettingsList={setAwsSettingsList}
                         setSettingsList={setSettingsList}
+                        setOpenSnackbar={props.setOpenSnackbar}
+                        setSnackbarSettings={props.setSnackbarSettings}
                     />
                 );
             }
@@ -139,6 +141,8 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
                         settings={settings}
                         setSettings={setSettings}
                         setAwsPricingTerm={setAwsPricingTerm}
+                        setOpenSnackbar={props.setOpenSnackbar}
+                        setSnackbarSettings={props.setSnackbarSettings}
                     />
                 );
             }

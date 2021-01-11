@@ -32,7 +32,7 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function,name: string | null, handleNextStep: Function, handlePreviousStep: Function, settingsList: Setting[], setSettingsList: Function, settingsMap: { [key: string]: number[] }, setSettingsMap: Function, awsSettingsList: KeyValueStringPair[], settings: object, setSettings: Function, setAwsPricingTerm: Function }) => {
+const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, name: string | null, handleNextStep: Function, handlePreviousStep: Function, settingsList: Setting[], setSettingsList: Function, settingsMap: { [key: string]: number[] }, setSettingsMap: Function, awsSettingsList: KeyValueStringPair[], settings: object, setSettings: Function, setAwsPricingTerm: Function, setSnackbarSettings: Function, setOpenSnackbar: Function }) => {
 
     const classes = useStyles();
     const { handleSubmit, control } = useForm();
@@ -47,15 +47,26 @@ const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewAr
 
     const getPricingDimensions = async () => {
         if (name) {
-            setLoading(true);
-            const response = await AwsArtifactService.GetProductsAsync(name, awsSettingsList);
-            setPricingDimensionList(response.data);
-            setLoading(false);
+            let statusOk = 200;
+            try {
+                setLoading(true);
+                const response = await AwsArtifactService.GetProductsAsync(name, awsSettingsList);
+                if (response.status === statusOk) {
+                    setPricingDimensionList(response.data);
+                    setLoading(false);
+                }
+            }
+            catch (error) {
+                props.setSnackbarSettings({ message: "Fuera de servicio. Por favor intente mas tarde.", severity: "error" });
+                props.setOpenSnackbar(true);
+                closeNewArtifactDialog();
+            }
         }
     }
 
     //Create the artifact after submit
     const handleConfirm = async (data: { term: number }) => {
+        if (data.term === null || data.term === undefined) return;
         props.setAwsPricingTerm(awsPricingDimensionList[data.term]);
         props.setSettings({ settings: createSettingsObject(data.term) });
         props.handleNextStep();
@@ -117,22 +128,26 @@ const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewAr
                         <div className={classes.circularProgress}>
                             <CircularProgress color="inherit" size={30} />
                         </div> :
-                    <Controller
-                            as={
+                        awsPricingDimensionList.length === 0 ?
+                            <Typography gutterBottom>
+                                Lo sentimos, no hay productos según las especificaciones seleccionadas
+                            </Typography> :
+                            <Controller
+                                as={
 
-                                <RadioGroup aria-label="term" name="term">
-                                    {awsPricingDimensionList.map((awsPricingTerm: PricingTerm, index: number) => {
-                                        return (
-                                            <FormControlLabel key={index} value={String(index)} control={<Radio />} label={pricingTermToString(awsPricingTerm)} />
-                                        );
-                                    })}
-                                </RadioGroup>
-                            }
-                            name="term"
-                            rules={{ required: true }}
-                            control={control}
-                            defaultValue={''}
-                        />                   
+                                    <RadioGroup aria-label="term" name="term">
+                                        {awsPricingDimensionList.map((awsPricingTerm: PricingTerm, index: number) => {
+                                            return (
+                                                <FormControlLabel key={index} value={String(index)} control={<Radio />} label={pricingTermToString(awsPricingTerm)} />
+                                            );
+                                        })}
+                                    </RadioGroup>
+                                }
+                                name="term"
+                                rules={{ required: true }}
+                                control={control}
+                                defaultValue={''}
+                            />                   
                     }
                 </form>
 

@@ -33,7 +33,7 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const SettingsAwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, name: string | null, updateList: Function, handleNextStep: Function, handlePreviousStep: Function, setAwsSettingsList: Function, setSettingsList: Function }) => {
+const SettingsAwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, name: string | null, updateList: Function, handleNextStep: Function, handlePreviousStep: Function, setAwsSettingsList: Function, setSettingsList: Function, setSnackbarSettings: Function, setOpenSnackbar: Function }) => {
 
     const classes = useStyles();
     const { handleSubmit, errors, setError, clearErrors, control } = useForm();
@@ -50,17 +50,26 @@ const SettingsAwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifa
 
     const getArtifactSettings = async () => {
         if (name) {
-            setLoading(true);
-            const response = await AwsArtifactService.GetAttibutesAsync(name);
-            setAwsSettingsValuesList(response.data);
-            setLoading(false);
+            let statusOk = 200;
+            try {
+                setLoading(true);
+                const response = await AwsArtifactService.GetAttibutesAsync(name);
+                if (response.status === statusOk) {
+                    setAwsSettingsValuesList(response.data);
+                    setLoading(false);
+                }
+            }
+            catch (error) {
+                props.setSnackbarSettings({ message: "Fuera de servicio. Por favor intente mas tarde.", severity: "error" });
+                props.setOpenSnackbar(true);
+                closeNewArtifactDialog();
+            }           
         }
     }
 
     //Create the artifact after submit
     const handleConfirm = async () => {
-        console.log(awsSettingsList);
-        let awsSettingsListFiltered = awsSettingsList.filter(awsSetting => awsSetting !== undefined && awsSetting !== null);
+        let awsSettingsListFiltered = awsSettingsList.filter(awsSetting => awsSetting !== undefined && awsSetting !== null && awsSetting.value !== "");
         console.log(awsSettingsListFiltered);
         props.setSettingsList(awsSettingsListToSettingsList(awsSettingsListFiltered));
         props.setAwsSettingsList(awsSettingsListFiltered);
@@ -84,7 +93,7 @@ const SettingsAwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifa
     }
 
     const isOneValueCompleted = () => {
-        let awsSettingsListFiltered = awsSettingsList.filter(awsSetting => awsSetting !== undefined && awsSetting !== null);
+        let awsSettingsListFiltered = awsSettingsList.filter(awsSetting => awsSetting !== undefined && awsSetting !== null && awsSetting.value !== "");
         if (awsSettingsListFiltered.length !== 0) {
             return true;
         }
@@ -112,7 +121,6 @@ const SettingsAwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifa
                     </div> :
                     <form className={classes.container}>
                         {awsSettingsValuesList.map((awsSetting: ProviderArtifactSetting, index: number) => {
-                            console.log(awsSetting);
                             return (
                                 <FormControl key={index} className={classes.formControl}>
                                     <InputLabel htmlFor={`settings[${index}].name`}>{awsSetting.name.value}</InputLabel>
