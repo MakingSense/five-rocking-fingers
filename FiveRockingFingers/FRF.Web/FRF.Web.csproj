@@ -41,6 +41,7 @@
     <None Remove="ClientApp\src\components\NavMenuItem.tsx" />
     <None Remove="ClientApp\src\components\NewArtifactDialogComponents\AwsForm.tsx" />
     <None Remove="ClientApp\src\components\NewArtifactDialogComponents\ConfirmNewArtifact.tsx" />
+    <None Remove="ClientApp\src\components\NewArtifactsRelation.tsx" />
     <None Remove="ClientApp\src\interfaces\Category.ts" />
     <None Remove="ClientApp\src\interfaces\Project.ts" />
     <None Remove="ClientApp\src\interfaces\ProjectCategory.ts" />
