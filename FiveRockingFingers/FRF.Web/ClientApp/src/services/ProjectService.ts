@@ -2,20 +2,9 @@ import axios from 'axios'
 import { BASE_URL } from '../Constants';
 import Project from '../interfaces/Project';
 
-const PROJECTS_URL = `${BASE_URL}api/Projects/`;
+const PROJECTS_URL = `${BASE_URL}Projects/`;
 
 export default class ProjectService {
-
-    static searchUser = async (email: string) => {
-        try {
-            return await axios.get(`${BASE_URL}api/User/search`,
-                {
-                    params: { email: email }
-                });
-        } catch (error) {
-            return error.response ? error.response : error.message;
-        }
-    };
 
     static save = async (project: Project) => {
         try {

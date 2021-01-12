@@ -1,7 +1,7 @@
 ﻿import axios from 'axios';
 import { BASE_URL } from '../Constants'
 
-const ARTIFACTS_URL = `${BASE_URL}api/Artifacts/`;
+const ARTIFACTS_URL = `${BASE_URL}Artifacts/`;
 
 class ArtifactService {
 

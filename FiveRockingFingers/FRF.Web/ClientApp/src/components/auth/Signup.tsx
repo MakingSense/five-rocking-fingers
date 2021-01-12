@@ -11,7 +11,7 @@ import SnackbarMessage from '../../commons/SnackbarMessage';
 import SnackbarSettings from '../../interfaces/SnackbarSettings';
 import "./authStyle.css";
 import { useUserContext } from "./contextLib";
-
+import { BASE_URL } from '../../Constants';
 
 interface userSignUp {
     firstName: string;
@@ -20,6 +20,8 @@ interface userSignUp {
     password: string;
     confirm: string;
 }
+
+const SIGNUP_URL = `${BASE_URL}SignUp`;
 
 const UserSignupSchema = yup.object().shape({
     firstName: yup.string()
@@ -57,7 +59,7 @@ const Signup: React.FC<userSignUp> = ({ }) => {
 
     const onSubmit = (e: userSignUp) => {
         setLoading(true);
-        axios.post('https://localhost:44346/api/SignUp',
+        axios.post(SIGNUP_URL,
             {
                 confirmPassword: e.confirm,
                 name: e.firstName,
