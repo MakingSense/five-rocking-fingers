@@ -6,12 +6,14 @@ import ExitToAppOutlinedIcon from '@material-ui/icons/ExitToAppOutlined';
 import { UserContext } from "./components/auth/contextLib";
 import './custom.css';
 import Routes from './router/Routes';
+import UserService from './services/UserService';
+
 function App() {
 
     const History = useHistory();
 
     function handleLogout() {
-        axios.get("https://localhost:44346/api/User/logout");
+        UserService.logout();
         History.push("/");
         setCurrentUser(null);
     }

@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { BASE_URL } from '../Constants';
 
-const AWS_ARTIFACTS_PROVIDER_URL = `${BASE_URL}api/AwsArtifactsProvider/`;
+const AWS_ARTIFACTS_PROVIDER_URL = `${BASE_URL}AwsArtifactsProvider/`;
 
 export default class AwsArtifactsService {
 
