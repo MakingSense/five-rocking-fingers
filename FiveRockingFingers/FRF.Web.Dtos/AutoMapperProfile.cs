@@ -41,6 +41,9 @@ namespace FRF.Web.Dtos
             CreateMap<UserProfileUpsertDTO, UsersProfile>();
             CreateMap<ArtifactsRelationDTO, ArtifactsRelation>()
                 .ReverseMap();
+CreateMap<ProviderArtifactSetting, ProviderArtifactSettingDTO>();
+            CreateMap<PricingTerm, PricingTermDTO>();
+            CreateMap<PricingDimension, PricingDimensionDTO>();
         }
     }
 }
