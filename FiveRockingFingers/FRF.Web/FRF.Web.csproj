@@ -41,10 +41,17 @@
     <None Remove="ClientApp\src\commons\SnackbarMessage.tsx" />
     <None Remove="ClientApp\src\components\NavMenuItem.tsx" />
     <None Remove="ClientApp\src\components\NewArtifactDialogComponents\AwsForm.tsx" />
+    <None Remove="ClientApp\src\components\NewArtifactDialogComponents\AwsPricingDimension.tsx" />
+    <None Remove="ClientApp\src\components\NewArtifactDialogComponents\Confirmation.tsx" />
     <None Remove="ClientApp\src\components\NewArtifactDialogComponents\ConfirmNewArtifact.tsx" />
+    <None Remove="ClientApp\src\components\NewArtifactDialogComponents\SettingsAwsForm.tsx" />
     <None Remove="ClientApp\src\interfaces\Category.ts" />
+    <None Remove="ClientApp\src\interfaces\KeyValueStringPair.ts" />
+    <None Remove="ClientApp\src\interfaces\PricingDimension.ts" />
+    <None Remove="ClientApp\src\interfaces\PricingTerm.ts" />
     <None Remove="ClientApp\src\interfaces\Project.ts" />
     <None Remove="ClientApp\src\interfaces\ProjectCategory.ts" />
+    <None Remove="ClientApp\src\interfaces\ProviderArtifactSetting.ts" />
     <None Remove="ClientApp\src\interfaces\Setting.ts" />
     <None Remove="ClientApp\src\interfaces\SnackbarSettings.ts" />
     <None Remove="ClientApp\src\router\Routes.tsx" />
