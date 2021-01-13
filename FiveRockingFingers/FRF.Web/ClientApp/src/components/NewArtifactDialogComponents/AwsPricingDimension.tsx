@@ -118,10 +118,10 @@ const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewAr
 
     return (
         <Dialog open={showNewArtifactDialog}>
-            <DialogTitle id="alert-dialog-title">Formulario de artefactos custom</DialogTitle>
+            <DialogTitle id="alert-dialog-title">Formulario de artefactos AWS</DialogTitle>
             <DialogContent>
                 <Typography gutterBottom>
-                    A continuación ingrese las propiedades de su nuevo artefacto custom y el valor que tomarán esas propiedades
+                    A continuación ingrese alguna de las opciones para adquirir su artefacto AWS
                 </Typography>
                 <form className={classes.container}>
                     {loading ?

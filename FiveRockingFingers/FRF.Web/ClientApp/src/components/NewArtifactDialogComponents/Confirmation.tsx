@@ -75,10 +75,10 @@ const Confirmation = (props: { showNewArtifactDialog: boolean, closeNewArtifactD
 
     return (
         <Dialog open={showNewArtifactDialog}>
-            <DialogTitle id="alert-dialog-title">Formulario de artefactos custom</DialogTitle>
+            <DialogTitle id="alert-dialog-title">Confirmación</DialogTitle>
             <DialogContent>
                 <Typography gutterBottom>
-                    A continuación ingrese las propiedades de su nuevo artefacto custom y el valor que tomarán esas propiedades
+                    Revise las características de su nuevo artefacto y se está de acuerdo haga click en confirmar
                 </Typography>
                 <Typography gutterBottom>
                     <span className={classes.title}>Nombre:</span> {name}

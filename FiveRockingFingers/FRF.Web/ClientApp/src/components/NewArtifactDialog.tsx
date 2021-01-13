@@ -14,8 +14,8 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
 
     const [step, setStep] = React.useState<number>(1);
     const [artifactTypeId, setArtifactTypeId] = React.useState<number | null>(null);
-    const [name, setName] = React.useState<string | null>(null);
-    const [provider, setProvider] = React.useState<string | null>(null);
+    const [name, setName] = React.useState<string | null>("");
+    const [provider, setProvider] = React.useState<string | null>("");
     const [settingsList, setSettingsList] = React.useState<Setting[]>([{ name: "", value: "" }]);
     const [settings, setSettings] = React.useState<object>({});
     const [settingsMap, setSettingsMap] = React.useState<{ [key: string]: number[] }>({});

@@ -110,10 +110,10 @@ const SettingsAwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifa
 
     return (
         <Dialog open={showNewArtifactDialog}>
-            <DialogTitle id="alert-dialog-title">Formulario de artefactos custom</DialogTitle>
+            <DialogTitle id="alert-dialog-title">Formulario de artefactos AWS</DialogTitle>
             <DialogContent>
                 <Typography gutterBottom>
-                    A continuación ingrese las propiedades de su nuevo artefacto custom y el valor que tomarán esas propiedades
+                    A continuación ingrese las propiedades de su nuevo artefacto AWS
                 </Typography>
                 {loading ?
                     <div className={classes.circularProgress}>
