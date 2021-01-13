@@ -1,8 +1,10 @@
-﻿namespace FRF.DataAccess.EntityModels
+﻿using System;
+
+namespace FRF.DataAccess.EntityModels
 {
     public class ArtifactsRelation
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public int Artifact1Id { get; set; }
         public Artifact Artifact1 { get; set; }
 

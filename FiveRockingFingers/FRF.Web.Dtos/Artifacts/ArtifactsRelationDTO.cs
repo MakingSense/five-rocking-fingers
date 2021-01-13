@@ -4,7 +4,7 @@ namespace FRF.Web.Dtos.Artifacts
 {
     public class ArtifactsRelationDTO
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         [Required]
         [Range(1,int.MaxValue)]
         public int Artifact1Id { get; set; }
