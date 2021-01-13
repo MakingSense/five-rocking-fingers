@@ -4,6 +4,7 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Controller, useForm } from 'react-hook-form';
 import Typography from '@material-ui/core/Typography';
 import Artifact from '../interfaces/Artifact';
+import AwsArtifact from '../interfaces/AwsArtifact';
 import SyncAltIcon from '@material-ui/icons/SyncAlt';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
@@ -44,6 +45,8 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
     const [artifact2, setArtifact2] = React.useState<Artifact | null>(null);
     const [artifact1Settings, setArtifact1Settings] = React.useState<{ [key: string]: string }>({});
     const [artifact2Settings, setArtifact2Settings] = React.useState<{ [key: string]: string }>({});
+    const [setting1, setSetting1] = React.useState< AwsArtifact | null>(null);
+    const [setting2, setSetting2] = React.useState<AwsArtifact | null>(null);
 
     React.useEffect(() => {
         updateArtifactsSettings1();
@@ -85,8 +88,17 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
         }
         else if (event.target.name === 'artifact2') {
             setArtifact2(props.artifacts.find(a => a.id === event.target.value) as Artifact);
+        }              
+    }
+
+    const handleSettingChange = (event: React.ChangeEvent<{ name?: string | undefined; value: unknown }>) => {
+        /*console.log(event.target.name);
+        if (event.target.name === 'setting1') {
+            setSetting1(Object.entries(artifact1Settings).find(a => a.id === event.target.value) as AwsArtifact);
         }
-              
+        else if (event.target.name === 'setting2') {
+            setSetting2(props.artifacts.find(a => a.id === event.target.value) as AwsArtifact);
+        }*/
     }
 
     return (
@@ -147,12 +159,13 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                     <FormControl className={classes.selectSetting} error={Boolean(errors.artifactType)}>
                         <InputLabel htmlFor="type-select">Setting 1</InputLabel>
                         <Controller
-                            as={
+                            render={({ onChange }) =>
                                 <Select
                                     inputProps={{
-                                        name: 'artifactType',
+                                        name: 'setting1',
                                         id: 'type-select'
                                     }}
+                                    onChange={(event) => handleSettingChange(event)}
                                 >
                                     <MenuItem value="">
                                         <em>None</em>
@@ -160,15 +173,16 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                                     {Object.entries(artifact1Settings).map(([key, value], index) => <MenuItem key={key} value={key}>{key}</MenuItem>)}
                                 </Select>
                             }
-                            name="artifactType"
+                            name="setting1"
                             rules={{ required: true }}
                             control={control}
                         />
+                        <FormHelperText>{}</FormHelperText>
                     </FormControl>
                     <FormControl className={classes.selectDirection} error={Boolean(errors.artifactType)}>
                         <InputLabel htmlFor="type-select">Dirección</InputLabel>
                         <Controller
-                            as={
+                            render={({ onChange }) =>
                                 <Select
                                     inputProps={{
                                         name: 'artifactType',
@@ -197,12 +211,13 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                     <FormControl className={classes.selectSetting} error={Boolean(errors.artifactType)}>                        
                         <InputLabel htmlFor="type-select">Setting 2</InputLabel>
                         <Controller
-                            as={
+                            render={({ onChange }) =>
                                 <Select
                                     inputProps={{
-                                        name: 'artifactType',
+                                        name: 'setting2',
                                         id: 'type-select'
                                     }}
+                                    onChange={(event) => handleSettingChange(event)}
                                 >
                                     <MenuItem value="">
                                         <em>None</em>
@@ -210,11 +225,11 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                                     {Object.entries(artifact2Settings).map(([key, value], index) => <MenuItem key={key} value={key}>{key}</MenuItem>)}
                                 </Select>
                             }
-                            name="artifactType"
+                            name="setting2"
                             rules={{ required: true }}
                             control={control}
                         />
-                        <FormHelperText>Requerido*</FormHelperText>
+                        <FormHelperText>{}</FormHelperText>
                     </FormControl>
                 </form>
             </DialogContent>
