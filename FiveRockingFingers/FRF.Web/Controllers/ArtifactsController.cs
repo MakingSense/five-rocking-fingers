@@ -48,7 +48,7 @@ namespace FRF.Web.Controllers
         {
             var artifact = await _artifactsService.Get(id);
 
-            if (artifact.Success == false)
+            if (!artifact.Success)
             {
                 return NotFound();
             }
@@ -74,7 +74,7 @@ namespace FRF.Web.Controllers
         {
             var artifact = await _artifactsService.Get(id);
 
-            if (artifact.Value == null)
+            if (!artifact.Success)
             {
                 return NotFound();
             }
@@ -92,7 +92,7 @@ namespace FRF.Web.Controllers
         {
             var artifact = await _artifactsService.Get(id);
 
-            if (artifact.Value == null)
+            if (!artifact.Success)
             {
                 return NotFound();
             }
@@ -107,7 +107,7 @@ namespace FRF.Web.Controllers
         {
             var artifactsRelations = _mapper.Map<IList<ArtifactsRelation>>(artifactRelationList);
             var result = await _artifactsService.SetRelationAsync(artifactsRelations);
-            if (result.Value == null) return BadRequest();
+            if (!result.Success) return BadRequest();
 
             var artifactsResult = _mapper.Map<IList<ArtifactsRelationDTO>>(result.Value);
             return Ok(artifactsResult);
