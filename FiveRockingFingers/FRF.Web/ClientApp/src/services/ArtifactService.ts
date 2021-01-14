@@ -52,6 +52,14 @@ class ArtifactService {
             return error.response ? error.response : error.message;
         }
     };
+
+    static setRelations = async (artifactRelationsList: any) => {
+        try {
+            return await axios.post(`${ARTIFACTS_URL}SetRelation`, artifactRelationsList);
+        } catch (error) {
+            return error.response ? error.response : error.message;
+        }
+    }
 }
 
 export default ArtifactService;

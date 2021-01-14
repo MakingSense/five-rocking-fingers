@@ -58,19 +58,21 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
         updateArtifactsSettings2();
     }, [artifact1, artifact2, relationList])
 
-    const handleCancel = () => {
+    const handleClose = () => {
         setArtifact1(null);
         setArtifact2(null);
         updateArtifactsSettings1();
         updateArtifactsSettings2();
         setSetting1(null);
         setSetting2(null);
+        setRelationTypeId(-1);
+        setRelationList([]);
         props.closeNewArtifactsRelation();
     }
 
     let parser = new DOMParser();
 
-    const handleConfirm = () => {
+    const handleConfirm = async () => {
         let artifactsRelationsList: any[] = [];
         relationList.map(relation => {
             let artifactsRelation = {
@@ -82,7 +84,21 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
             };
             artifactsRelationsList.push(artifactsRelation);
         });
-        ArtifactService.setRelations(artifactsRelationsList);
+        try {
+            let response = await ArtifactService.setRelations(artifactsRelationsList);
+            if (response.status === 200) {
+                props.setSnackbarSettings({ message: "Las relaciones han sido creado con éxito", severity: "success" });
+                props.setOpenSnackbar(true);
+            } else {
+                props.setSnackbarSettings({ message: "Hubo un error al crear las relaciones", severity: "error" });
+                props.setOpenSnackbar(true);
+            }
+        }
+        catch (error) {
+            props.setSnackbarSettings({ message: "Hubo un error al crear las relaciones", severity: "error" });
+            props.setOpenSnackbar(true);
+        }
+        handleClose();       
     }
 
     const deleteRelation = (index: number) => {
@@ -157,6 +173,7 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                         index={index}
                     />
                 )}
+                <hr />
                 <Typography gutterBottom>
                     Seleccione los artefactos que desea relacionar.
                 </Typography>
@@ -284,7 +301,7 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
             <DialogActions>
                 <Button size="small" color="primary" type="submit" onClick={addRelation}>Agregar</Button>
                 <Button size="small" color="primary" type="submit" onClick={handleSubmit(handleConfirm)}>Finalizar</Button>
-                <Button size="small" color="secondary" onClick={handleCancel}>Cancelar</Button>
+                <Button size="small" color="secondary" onClick={handleClose}>Cancelar</Button>
             </DialogActions>
         </Dialog>
     );
