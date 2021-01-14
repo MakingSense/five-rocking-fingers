@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace FRF.Web.Controllers
 {
@@ -101,7 +102,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SetRelationAsync(IList<ArtifactsRelationDTO> artifactRelationList)
+        public async Task<IActionResult> SetRelationAsync(IList<ArtifactsRelationUpsertDTO> artifactRelationList)
         {
             var artifactsRelations = _mapper.Map<IList<ArtifactsRelation>>(artifactRelationList);
             var result = await _artifactsService.SetRelationAsync(artifactsRelations);

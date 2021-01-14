@@ -27,7 +27,7 @@ namespace FRF.DataAccess
             builder.Entity<ArtifactType>().HasKey(at => new { at.Id });
             builder.Entity<UsersByProject>().HasKey(up => new {up.Id});
             builder.Entity<UsersByProject>().HasOne(up=>up.Project).WithMany(u=>u.UsersByProject).HasForeignKey(up=>up.ProjectId);
-            builder.Entity<ArtifactsRelation>().HasKey(ar => new {ar.Artifact1Id, ar.Artifact2Id,ar.Artifact1Property,ar.Artifact2Property});
+            builder.Entity<ArtifactsRelation>().HasKey(ar => new {ar.Id});
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
