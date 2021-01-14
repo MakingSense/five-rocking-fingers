@@ -158,7 +158,7 @@ namespace FRF.Core.Services
 
         public async Task<IList<ArtifactsRelation>> GetRelationsAsync(int artifactId)
         {
-            var artifactsRelations = await _dataContext.ArtifactsRelation.Where(ar => ar.Artifact1Id == artifactId || ar.Artifact2Id == artifactId).ToListAsync();
+            var artifactsRelations = await _dataContext.ArtifactsRelation.Include(ar => ar.Artifact1).Include(ar => ar.Artifact2).Include(ar => ar.Artifact1Property).Include(ar => ar.Artifact2Property).Where(ar => ar.Artifact1Id == artifactId || ar.Artifact2Id == artifactId).ToListAsync();
             var resultArtifactRelations = _mapper.Map<List<ArtifactsRelation>>(artifactsRelations);
             return resultArtifactRelations;
         }
