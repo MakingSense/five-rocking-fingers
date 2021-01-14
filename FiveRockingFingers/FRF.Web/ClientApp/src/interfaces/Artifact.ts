@@ -5,7 +5,7 @@ export default interface Artifact {
     id: number;
     name: string;
     provider: string;
-    settings: string;
+    settings: {[key: string] : string};
     project: Project;
     artifactType: ArtifactType;
 }
