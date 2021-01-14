@@ -52,6 +52,22 @@ class ArtifactService {
             return error.response ? error.response : error.message;
         }
     };
+
+    static getRelations = async (arifactId: string) => {
+        try {
+            return await axios.get(`${ARTIFACTS_URL}GetRelation/${arifactId}`);
+        } catch (error) {
+            return error.response ? error.response : error.message;
+        }
+    };
+
+    static deleteRelation = async (id: string) => {
+        try {
+            return await axios.delete(`${ARTIFACTS_URL}DeleteRelation/${id}`);
+        } catch (error) {
+            return error.response ? error.response : error.message;
+        }
+    };
 }
 
 export default ArtifactService;
