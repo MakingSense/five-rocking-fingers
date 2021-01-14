@@ -54,6 +54,12 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
     }, [artifact1, artifact2])
 
     const handleCancel = () => {
+        setArtifact1(null);
+        setArtifact2(null);
+        updateArtifactsSettings1();
+        updateArtifactsSettings2();
+        setSetting1(null);
+        setSetting2(null);
         props.closeNewArtifactsRelation();
     }
 
@@ -82,7 +88,6 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
     }
 
     const handleChange = (event: React.ChangeEvent<{ name?: string | undefined; value: unknown }>) => {
-        console.log(event.target.name);
         if (event.target.name === 'artifact1') {
             setArtifact1(props.artifacts.find(a => a.id === event.target.value) as Artifact);
         }
@@ -92,13 +97,14 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
     }
 
     const handleSettingChange = (event: React.ChangeEvent<{ name?: string | undefined; value: unknown }>) => {
-        /*console.log(event.target.name);
         if (event.target.name === 'setting1') {
-            setSetting1(Object.entries(artifact1Settings).find(a => a.id === event.target.value) as AwsArtifact);
+            let setting: AwsArtifact = { key: event.target.value as string, value: artifact1Settings[event.target.value as string]};
+            setSetting1(setting);
         }
         else if (event.target.name === 'setting2') {
-            setSetting2(props.artifacts.find(a => a.id === event.target.value) as AwsArtifact);
-        }*/
+            let setting: AwsArtifact = { key: event.target.value as string, value: artifact1Settings[event.target.value as string] };
+            setSetting2(setting);
+        }
     }
 
     return (
@@ -177,7 +183,7 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                             rules={{ required: true }}
                             control={control}
                         />
-                        <FormHelperText>{}</FormHelperText>
+                        <FormHelperText>{setting1 !== null ? setting1?.value : null}</FormHelperText>
                     </FormControl>
                     <FormControl className={classes.selectDirection} error={Boolean(errors.artifactType)}>
                         <InputLabel htmlFor="type-select">Dirección</InputLabel>
@@ -229,7 +235,7 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                             rules={{ required: true }}
                             control={control}
                         />
-                        <FormHelperText>{}</FormHelperText>
+                        <FormHelperText>{setting2 !== null ? setting2?.value : null}</FormHelperText>
                     </FormControl>
                 </form>
             </DialogContent>
