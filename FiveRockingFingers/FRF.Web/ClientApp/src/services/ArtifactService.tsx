@@ -34,6 +34,10 @@ class ArtifactService {
         const response = await axios.delete(`${ARTIFACTS_URL}Delete/${id}`);
         return response;
     }
+
+    static setRelations = async (artifactRelationsList: any) => {
+        const response = await axios.post(`${ARTIFACTS_URL}SetRelation`, artifactRelationsList)
+    }
 }
 
 export default ArtifactService;

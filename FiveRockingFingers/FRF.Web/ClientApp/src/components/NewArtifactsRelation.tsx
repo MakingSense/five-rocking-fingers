@@ -5,9 +5,12 @@ import { Controller, useForm } from 'react-hook-form';
 import Typography from '@material-ui/core/Typography';
 import Artifact from '../interfaces/Artifact';
 import AwsArtifact from '../interfaces/AwsArtifact';
+import ArtifactRelation from '../interfaces/ArtifactRelation';
+import RelationCard from './NewArtifactRelationComponents/RelationCard';
 import SyncAltIcon from '@material-ui/icons/SyncAlt';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
+import ArtifactService from '../services/ArtifactService';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -47,11 +50,13 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
     const [artifact2Settings, setArtifact2Settings] = React.useState<{ [key: string]: string }>({});
     const [setting1, setSetting1] = React.useState< AwsArtifact | null>(null);
     const [setting2, setSetting2] = React.useState<AwsArtifact | null>(null);
+    const [relationTypeId, setRelationTypeId] = React.useState<number>(-1);
+    const [relationList, setRelationList] = React.useState<ArtifactRelation[]>([]);
 
     React.useEffect(() => {
         updateArtifactsSettings1();
         updateArtifactsSettings2();
-    }, [artifact1, artifact2])
+    }, [artifact1, artifact2, relationList])
 
     const handleCancel = () => {
         setArtifact1(null);
@@ -66,7 +71,24 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
     let parser = new DOMParser();
 
     const handleConfirm = () => {
+        let artifactsRelationsList: any[] = [];
+        relationList.map(relation => {
+            let artifactsRelation = {
+                artifact1Id: relation.artifact1.id,
+                artifact2Id: relation.artifact2.id,
+                artifact1Property: relation.setting1.key,
+                artifact2Property: relation.setting2.key,
+                relationTypeId: relation.relationTypeId
+            };
+            artifactsRelationsList.push(artifactsRelation);
+        });
+        ArtifactService.setRelations(artifactsRelationsList);
+    }
 
+    const deleteRelation = (index: number) => {
+        let relationListCopy = [...relationList];
+        relationListCopy.splice(index, 1);
+        setRelationList(relationListCopy);
     }
 
     const updateArtifactsSettings1 = () => {
@@ -107,10 +129,34 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
         }
     }
 
+    const handleRelationTypeChange = (event: React.ChangeEvent<{ name?: string | undefined; value: unknown }>) => {
+        setRelationTypeId(event.target.value as number);
+    }
+
+    const addRelation = () => {
+        let newRelation: ArtifactRelation = {
+            artifact1: artifact1 as Artifact,
+            artifact2: artifact2 as Artifact,
+            setting1: setting1 as AwsArtifact,
+            setting2: setting2 as AwsArtifact,
+            relationTypeId: relationTypeId
+        }
+        let relationListCopy = [...relationList];
+        relationListCopy.push(newRelation);
+        setRelationList(relationListCopy);
+    }
+
     return (
         <Dialog open={props.showNewArtifactsRelation}>
             <DialogTitle id="alert-dialog-title">Formulario de para crear relación entre artefactos</DialogTitle>
             <DialogContent>
+                {relationList.map((relation, index) => 
+                    <RelationCard
+                        Relation={relation}
+                        deleteRelation={deleteRelation}
+                        index={index}
+                    />
+                )}
                 <Typography gutterBottom>
                     Seleccione los artefactos que desea relacionar.
                 </Typography>
@@ -133,7 +179,6 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                                 </Select>
                             }
                             name='artifact1'
-                            rules={{ required: true }}
                             control={control}
                         />
                     </FormControl>
@@ -155,7 +200,6 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                                 </Select>
                             }
                             name='artifact2'
-                            rules={{ required: true }}
                             control={control}
                         />
                     </FormControl>
@@ -180,7 +224,6 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                                 </Select>
                             }
                             name="setting1"
-                            rules={{ required: true }}
                             control={control}
                         />
                         <FormHelperText>{setting1 !== null ? setting1?.value : null}</FormHelperText>
@@ -194,6 +237,7 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                                         name: 'artifactType',
                                         id: 'type-select'
                                     }}
+                                    onChange={(event) => handleRelationTypeChange(event)}
                                 >
                                     <MenuItem value="">
                                         <em>None</em>
@@ -210,7 +254,6 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                                 </Select>
                             }
                             name="artifactType"
-                            rules={{ required: true }}
                             control={control}
                         />
                     </FormControl>
@@ -232,7 +275,6 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                                 </Select>
                             }
                             name="setting2"
-                            rules={{ required: true }}
                             control={control}
                         />
                         <FormHelperText>{setting2 !== null ? setting2?.value : null}</FormHelperText>
@@ -240,7 +282,8 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                 </form>
             </DialogContent>
             <DialogActions>
-                <Button size="small" color="primary" type="submit" onClick={handleSubmit(handleConfirm)}>Siguiente</Button>
+                <Button size="small" color="primary" type="submit" onClick={addRelation}>Agregar</Button>
+                <Button size="small" color="primary" type="submit" onClick={handleSubmit(handleConfirm)}>Finalizar</Button>
                 <Button size="small" color="secondary" onClick={handleCancel}>Cancelar</Button>
             </DialogActions>
         </Dialog>
