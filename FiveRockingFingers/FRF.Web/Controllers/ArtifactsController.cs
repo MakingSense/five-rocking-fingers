@@ -139,12 +139,15 @@ namespace FRF.Web.Controllers
             return Ok(_mapper.Map<ArtifactsRelationDTO>(result));
         }
 
-        [HttpPut]
-        public async Task<IActionResult> UpdateArtifactsRelationsAsync(
+        [HttpPut("{artifactId}")]
+        public async Task<IActionResult> UpdateArtifactsRelationsAsync(int artifactId,
             IList<ArtifactsRelationDTO> artifactRelationUpdatedList)
         {
+            var artifact = await _artifactsService.Get(artifactId);
+            if (artifact == null) return NotFound();
+
             var artifactsRelationsList = _mapper.Map<IList<ArtifactsRelation>>(artifactRelationUpdatedList);
-            var result = await _artifactsService.UpdateRelationAsync(artifactsRelationsList);
+            var result = await _artifactsService.UpdateRelationAsync(artifactId, artifactsRelationsList);
             if (result == null) return BadRequest();
 
             var artifactsResult = _mapper.Map<IList<ArtifactsRelationDTO>>(result);
