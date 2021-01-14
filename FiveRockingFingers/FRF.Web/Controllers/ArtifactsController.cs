@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace FRF.Web.Controllers
 {
@@ -101,7 +102,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SetRelationAsync(IList<ArtifactsRelationDTO> artifactRelationList)
+        public async Task<IActionResult> SetRelationAsync(IList<ArtifactsRelationUpsertDTO> artifactRelationList)
         {
             var artifactsRelations = _mapper.Map<IList<ArtifactsRelation>>(artifactRelationList);
             var result = await _artifactsService.SetRelationAsync(artifactsRelations);
@@ -119,12 +120,38 @@ namespace FRF.Web.Controllers
             return Ok(_mapper.Map<ArtifactsRelationDTO>(result));
         }
 
+        [HttpGet("{projectId}")]
+        public async Task<IActionResult> GetAllRelationsByProjectIdAsync(int projectId)
+        {
+            var result = await _artifactsService.GetAllRelationsByProjectIdAsync(projectId);
+
+             if (result == null) return BadRequest();
+
+             return Ok(_mapper.Map<IList<ArtifactsRelationDTO>>(result));
+
+        }
+
         [HttpGet("{arifactRelation}")]
         public async Task<IActionResult> DeleteRelationAsync(int artifactId1, int artifactId2)
         {
             var result = await _artifactsService.DeleteRelationAsync(artifactId1, artifactId2);
 
             return Ok(_mapper.Map<ArtifactsRelationDTO>(result));
+        }
+
+        [HttpPut("{artifactId}")]
+        public async Task<IActionResult> UpdateArtifactsRelationsAsync(int artifactId,
+            IList<ArtifactsRelationDTO> artifactRelationUpdatedList)
+        {
+            var artifact = await _artifactsService.Get(artifactId);
+            if (artifact == null) return NotFound();
+
+            var artifactsRelationsList = _mapper.Map<IList<ArtifactsRelation>>(artifactRelationUpdatedList);
+            var result = await _artifactsService.UpdateRelationAsync(artifactId, artifactsRelationsList);
+            if (result == null) return BadRequest();
+
+            var artifactsResult = _mapper.Map<IList<ArtifactsRelationDTO>>(result);
+            return Ok(artifactsResult);
         }
     }
 }
