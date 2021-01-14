@@ -583,6 +583,7 @@ namespace FRF.Core.Tests.Services
             var artifactsRelationUpdated = new List<ArtifactsRelation>();
             var artifactsRelationInDb = new List<DataAccess.EntityModels.ArtifactsRelation>();
             var i = 0;
+            var artifactId = 0;
             while (i < 3)
             {
                 var artifactType = CreateArtifactType();
@@ -603,7 +604,7 @@ namespace FRF.Core.Tests.Services
             await _dataAccess.SaveChangesAsync();
 
             // Act
-            var response = await _classUnderTest.UpdateRelationAsync(artifactsRelationUpdated);
+            var response = await _classUnderTest.UpdateRelationAsync(artifactsRelationUpdated[0].Artifact1Id,artifactsRelationUpdated);
 
             // Assert
             Assert.Null(response);
@@ -643,7 +644,7 @@ namespace FRF.Core.Tests.Services
             await _dataAccess.SaveChangesAsync();
 
             // Act
-            var response = await _classUnderTest.UpdateRelationAsync(artifactsRelationUpdated);
+            var response = await _classUnderTest.UpdateRelationAsync(artifactsRelationUpdated[0].Artifact1Id,artifactsRelationUpdated);
 
             // Assert
             var result = Assert.IsAssignableFrom<IList<ArtifactsRelation>>(response);

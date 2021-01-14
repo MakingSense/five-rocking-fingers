@@ -31,20 +31,13 @@ namespace FRF.Core.Services
             return artifactsRelationIds.Except(dbArtifactsId).Any();
         }
 
-        private async Task<bool> IsAnyArtifactRelationRepeated(IList<ArtifactsRelation> artifactsRelations)
+        private async Task<bool> IsAnyRelationRepeated(IList<EntityModels.ArtifactsRelation> dbArtifactRelations, IList<ArtifactsRelation> artifactsRelations)
         {
-            var dbArtifactRelations = await _dataContext.ArtifactsRelation.ToListAsync();
-            return artifactsRelations
-                .Any(ar => dbArtifactRelations
-                    .Any(dbAr =>
-                        dbAr.Artifact1Id == ar.Artifact1Id
-                        && dbAr.Artifact2Id == ar.Artifact2Id
-                        && dbAr.Artifact1Property.Equals(ar.Artifact1Property,
-                            StringComparison.InvariantCultureIgnoreCase)
-                        && dbAr.Artifact2Property.Equals(ar.Artifact2Property,
-                            StringComparison.InvariantCultureIgnoreCase)
-                    )
-                );
+           
+            return artifactsRelations.Any(ar => dbArtifactRelations.Any(dbAr =>
+                dbAr.Artifact1Id == ar.Artifact1Id && dbAr.Artifact2Id == ar.Artifact2Id &&
+                dbAr.Artifact1Property.Equals(ar.Artifact1Property, StringComparison.InvariantCultureIgnoreCase) &&
+                dbAr.Artifact2Property.Equals(ar.Artifact2Property, StringComparison.InvariantCultureIgnoreCase)));
         }
 
         public async Task<List<Artifact>> GetAll()
@@ -149,23 +142,22 @@ namespace FRF.Core.Services
 
         public async Task<IList<ArtifactsRelation>> SetRelationAsync(IList<ArtifactsRelation> artifactRelations)
         {
-            var resultArtifactRelations = new List<ArtifactsRelation>();
-
-            var isAnyArtifactExcept=await IsAnyArtifactExcept(artifactRelations);
+            var isAnyArtifactExcept = await IsAnyArtifactExcept(artifactRelations);
             if (isAnyArtifactExcept) return null;
 
-            var isAnyArtifactRepeated =await IsAnyArtifactRelationRepeated(artifactRelations);
+            var dbArtifactRelations = await _dataContext.ArtifactsRelation.Where(ar =>
+                    ar.Artifact1Id == artifactRelations[0].Artifact1Id ||
+                    ar.Artifact2Id == artifactRelations[0].Artifact2Id)
+                .ToListAsync();
+
+            var isAnyArtifactRepeated = await IsAnyRelationRepeated(dbArtifactRelations, artifactRelations);
             if (isAnyArtifactRepeated) return null;
 
-            foreach (var artifactRelation in artifactRelations)
-            { 
-                var mappedArtifactRelation = _mapper.Map<EntityModels.ArtifactsRelation>(artifactRelation);
-                await _dataContext.ArtifactsRelation.AddAsync(mappedArtifactRelation);
-                resultArtifactRelations.Add(artifactRelation);
-            }
-
+            var resultArtifactRelations = _mapper.Map<IList<EntityModels.ArtifactsRelation>>(artifactRelations);
+            await _dataContext.ArtifactsRelation.AddRangeAsync(resultArtifactRelations);
             await _dataContext.SaveChangesAsync();
-            return resultArtifactRelations;
+
+            return _mapper.Map<IList<ArtifactsRelation>>(resultArtifactRelations);
         }
 
         public async Task<IList<ArtifactsRelation>> GetRelationsAsync(int artifactId)
@@ -206,26 +198,40 @@ namespace FRF.Core.Services
             return _mapper.Map<ArtifactsRelation>(artifactsRelation);
         }
 
-        public async Task<IList<ArtifactsRelation>> UpdateRelationAsync(IList<ArtifactsRelation> artifactsRelationsNew)
+        public async Task<IList<ArtifactsRelation>> UpdateRelationAsync(int artifact1Id,
+            IList<ArtifactsRelation> artifactsRelationsNew)
         {
             var isAnyArtifactExcept = await IsAnyArtifactExcept(artifactsRelationsNew);
             if (isAnyArtifactExcept) return null;
 
-            var projectId = await _dataContext.ArtifactsRelation
-                .Where(ar =>
-                    ar.Artifact1Id == artifactsRelationsNew[0].Artifact1Id ||
-                    ar.Artifact2Id == artifactsRelationsNew[0].Artifact2Id)
-                .Include(a => a.Artifact1)
-                .Select(a => a.Artifact1.ProjectId)
-                .FirstOrDefaultAsync();
-
             var relationsOriginal = await _dataContext.ArtifactsRelation
-                .Where(ar => ar.Artifact1.ProjectId == projectId)
+                .Where(ar => ar.Artifact1Id == artifact1Id || ar.Artifact2Id == artifact1Id)
+                .Include(ar => ar.Artifact1)
+                .Include(ar => ar.Artifact2)
                 .ToListAsync();
 
-            _dataContext.ArtifactsRelation.RemoveRange(relationsOriginal);
-            await _dataContext.ArtifactsRelation.AddRangeAsync(
-                _mapper.Map<List<EntityModels.ArtifactsRelation>>(artifactsRelationsNew));
+            foreach (var relationOriginal in relationsOriginal)
+            {
+                foreach (var relationNew in artifactsRelationsNew)
+                {
+                    if (relationOriginal.Id != relationNew.Id)
+                    {
+                        var isAnyArtifactRepeated = await IsAnyRelationRepeated(relationsOriginal,
+                            new List<ArtifactsRelation> {relationNew});
+                        if (isAnyArtifactRepeated) continue;
+
+                        await _dataContext.ArtifactsRelation.AddAsync(
+                            _mapper.Map<EntityModels.ArtifactsRelation>(relationNew));
+                    }
+
+                    relationOriginal.Artifact1Id = relationNew.Artifact1Id;
+                    relationOriginal.Artifact2Id = relationNew.Artifact2Id;
+                    relationOriginal.Artifact1Property = relationNew.Artifact1Property;
+                    relationOriginal.Artifact2Property = relationNew.Artifact2Property;
+                    relationOriginal.RelationTypeId = relationNew.RelationTypeId;
+                }
+            }
+
             await _dataContext.SaveChangesAsync();
 
             return artifactsRelationsNew;
