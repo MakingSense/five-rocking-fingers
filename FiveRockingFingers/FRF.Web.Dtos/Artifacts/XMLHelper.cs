@@ -12,10 +12,16 @@ namespace FRF.Web.Dtos.Artifacts
         public Dictionary<string, string> Resolve(Artifact source, ArtifactDTO destination, Dictionary<string, string> destMember, ResolutionContext context)
         {
             var settings = new Dictionary<string, string>();
-            foreach (var element in source.Settings.Descendants())
+            if(!source.Settings.HasElements)
+            {
+                return settings;
+            }
+
+            foreach (var element in source.Settings.Elements())
             {
                 settings = GetKeyValuePair(element, settings);
             }
+
             return settings;
         }
 
@@ -23,7 +29,7 @@ namespace FRF.Web.Dtos.Artifacts
         {
             if(xelement.HasElements)
             {
-                return settings;
+                settings.Add(xelement.Name.ToString(), "");
             }
             else
             {
