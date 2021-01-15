@@ -1,5 +1,4 @@
-﻿using System;
-using AutoMapper;
+﻿using AutoMapper;
 using FRF.Core.Models;
 using FRF.Core.Services;
 using FRF.Web.Dtos;
@@ -32,19 +31,19 @@ namespace FiveRockingFingers.Controllers
         public async Task<IActionResult> GetAllAsync()
         {
             var currentUserId = await _userService.GetCurrentUserIdAsync();
-            var projects = await _projectService.GetAllAsync(currentUserId);
+            var response = await _projectService.GetAllAsync(currentUserId);
 
-            var projectsDto = _mapper.Map<IEnumerable<ProjectDTO>>(projects);
+            var projectsDto = _mapper.Map<IEnumerable<ProjectDTO>>(response.Value);
             return Ok(projectsDto);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetAsync(int id)
         {
-            var project = await _projectService.GetAsync(id);
-            if (project == null) return NotFound();
+            var response = await _projectService.GetAsync(id);
+            if (!response.Success) return NotFound();
 
-            var projectDto = _mapper.Map<ProjectDTO>(project);
+            var projectDto = _mapper.Map<ProjectDTO>(response.Value);
             return Ok(projectDto);
         }
 
@@ -59,26 +58,26 @@ namespace FiveRockingFingers.Controllers
             if (project == null) return BadRequest();
 
             var projectSaved = await _projectService.SaveAsync(project);
-            if (projectSaved == null) return BadRequest();
+            if (!projectSaved.Success) return BadRequest();
 
-            var projectCreated = _mapper.Map<ProjectDTO>(projectSaved);
+            var projectCreated = _mapper.Map<ProjectDTO>(projectSaved.Value);
             return Ok(projectCreated);
         }
 
         [HttpPut]
         public async Task<IActionResult> UpdateAsync(int id, ProjectUpsertDTO projectDto)
         {
-            var project = await _projectService.GetAsync(id);
-            if (project == null) return NotFound();
+            var response = await _projectService.GetAsync(id);
+            if (!response.Success) return NotFound();
 
             //To improve
             if (!projectDto.Users.Any()) return BadRequest();
 
-            _mapper.Map(projectDto, project);
-            var updated = await _projectService.UpdateAsync(project);
-            if (updated == null) return BadRequest();
+            _mapper.Map(projectDto, response.Value);
+            var updated = await _projectService.UpdateAsync(response.Value);
+            if (!updated.Success) return BadRequest();
 
-            var updatedProject = _mapper.Map<ProjectDTO>(updated);
+            var updatedProject = _mapper.Map<ProjectDTO>(updated.Value);
             return Ok(updatedProject);
         }
 
@@ -86,12 +85,12 @@ namespace FiveRockingFingers.Controllers
         public async Task<IActionResult> DeleteAsync(int id)
         {
             var project = await _projectService.GetAsync(id);
-            if (project == null) return NotFound();
+            if (!project.Success) return NotFound();
 
             var isDeleted = await _projectService.DeleteAsync(id);
-            if (!isDeleted) return NotFound();
+            if (!isDeleted.Success) return NotFound();
 
-            return NoContent();
+            return Ok(isDeleted.Value);
         }
     }
 }
