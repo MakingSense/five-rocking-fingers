@@ -8,10 +8,11 @@ import Project from '../interfaces/Project';
 import '../styles/NavMenu.css';
 import NavMenuItem from './NavMenuItem';
 import ProjectService from '../services/ProjectService';
-import UserProfile from '../interfaces/UserProfile'
+import UserProfile from '../interfaces/UserProfile';
+import UserService from '../services/UserService';
 
 const FaHome = () => (
-        <HomeIcon />
+    <HomeIcon />
 );
 
 const NavMenu = () => {
@@ -19,9 +20,9 @@ const NavMenu = () => {
     const [projects, setProjects] = React.useState<Project[]>([]);
     const [user, setUser] = React.useState<UserProfile | null>(null);
     React.useEffect(() => {
-            getProjects();
-            getUser();
-        },
+        getProjects();
+        getUser();
+    },
         []);
 
     const getProjects = async () => {
@@ -31,12 +32,12 @@ const NavMenu = () => {
         setProjects(response.data);
     }
     const getUser = async () => {
-        const response = await axios.get("https://localhost:44346/api/User");
+        const response = await UserService.get();
         setUser({
-            fullName : response.data["fullname"],
-            email : response.data["email"],
-            userId : response.data["userId"],
-            avatar : response.data["avatar"]
+            fullName: response.data["fullname"],
+            email: response.data["email"],
+            userId: response.data["userId"],
+            avatar: response.data["avatar"]
         });
     }
     return (
@@ -44,13 +45,13 @@ const NavMenu = () => {
             <SidebarHeader>
                 {FaHome()}
                 {user?.fullName}
-                <Link to="/"/>
+                <Link to="/" />
             </SidebarHeader>
             <SidebarContent>
                 <Menu>
                     {projects
                         ? projects.map((project) => (
-                            <NavMenuItem key={project.id} project={project}/>
+                            <NavMenuItem key={project.id} project={project} />
                         ))
                         : "No hay projectos"}
                 </Menu>

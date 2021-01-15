@@ -1,5 +1,5 @@
 import * as React from 'react';
-import ArtifactRelation from '../../../interfaces/ArtifactRelation'
+import ArtifactRelation from '../../interfaces/ArtifactRelation'
 import { Button } from 'reactstrap';
 import EditArtifactRelation from './EditArtifactRelation';
 import DeleteArtifactsRelation from './DeleteArtifactsRelation';
@@ -20,10 +20,10 @@ const ArtifactRelationRow = (props: { artifactRelation: ArtifactRelation, openSn
     return (
         <>
             <tr>
-                <td>{props.artifactRelation.artifact1Id}</td>
-                <td>{props.artifactRelation.artifact2Id}</td>
-                <td>{props.artifactRelation.artifact1Property}</td>
-                <td>{props.artifactRelation.artifact2Property}</td>
+                <td>{props.artifactRelation.artifact1.name}</td>
+                <td>{props.artifactRelation.artifact2.name}</td>
+                <td>{props.artifactRelation.setting1.value}</td>
+                <td>{props.artifactRelation.setting2.value}</td>
                 <td>{props.artifactRelation.relationTypeId}</td>
                 <td>
                     <Button color="danger" onClick={deleteButtonClick}>Borrar</Button>
@@ -32,7 +32,7 @@ const ArtifactRelationRow = (props: { artifactRelation: ArtifactRelation, openSn
                     <Button color="warning" onClick={editRelationClick}>Modificar</Button>
                 </td>
             </tr>
-            <EditArtifactRelation open={openEditArtifactRelation} artifactId={props.artifactRelation.id} artifactRelations={props.artifactRelation} />
+            <EditArtifactRelation open={openEditArtifactRelation} artifactId={props.artifactRelation.id!} artifactRelations={props.artifactRelation} />
         </>
     );
 };

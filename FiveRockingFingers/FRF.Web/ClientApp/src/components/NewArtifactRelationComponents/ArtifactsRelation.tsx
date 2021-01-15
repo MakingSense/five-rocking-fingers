@@ -1,5 +1,5 @@
 import * as React from 'react';
-import NavMenu from '../../../commons/NavMenu';
+import NavMenu from '../../commons/NavMenu';
 import ArtifactsRelationTable from './ArtifactsRelationTable';
 import { RouteComponentProps } from 'react-router';
 

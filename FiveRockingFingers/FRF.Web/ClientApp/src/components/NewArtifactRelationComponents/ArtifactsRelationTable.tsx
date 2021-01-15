@@ -1,15 +1,17 @@
 import * as React from 'react';
 import { Table, Button } from 'reactstrap';
-import SnackbarMessage from '../../../commons/SnackbarMessage';
-import SnackbarSettings from '../../../interfaces/SnackbarSettings'
-import ArtifactService from '../../../services/ArtifactService';
-import NewArtifactsRelation from '../../NewArtifactsRelation';
+import SnackbarMessage from '../../commons/SnackbarMessage';
+import SnackbarSettings from '../../interfaces/SnackbarSettings'
+import ArtifactService from '../../services/ArtifactService';
+import NewArtifactsRelation from '../NewArtifactsRelation';
 import ArtifactRelationRow from './ArtifactRelationRow';
-import ArtifactRelation from '../../../interfaces/ArtifactRelation';
+import ArtifactRelation from '../../interfaces/ArtifactRelation';
+import ArtifactRelationDTO from '../../interfaces/ArtifactRelationDTO';
 
 const ArtifactsRelationTable = (props:{artifactId: string} ) => {
 
     const [artifactsRelations, setArtifactsRelations] = React.useState<ArtifactRelation[]>([]);
+    const [artifactsRelationsDTO, setArtifactsRelationsDTO] = React.useState<ArtifactRelationDTO[]>([]);
     const [openSnackbar, setOpenSnackbar] = React.useState(false);
     const [snackbarSettings, setSnackbarSettings] = React.useState<SnackbarSettings>({ message: "", severity: undefined });
     const [showNewArtifactDialog, setShowNewArtifactDialog] = React.useState(false);
@@ -20,7 +22,7 @@ const ArtifactsRelationTable = (props:{artifactId: string} ) => {
             const response = await ArtifactService.getRelations(props.artifactId);
 
             if (response.status == 200) {
-                setArtifactsRelations(response.data);
+                setArtifactsRelationsDTO(response.data);
             }
             else {
                 manageOpenSnackbar({ message: "Hubo un error al cargar los artifacts", severity: "error" });

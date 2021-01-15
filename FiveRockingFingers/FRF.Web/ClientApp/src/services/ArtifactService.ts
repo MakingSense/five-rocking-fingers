@@ -1,7 +1,7 @@
 ﻿import axios from 'axios';
 import { BASE_URL } from '../Constants'
 
-const ARTIFACTS_URL = `${BASE_URL}api/Artifacts/`;
+const ARTIFACTS_URL = `${BASE_URL}Artifacts/`;
 
 class ArtifactService {
 
@@ -64,6 +64,14 @@ class ArtifactService {
     static deleteRelation = async (id: string) => {
         try {
             return await axios.delete(`${ARTIFACTS_URL}DeleteRelation/${id}`);
+        } catch (error) {
+            return error.response ? error.response : error.message;
+        }
+    };
+    
+    static setRelations = async (artifactRelationsList: any) => {
+        try {
+            return await axios.post(`${ARTIFACTS_URL}SetRelation`, artifactRelationsList);
         } catch (error) {
             return error.response ? error.response : error.message;
         }

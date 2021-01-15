@@ -1,7 +1,7 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Snackbar } from '@material-ui/core';
 import * as React from 'react';
-import ArtifactService from '../../../services/ArtifactService';
-import ArtifactRelation from '../../../interfaces/ArtifactRelation';
+import ArtifactService from '../../services/ArtifactService';
+import ArtifactRelation from '../../interfaces/ArtifactRelation';
 
 const DeleteArtifactsRelation = (open: boolean, setOpen: Function, artifactRelationToDelete: ArtifactRelation, openSnackbar: Function, updateList: Function ) => {
 
