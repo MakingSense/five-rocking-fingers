@@ -60,6 +60,14 @@ class ArtifactService {
             return error.response ? error.response : error.message;
         }
     }
+
+    static getAllRelationsByProjectId = async (projectId: number) => {
+        try {
+            return await axios.get(`${ARTIFACTS_URL}GetAllRelationsByProjectId/${projectId}`);
+        } catch (error) {
+            return error.response ? error.response : error.message;
+        }
+    }
 }
 
 export default ArtifactService;
