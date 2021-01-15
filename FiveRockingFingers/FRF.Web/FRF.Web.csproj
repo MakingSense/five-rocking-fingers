@@ -14,6 +14,7 @@
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.0.1" />
     <PackageReference Include="Amazon.AspNetCore.Identity.Cognito" Version="1.0.5" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.0.1" />
+    <PackageReference Include="AWSSDK.Core" Version="3.5.1.49" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.8" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.8" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.1.8" />
@@ -40,11 +41,18 @@
     <None Remove="ClientApp\src\commons\SnackbarMessage.tsx" />
     <None Remove="ClientApp\src\components\NavMenuItem.tsx" />
     <None Remove="ClientApp\src\components\NewArtifactDialogComponents\AwsForm.tsx" />
+    <None Remove="ClientApp\src\components\NewArtifactDialogComponents\AwsPricingDimension.tsx" />
+    <None Remove="ClientApp\src\components\NewArtifactDialogComponents\Confirmation.tsx" />
     <None Remove="ClientApp\src\components\NewArtifactDialogComponents\ConfirmNewArtifact.tsx" />
     <None Remove="ClientApp\src\components\NewArtifactsRelation.tsx" />
+	<None Remove="ClientApp\src\components\NewArtifactDialogComponents\SettingsAwsForm.tsx" />
     <None Remove="ClientApp\src\interfaces\Category.ts" />
+    <None Remove="ClientApp\src\interfaces\KeyValueStringPair.ts" />
+    <None Remove="ClientApp\src\interfaces\PricingDimension.ts" />
+    <None Remove="ClientApp\src\interfaces\PricingTerm.ts" />
     <None Remove="ClientApp\src\interfaces\Project.ts" />
     <None Remove="ClientApp\src\interfaces\ProjectCategory.ts" />
+    <None Remove="ClientApp\src\interfaces\ProviderArtifactSetting.ts" />
     <None Remove="ClientApp\src\interfaces\Setting.ts" />
     <None Remove="ClientApp\src\interfaces\SnackbarSettings.ts" />
     <None Remove="ClientApp\src\router\Routes.tsx" />

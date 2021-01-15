@@ -2,7 +2,7 @@
 import { BASE_URL } from '../Constants';
 import Category from '../interfaces/Category';
 
-const CATEGORIES_URL = `${BASE_URL}api/Categories/`;
+const CATEGORIES_URL = `${BASE_URL}Categories/`;
 
 class CategoryService {
 

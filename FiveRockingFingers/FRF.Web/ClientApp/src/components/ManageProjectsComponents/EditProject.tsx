@@ -11,6 +11,7 @@ import Category from '../../interfaces/Category';
 import Project from '../../interfaces/Project';
 import UserProfile from '../../interfaces/UserProfile';
 import ProjectService from '../../services/ProjectService';
+import UserService from '../../services/UserService';
 import { HelperAddUser } from './HelperAddUser';
 import { ValidateEmail } from "./ValidateEmail";
 
@@ -78,7 +79,7 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
         let userEmail: string | null = "";
         userEmail = ValidateEmail(email.current?.value as string, emailField, props.openSnackbar);
         if (userEmail != null) {
-            const response = await ProjectService.searchUser(userEmail);
+            const response = await UserService.searchUser(userEmail);
             switch (response.status) {
                 case 200:
                     let newUsersList: UserProfile[] | null;
