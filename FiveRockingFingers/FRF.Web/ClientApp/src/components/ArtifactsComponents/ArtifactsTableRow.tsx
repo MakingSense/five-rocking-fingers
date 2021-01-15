@@ -3,6 +3,7 @@ import Artifact from '../../interfaces/Artifact';
 import { Button } from 'reactstrap';
 import ConfirmationDialog from './ConfirmationDialog';
 import { Link } from 'react-router-dom';
+import Project from '../../interfaces/Project';
 
 const ArtifactsTableRow = (props: { artifact: Artifact, openSnackbar: Function, updateList: Function }) => {
 
@@ -13,6 +14,7 @@ const ArtifactsTableRow = (props: { artifact: Artifact, openSnackbar: Function, 
         setOpenConfirmDialog(true);
     }
 
+    
     return (
         <>
             <tr>
@@ -23,9 +25,9 @@ const ArtifactsTableRow = (props: { artifact: Artifact, openSnackbar: Function, 
                     <Button color="danger" onClick={deleteButtonClick}>Borrar</Button>
                 </td>
                 <td>
-                    <Link to={`/artifacts/${props.artifact.id}`}>
+                <Button color="info" tag={Link} to={`/projects/${props.artifact.projectId}/artifacts/${props.artifact.id}`}> 
                         Relaciones
-                    </Link>
+                    </Button>
                 </td>
             </tr>
             <ConfirmationDialog

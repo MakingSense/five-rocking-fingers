@@ -506,7 +506,7 @@ namespace FRF.Web.Tests.Controllers
                 .Setup(mock => mock.SetRelationAsync(It.IsAny<List<ArtifactsRelation>>()))
                 .ReturnsAsync(_mapper.Map<IList<ArtifactsRelation>>(artifactsRelationDtos));
             // Act
-            var result = await _classUnderTest.SetRelationAsync(_mapper.Map<IList<ArtifactsRelationUpsertDTO>>(artifactsRelationDtos));
+            var result = await _classUnderTest.SetRelationAsync(_mapper.Map<IList<ArtifactsRelationInsertDTO>>(artifactsRelationDtos));
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
@@ -524,7 +524,7 @@ namespace FRF.Web.Tests.Controllers
             artifactsRelationDtos.Add(artifactRelation);
 
             // Act
-            var result = await _classUnderTest.SetRelationAsync(_mapper.Map<IList<ArtifactsRelationUpsertDTO>>(artifactsRelationDtos));
+            var result = await _classUnderTest.SetRelationAsync(_mapper.Map<IList<ArtifactsRelationInsertDTO>>(artifactsRelationDtos));
 
             // Assert
             var response = Assert.IsType<BadRequestResult>(result);

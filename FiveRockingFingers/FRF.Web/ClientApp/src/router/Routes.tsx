@@ -6,7 +6,7 @@ import Signup from '../components/auth/Signup';
 import ArtifactsDetails from '../components/ArtifactsDetails';
 import Home from '../components/Home';
 import ManageProjects from '../components/ManageProjects';
-import ArtiactsRelation from '../components/ArtifactsComponents/NewArtifactsRelation/ArtifactsRelation';
+import ArtiactsRelation from '../components/NewArtifactRelationComponents/ArtifactsRelation';
 
 
 const Routes = () => (
@@ -18,7 +18,7 @@ const Routes = () => (
         <PrivateRoute exact path="/home" component={Home} />
         <PrivateRoute exact path='/administrarProyectos' component={ManageProjects} />
         <PrivateRoute exact path='/projects/:projectId/artifacts/' component={ArtifactsDetails} />
-        <PrivateRoute exact path='/artifacts/:artifactId' component={ArtiactsRelation} />
+        <PrivateRoute exact path='/projects/:projectId/artifacts/:artifactId' component={ArtiactsRelation} />
     </Switch>
 )
 

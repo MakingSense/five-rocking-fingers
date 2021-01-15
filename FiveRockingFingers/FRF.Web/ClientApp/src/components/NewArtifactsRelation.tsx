@@ -78,13 +78,13 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
         let i = 0;
         while (!flag && i < relationList.length) {
 
-            let relation = relationList[i];
+            /*let relation = relationList[i];
             if (artifact1 === null || artifact2 === null || setting1 === null || setting2 === null) {
                 return flag;
             }
             if ((artifact1.name === relation.artifact1.name && artifact2.name === relation.artifact2.name && setting1.key === relation.setting1.key && setting2.key === relation.setting2.key) || (artifact1.name === relation.artifact2.name && artifact2.name === relation.artifact1.name && setting1.key === relation.setting2.key && setting2.key === relation.setting1.key)) {
                 flag = true;
-            }
+            }*/
 
             i++
         }
@@ -98,8 +98,8 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
             let artifactsRelation = {
                 artifact1Id: relation.artifact1.id,
                 artifact2Id: relation.artifact2.id,
-                artifact1Property: relation.setting1.key,
-                artifact2Property: relation.setting2.key,
+                artifact1Property: relation.artifact1.settings.key,
+                artifact2Property: relation.artifact2.settings.key,
                 relationTypeId: relation.relationTypeId
             };
             artifactsRelationsList.push(artifactsRelation);
@@ -174,7 +174,7 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
     }
 
     const addRelation = () => {
-        if (isRelationRepeated()) {
+      /*  if (isRelationRepeated()) {
             console.log("Esta repetida");
             return;
         }
@@ -182,13 +182,13 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
             id: null,
             artifact1: artifact1 as Artifact,
             artifact2: artifact2 as Artifact,
-            setting1: setting1 as KeyValueStringPair,
+           setting1: setting1 as KeyValueStringPair,
             setting2: setting2 as KeyValueStringPair,
             relationTypeId: relationTypeId
         }
         let relationListCopy = [...relationList];
         relationListCopy.push(newRelation);
-        setRelationList(relationListCopy);
+        setRelationList(relationListCopy);*/
     }
 
     return (

@@ -3,14 +3,14 @@ import * as React from 'react';
 import ArtifactService from '../../services/ArtifactService';
 import ArtifactRelation from '../../interfaces/ArtifactRelation';
 
-const DeleteArtifactsRelation = (open: boolean, setOpen: Function, artifactRelationToDelete: ArtifactRelation, openSnackbar: Function, updateList: Function ) => {
+const DeleteArtifactsRelation = (open: boolean, setOpen: Function, artifactRelationToDelete: ArtifactRelation, openSnackbar: Function, updateList: Function) => {
 
     const handleClose = () => {
         setOpen(false);
     };
 
     const handleConfirm = async () => {
-        try {
+       /* try {
             const response = await ArtifactService.deleteRelation(artifactRelationToDelete.id)
 
             if (response.status == 204) {
@@ -24,7 +24,7 @@ const DeleteArtifactsRelation = (open: boolean, setOpen: Function, artifactRelat
         catch {
             openSnackbar({ message: "Hubo un error al borrar la relacion", severity: "error" });
         }
-        handleClose();
+        handleClose();*/
     };
 
     const handleCancel = () => {
