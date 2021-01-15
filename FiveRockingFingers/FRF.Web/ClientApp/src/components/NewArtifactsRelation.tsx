@@ -70,7 +70,24 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
         props.closeNewArtifactsRelation();
     }
 
-    let parser = new DOMParser();
+    const isRelationRepeated = () => {
+        let flag = false
+        let i = 0;
+        while (!flag && i < relationList.length) {
+
+            let relation = relationList[i];
+            if (artifact1 === null || artifact2 === null || setting1 === null || setting2 === null) {
+                return flag;
+            }
+            if ((artifact1.name === relation.artifact1.name && artifact2.name === relation.artifact2.name && setting1.key === relation.setting1.key && setting2.key === relation.setting2.key) || (artifact1.name === relation.artifact2.name && artifact2.name === relation.artifact1.name && setting1.key === relation.setting2.key && setting2.key === relation.setting1.key)) {
+                flag = true;
+            }
+
+            i++
+        }
+
+        return flag;
+    }
 
     const handleConfirm = async () => {
         let artifactsRelationsList: any[] = [];
@@ -150,6 +167,10 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
     }
 
     const addRelation = () => {
+        if (isRelationRepeated()) {
+            console.log("Esta repetida");
+            return;
+        }
         let newRelation: ArtifactRelation = {
             artifact1: artifact1 as Artifact,
             artifact2: artifact2 as Artifact,
