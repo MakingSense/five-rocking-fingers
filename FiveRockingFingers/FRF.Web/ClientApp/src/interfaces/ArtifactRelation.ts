@@ -1,10 +1,10 @@
 ﻿import Artifact from './Artifact';
-import AwsArtifact from './AwsArtifact';
 
 export default interface ArtifactRelation {
+    id: string | null;
     artifact1: Artifact;
     artifact2: Artifact;
-    setting1: AwsArtifact;
-    setting2: AwsArtifact;
+    artifact1Property: string;
+    artifact2Property: string;
     relationTypeId: number;
 }
