@@ -4,7 +4,7 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Controller, useForm } from 'react-hook-form';
 import Typography from '@material-ui/core/Typography';
 import Artifact from '../interfaces/Artifact';
-import AwsArtifact from '../interfaces/AwsArtifact';
+import KeyValueStringPair from '../interfaces/KeyValueStringPair';
 import ArtifactRelation from '../interfaces/ArtifactRelation';
 import RelationCard from './NewArtifactRelationComponents/RelationCard';
 import SyncAltIcon from '@material-ui/icons/SyncAlt';
@@ -36,6 +36,9 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         inputSelect: {
             width: '100%'
+        },
+        error: {
+            color: 'red'
         }
     }),
 );
@@ -48,8 +51,8 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
     const [artifact2, setArtifact2] = React.useState<Artifact | null>(null);
     const [artifact1Settings, setArtifact1Settings] = React.useState<{ [key: string]: string }>({});
     const [artifact2Settings, setArtifact2Settings] = React.useState<{ [key: string]: string }>({});
-    const [setting1, setSetting1] = React.useState< AwsArtifact | null>(null);
-    const [setting2, setSetting2] = React.useState<AwsArtifact | null>(null);
+    const [setting1, setSetting1] = React.useState<KeyValueStringPair | null>(null);
+    const [setting2, setSetting2] = React.useState<KeyValueStringPair | null>(null);
     const [relationTypeId, setRelationTypeId] = React.useState<number>(-1);
     const [relationList, setRelationList] = React.useState<ArtifactRelation[]>([]);
 
@@ -153,17 +156,21 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
 
     const handleSettingChange = (event: React.ChangeEvent<{ name?: string | undefined; value: unknown }>) => {
         if (event.target.name === 'setting1') {
-            let setting: AwsArtifact = { key: event.target.value as string, value: artifact1Settings[event.target.value as string]};
+            let setting: KeyValueStringPair = { key: event.target.value as string, value: artifact1Settings[event.target.value as string]};
             setSetting1(setting);
         }
         else if (event.target.name === 'setting2') {
-            let setting: AwsArtifact = { key: event.target.value as string, value: artifact1Settings[event.target.value as string] };
+            let setting: KeyValueStringPair = { key: event.target.value as string, value: artifact1Settings[event.target.value as string] };
             setSetting2(setting);
         }
     }
 
     const handleRelationTypeChange = (event: React.ChangeEvent<{ name?: string | undefined; value: unknown }>) => {
         setRelationTypeId(event.target.value as number);
+    }
+
+    const isOneRelationCreated = () => {
+        return relationList.length > 0;
     }
 
     const addRelation = () => {
@@ -174,8 +181,8 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
         let newRelation: ArtifactRelation = {
             artifact1: artifact1 as Artifact,
             artifact2: artifact2 as Artifact,
-            setting1: setting1 as AwsArtifact,
-            setting2: setting2 as AwsArtifact,
+            setting1: setting1 as KeyValueStringPair,
+            setting2: setting2 as KeyValueStringPair,
             relationTypeId: relationTypeId
         }
         let relationListCopy = [...relationList];
@@ -209,6 +216,7 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                                         id: 'type-select1'
                                     }}
                                     onChange={(event) => handleChange(event)}
+                                    defaultValue={''}
                                 >
                                     <MenuItem value="">
                                         <em>None</em>
@@ -216,8 +224,10 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                                     {props.artifacts.map(a => <MenuItem key={a.id} value={a.id}>{a.name}</MenuItem>)}
                                 </Select>
                             }
+                            rules={{ validate: { isValid: () => isOneRelationCreated() } }}
                             name='artifact1'
                             control={control}
+                            defaultValue={''}
                         />
                     </FormControl>
                     <FormControl className={classes.selectArtifact} error={Boolean(errors.artifactType)}>
@@ -230,6 +240,7 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                                         id: 'type-select2'
                                     }}
                                     onChange={(event) => handleChange(event)}
+                                    defaultValue={''}
                                 >
                                     <MenuItem value="">
                                         <em>None</em>
@@ -237,8 +248,10 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                                     {props.artifacts.map(a => <MenuItem key={a.id} value={a.id}>{a.name}</MenuItem>)}
                                 </Select>
                             }
+                            rules={{ validate: { isValid: () => isOneRelationCreated() } }}
                             name='artifact2'
                             control={control}
+                            defaultValue={''}
                         />
                     </FormControl>
                     <Typography gutterBottom>
@@ -254,6 +267,7 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                                         id: 'type-select'
                                     }}
                                     onChange={(event) => handleSettingChange(event)}
+                                    defaultValue={''}
                                 >
                                     <MenuItem value="">
                                         <em>None</em>
@@ -261,8 +275,10 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                                     {Object.entries(artifact1Settings).map(([key, value], index) => <MenuItem key={key} value={key}>{key}</MenuItem>)}
                                 </Select>
                             }
+                            rules={{ validate: { isValid: () => isOneRelationCreated() } }}
                             name="setting1"
                             control={control}
+                            defaultValue={''}
                         />
                         <FormHelperText>{setting1 !== null ? setting1?.value : null}</FormHelperText>
                     </FormControl>
@@ -276,6 +292,7 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                                         id: 'type-select'
                                     }}
                                     onChange={(event) => handleRelationTypeChange(event)}
+                                    defaultValue={''}
                                 >
                                     <MenuItem value="">
                                         <em>None</em>
@@ -291,8 +308,10 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                                     </MenuItem>
                                 </Select>
                             }
+                            rules={{ validate: { isValid: () => isOneRelationCreated() } }}
                             name="artifactType"
                             control={control}
+                            defaultValue={''}
                         />
                     </FormControl>
                     <FormControl className={classes.selectSetting} error={Boolean(errors.artifactType)}>                        
@@ -305,6 +324,7 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                                         id: 'type-select'
                                     }}
                                     onChange={(event) => handleSettingChange(event)}
+                                    defaultValue={''}
                                 >
                                     <MenuItem value="">
                                         <em>None</em>
@@ -312,11 +332,23 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                                     {Object.entries(artifact2Settings).map(([key, value], index) => <MenuItem key={key} value={key}>{key}</MenuItem>)}
                                 </Select>
                             }
+                            rules={{ validate: { isValid: () => isOneRelationCreated() } }}
                             name="setting2"
                             control={control}
+                            defaultValue={''}
                         />
                         <FormHelperText>{setting2 !== null ? setting2?.value : null}</FormHelperText>
                     </FormControl>
+                    {errors.settings ?
+                        <Typography gutterBottom className={classes.error}>
+                            Al menos debe crear una relación
+                        </Typography> : null
+                    }
+                    {errors.settings ?
+                        <Typography gutterBottom className={classes.error}>
+                            Todos los campos deben ser completados para crear una relación
+                        </Typography> : null
+                    }
                 </form>
             </DialogContent>
             <DialogActions>
