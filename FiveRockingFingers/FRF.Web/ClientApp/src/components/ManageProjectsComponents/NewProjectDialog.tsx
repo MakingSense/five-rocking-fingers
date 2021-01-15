@@ -10,6 +10,7 @@ import Category from '../../interfaces/Category';
 import Project from '../../interfaces/Project';
 import UserProfile from '../../interfaces/UserProfile';
 import ProjectService from '../../services/ProjectService';
+import UserService from '../../services/UserService';
 import { HelperAddUser } from "./HelperAddUser";
 import { useUserContext } from "../auth/contextLib";
 import ManageCategories from "./ManageCategories";
@@ -84,7 +85,7 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
         let userEmail: string | null = "";
         userEmail = ValidateEmail(email.current?.value as string, emailField, props.openSnackbar);
         if (userEmail != null) {
-            const response = await ProjectService.searchUser(userEmail);
+            const response = await UserService.searchUser(userEmail);
             switch (response.status) {
                 case 200:
                     let newUserList: UserProfile[] | null;
@@ -92,7 +93,7 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
                     if (newUserList != null) setState({ ...state, users: newUserList });
                     break;
                 case 404:
-                    props.openSnackbar({ message: "Usuario no entontrado", severity: "warning" });
+                    props.openSnackbar({ message: "Usuario no encontrado", severity: "warning" });
                     setFieldEmail("");
                     break;
                 default:
