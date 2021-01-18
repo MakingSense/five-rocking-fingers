@@ -219,12 +219,13 @@ namespace FRF.Core.Services
             return new ServiceResponse<IList<ArtifactsRelation>>(resultArtifactRelations);
         }
 
-        public async Task<ServiceResponse<ArtifactsRelation>> DeleteRelationAsync(int artifact1Id, int artifact2Id)
+        public async Task<ServiceResponse<ArtifactsRelation>> DeleteRelationAsync(Guid artifactRelationId)
         {
-            var artifactsRelation = await _dataContext.ArtifactsRelation.SingleOrDefaultAsync(ar => ar.Artifact1Id == artifact1Id || ar.Artifact2Id == artifact1Id && ar.Artifact1Id == artifact2Id || ar.Artifact2Id == artifact2Id);
-            if(artifactsRelation == null)
+            var artifactsRelation = await _dataContext.ArtifactsRelation
+                .FirstOrDefaultAsync(ar => ar.Id.Equals(artifactRelationId));
+            if (artifactsRelation == null)
             {
-                return new ServiceResponse<ArtifactsRelation>(new Error(ErrorCodes.RelationNotExist, $"There is no relation between artifact Id = {artifact1Id} and artifact Id={artifact2Id}"));
+                return new ServiceResponse<ArtifactsRelation>(new Error(ErrorCodes.RelationNotExist, $"There is no relation with Id={artifactRelationId}"));
             }
             _dataContext.ArtifactsRelation.Remove(artifactsRelation);
             await _dataContext.SaveChangesAsync();
