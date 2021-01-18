@@ -43,16 +43,16 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation: Function, artifactId: string, artifactRelations: ArtifactRelation, setOpenSnackbar: Function, setSnackbarSettings: Function, artifacts: Artifact[] }) => {
+const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation: Function, artifactId: number, artifactRelations: ArtifactRelation, openSnackbar: Function, artifacts: Artifact[], updateList: Function }) => {
 
     const classes = useStyles();
     const { register, handleSubmit, errors, control, getValues } = useForm();
-    const [artifact1, setArtifact1] = React.useState<Artifact | null>(null);
-    const [artifact2, setArtifact2] = React.useState<Artifact | null>(null);
+    const [artifact1, setArtifact1] = React.useState<Artifact | null>(props.artifactRelations.artifact1);
+    const [artifact2, setArtifact2] = React.useState<Artifact | null>(props.artifactRelations.artifact2);
     const [artifact1Settings, setArtifact1Settings] = React.useState<{ [key: string]: string }>({});
     const [artifact2Settings, setArtifact2Settings] = React.useState<{ [key: string]: string }>({});
-    const [setting1, setSetting1] = React.useState<KeyValueStringPair | null>({key:props.artifactRelations.artifact1Property, value:'' });
-    const [setting2, setSetting2] = React.useState<KeyValueStringPair | null>({key:props.artifactRelations.artifact2Property, value:'' });
+    const [setting1, setSetting1] = React.useState<KeyValueStringPair | null>(null);
+    const [setting2, setSetting2] = React.useState<KeyValueStringPair | null>(null);
     const [relationTypeId, setRelationTypeId] = React.useState<number>(-1);
     const [relation, setRelation] = React.useState<ArtifactRelation>(props.artifactRelations);
 
@@ -73,43 +73,28 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
         props.closeEditArtifactsRelation();
     }
 
-    const isRelationRepeated = () => {
-        let flag = false
-        let i = 0;
-        if (artifact1 === null || artifact2 === null || setting1 === null || setting2 === null) {
-            return flag;
-        }
-        if ((artifact1.name === relation.artifact1.name && artifact2.name === relation.artifact2.name && setting1.key === relation.artifact1Property && setting2.key === relation.artifact2Property) || (artifact1.name === relation.artifact2.name && artifact2.name === relation.artifact1.name && setting1.key === relation.artifact2Property && setting2.key === relation.artifact1Property)) {
-            flag = true;
-        }
-
-        return flag;
-    }
-
     const handleConfirm = async () => {
         let artifactsRelationsList: any[] = [];
         let artifactsRelation = {
             id: relation.id,
-            artifact1Id: relation.artifact1.id,
-            artifact2Id: relation.artifact2.id,
-            artifact1Property: relation.artifact1Property,
-            artifact2Property: relation.artifact2Property,
-            relationTypeId: relation.relationTypeId
+            artifact1Id: artifact1!.id,
+            artifact2Id: artifact2!.id,
+            artifact1Property: setting1!.key,
+            artifact2Property: setting2!.key,
+            relationTypeId: relationTypeId
         };
         artifactsRelationsList.push(artifactsRelation);
         try {
-            let response = await ArtifactService.setRelations(artifactsRelationsList);
+            let response = await ArtifactService.updateArtifactsRelations(props.artifactId, artifactsRelationsList);
             if (response.status === 200) {
-                props.setSnackbarSettings({ message: "Las relaciones han sido creado con éxito", severity: "success" });
-                props.setOpenSnackbar(true);
+                props.openSnackbar({ message: "La relacion ha sido creado con éxito", severity: "success" });
+                props.updateList();
             } else {
-                props.setSnackbarSettings({ message: "Hubo un error al crear las relaciones", severity: "error" });
-                props.setOpenSnackbar(true);
+                props.openSnackbar({ message: "Hubo un error al crear la relacion", severity: "error" });
             }
         }
         catch (error) {
-            props.setSnackbarSettings({ message: "Hubo un error al crear las relaciones", severity: "error" });
-            props.setOpenSnackbar(true);
+            props.openSnackbar({ message: "Hubo un error al crear la relacion", severity: "error" });
         }
         handleClose();
     }
@@ -156,11 +141,6 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
         setRelationTypeId(event.target.value as number);
     }
 
-    const isOneRelationCreated = () => {
-        //return relation;
-        return false;
-    }
-
     return (
         <Dialog open={props.open}>
             <DialogTitle id="alert-dialog-title">Modificar relación entre artefactos</DialogTitle>
@@ -179,8 +159,8 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
                                         id: 'type-select1'
                                     }}
                                     onChange={(event) => handleChange(event)}
-                                    /*defaultValue={props.artifactRelations.artifact2.id}*/
-                                    defaultValue={''}
+                                    value={artifact1 !== null ? props.artifactRelations.artifact1.id : ''}
+                                    error={false}
                                 >
                                     <MenuItem value="">
                                         <em>None</em>
@@ -188,7 +168,6 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
                                     {props.artifacts.map(a => <MenuItem key={a.id} value={a.id}>{a.name}</MenuItem>)}
                                 </Select>
                             }
-                            rules={{ validate: { isValid: () => isOneRelationCreated() } }}
                             name='artifact1'
                             control={control}
                             defaultValue={''}
@@ -204,8 +183,8 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
                                         id: 'type-select2'
                                     }}
                                     onChange={(event) => handleChange(event)}
-                                    /*defaultValue={props.artifactRelations.artifact2.id}*/
-                                    defaultValue={''}
+                                    value={artifact2 !== null ? props.artifactRelations.artifact2.id : ''}
+                                    error={false}
                                 >
                                     <MenuItem value="">
                                         <em>None</em>
@@ -213,7 +192,6 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
                                     {props.artifacts.map(a => <MenuItem key={a.id} value={a.id}>{a.name}</MenuItem>)}
                                 </Select>
                             }
-                            rules={{ validate: { isValid: () => isOneRelationCreated() } }}
                             name='artifact2'
                             control={control}
                             defaultValue={''}
@@ -233,6 +211,8 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
                                     }}
                                     onChange={(event) => handleSettingChange(event)}
                                     defaultValue={''}
+                                    value={setting1 !== null ? setting1.key : ''}
+                                    error={false}
                                 >
                                     <MenuItem value="">
                                         <em>None</em>
@@ -240,7 +220,6 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
                                     {Object.entries(artifact1Settings).map(([key, value], index) => <MenuItem key={key} value={key}>{key}</MenuItem>)}
                                 </Select>
                             }
-                            rules={{ validate: { isValid: () => isOneRelationCreated() } }}
                             name="setting1"
                             control={control}
                             defaultValue={''}
@@ -273,7 +252,6 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
                                     </MenuItem>
                                 </Select>
                             }
-                            rules={{ validate: { isValid: () => isOneRelationCreated() } }}
                             name="artifactType"
                             control={control}
                             defaultValue={''}
@@ -290,6 +268,8 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
                                     }}
                                     onChange={(event) => handleSettingChange(event)}
                                     defaultValue={''}
+                                    value={setting2 !== null ? setting2.key : ''}
+                                    error={false}
                                 >
                                     <MenuItem value="">
                                         <em>None</em>
@@ -297,7 +277,6 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
                                     {Object.entries(artifact2Settings).map(([key, value], index) => <MenuItem key={key} value={key}>{key}</MenuItem>)}
                                 </Select>
                             }
-                            rules={{ validate: { isValid: () => isOneRelationCreated() } }}
                             name="setting2"
                             control={control}
                             defaultValue={''}

@@ -8,7 +8,6 @@ import Project from '../../interfaces/Project';
 const ArtifactsTableRow = (props: { artifact: Artifact, openSnackbar: Function, updateList: Function }) => {
 
     const [openConfirmDialog, setOpenConfirmDialog] = React.useState(false);
-    const [openEditArtifactRelation, setOpenEditArtifactRelation] = React.useState(false);
 
     const deleteButtonClick = () => {
         setOpenConfirmDialog(true);

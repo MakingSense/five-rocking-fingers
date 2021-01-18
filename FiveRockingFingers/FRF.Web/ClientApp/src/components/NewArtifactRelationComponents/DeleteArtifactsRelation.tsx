@@ -3,28 +3,29 @@ import * as React from 'react';
 import ArtifactService from '../../services/ArtifactService';
 import ArtifactRelation from '../../interfaces/ArtifactRelation';
 
-const DeleteArtifactsRelation = (open: boolean, setOpen: Function, artifactRelationToDelete: ArtifactRelation, openSnackbar: Function, updateList: Function) => {
+const DeleteArtifactsRelation = (props: { open: boolean, setOpen: Function, artifactRelationToDelete: ArtifactRelation, openSnackbar: Function, updateList: Function }) => {
 
     const handleClose = () => {
-        setOpen(false);
+        props.setOpen(false);
     };
 
     const handleConfirm = async () => {
-       /* try {
-            const response = await ArtifactService.deleteRelation(artifactRelationToDelete.id)
-
+        try {
+            console.log(props.artifactRelationToDelete.id);
+            console.log(props.artifactRelationToDelete.id!);
+            const response = await ArtifactService.deleteRelation(props.artifactRelationToDelete.id!)
             if (response.status == 204) {
-                openSnackbar({ message: "La relacion ha sido borrado con éxito", severity: "success" });
-                updateList();
+                props.openSnackbar({ message: "La relacion ha sido borrado con éxito", severity: "success" });
+                props.updateList();
             }
             else {
-                openSnackbar({ message: "Hubo un error al borrar la relacion", severity: "error" });
+                props.openSnackbar({ message: "Hubo un error al borrar la relacion", severity: "error" });
             }
         }
         catch {
-            openSnackbar({ message: "Hubo un error al borrar la relacion", severity: "error" });
+            props.openSnackbar({ message: "Hubo un error al borrar la relacion", severity: "error" });
         }
-        handleClose();*/
+        handleClose();
     };
 
     const handleCancel = () => {
@@ -34,7 +35,7 @@ const DeleteArtifactsRelation = (open: boolean, setOpen: Function, artifactRelat
     return (
         <div>
             <Dialog
-                open={open}
+                open={props.open}
                 onClose={handleClose}
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"

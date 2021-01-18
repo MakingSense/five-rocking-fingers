@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System;
+using AutoMapper;
 using FRF.Core.Models;
 using FRF.Core.Services;
 using FRF.Web.Dtos.Artifacts;
@@ -131,12 +132,15 @@ namespace FRF.Web.Controllers
 
         }
 
-        [HttpGet("{arifactRelation}")]
-        public async Task<IActionResult> DeleteRelationAsync(int artifactId1, int artifactId2)
+        [HttpDelete("{relationId}")]
+        public async Task<IActionResult> DeleteRelationAsync(Guid relationId)
         {
-            var result = await _artifactsService.DeleteRelationAsync(artifactId1, artifactId2);
-
-            return Ok(_mapper.Map<ArtifactsRelationDTO>(result));
+            var result = await _artifactsService.DeleteRelationAsync(relationId);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            return NoContent();
         }
 
         [HttpPut("{artifactId}")]

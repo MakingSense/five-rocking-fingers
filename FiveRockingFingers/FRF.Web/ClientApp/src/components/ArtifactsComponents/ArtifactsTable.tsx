@@ -32,7 +32,7 @@ const ArtifactsTable = (props: { projectId: number }) => {
         }
         catch {
             manageOpenSnackbar({ message: "Hubo un error al cargar los artifacts", severity: "error" });
-        }    
+        }
     }
 
     const getRelations = async () => {
@@ -86,10 +86,10 @@ const ArtifactsTable = (props: { projectId: number }) => {
                         <th>Provedor</th>
                         <th>Tipo</th>
                         <th>
-                            <Button color="success" onClick={openNewArtifactsRelation}>Nueva relación</Button>
+                            <Button color="success" onClick={openNewArtifactDialog}>Nuevo artefacto</Button>
                         </th>
                         <th>
-                            <Button color="success" onClick={openNewArtifactDialog}>Nuevo artefacto</Button>
+                            <Button color="success" onClick={openNewArtifactsRelation}>Nueva relación</Button>
                         </th>
                     </tr>
                 </thead>
@@ -100,8 +100,8 @@ const ArtifactsTable = (props: { projectId: number }) => {
                             artifact={artifact}
                             openSnackbar={manageOpenSnackbar}
                             updateList={getArtifacts}
-                            />
-                            )
+                        />
+                        )
                         : null}
                 </tbody>
             </Table>

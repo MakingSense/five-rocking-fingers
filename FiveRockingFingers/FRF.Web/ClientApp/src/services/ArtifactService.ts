@@ -53,9 +53,9 @@ class ArtifactService {
         }
     };
 
-    static getRelations = async (arifactId: string) => {
+    static getRelations = async (artifactId: number) => {
         try {
-            return await axios.get(`${ARTIFACTS_URL}GetRelation/${arifactId}`);
+            return await axios.get(`${ARTIFACTS_URL}GetRelation/${artifactId}`);
         } catch (error) {
             return error.response ? error.response : error.message;
         }
@@ -75,7 +75,7 @@ class ArtifactService {
         } catch (error) {
             return error.response ? error.response : error.message;
         }
-    }
+    };
 
     static getAllRelationsByProjectId = async (projectId: number) => {
         try {
@@ -83,7 +83,15 @@ class ArtifactService {
         } catch (error) {
             return error.response ? error.response : error.message;
         }
-    }
+    };
+    
+    static updateArtifactsRelations = async (artifactId: number, artifactRelationsList: any) => {
+        try {
+            return await axios.put(`${ARTIFACTS_URL}UpdateArtifactsRelations/${artifactId}`, artifactRelationsList);
+        } catch (error) {
+            return error.response ? error.response : error.message;
+        }
+    };
 }
 
 export default ArtifactService;
