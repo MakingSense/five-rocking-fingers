@@ -43,10 +43,10 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeNewArtifactsRelation: Function, projectId: number, setOpenSnackbar: Function, setSnackbarSettings: Function, artifacts: Artifact[] }) => {
+const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeNewArtifactsRelation: Function, projectId: number, setOpenSnackbar: Function, setSnackbarSettings: Function, artifacts: Artifact[], artifactsRelations: ArtifactRelation[] }) => {
 
     const classes = useStyles();
-    const { register, handleSubmit, errors, control, getValues } = useForm();
+    const { handleSubmit, errors, control } = useForm();
     const [artifact1, setArtifact1] = React.useState<Artifact | null>(null);
     const [artifact2, setArtifact2] = React.useState<Artifact | null>(null);
     const [artifact1Settings, setArtifact1Settings] = React.useState<{ [key: string]: string }>({});
@@ -55,6 +55,10 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
     const [setting2, setSetting2] = React.useState<KeyValueStringPair | null>(null);
     const [relationTypeId, setRelationTypeId] = React.useState<number>(-1);
     const [relationList, setRelationList] = React.useState<ArtifactRelation[]>([]);
+    const [isErrorRelationRepeated, setIsErrorRelationRepeated] = React.useState<boolean>(false);
+    const [isErrorEmptyField, setIsErrorEmptyField] = React.useState<boolean>(false);
+    const [isErrorOneRelationCreated, setIsErrorOneRelationCreated] = React.useState<boolean>(false);
+
 
     React.useEffect(() => {
         updateArtifactsSettings1();
@@ -62,6 +66,12 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
     }, [artifact1, artifact2, relationList])
 
     const handleClose = () => {
+        resetState();
+        setRelationList([]);
+        props.closeNewArtifactsRelation();
+    }
+
+    const resetState = () => {
         setArtifact1(null);
         setArtifact2(null);
         updateArtifactsSettings1();
@@ -69,37 +79,56 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
         setSetting1(null);
         setSetting2(null);
         setRelationTypeId(-1);
-        setRelationList([]);
-        props.closeNewArtifactsRelation();
     }
 
     const isRelationRepeated = () => {
         let flag = false
         let i = 0;
+
+        if (artifact1 === null || artifact2 === null || setting1 === null || setting2 === null) {
+            return flag;
+        }
+
         while (!flag && i < relationList.length) {
 
-            let relation = relationList[i];
-            if (artifact1 === null || artifact2 === null || setting1 === null || setting2 === null) {
-                return flag;
-            }
-            if ((artifact1.name === relation.artifact1.name && artifact2.name === relation.artifact2.name && setting1.key === relation.setting1.key && setting2.key === relation.setting2.key) || (artifact1.name === relation.artifact2.name && artifact2.name === relation.artifact1.name && setting1.key === relation.setting2.key && setting2.key === relation.setting1.key)) {
+            let relation = relationList[i];            
+            if ((artifact1.name === relation.artifact1.name && artifact2.name === relation.artifact2.name && setting1.key === relation.artifact1Property && setting2.key === relation.artifact2Property) || (artifact1.name === relation.artifact2.name && artifact2.name === relation.artifact1.name && setting1.key === relation.artifact2Property && setting2.key === relation.artifact1Property)) {
                 flag = true;
             }
 
             i++
         }
 
+        if (!flag) {
+            i = 0;
+            while (!flag && i < props.artifactsRelations.length) {
+
+                let relation = props.artifactsRelations[i];
+
+                if ((artifact1.name === relation.artifact1.name && artifact2.name === relation.artifact2.name && setting1.key === relation.artifact1Property && setting2.key === relation.artifact2Property) || (artifact1.name === relation.artifact2.name && artifact2.name === relation.artifact1.name && setting1.key === relation.artifact2Property && setting2.key === relation.artifact1Property)) {
+                    flag = true;
+                }
+
+                i++
+            }
+        }
+
         return flag;
     }
 
     const handleConfirm = async () => {
+        if (!isOneRelationCreated()) {
+            setIsErrorOneRelationCreated(true);
+            return;
+        }
+        setIsErrorOneRelationCreated(false);
         let artifactsRelationsList: any[] = [];
         relationList.map(relation => {
             let artifactsRelation = {
                 artifact1Id: relation.artifact1.id,
                 artifact2Id: relation.artifact2.id,
-                artifact1Property: relation.setting1.key,
-                artifact2Property: relation.setting2.key,
+                artifact1Property: relation.artifact1Property,
+                artifact2Property: relation.artifact2Property,
                 relationTypeId: relation.relationTypeId
             };
             artifactsRelationsList.push(artifactsRelation);
@@ -173,21 +202,39 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
         return relationList.length > 0;
     }
 
+    const isFieldEmpty = () => {
+        if (artifact1 === null || artifact2 === null || setting1 === null || setting2 === null || relationTypeId === -1) {
+            return true;
+        }
+        return false;
+    }
+
     const addRelation = () => {
-        if (isRelationRepeated()) {
-            console.log("Esta repetida");
+        if (isErrorOneRelationCreated) {
+            setIsErrorOneRelationCreated(false);
+        }
+        if (isFieldEmpty()) {
+            setIsErrorEmptyField(true);
             return;
         }
+        setIsErrorEmptyField(false);
+        if (isRelationRepeated()) {
+            setIsErrorRelationRepeated(true);
+            return;
+        }
+        setIsErrorRelationRepeated(false);
         let newRelation: ArtifactRelation = {
+            id: null,
             artifact1: artifact1 as Artifact,
             artifact2: artifact2 as Artifact,
-            setting1: setting1 as KeyValueStringPair,
-            setting2: setting2 as KeyValueStringPair,
+            artifact1Property: setting1?.key as string,
+            artifact2Property: setting2?.key as string,
             relationTypeId: relationTypeId
         }
         let relationListCopy = [...relationList];
         relationListCopy.push(newRelation);
         setRelationList(relationListCopy);
+        resetState();
     }
 
     return (
@@ -217,6 +264,8 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                                     }}
                                     onChange={(event) => handleChange(event)}
                                     defaultValue={''}
+                                    value={artifact1 !== null ? artifact1.id : ''}
+                                    error={false}
                                 >
                                     <MenuItem value="">
                                         <em>None</em>
@@ -224,7 +273,6 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                                     {props.artifacts.map(a => <MenuItem key={a.id} value={a.id}>{a.name}</MenuItem>)}
                                 </Select>
                             }
-                            rules={{ validate: { isValid: () => isOneRelationCreated() } }}
                             name='artifact1'
                             control={control}
                             defaultValue={''}
@@ -241,6 +289,8 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                                     }}
                                     onChange={(event) => handleChange(event)}
                                     defaultValue={''}
+                                    value={artifact2 !== null ? artifact2.id : ''}
+                                    error={false}
                                 >
                                     <MenuItem value="">
                                         <em>None</em>
@@ -248,7 +298,6 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                                     {props.artifacts.map(a => <MenuItem key={a.id} value={a.id}>{a.name}</MenuItem>)}
                                 </Select>
                             }
-                            rules={{ validate: { isValid: () => isOneRelationCreated() } }}
                             name='artifact2'
                             control={control}
                             defaultValue={''}
@@ -268,6 +317,8 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                                     }}
                                     onChange={(event) => handleSettingChange(event)}
                                     defaultValue={''}
+                                    value={setting1 !== null ? setting1.key : ''}
+                                    error={false}
                                 >
                                     <MenuItem value="">
                                         <em>None</em>
@@ -275,12 +326,11 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                                     {Object.entries(artifact1Settings).map(([key, value], index) => <MenuItem key={key} value={key}>{key}</MenuItem>)}
                                 </Select>
                             }
-                            rules={{ validate: { isValid: () => isOneRelationCreated() } }}
                             name="setting1"
                             control={control}
                             defaultValue={''}
                         />
-                        <FormHelperText>{setting1 !== null ? setting1?.value : null}</FormHelperText>
+                        <FormHelperText>{setting1 !== null ? setting1.value : null}</FormHelperText>
                     </FormControl>
                     <FormControl className={classes.selectDirection} error={Boolean(errors.artifactType)}>
                         <InputLabel htmlFor="type-select">Dirección</InputLabel>
@@ -293,6 +343,8 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                                     }}
                                     onChange={(event) => handleRelationTypeChange(event)}
                                     defaultValue={''}
+                                    value={relationTypeId !== -1 ? relationTypeId.toString() : ''}
+                                    error={false}
                                 >
                                     <MenuItem value="">
                                         <em>None</em>
@@ -308,7 +360,6 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                                     </MenuItem>
                                 </Select>
                             }
-                            rules={{ validate: { isValid: () => isOneRelationCreated() } }}
                             name="artifactType"
                             control={control}
                             defaultValue={''}
@@ -325,6 +376,8 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                                     }}
                                     onChange={(event) => handleSettingChange(event)}
                                     defaultValue={''}
+                                    value={setting2 !== null ? setting2.key : ''}
+                                    error={false}
                                 >
                                     <MenuItem value="">
                                         <em>None</em>
@@ -332,28 +385,32 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                                     {Object.entries(artifact2Settings).map(([key, value], index) => <MenuItem key={key} value={key}>{key}</MenuItem>)}
                                 </Select>
                             }
-                            rules={{ validate: { isValid: () => isOneRelationCreated() } }}
                             name="setting2"
                             control={control}
                             defaultValue={''}
                         />
-                        <FormHelperText>{setting2 !== null ? setting2?.value : null}</FormHelperText>
+                        <FormHelperText>{setting2 !== null ? setting2.value : null}</FormHelperText>
                     </FormControl>
-                    {errors.settings ?
+                    {isErrorOneRelationCreated ?
                         <Typography gutterBottom className={classes.error}>
                             Al menos debe crear una relación
                         </Typography> : null
                     }
-                    {errors.settings ?
+                    {isErrorEmptyField ?
                         <Typography gutterBottom className={classes.error}>
                             Todos los campos deben ser completados para crear una relación
+                        </Typography> : null
+                    }
+                    {isErrorRelationRepeated ?
+                        <Typography gutterBottom className={classes.error}>
+                            La relación ya existe
                         </Typography> : null
                     }
                 </form>
             </DialogContent>
             <DialogActions>
                 <Button size="small" color="primary" type="submit" onClick={addRelation}>Agregar</Button>
-                <Button size="small" color="primary" type="submit" onClick={handleSubmit(handleConfirm)}>Finalizar</Button>
+                <Button size="small" color="primary" type="submit" onClick={handleConfirm}>Finalizar</Button>
                 <Button size="small" color="secondary" onClick={handleClose}>Cancelar</Button>
             </DialogActions>
         </Dialog>
