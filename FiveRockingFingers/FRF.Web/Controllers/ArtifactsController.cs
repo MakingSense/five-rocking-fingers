@@ -28,7 +28,7 @@ namespace FRF.Web.Controllers
         {
             var artifacts = await _artifactsService.GetAll();
 
-            var artifactsDto = _mapper.Map<IEnumerable<ArtifactDTO>>(artifacts);
+            var artifactsDto = _mapper.Map<IEnumerable<ArtifactDTO>>(artifacts.Value);
 
             return Ok(artifactsDto);
         }
@@ -38,7 +38,7 @@ namespace FRF.Web.Controllers
         {
             var artifacts = await _artifactsService.GetAllByProjectId(projectId);
 
-            var artifactsDto = _mapper.Map<IEnumerable<ArtifactDTO>>(artifacts);
+            var artifactsDto = _mapper.Map<IEnumerable<ArtifactDTO>>(artifacts.Value);
 
             return Ok(artifactsDto);
         }
@@ -48,12 +48,12 @@ namespace FRF.Web.Controllers
         {
             var artifact = await _artifactsService.Get(id);
 
-            if (artifact == null)
+            if (!artifact.Success)
             {
                 return NotFound();
             }
 
-            var artifactDto = _mapper.Map<ArtifactDTO>(artifact);
+            var artifactDto = _mapper.Map<ArtifactDTO>(artifact.Value);
 
             return Ok(artifactDto);
         }
@@ -63,7 +63,8 @@ namespace FRF.Web.Controllers
         {
             var artifact = _mapper.Map<FRF.Core.Models.Artifact>(artifactDto);
 
-            var artifactCreated = _mapper.Map<ArtifactDTO>(await _artifactsService.Save(artifact));
+            var response = await _artifactsService.Save(artifact);
+            var artifactCreated = _mapper.Map<ArtifactDTO>(response.Value);
 
             return Ok(artifactCreated);
         }
@@ -73,14 +74,15 @@ namespace FRF.Web.Controllers
         {
             var artifact = await _artifactsService.Get(id);
 
-            if (artifact == null)
+            if (!artifact.Success)
             {
                 return NotFound();
             }
 
-            _mapper.Map(artifactDto, artifact);
+            _mapper.Map(artifactDto, artifact.Value);
 
-            var updatedArtifact = _mapper.Map<ArtifactDTO>(await _artifactsService.Update(artifact));
+            var response = await _artifactsService.Update(artifact.Value);
+            var updatedArtifact = _mapper.Map<ArtifactDTO>(response.Value);
 
             return Ok(updatedArtifact);
         }
@@ -90,7 +92,7 @@ namespace FRF.Web.Controllers
         {
             var artifact = await _artifactsService.Get(id);
 
-            if (artifact == null)
+            if (!artifact.Success)
             {
                 return NotFound();
             }
@@ -105,9 +107,9 @@ namespace FRF.Web.Controllers
         {
             var artifactsRelations = _mapper.Map<IList<ArtifactsRelation>>(artifactRelationList);
             var result = await _artifactsService.SetRelationAsync(artifactsRelations);
-            if (result == null) return BadRequest();
+            if (!result.Success) return BadRequest();
 
-            var artifactsResult = _mapper.Map<IList<ArtifactsRelationDTO>>(result);
+            var artifactsResult = _mapper.Map<IList<ArtifactsRelationDTO>>(result.Value);
             return Ok(artifactsResult);
         }
     }
