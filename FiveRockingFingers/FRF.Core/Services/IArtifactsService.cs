@@ -15,6 +15,9 @@ namespace FRF.Core.Services
         Task<ServiceResponse<Artifact>> Save(Artifact artifact);
         Task<ServiceResponse<IList<ArtifactsRelation>>> SetRelationAsync(IList<ArtifactsRelation> artifactRelations);
         Task<IList<ArtifactsRelation>> GetRelationsAsync(int artifactId);
-        Task<ArtifactsRelation> DeleteRelationAsync(int artifact1Id, int artifact2Id);
+        Task<ServiceResponse<IList<ArtifactsRelation>>> GetAllRelationsByProjectIdAsync(int projectId);
+        Task<ServiceResponse<ArtifactsRelation>> DeleteRelationAsync(int artifact1Id, int artifact2Id);
+        Task<ServiceResponse<IList<ArtifactsRelation>>> UpdateRelationAsync(int artifact1Id,
+            IList<ArtifactsRelation> artifactsRelationsNew);
     }
 }
