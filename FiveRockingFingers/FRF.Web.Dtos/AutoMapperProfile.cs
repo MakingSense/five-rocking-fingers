@@ -27,10 +27,7 @@ namespace FRF.Web.Dtos
             CreateMap<Category, Categories.CategoryDTO>()
                 .ReverseMap();
             CreateMap<Categories.CategoryUpsertDTO, Category>();
-            CreateMap<Artifact, ArtifactDTO>()
-                .ReverseMap()
-                .ForMember(dest => dest.ArtifactTypeId, opt => opt.MapFrom(src => src.ArtifactType.Id))
-                .ForMember(dest => dest.ProjectId, opt => opt.MapFrom(src => src.ProjectId));
+            CreateMap<Artifact, ArtifactDTO>();
             CreateMap<ArtifactUpsertDTO, Artifact>();
             CreateMap<ArtifactType, ArtifactTypeDTO>()
                 .ReverseMap();
@@ -41,7 +38,8 @@ namespace FRF.Web.Dtos
             CreateMap<UserProfileUpsertDTO, UsersProfile>();
             CreateMap<ArtifactsRelationDTO, ArtifactsRelation>()
                 .ReverseMap();
-            CreateMap<ArtifactsRelationUpsertDTO, ArtifactsRelation>();
+            CreateMap<ArtifactsRelationInsertDTO, ArtifactsRelation>();
+            CreateMap<ArtifactsRelationUpdateDTO, ArtifactsRelation>();
         }
     }
 }

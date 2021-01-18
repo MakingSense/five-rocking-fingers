@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace FRF.Web.Dtos.Artifacts
 {
-    public class ArtifactsRelationUpsertDTO
+    public class ArtifactsRelationInsertDTO
     {
         [Required]
         [Range(1,int.MaxValue)]
