@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Amazon.Extensions.CognitoAuthentication;
 using FRF.Core.Models;
+using FRF.Core.Response;
 using FRF.Core.Services;
 using Microsoft.AspNetCore.Http;
 using Moq;
@@ -20,7 +21,7 @@ namespace FRF.Core.Tests.Services
         }
 
         [Fact]
-        public async Task GetCurrentUserId_WhenIsNotLogin_ReturnsEmptyID()
+        public async Task GetCurrentUserId_WhenIsNotLogin_ReturnsError()
         {
             // Arrange
             _signInManagerMock.Object.Context = new DefaultHttpContext();
@@ -29,8 +30,9 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetCurrentUserIdAsync();
 
             // Assert
-            Assert.IsType<Guid>(result);
-            Assert.Equal(Guid.Empty, result);
+            Assert.IsType<ServiceResponse<Guid>>(result);
+            Assert.False(result.Success);
+            Assert.Equal(ErrorCodes.UserNotExists, result.Error.Code);
         }
 
         [Fact]
@@ -50,8 +52,10 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetCurrentUserIdAsync();
 
             // Assert
-            Assert.IsType<Guid>(result);
-            Assert.Equal(cognitoUser.UserID, result.ToString());
+            Assert.IsType<ServiceResponse<Guid>>(result);
+            Assert.True(result.Success);
+            Assert.Equal(cognitoUser.UserID, result.Value.ToString());
+
             _signInManagerMock.Verify();
             _userManagerMock.Verify(mock => mock.GetUserAsync(It.IsAny<ClaimsPrincipal>()), Times.Once);
         }
@@ -64,10 +68,15 @@ namespace FRF.Core.Tests.Services
             _userManagerMock
                 .Setup(mock => mock.FindByEmailAsync(It.IsAny<string>()))
                 .ReturnsAsync(cognitoUser);
+
             // Act
             var result = await _classUnderTest.GetUserPublicProfileAsync(It.IsAny<string>());
+
             // Assert
-            Assert.Null(result);
+            Assert.IsType<ServiceResponse<Guid>>(result);
+            Assert.False(result.Success);
+            Assert.Equal(ErrorCodes.UserNotExists, result.Error.Code);
+
             _userManagerMock.Verify(mock => mock.FindByEmailAsync(It.IsAny<string>()), Times.Once);
         }
 
@@ -84,13 +93,13 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetUserPublicProfileAsync(cognitoUser.Attributes["email"]);
 
             // Assert
+            Assert.IsType<ServiceResponse<UsersProfile>>(result);
+            Assert.Equal(cognitoUser.UserID, result.Value.UserId.ToString());
+            Assert.Equal(cognitoUser.Attributes["email"], result.Value.Email);
+            Assert.Equal($"{cognitoUser.Attributes["name"]} {cognitoUser.Attributes["family_name"]}", result.Value.Fullname);
+
             Assert.IsType<UsersProfile>(result);
             _userManagerMock.Verify(mock => mock.FindByEmailAsync(It.IsAny<string>()), Times.Once);
-            
-            Assert.IsType<Guid>(result.UserId);
-            Assert.Equal(cognitoUser.UserID, result.UserId.ToString());
-            Assert.Equal(cognitoUser.Attributes["email"], result.Email);
-            Assert.Equal($"{cognitoUser.Attributes["name"]} {cognitoUser.Attributes["family_name"]}", result.Fullname);
         }
 
         [Fact]
@@ -101,10 +110,14 @@ namespace FRF.Core.Tests.Services
             _userManagerMock
                 .Setup(mock => mock.FindByIdAsync(It.IsAny<string>()))
                 .ReturnsAsync(cognitoUser);
+
             // Act
             var result = await _classUnderTest.GetUserPublicProfileAsync(It.IsAny<string>());
+
             // Assert
-            Assert.Null(result);
+            Assert.IsType<ServiceResponse<Guid>>(result);
+            Assert.False(result.Success);
+            Assert.Equal(ErrorCodes.UserNotExists, result.Error.Code);
         }
 
         [Fact]
@@ -120,13 +133,11 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetUserPublicProfileAsync(new Guid(cognitoUser.UserID));
 
             // Assert
-            Assert.IsType<UsersProfile>(result);
+            Assert.IsType<ServiceResponse<Guid>>(result);
             _userManagerMock.Verify(mock => mock.FindByIdAsync(It.IsAny<string>()), Times.Once);
 
-            Assert.IsType<Guid>(result.UserId);
-            Assert.Equal(cognitoUser.UserID, result.UserId.ToString());
-            Assert.Equal(cognitoUser.Attributes["email"], result.Email);
-            Assert.Equal($"{cognitoUser.Attributes["name"]} {cognitoUser.Attributes["family_name"]}", result.Fullname);
-        }
+            Assert.Equal(cognitoUser.UserID, result.Value.UserId.ToString());
+            Assert.Equal(cognitoUser.Attributes["email"], result.Value.Email);
+            Assert.Equal($"{cognitoUser.Attributes["name"]} {cognitoUser.Attributes["family_name"]}", result.Value.Fullname);        }
     }
 }
