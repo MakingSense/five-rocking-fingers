@@ -15,7 +15,7 @@ export default function ConfirmationDialog(props: { keepMounted: boolean, open: 
             props.resetView(project.id);
             try {
                 const response = await ProjectService.delete(project.id.toString());
-                if (response.status === 204) {
+                if (response.status === 200) {
                     props.openSnackbar({ message: "Se eliminó el proyecto con éxito", severity: "success" });
                     updateProjects();
                 } else if (response.status === 404) {
