@@ -11,12 +11,15 @@ import SnackbarMessage from '../../commons/SnackbarMessage';
 import SnackbarSettings from '../../interfaces/SnackbarSettings';
 import "./authStyle.css";
 import { useUserContext } from "./contextLib";
+import { BASE_URL } from '../../Constants';
 
 interface userLogin {
     email: string;
     password: string;
     rememberMe: boolean;
 }
+
+const SIGNIN_URL = `${BASE_URL}SignIn`;
 
 const UserLoginSchema = yup.object().shape({
     email: yup.string()
@@ -45,7 +48,7 @@ const Login: React.FC<userLogin> = () => {
 
     const onSumit = (e: userLogin) => {
         setLoading(true);
-        axios.post("https://localhost:44346/api/SignIn",
+        axios.post(SIGNIN_URL,
             {
                 email: e.email,
                 password: e.password,

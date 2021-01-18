@@ -1,16 +1,19 @@
 import axios from 'axios';
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Button } from 'reactstrap';
+import Button from '@material-ui/core/Button';
+import ExitToAppOutlinedIcon from '@material-ui/icons/ExitToAppOutlined';
 import { UserContext } from "./components/auth/contextLib";
 import './custom.css';
 import Routes from './router/Routes';
+import UserService from './services/UserService';
+
 function App() {
 
     const History = useHistory();
 
     function handleLogout() {
-        axios.get("https://localhost:44346/api/User/logout");
+        UserService.logout();
         History.push("/");
         setCurrentUser(null);
     }
@@ -19,8 +22,11 @@ function App() {
     return (
         <UserContext.Provider value={{ currentUser, setCurrentUser }}>
             {currentUser
-                ? <Button display= "flex" flexDirection="row-reverse" onClick={handleLogout}>Logout</Button>
-                : <></>
+                ? <Button
+                variant="contained"
+                color="default"
+                startIcon={<ExitToAppOutlinedIcon />}
+                onClick={handleLogout}>Logout</Button>: <></>
             }
             <Routes/>
         </UserContext.Provider>
