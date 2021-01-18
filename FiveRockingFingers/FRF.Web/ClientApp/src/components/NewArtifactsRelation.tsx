@@ -189,7 +189,7 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
             setSetting1(setting);
         }
         else if (event.target.name === 'setting2') {
-            let setting: KeyValueStringPair = { key: event.target.value as string, value: artifact1Settings[event.target.value as string] };
+            let setting: KeyValueStringPair = { key: event.target.value as string, value: artifact2Settings[event.target.value as string] };
             setSetting2(setting);
         }
     }
