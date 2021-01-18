@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System;
+using AutoMapper;
 using FRF.Core.Models;
 using FRF.Core.Services;
 using FRF.Web.Dtos.Artifacts;
@@ -102,7 +103,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SetRelationAsync(IList<ArtifactsRelationUpsertDTO> artifactRelationList)
+        public async Task<IActionResult> SetRelationAsync(IList<ArtifactsRelationInsertDTO> artifactRelationList)
         {
             var artifactsRelations = _mapper.Map<IList<ArtifactsRelation>>(artifactRelationList);
             var result = await _artifactsService.SetRelationAsync(artifactsRelations);
@@ -117,7 +118,7 @@ namespace FRF.Web.Controllers
         {
             var result = await _artifactsService.GetRelationsAsync(artifactId);
 
-            return Ok(_mapper.Map<ArtifactsRelationDTO>(result));
+            return Ok(_mapper.Map<IList<ArtifactsRelationDTO>>(result));
         }
 
         [HttpGet("{projectId}")]
@@ -132,16 +133,16 @@ namespace FRF.Web.Controllers
         }
 
         [HttpGet("{arifactRelation}")]
-        public async Task<IActionResult> DeleteRelationAsync(int artifactId1, int artifactId2)
+        public async Task<IActionResult> DeleteRelationAsync(Guid artifactId)
         {
-            var result = await _artifactsService.DeleteRelationAsync(artifactId1, artifactId2);
+            var result = await _artifactsService.DeleteRelationAsync(artifactId);
 
             return Ok(_mapper.Map<ArtifactsRelationDTO>(result));
         }
 
         [HttpPut("{artifactId}")]
         public async Task<IActionResult> UpdateArtifactsRelationsAsync(int artifactId,
-            IList<ArtifactsRelationDTO> artifactRelationUpdatedList)
+            IList<ArtifactsRelationUpdateDTO> artifactRelationUpdatedList)
         {
             var artifact = await _artifactsService.Get(artifactId);
             if (artifact == null) return NotFound();
