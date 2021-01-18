@@ -1,9 +1,9 @@
-﻿using System;
-using System.Threading.Tasks;
-using Amazon.Extensions.CognitoAuthentication;
+﻿using Amazon.Extensions.CognitoAuthentication;
+using FRF.Core.Response;
 using FRF.Core.Services;
 using Microsoft.AspNetCore.Identity;
 using Moq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace FRF.Core.Tests.Services
@@ -31,9 +31,9 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.SignInAsync(userSignin);
 
             // Assert
-            Assert.IsType<Tuple<bool, string>>(result);
-            Assert.False(result.Item1);
-            Assert.Equal(string.Empty, result.Item2);
+            Assert.IsType<ServiceResponse<string>>(result);
+            Assert.False(result.Success);
+            Assert.Equal(ErrorCodes.AuthentificationError, result.Error.Code);
 
             _userManagerMock.Verify(mock => mock.FindByEmailAsync(It.IsAny<string>()), Times.Once);
         }
@@ -55,9 +55,9 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.SignInAsync(userSignin);
 
             // Assert
-            Assert.IsType<Tuple<bool, string>>(result);
-            Assert.False(result.Item1);
-            Assert.Equal(string.Empty, result.Item2);
+            Assert.IsType<ServiceResponse<string>>(result);
+            Assert.False(result.Success);
+            Assert.Equal(ErrorCodes.AuthentificationError, result.Error.Code);
 
             _userManagerMock.Verify(mock => mock.FindByEmailAsync(It.IsAny<string>()), Times.Once);
 
@@ -86,9 +86,9 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.SignInAsync(userSignin);
 
             // Assert
-            Assert.IsType<Tuple<bool, string>>(result);
-            Assert.True(result.Item1);
-            Assert.Equal(cognitoUser.UserID, result.Item2);
+            Assert.IsType<ServiceResponse<string>>(result);
+            Assert.True(result.Success);
+            Assert.Equal(cognitoUser.UserID, result.Value);
 
             _userManagerMock.Verify(mock => mock.FindByEmailAsync(It.IsAny<string>()), Times.Once);
 

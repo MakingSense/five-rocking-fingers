@@ -11,5 +11,8 @@
         // Relation errors
         public const int RelationAlreadyExisted = 10;
         public const int RelationNotValid = 11;
+
+        // User errors
+        public const int AuthenticationError = 20;
     }
 }

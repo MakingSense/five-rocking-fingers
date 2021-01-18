@@ -4,7 +4,6 @@ using FRF.Core.Services;
 using FRF.Web.Dtos.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Threading.Tasks;
 
 namespace FRF.Web.Controllers
@@ -27,8 +26,8 @@ namespace FRF.Web.Controllers
         public async Task<ActionResult> SignIn(SignInDTO signInDto)
         {
             var userSignIn = _mapper.Map<UserSignIn>(signInDto);
-            var (isAuthorize, token) =await _signInService.SignInAsync(userSignIn);
-            if (isAuthorize) return Ok(token);
+            var response = await _signInService.SignInAsync(userSignIn);
+            if (response.Success) return Ok(response.Value);
             return BadRequest();
         }
     }
