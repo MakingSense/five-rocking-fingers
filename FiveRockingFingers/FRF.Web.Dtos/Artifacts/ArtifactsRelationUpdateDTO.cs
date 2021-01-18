@@ -5,7 +5,7 @@ namespace FRF.Web.Dtos.Artifacts
 {
     public class ArtifactsRelationUpdateDTO
     {
-        [Required] 
+        [Required]
         public Guid? Id { get; set; }
         [Required]
         [Range(1,int.MaxValue)]

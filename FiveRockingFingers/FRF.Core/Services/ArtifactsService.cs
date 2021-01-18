@@ -31,10 +31,12 @@ namespace FRF.Core.Services
             return artifactsRelationIds.Except(dbArtifactsId).Any();
         }
 
-        private async Task<bool> IsAnyRelationRepeated(IList<EntityModels.ArtifactsRelation> dbArtifactRelations, IList<ArtifactsRelation> artifactsRelations)
+        private bool IsAnyRelationRepeated(IList<EntityModels.ArtifactsRelation> dbArtifactRelations, IList<ArtifactsRelation> artifactsRelations)
         {
            
-            return artifactsRelations.Any(ar => dbArtifactRelations.Any(dbAr =>
+            return artifactsRelations
+                .Any(ar => dbArtifactRelations
+                    .Any(dbAr =>
                 dbAr.Artifact1Id == ar.Artifact1Id && dbAr.Artifact2Id == ar.Artifact2Id &&
                 dbAr.Artifact1Property.Equals(ar.Artifact1Property, StringComparison.InvariantCultureIgnoreCase) &&
                 dbAr.Artifact2Property.Equals(ar.Artifact2Property, StringComparison.InvariantCultureIgnoreCase)));
@@ -150,7 +152,7 @@ namespace FRF.Core.Services
                     ar.Artifact2Id == artifactRelations[0].Artifact2Id)
                 .ToListAsync();
 
-            var isAnyArtifactRepeated = await IsAnyRelationRepeated(dbArtifactRelations, artifactRelations);
+            var isAnyArtifactRepeated = IsAnyRelationRepeated(dbArtifactRelations, artifactRelations);
             if (isAnyArtifactRepeated) return null;
 
             var resultArtifactRelations = _mapper.Map<IList<EntityModels.ArtifactsRelation>>(artifactRelations);
@@ -163,7 +165,9 @@ namespace FRF.Core.Services
         public async Task<IList<ArtifactsRelation>> GetRelationsAsync(int artifactId)
         {
             var artifactsRelations = await _dataContext.ArtifactsRelation
-                .Include(ar => ar.Artifact1).Include(ar => ar.Artifact2).Include(ar => ar.Artifact1Property).Include(ar => ar.Artifact2Property).Where(ar => ar.Artifact1Id == artifactId || ar.Artifact2Id == artifactId).ToListAsync();
+                .Include(ar => ar.Artifact1)
+                .Include(ar => ar.Artifact2)
+                .Where(ar => ar.Artifact1Id == artifactId || ar.Artifact2Id == artifactId).ToListAsync();
             var resultArtifactRelations = _mapper.Map<List<ArtifactsRelation>>(artifactsRelations);
             return resultArtifactRelations;
         }
@@ -185,9 +189,10 @@ namespace FRF.Core.Services
             return resultArtifactRelations;
         }
 
-        public async Task<ArtifactsRelation> DeleteRelationAsync(int artifact1Id, int artifact2Id)
+        public async Task<ArtifactsRelation> DeleteRelationAsync(Guid artifactRelationId)
         {
-            var artifactsRelation = await _dataContext.ArtifactsRelation.SingleOrDefaultAsync(ar => ar.Artifact1Id == artifact1Id || ar.Artifact2Id == artifact1Id && ar.Artifact1Id == artifact2Id || ar.Artifact2Id == artifact2Id);
+            var artifactsRelation = await _dataContext.ArtifactsRelation
+                .FirstOrDefaultAsync(ar => ar.Id.Equals(artifactRelationId) );
             if(artifactsRelation == null)
             {
                 return null;
@@ -216,7 +221,7 @@ namespace FRF.Core.Services
                 {
                     if (relationOriginal.Id != relationNew.Id)
                     {
-                        var isAnyArtifactRepeated = await IsAnyRelationRepeated(relationsOriginal,
+                        var isAnyArtifactRepeated = IsAnyRelationRepeated(relationsOriginal,
                             new List<ArtifactsRelation> {relationNew});
                         if (isAnyArtifactRepeated) continue;
 
