@@ -45,6 +45,7 @@
     <None Remove="ClientApp\src\components\NewArtifactDialogComponents\Confirmation.tsx" />
     <None Remove="ClientApp\src\components\NewArtifactDialogComponents\ConfirmNewArtifact.tsx" />
     <None Remove="ClientApp\src\components\NewArtifactDialogComponents\SettingsAwsForm.tsx" />
+<None Remove="ClientApp\src\components\NewArtifactsRelation.tsx" />
     <None Remove="ClientApp\src\interfaces\Category.ts" />
     <None Remove="ClientApp\src\interfaces\KeyValueStringPair.ts" />
     <None Remove="ClientApp\src\interfaces\PricingDimension.ts" />
