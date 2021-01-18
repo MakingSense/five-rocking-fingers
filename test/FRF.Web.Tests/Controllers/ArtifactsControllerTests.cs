@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FRF.Core.Models;
+using FRF.Core.Response;
 using FRF.Core.Services;
 using FRF.Web.Controllers;
 using FRF.Web.Dtos.Artifacts;
@@ -86,10 +87,7 @@ namespace FRF.Web.Tests.Controllers
                 ArtifactType = artifactType
             };
 
-            List<Artifact> artifacts = new List<Artifact>
-            {
-                artifact
-            };
+            var artifacts = new ServiceResponse<List<Artifact>>(new List<Artifact> {artifact});
 
             _artifactsService
                 .Setup(mock => mock.GetAll())
@@ -103,7 +101,7 @@ namespace FRF.Web.Tests.Controllers
             var returnValue = Assert.IsAssignableFrom<IEnumerable<ArtifactDTO>>(okResult.Value);
             var returnValueList = returnValue.ToList();
 
-            AssertCompareList(artifacts, returnValueList);
+            AssertCompareList(artifacts.Value, returnValueList);
 
             _artifactsService.Verify(mock => mock.GetAll(), Times.Once);
         }
@@ -150,10 +148,7 @@ namespace FRF.Web.Tests.Controllers
                 ArtifactType = artifactType
             };
 
-            List<Artifact> artifacts = new List<Artifact>
-            {
-                artifact
-            };
+            var artifacts = new ServiceResponse<List<Artifact>>(new List<Artifact>{artifact});
 
             _artifactsService
                 .Setup(mock => mock.GetAllByProjectId(It.IsAny<int>()))
@@ -167,7 +162,7 @@ namespace FRF.Web.Tests.Controllers
             var returnValue = Assert.IsAssignableFrom<IEnumerable<ArtifactDTO>>(okResult.Value);
             var returnValueList = returnValue.ToList();
 
-            AssertCompareList(artifacts, returnValueList);
+            AssertCompareList(artifacts.Value, returnValueList);
 
             _artifactsService.Verify(mock => mock.GetAllByProjectId(projectId), Times.Once);
         }
@@ -223,7 +218,7 @@ namespace FRF.Web.Tests.Controllers
 
             _artifactsService
                 .Setup(mock => mock.Get(It.IsAny<int>()))
-                .ReturnsAsync(artifact);
+                .ReturnsAsync(new ServiceResponse<Artifact>(artifact));
 
             //Act
             var result = await _classUnderTest.GetAsync(artifactId);
@@ -242,6 +237,10 @@ namespace FRF.Web.Tests.Controllers
         {
             // Arrange
             var artifactId = 1;
+
+            _artifactsService
+                .Setup(mock => mock.Get(It.IsAny<int>()))
+                .ReturnsAsync(new ServiceResponse<Artifact>(new Error(ErrorCodes.ArtifactNotExists, "Error Message")));
 
             //Act
             var result = await _classUnderTest.GetAsync(artifactId);
@@ -309,7 +308,7 @@ namespace FRF.Web.Tests.Controllers
 
             _artifactsService
                 .Setup(mock => mock.Save(It.IsAny<Artifact>()))
-                .ReturnsAsync(artifact);
+                .ReturnsAsync(new ServiceResponse<Artifact>(artifact));
 
             //Act
             var result = await _classUnderTest.SaveAsync(artifactUpsertDTO);
@@ -384,11 +383,11 @@ namespace FRF.Web.Tests.Controllers
 
             _artifactsService
                 .Setup(mock => mock.Get(It.IsAny<int>()))
-                .ReturnsAsync(artifact);
+                .ReturnsAsync(new ServiceResponse<Artifact>(artifact));
 
             _artifactsService
                 .Setup(mock => mock.Update(It.IsAny<Artifact>()))
-                .ReturnsAsync(artifact);
+                .ReturnsAsync(new ServiceResponse<Artifact>(artifact));
 
             //Act
             var result = await _classUnderTest.UpdateAsync(artifactId, artifactUpsertDTO);
@@ -409,8 +408,45 @@ namespace FRF.Web.Tests.Controllers
             // Arrange
             var artifactId = 1;
 
+            var projectId = 1;
+            var project = new Project
+            {
+                Id = projectId,
+                Name = "Artifact 1",
+                Owner = "Owner 1",
+                Client = "Client 1",
+                Budget = 50000,
+                CreatedDate = DateTime.Now,
+                ModifiedDate = null
+            };
+
+            var artifactTypeId = 1;
+            var artifactType = new ArtifactType
+            {
+                Id = artifactTypeId,
+                Name = "Artifact Type 1",
+                Description = "Description of Artifact Type 1"
+            };
+
+            var artifactUpdate = new ArtifactUpsertDTO
+            {
+                Name = "Artifact 1",
+                Provider = "AWS",
+                Settings = new XElement("Root",
+                                new XElement("Child1", 1),
+                                new XElement("Child2", 2),
+                                new XElement("Child3", 3)
+                            ),
+                ProjectId = projectId,
+                ArtifactTypeId = artifactTypeId
+            };
+
+            _artifactsService
+                .Setup(mock => mock.Get(It.IsAny<int>()))
+                .ReturnsAsync(new ServiceResponse<Artifact>(new Error(ErrorCodes.ArtifactNotExists, "Error Message")));
+
             // Act
-            var result = await _classUnderTest.GetAsync(artifactId);
+            var result = await _classUnderTest.UpdateAsync(artifactId, artifactUpdate);
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -462,7 +498,7 @@ namespace FRF.Web.Tests.Controllers
 
             _artifactsService
                 .Setup(mock => mock.Get(It.IsAny<int>()))
-                .ReturnsAsync(artifact);
+                .ReturnsAsync(new ServiceResponse<Artifact>(artifact));
 
             _artifactsService
                 .Setup(mock => mock.Delete(It.IsAny<int>()));
@@ -482,6 +518,10 @@ namespace FRF.Web.Tests.Controllers
         {
             // Arrange
             var artifactId = 1;
+
+            _artifactsService
+                .Setup(mock => mock.Get(It.IsAny<int>()))
+                .ReturnsAsync(new ServiceResponse<Artifact>(new Error(ErrorCodes.ArtifactNotExists, "Error Message")));
 
             // Act
             var result = await _classUnderTest.GetAsync(artifactId);
@@ -504,7 +544,7 @@ namespace FRF.Web.Tests.Controllers
             }
             _artifactsService
                 .Setup(mock => mock.SetRelationAsync(It.IsAny<List<ArtifactsRelation>>()))
-                .ReturnsAsync(_mapper.Map<IList<ArtifactsRelation>>(artifactsRelationDtos));
+                .ReturnsAsync(new ServiceResponse<IList<ArtifactsRelation>>(_mapper.Map<IList<ArtifactsRelation>>(artifactsRelationDtos)));
             // Act
             var result = await _classUnderTest.SetRelationAsync(_mapper.Map<IList<ArtifactsRelationInsertDTO>>(artifactsRelationDtos));
 
@@ -522,6 +562,10 @@ namespace FRF.Web.Tests.Controllers
             var artifactsRelationDtos = new List<ArtifactsRelationDTO>();
             var artifactRelation = CreateArtifactsRelationDTO(1, 2);
             artifactsRelationDtos.Add(artifactRelation);
+
+            _artifactsService
+                .Setup(mock => mock.SetRelationAsync(It.IsAny<List<ArtifactsRelation>>()))
+                .ReturnsAsync(new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid, "Error Message")));
 
             // Act
             var result = await _classUnderTest.SetRelationAsync(_mapper.Map<IList<ArtifactsRelationInsertDTO>>(artifactsRelationDtos));
