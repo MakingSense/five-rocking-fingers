@@ -27,7 +27,7 @@ namespace FRF.Web.Dtos
             CreateMap<Category, Categories.CategoryDTO>()
                 .ReverseMap();
             CreateMap<Categories.CategoryUpsertDTO, Category>();
-            CreateMap<Artifact, ArtifactDTO>()
+            CreateMap<Artifact, ArtifactDTO>();
             CreateMap<ArtifactUpsertDTO, Artifact>();
             CreateMap<ArtifactType, ArtifactTypeDTO>()
                 .ReverseMap();
@@ -38,10 +38,10 @@ namespace FRF.Web.Dtos
             CreateMap<UserProfileUpsertDTO, UsersProfile>();
             CreateMap<ArtifactsRelationDTO, ArtifactsRelation>()
                 .ReverseMap();
-CreateMap<ProviderArtifactSetting, ProviderArtifactSettingDTO>();
+            CreateMap<ProviderArtifactSetting, ProviderArtifactSettingDTO>();
             CreateMap<PricingTerm, PricingTermDTO>();
             CreateMap<PricingDimension, PricingDimensionDTO>();
-CreateMap<ArtifactsRelationInsertDTO, ArtifactsRelation>();
+            CreateMap<ArtifactsRelationInsertDTO, ArtifactsRelation>();
             CreateMap<ArtifactsRelationUpdateDTO, ArtifactsRelation>();
         }
     }
