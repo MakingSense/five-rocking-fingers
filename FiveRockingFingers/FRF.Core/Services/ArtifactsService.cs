@@ -33,7 +33,7 @@ namespace FRF.Core.Services
             return artifactsRelationIds.Except(dbArtifactsId).Any();
         }
 
-        private async Task<bool> IsAnyRelationRepeated(IList<EntityModels.ArtifactsRelation> dbArtifactRelations, IList<ArtifactsRelation> artifactsRelations)
+        private bool IsAnyRelationRepeated(IList<EntityModels.ArtifactsRelation> dbArtifactRelations, IList<ArtifactsRelation> artifactsRelations)
         {
            
             return artifactsRelations.Any(ar => dbArtifactRelations.Any(dbAr =>
@@ -183,7 +183,7 @@ namespace FRF.Core.Services
                     ar.Artifact2Id == artifactRelations[0].Artifact2Id)
                 .ToListAsync();
 
-            var isAnyArtifactRepeated = await IsAnyRelationRepeated(dbArtifactRelations, artifactRelations);
+            var isAnyArtifactRepeated = IsAnyRelationRepeated(dbArtifactRelations, artifactRelations);
             if (isAnyArtifactRepeated)
                 return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationAlreadyExisted, "At least one of the relations already existed"));
 
@@ -197,7 +197,10 @@ namespace FRF.Core.Services
 
         public async Task<IList<ArtifactsRelation>> GetRelationsAsync(int artifactId)
         {
-            var artifactsRelations = await _dataContext.ArtifactsRelation.Include(ar => ar.Artifact1).Include(ar => ar.Artifact2).Include(ar => ar.Artifact1Property).Include(ar => ar.Artifact2Property).Where(ar => ar.Artifact1Id == artifactId || ar.Artifact2Id == artifactId).ToListAsync();
+            var artifactsRelations = await _dataContext.ArtifactsRelation
+                .Include(ar => ar.Artifact1)
+                .Include(ar => ar.Artifact2)
+                .Where(ar => ar.Artifact1Id == artifactId || ar.Artifact2Id == artifactId).ToListAsync();
             var resultArtifactRelations = _mapper.Map<List<ArtifactsRelation>>(artifactsRelations);
             return resultArtifactRelations;
         }
@@ -251,7 +254,7 @@ namespace FRF.Core.Services
                 {
                     if (relationOriginal.Id != relationNew.Id)
                     {
-                        var isAnyArtifactRepeated = await IsAnyRelationRepeated(relationsOriginal,
+                        var isAnyArtifactRepeated = IsAnyRelationRepeated(relationsOriginal,
                             new List<ArtifactsRelation> { relationNew });
                         if (isAnyArtifactRepeated) continue;
 

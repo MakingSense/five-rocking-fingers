@@ -790,11 +790,10 @@ namespace FRF.Core.Tests.Services
         public async Task Delete_ReturnsNull_RelationNotExist()
         {
             // Arange
-            var artifact1Id = -1;
-            var artifact2Id = 0;
+            var artifactRelationId = new Guid();
 
             // Act
-            var response = await _classUnderTest.DeleteRelationAsync(artifact1Id, artifact2Id);
+            var response = await _classUnderTest.DeleteRelationAsync(artifactRelationId);
 
             // Assert
             Assert.False(response.Success);
@@ -817,7 +816,7 @@ namespace FRF.Core.Tests.Services
             await _dataAccess.SaveChangesAsync();
 
             // Act
-            var response = await _classUnderTest.DeleteRelationAsync(artifact1.Id, artifact2.Id);
+            var response = await _classUnderTest.DeleteRelationAsync(artifactRelation.Id);
 
             // Assert
             Assert.True(response.Success);
