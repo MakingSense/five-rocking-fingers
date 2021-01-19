@@ -53,7 +53,7 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
     const [artifact2Settings, setArtifact2Settings] = React.useState<{ [key: string]: string }>({});
     const [setting1, setSetting1] = React.useState<KeyValueStringPair | null>(null);
     const [setting2, setSetting2] = React.useState<KeyValueStringPair | null>(null);
-    const [relationTypeId, setRelationTypeId] = React.useState<number>(-1);
+    const [relationTypeId, setRelationTypeId] = React.useState<number>(props.artifactRelations.relationTypeId);
     const [relation, setRelation] = React.useState<ArtifactRelation>(props.artifactRelations);
 
     React.useEffect(() => {
@@ -62,13 +62,13 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
     }, [artifact1, artifact2, relation])
 
     const handleClose = () => {
-        setArtifact1(null);
-        setArtifact2(null);
+        setArtifact1(props.artifactRelations.artifact1);
+        setArtifact2(props.artifactRelations.artifact2);
         updateArtifactsSettings1();
         updateArtifactsSettings2();
         setSetting1(null);
         setSetting2(null);
-        setRelationTypeId(-1);
+        setRelationTypeId(props.artifactRelations.relationTypeId);
         setRelation(props.artifactRelations);
         props.closeEditArtifactsRelation();
     }
@@ -159,7 +159,7 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
                                         id: 'type-select1'
                                     }}
                                     onChange={(event) => handleChange(event)}
-                                    value={artifact1 !== null ? props.artifactRelations.artifact1.id : ''}
+                                    defaultValue={artifact1?.id}
                                     error={false}
                                 >
                                     <MenuItem value="">
@@ -183,7 +183,7 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
                                         id: 'type-select2'
                                     }}
                                     onChange={(event) => handleChange(event)}
-                                    value={artifact2 !== null ? props.artifactRelations.artifact2.id : ''}
+                                    defaultValue={artifact2?.id}
                                     error={false}
                                 >
                                     <MenuItem value="">
