@@ -6,6 +6,8 @@ import ArtifactService from '../../services/ArtifactService';
 import ArtifactRelationRow from './ArtifactRelationRow';
 import ArtifactRelation from '../../interfaces/ArtifactRelation';
 import Artifact from '../../interfaces/Artifact';
+import Typography from '@material-ui/core/Typography/Typography';
+import { Link } from 'react-router-dom';
 
 const ArtifactsRelationTable = (props: { artifactId: number, projectId: number }) => {
 
@@ -44,7 +46,7 @@ const ArtifactsRelationTable = (props: { artifactId: number, projectId: number }
         }
         catch {
             manageOpenSnackbar({ message: "Hubo un error al cargar los artifacts", severity: "error" });
-        }    
+        }
     }
 
     React.useEffect(() => {
@@ -60,9 +62,10 @@ const ArtifactsRelationTable = (props: { artifactId: number, projectId: number }
     const handleUpdateList = () => {
         setUpdateList(true);
     }
+
     return (
         <React.Fragment>
-            <Table striped bordered hover>
+            <Table striped bordered hover responsive>
                 <thead>
                     <tr>
                         <th>Artefacto 1</th>
@@ -70,20 +73,24 @@ const ArtifactsRelationTable = (props: { artifactId: number, projectId: number }
                         <th>Direccion</th>
                         <th>Artefacto 2</th>
                         <th>Setting 2</th>
+                        <th><Button color="primary" tag={Link} to={`/projects/${props.projectId}/artifacts/`}>Volver</Button></th>
                     </tr>
                 </thead>
                 <tbody>
                     {Array.isArray(artifactsRelations)
-                        ? artifactsRelations.map((relation, index) =>
-                            <ArtifactRelationRow 
-                            key={index}
-                            artifactId={props.artifactId} 
-                            artifactRelation={relation}
-                            openSnackbar={manageOpenSnackbar} 
-                            artifacts={artifacts} 
-                            updateList={handleUpdateList}/>
-                        )
-                        : null}
+                        ? artifactsRelations.length > 0 ?
+                            artifactsRelations.map((relation, index) =>
+                                <ArtifactRelationRow
+                                    key={index}
+                                    artifactId={props.artifactId}
+                                    artifactRelation={relation}
+                                    openSnackbar={manageOpenSnackbar}
+                                    artifacts={artifacts}
+                                    updateList={handleUpdateList} />
+                            )
+                            : <td colSpan={6}><Typography align="center" variant="h5" gutterBottom>
+                                Artefacto sin relaciones
+                      </Typography></td> : null}
                 </tbody>
             </Table>
             <SnackbarMessage
