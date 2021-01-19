@@ -3,6 +3,7 @@ using Amazon.CognitoIdentityProvider;
 using Amazon.CognitoIdentityProvider.Model;
 using Amazon.Extensions.CognitoAuthentication;
 using FRF.Core.Models;
+using FRF.Core.Response;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
@@ -26,7 +27,7 @@ namespace FRF.Core.Services
             _pool = pool;
         }
 
-        public async Task<Tuple<bool, string>> SignUpAsync(User newUser)
+        public async Task<ServiceResponse<string>> SignUpAsync(User newUser)
         {
             try
             {
@@ -38,7 +39,7 @@ namespace FRF.Core.Services
                 var response = await _userManager.CreateAsync(newCognitoUser, newUser.Password);
 
                 if (!response.Succeeded)
-                    return new Tuple<bool, string>(false, "");
+                    return new ServiceResponse<string>(new Error(ErrorCodes.SignUpError, ""));
 
                 //Auto validate the new user. They will not be included in the production build
                 await _cognitoIdentity.AdminUpdateUserAttributesAsync(new AdminUpdateUserAttributesRequest
@@ -58,13 +59,14 @@ namespace FRF.Core.Services
                 });
 
                 var token = await _signInManager.UserManager.FindByEmailAsync(newUser.Email);
-                if (token == null) return new Tuple<bool, string>(false, "");
+                if (token == null)
+                    return new ServiceResponse<string>(new Error(ErrorCodes.SignUpError, ""));
 
                 var result =
                     await _signInManager.PasswordSignInAsync(token, newUser.Password, false, false);
                 return result.Succeeded
-                    ? new Tuple<bool, string>(true, token.UserID)
-                    : new Tuple<bool, string>(false, "");
+                    ? new ServiceResponse<string>(token.UserID)
+                    : new ServiceResponse<string>(new Error(ErrorCodes.SignUpError, ""));
             }
             catch (Exception e)
             {
