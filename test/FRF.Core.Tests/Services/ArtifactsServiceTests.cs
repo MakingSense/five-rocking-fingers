@@ -787,7 +787,7 @@ namespace FRF.Core.Tests.Services
         }
 
         [Fact]
-        public async Task Delete_ReturnsNull_RelationNotExist()
+        public async Task DeleteRelationAsync_ReturnsNull_RelationNotExist()
         {
             // Arange
             var artifactRelationId = new Guid();
@@ -803,7 +803,7 @@ namespace FRF.Core.Tests.Services
         }
 
         [Fact]
-        public async Task Delete_ReturnsRelation()
+        public async Task DeleteRelationAsync_ReturnsRelation()
         {
             // Arange
             var project = CreateProject();
@@ -811,18 +811,19 @@ namespace FRF.Core.Tests.Services
             var artifact1 = CreateArtifact(project, artifactType);
             var artifact2 = CreateArtifact(project, artifactType);
             var artifactRelation = CreateArtifactsRelationModel(artifact1.Id, artifact2.Id);
+            var artifactRelationMapped = _mapper.Map<FRF.DataAccess.EntityModels.ArtifactsRelation>(artifactRelation);
 
-            await _dataAccess.ArtifactsRelation.AddAsync(_mapper.Map<FRF.DataAccess.EntityModels.ArtifactsRelation>(artifactRelation));
+            await _dataAccess.ArtifactsRelation.AddAsync(artifactRelationMapped);
             await _dataAccess.SaveChangesAsync();
 
             // Act
-            var response = await _classUnderTest.DeleteRelationAsync(artifactRelation.Id);
+            var response = await _classUnderTest.DeleteRelationAsync(artifactRelationMapped.Id);
 
             // Assert
             Assert.True(response.Success);
             Assert.IsType<ServiceResponse<ArtifactsRelation>>(response);
             var resultValue = Assert.IsAssignableFrom<ArtifactsRelation>(response.Value);
-            Assert.Equal(resultValue.Id, artifactRelation.Id);
+            Assert.Equal(resultValue.Id, artifactRelationMapped.Id);
             Assert.Equal(resultValue.Artifact1Id, artifactRelation.Artifact1Id);
             Assert.Equal(resultValue.Artifact2Id, artifactRelation.Artifact2Id);
             Assert.Equal(resultValue.RelationTypeId, artifactRelation.RelationTypeId);
