@@ -224,7 +224,6 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
         }
         setIsErrorRelationRepeated(false);
         let newRelation: ArtifactRelation = {
-            id: null,
             artifact1: artifact1 as Artifact,
             artifact2: artifact2 as Artifact,
             artifact1Property: setting1?.key as string,
