@@ -38,7 +38,7 @@ namespace FRF.Core.Services
             return artifactsRelations.Any(ar => dbArtifactRelations.Any(dbAr =>
                 dbAr.Artifact1Id == ar.Artifact1Id && dbAr.Artifact2Id == ar.Artifact2Id &&
                 dbAr.Artifact1Property.Equals(ar.Artifact1Property, StringComparison.InvariantCultureIgnoreCase) &&
-                dbAr.Artifact2Property.Equals(ar.Artifact2Property, StringComparison.InvariantCultureIgnoreCase)));
+                dbAr.Artifact2Property.Equals(ar.Artifact2Property, StringComparison.InvariantCultureIgnoreCase) || dbAr.Id == ar.Id));
         }
 
         public async Task<ServiceResponse<List<Artifact>>> GetAll()
@@ -255,7 +255,6 @@ namespace FRF.Core.Services
                         var isAnyArtifactRepeated = IsAnyRelationRepeated(relationsOriginal,
                             new List<ArtifactsRelation> { relationNew });
                         if (isAnyArtifactRepeated) continue;
-
                         await _dataContext.ArtifactsRelation.AddAsync(
                             _mapper.Map<EntityModels.ArtifactsRelation>(relationNew));
                     }
