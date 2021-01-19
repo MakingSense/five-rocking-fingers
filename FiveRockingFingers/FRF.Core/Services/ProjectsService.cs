@@ -59,7 +59,7 @@ namespace FRF.Core.Services
 
                 if (categoryToAdd == null) 
                     return new ServiceResponse<Project>(
-                        new Error(ErrorCodes.CategoryNotExists, "At least one of the categories selected doesn't exist")
+                        new Error(ErrorCodes.CategoryNotExists, "At least one of the selected categories doesn't exist")
                         );
 
                 categoryList.Add(categoryToAdd);
@@ -101,7 +101,8 @@ namespace FRF.Core.Services
             await _dataContext.Projects.AddAsync(mappedProject);
             await _dataContext.SaveChangesAsync();
 
-            return new ServiceResponse<Project>(_mapper.Map<Project>(mappedProject));
+            var result = _mapper.Map<Project>(mappedProject);
+            return new ServiceResponse<Project>(result);
         }
 
         public async Task<ServiceResponse<Project>> GetAsync(int id)
@@ -141,7 +142,7 @@ namespace FRF.Core.Services
                     await _dataContext.Categories.SingleOrDefaultAsync(c => c.Id == category.Category.Id);
                 if (categoryToAdd == null)
                     return new ServiceResponse<Project>(
-                        new Error(ErrorCodes.CategoryNotExists, "At least one of the categories selected doesn't exist")
+                        new Error(ErrorCodes.CategoryNotExists, "At least one of the selected categories doesn't exist")
                         );
 
                 categoryList.Add(categoryToAdd);
@@ -186,7 +187,9 @@ namespace FRF.Core.Services
             result.UsersByProject = mappedUBP;
 
             await _dataContext.SaveChangesAsync();
-            return new ServiceResponse<Project>(_mapper.Map<Project>(result));
+
+            var mappedProject = _mapper.Map<Project>(result);
+            return new ServiceResponse<Project>(mappedProject);
         }
 
         public async Task<ServiceResponse<Project>> DeleteAsync(int id)
