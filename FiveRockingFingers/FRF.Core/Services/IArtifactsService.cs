@@ -1,5 +1,6 @@
 ﻿using FRF.Core.Models;
 using FRF.Core.Response;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -14,5 +15,10 @@ namespace FRF.Core.Services
         Task<ServiceResponse<Artifact>> Delete(int id);
         Task<ServiceResponse<Artifact>> Save(Artifact artifact);
         Task<ServiceResponse<IList<ArtifactsRelation>>> SetRelationAsync(IList<ArtifactsRelation> artifactRelations);
+        Task<IList<ArtifactsRelation>> GetRelationsAsync(int artifactId);
+        Task<ServiceResponse<IList<ArtifactsRelation>>> GetAllRelationsByProjectIdAsync(int projectId);
+        Task<ServiceResponse<ArtifactsRelation>> DeleteRelationAsync(Guid artifactRelationId);
+        Task<ServiceResponse<IList<ArtifactsRelation>>> UpdateRelationAsync(int artifact1Id,
+            IList<ArtifactsRelation> artifactsRelationsNew);
     }
 }
