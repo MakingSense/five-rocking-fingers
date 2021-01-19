@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System;
+using AutoMapper;
 using FRF.Core.Models;
 using FRF.Core.Services;
 using FRF.Web.Dtos.Artifacts;
@@ -103,10 +104,56 @@ namespace FRF.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SetRelationAsync(IList<ArtifactsRelationDTO> artifactRelationList)
+        public async Task<IActionResult> SetRelationAsync(IList<ArtifactsRelationInsertDTO> artifactRelationList)
         {
             var artifactsRelations = _mapper.Map<IList<ArtifactsRelation>>(artifactRelationList);
             var result = await _artifactsService.SetRelationAsync(artifactsRelations);
+            if (!result.Success) return BadRequest();
+
+            var artifactsResult = _mapper.Map<IList<ArtifactsRelationDTO>>(result.Value);
+            return Ok(artifactsResult);
+        }
+
+        [HttpGet("{arifactId}")]
+        public async Task<IActionResult> GetRelationAsync(int artifactId)
+        {
+            var result = await _artifactsService.GetRelationsAsync(artifactId);
+
+            return Ok(_mapper.Map<IList<ArtifactsRelationDTO>>(result));
+        }
+
+        [HttpGet("{projectId}")]
+        public async Task<IActionResult> GetAllRelationsByProjectIdAsync(int projectId)
+        {
+            var result = await _artifactsService.GetAllRelationsByProjectIdAsync(projectId);
+
+             if (!result.Success) return BadRequest();
+
+             return Ok(_mapper.Map<IList<ArtifactsRelationDTO>>(result.Value));
+
+        }
+
+        [HttpDelete("{relationId}")]
+        public async Task<IActionResult> DeleteRelationAsync(Guid relationId)
+        {
+            var result = await _artifactsService.DeleteRelationAsync(relationId);
+            if (!result.Success)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
+        }
+
+        [HttpPut("{artifactId}")]
+        public async Task<IActionResult> UpdateRelationsAsync(int artifactId,
+            IList<ArtifactsRelationUpdateDTO> artifactRelationUpdatedList)
+        {
+            var artifact = await _artifactsService.Get(artifactId);
+            if (!artifact.Success) return NotFound();
+
+            var artifactsRelationsList = _mapper.Map<IList<ArtifactsRelation>>(artifactRelationUpdatedList);
+            var result = await _artifactsService.UpdateRelationAsync(artifactId, artifactsRelationsList);
             if (!result.Success) return BadRequest();
 
             var artifactsResult = _mapper.Map<IList<ArtifactsRelationDTO>>(result.Value);
