@@ -114,7 +114,7 @@ namespace FRF.Web.Controllers
             return Ok(artifactsResult);
         }
 
-        [HttpGet("{arifactId}")]
+        [HttpGet("{artifactId}")]
         public async Task<IActionResult> GetRelationAsync(int artifactId)
         {
             var result = await _artifactsService.GetRelationsAsync(artifactId);
