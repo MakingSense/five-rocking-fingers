@@ -87,7 +87,7 @@ class ArtifactService {
     
     static updateArtifactsRelations = async (artifactId: number, artifactRelationsList: any) => {
         try {
-            return await axios.put(`${ARTIFACTS_URL}UpdateArtifactsRelations/${artifactId}`, artifactRelationsList);
+            return await axios.put(`${ARTIFACTS_URL}UpdateRelations/${artifactId}`, artifactRelationsList);
         } catch (error) {
             return error.response ? error.response : error.message;
         }
