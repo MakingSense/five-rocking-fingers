@@ -61,8 +61,7 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
 
 
     React.useEffect(() => {
-        updateArtifactsSettings1();
-        updateArtifactsSettings2();
+        updateArtifactsSettings();
     }, [artifact1, artifact2, relationList])
 
     const handleClose = () => {
@@ -74,8 +73,7 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
     const resetState = () => {
         setArtifact1(null);
         setArtifact2(null);
-        updateArtifactsSettings1();
-        updateArtifactsSettings2();
+        updateArtifactsSettings();
         setSetting1(null);
         setSetting2(null);
         setRelationTypeId(-1);
@@ -156,16 +154,13 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
         setRelationList(relationListCopy);
     }
 
-    const updateArtifactsSettings1 = () => {
+    const updateArtifactsSettings = () => {
         if (artifact1 !== null && artifact1 !== undefined) {
             setArtifact1Settings(artifact1.settings);
         }
         else {
             setArtifact1Settings({});
         }
-    }
-
-    const updateArtifactsSettings2 = () => {
         if (artifact2 !== null && artifact2 !== undefined) {
             setArtifact2Settings(artifact2.settings);
         }
