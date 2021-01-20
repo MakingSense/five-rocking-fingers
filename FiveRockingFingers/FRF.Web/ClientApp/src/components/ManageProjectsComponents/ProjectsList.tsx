@@ -158,16 +158,18 @@ const ProjectsList = (props: { projects: Project[], categories: Category[], upda
                 {
                     selectedIndex === -1 ?
                         (<h1>Seleccione un proyecto para ver sus detalles</h1>)
-                        : (edit ?
-                            (<EditProject
-                                project={props.projects.filter(p => p.id === selectedIndex)[0]}
-                                cancelEdit={cancelEdit}
-                                categories={props.categories}
-                                openSnackbar={manageOpenSnackbar}
-                                updateProjects={props.updateProjects}
-                                updateCategories={props.updateCategories}
-                                fillProjectCategories={fillProjectCategories} />)
-                            : (<ViewProject project={props.projects.filter(p => p.id === selectedIndex)[0]} changeEdit={changeEdit} />))
+                        : props.projects.filter(p => p.id === selectedIndex)[0] ?
+                            (edit ?
+                                (<EditProject
+                                    project={props.projects.filter(p => p.id === selectedIndex)[0]}
+                                    cancelEdit={cancelEdit}
+                                    categories={props.categories}
+                                    openSnackbar={manageOpenSnackbar}
+                                    updateProjects={props.updateProjects}
+                                    updateCategories={props.updateCategories}
+                                    fillProjectCategories={fillProjectCategories} />)
+                                : (<ViewProject project={props.projects.filter(p => p.id === selectedIndex)[0]} changeEdit={changeEdit} />))
+                            : setSelectedIndex(-1)
                 }
                 <SnackbarMessage
                     message={snackbarSettings.message}
