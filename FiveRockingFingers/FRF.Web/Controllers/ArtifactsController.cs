@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FRF.Core.Response;
 
 namespace FRF.Web.Controllers
 {
@@ -118,9 +119,11 @@ namespace FRF.Web.Controllers
         [Route("api/[controller]/{artifactId}/[action]")]
         public async Task<IActionResult> GetRelationsAsync(int artifactId)
         {
-            var result = await _artifactsService.GetRelationsAsync(artifactId);
+            var result = await _artifactsService.GetAllRelationsOfAnArtifactAsync(artifactId);
 
-            return Ok(_mapper.Map<IList<ArtifactsRelationDTO>>(result));
+            if (!result.Success) return BadRequest();
+
+            return Ok(_mapper.Map<IList<ArtifactsRelationDTO>>(result.Value));
         }
 
         [HttpGet("{projectId}")]
@@ -151,12 +154,10 @@ namespace FRF.Web.Controllers
         public async Task<IActionResult> UpdateRelationsAsync(int artifactId,
             IList<ArtifactsRelationUpdateDTO> artifactRelationUpdatedList)
         {
-            var artifact = await _artifactsService.Get(artifactId);
-            if (!artifact.Success) return NotFound();
-
             var artifactsRelationsList = _mapper.Map<IList<ArtifactsRelation>>(artifactRelationUpdatedList);
             var result = await _artifactsService.UpdateRelationAsync(artifactId, artifactsRelationsList);
-            if (!result.Success) return BadRequest();
+            if(!result.Success && result.Error.Code == ErrorCodes.ArtifactNotExists) return NotFound();
+            if (!result.Success && result.Error.Code == ErrorCodes.RelationNotValid) return BadRequest();
 
             var artifactsResult = _mapper.Map<IList<ArtifactsRelationDTO>>(result.Value);
             return Ok(artifactsResult);
