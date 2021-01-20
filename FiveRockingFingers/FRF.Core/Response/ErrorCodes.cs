@@ -11,6 +11,6 @@
         // Relation errors
         public const int RelationAlreadyExisted = 10;
         public const int RelationNotValid = 11;
-        public const int RelationNotExist = 12;
+        public const int RelationNotExists = 12;
     }
 }

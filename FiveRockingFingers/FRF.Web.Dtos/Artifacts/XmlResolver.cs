@@ -7,7 +7,7 @@ using System.Xml.Linq;
 
 namespace FRF.Web.Dtos.Artifacts
 {
-    public class XMLHelper : IValueResolver<Artifact, ArtifactDTO, Dictionary<string, string>>
+    public class XmlResolver : IValueResolver<Artifact, ArtifactDTO, Dictionary<string, string>>
     {
         public Dictionary<string, string> Resolve(Artifact source, ArtifactDTO destination, Dictionary<string, string> destMember, ResolutionContext context)
         {
