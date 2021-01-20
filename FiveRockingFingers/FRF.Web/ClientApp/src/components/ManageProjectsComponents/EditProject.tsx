@@ -56,15 +56,11 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
         id: props.project.id,
         projectCategories: props.project.projectCategories,
         users: props.project.users,
-        selectedCategories: [] as Category[]
+        selectedCategories: props.project.projectCategories.map(pc => pc.category)
     });
 
     React.useEffect(() => {
         setTempCategories([...props.categories]);
-        setState({ ...state, selectedCategories: [] });
-        state.projectCategories.forEach(pc => {
-            state.selectedCategories.push(pc.category);
-        });
     }, [props.categories.length])
 
     const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
