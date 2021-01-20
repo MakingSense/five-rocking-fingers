@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FRF.Core.Models;
+using FRF.Core.Response;
 using FRF.Core.Services;
 using FRF.Web.Controllers;
 using FRF.Web.Dtos.Categories;
@@ -53,7 +54,7 @@ namespace FRF.Web.Tests.Controllers
 
             _categoriesService
                 .Setup(mock => mock.GetAllAsync())
-                .ReturnsAsync(categories);
+                .ReturnsAsync(new ServiceResponse<List<Category>>(categories));
 
             // Act
             var result = await _classUnderTest.GetAllAsync();
@@ -85,7 +86,7 @@ namespace FRF.Web.Tests.Controllers
 
             _categoriesService
                 .Setup(mock => mock.GetAsync(It.IsAny<int>()))
-                .ReturnsAsync(category);
+                .ReturnsAsync(new ServiceResponse<Category>(category));
 
             // Act
             var result = await _classUnderTest.GetAsync(categoryId);
@@ -107,6 +108,10 @@ namespace FRF.Web.Tests.Controllers
             // Arrange
             var categoryId = 900;
 
+            _categoriesService
+                .Setup(mock => mock.GetAsync(It.IsAny<int>()))
+                .ReturnsAsync(new ServiceResponse<Category>(new Error(ErrorCodes.CategoryNotExists, "Error message")));
+
             // Act
             var result = await _classUnderTest.GetAsync(categoryId);
 
@@ -127,13 +132,13 @@ namespace FRF.Web.Tests.Controllers
 
             _categoriesService
                 .Setup(mock => mock.SaveAsync(It.IsAny<Category>()))
-                .ReturnsAsync(new Category() 
+                .ReturnsAsync(new ServiceResponse<Category>(new Category() 
                 { 
                     Id = 1,
                     Name = categoryToSave.Name,
                     Description = categoryToSave.Description,
                     ProjectCategories = new List<ProjectCategory>()
-                });
+                }));
 
             // Act
             var result = await _classUnderTest.SaveAsync(categoryToSave);
@@ -168,17 +173,17 @@ namespace FRF.Web.Tests.Controllers
 
             _categoriesService
                 .Setup(mock => mock.GetAsync(It.IsAny<int>()))
-                .ReturnsAsync(oldCategory);
+                .ReturnsAsync(new ServiceResponse<Category>(oldCategory));
 
             _categoriesService
                 .Setup(mock => mock.UpdateAsync(It.IsAny<Category>()))
-                .ReturnsAsync(new Category()
+                .ReturnsAsync(new ServiceResponse<Category>(new Category()
                 {
                     Id = oldCategory.Id,
                     Name = updatedCategory.Name,
                     Description = updatedCategory.Description,
                     ProjectCategories = oldCategory.ProjectCategories
-                });
+                }));
 
             // Act
             var result = await _classUnderTest.UpdateAsync(oldCategory.Id, updatedCategory);
@@ -206,6 +211,14 @@ namespace FRF.Web.Tests.Controllers
                 Description = "CategoryDescription to update"
             };
 
+            _categoriesService
+                .Setup(mock => mock.GetAsync(It.IsAny<int>()))
+                .ReturnsAsync(new ServiceResponse<Category>(new Error(ErrorCodes.CategoryNotExists, "Error message")));
+
+            _categoriesService
+                .Setup(mock => mock.UpdateAsync(It.IsAny<Category>()))
+                .ReturnsAsync(new ServiceResponse<Category>(new Error(ErrorCodes.CategoryNotExists, "Error message")));
+
             // Act
             var result = await _classUnderTest.UpdateAsync(1, updatedCategory);
 
@@ -224,7 +237,7 @@ namespace FRF.Web.Tests.Controllers
 
             _categoriesService
                 .Setup(mock => mock.GetAsync(It.IsAny<int>()))
-                .ReturnsAsync(new Category());
+                .ReturnsAsync(new ServiceResponse<Category>(new Category()));
 
             // Act
             var result = await _classUnderTest.DeleteAsync(idToDelete);
@@ -238,6 +251,11 @@ namespace FRF.Web.Tests.Controllers
         [Fact]
         public async Task DeleteAsync_ReturnsNotFound()
         {
+            // Arrange
+            _categoriesService
+                .Setup(mock => mock.GetAsync(It.IsAny<int>()))
+                .ReturnsAsync(new ServiceResponse<Category>(new Error(ErrorCodes.CategoryNotExists, "Error message")));
+
             // Act
             var result = await _classUnderTest.DeleteAsync(1);
 
