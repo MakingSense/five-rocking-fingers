@@ -2,9 +2,7 @@ using AutoMapper;
 using FRF.Core.Services;
 using FRF.Web.Dtos.Categories;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 
@@ -27,9 +25,9 @@ namespace FRF.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllAsync()
         {
-            var categories = await _categoriesService.GetAllAsync();
+            var response = await _categoriesService.GetAllAsync();
 
-            var categoriesDto = _mapper.Map<IEnumerable<CategoryDTO>>(categories);
+            var categoriesDto = _mapper.Map<IEnumerable<CategoryDTO>>(response.Value);
 
             return Ok(categoriesDto);
         }
@@ -37,14 +35,14 @@ namespace FRF.Web.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetAsync(int id)
         {
-            var category = await _categoriesService.GetAsync(id);
+            var response = await _categoriesService.GetAsync(id);
 
-            if (category == null)
+            if (!response.Success)
             {
                 return NotFound();
             }
 
-            var categoryDto = _mapper.Map<CategoryDTO>(category);
+            var categoryDto = _mapper.Map<CategoryDTO>(response.Value);
 
             return Ok(categoryDto);
         }
@@ -54,7 +52,8 @@ namespace FRF.Web.Controllers
         {
             var category = _mapper.Map<FRF.Core.Models.Category>(categoryDto);
 
-            var categoryCreated = _mapper.Map<CategoryDTO>(await _categoriesService.SaveAsync(category));
+            var response = await _categoriesService.SaveAsync(category);
+            var categoryCreated = _mapper.Map<CategoryDTO>(response.Value);
 
             return Ok(categoryCreated);
         }
@@ -62,16 +61,17 @@ namespace FRF.Web.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAsync(int id, CategoryUpsertDTO categoryDto)
         {
-            var category = await _categoriesService.GetAsync(id);
+            var response = await _categoriesService.GetAsync(id);
 
-            if (category == null)
+            if (!response.Success)
             {
                 return NotFound();
             }
 
-            _mapper.Map(categoryDto, category);
+            _mapper.Map(categoryDto, response.Value);
 
-            var updatedCategory = _mapper.Map<CategoryDTO>(await _categoriesService.UpdateAsync(category));
+            var category = await _categoriesService.UpdateAsync(response.Value);
+            var updatedCategory = _mapper.Map<CategoryDTO>(category.Value);
 
             return Ok(updatedCategory);
         }
@@ -79,9 +79,9 @@ namespace FRF.Web.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
-            var category = await _categoriesService.GetAsync(id);
+            var response = await _categoriesService.GetAsync(id);
 
-            if (category == null)
+            if (!response.Success)
             {
                 return NotFound();
             }
