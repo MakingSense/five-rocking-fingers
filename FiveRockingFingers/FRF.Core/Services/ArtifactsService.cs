@@ -38,13 +38,11 @@ namespace FRF.Core.Services
             return artifactsRelations.Any(ar => dbArtifactRelations.Any(dbAr =>
                 (dbAr.Artifact1Id == ar.Artifact1Id && dbAr.Artifact2Id == ar.Artifact2Id &&
                  dbAr.Artifact1Property.Equals(ar.Artifact1Property, StringComparison.InvariantCultureIgnoreCase) &&
-                 dbAr.Artifact2Property.Equals(ar.Artifact2Property, StringComparison.InvariantCultureIgnoreCase) &&
-                 dbAr.RelationTypeId == ar.RelationTypeId)
+                 dbAr.Artifact2Property.Equals(ar.Artifact2Property, StringComparison.InvariantCultureIgnoreCase))
                 ||
                 (dbAr.Artifact1Id == ar.Artifact2Id && dbAr.Artifact2Id == ar.Artifact1Id &&
                  dbAr.Artifact1Property.Equals(ar.Artifact2Property, StringComparison.InvariantCultureIgnoreCase) &&
-                 dbAr.Artifact2Property.Equals(ar.Artifact1Property, StringComparison.InvariantCultureIgnoreCase) &&
-                 dbAr.RelationTypeId == ar.RelationTypeId)));
+                 dbAr.Artifact2Property.Equals(ar.Artifact1Property, StringComparison.InvariantCultureIgnoreCase))));
         }
 
         public async Task<ServiceResponse<List<Artifact>>> GetAll()
