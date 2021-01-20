@@ -11,8 +11,6 @@ const DeleteArtifactsRelation = (props: { open: boolean, setOpen: Function, arti
 
     const handleConfirm = async () => {
         try {
-            console.log(props.artifactRelationToDelete.id);
-            console.log(props.artifactRelationToDelete.id!);
             const response = await ArtifactService.deleteRelation(props.artifactRelationToDelete.id!)
             if (response.status == 204) {
                 props.openSnackbar({ message: "La relacion ha sido borrado con éxito", severity: "success" });

@@ -60,7 +60,8 @@ const ArtifactsRelationTable = (props: { artifactId: number, projectId: number }
     }
 
     const handleUpdateList = () => {
-        setUpdateList(true);
+        getArtifactsRelations();
+        getArtifacts();
     }
 
     return (
