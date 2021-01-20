@@ -217,7 +217,7 @@ namespace FRF.Web.Tests.Controllers
                 .ReturnsAsync(new ServiceResponse<Project>(new Error(ErrorCodes.ProjectNotExists, "Error message")));
 
             // Act
-            var result = await _classUnderTest.UpdateAsync(project.Id + 1, projectUpsertDTO);
+            var result = await _classUnderTest.UpdateAsync(0, projectUpsertDTO);
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -301,8 +301,7 @@ namespace FRF.Web.Tests.Controllers
             var result = await _classUnderTest.DeleteAsync(projectId);
 
             // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result);
-            Assert.IsType<Project>(okResult.Value);
+            Assert.IsType<NoContentResult>(result);
 
             _projectsService.Verify(mock => mock.GetAsync(It.Is<int>(p => p.Equals(projectId))), Times.Once);
             _projectsService.Verify(mock => mock.DeleteAsync(It.Is<int>(p => p.Equals(projectId))), Times.Once);

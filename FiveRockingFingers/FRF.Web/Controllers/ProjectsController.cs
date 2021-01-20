@@ -90,7 +90,7 @@ namespace FiveRockingFingers.Controllers
             var isDeleted = await _projectService.DeleteAsync(id);
             if (!isDeleted.Success) return NotFound();
 
-            return Ok(isDeleted.Value);
+            return NoContent();
         }
     }
 }
