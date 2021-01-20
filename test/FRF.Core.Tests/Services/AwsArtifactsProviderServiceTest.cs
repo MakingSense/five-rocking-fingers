@@ -9,6 +9,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Moq.Protected;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -259,7 +260,7 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(resultValue[0].PricingDimension.Currency, currency);
             Assert.Equal(resultValue[0].PricingDimension.Description, decription);
             Assert.Equal(resultValue[0].PricingDimension.EndRange, endRangeFloat);
-            Assert.Equal(resultValue[0].PricingDimension.PricePerUnit, float.Parse(pricePerUnit));
+            Assert.Equal(resultValue[0].PricingDimension.PricePerUnit, float.Parse(pricePerUnit, CultureInfo.InvariantCulture));
             Assert.Equal(resultValue[0].PricingDimension.RateCode, rateCode);
             Assert.Equal(resultValue[0].PricingDimension.Unit, unit);
         }
