@@ -21,7 +21,6 @@ const RelationCard = (props: { Relation: ArtifactRelation, index: number, delete
     const classes = useStyles();
 
     const mapRelationTypeId = (id: number) => {
-        console.log(id);
         switch (+id) {
             case (0):
                 return <ArrowForwardIcon />;
