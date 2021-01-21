@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormHelperText, InputLabel, MenuItem, SimplePaletteColorOptions } from '@material-ui/core';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormHelperText, InputLabel, MenuItem } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Controller, useForm } from 'react-hook-form';
 import Typography from '@material-ui/core/Typography';
@@ -46,7 +46,7 @@ const useStyles = makeStyles((theme: Theme) =>
 const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation: Function, artifactId: number, artifactRelations: ArtifactRelation, openSnackbar: Function, artifacts: Artifact[], updateList: Function }) => {
 
     const classes = useStyles();
-    const { register, handleSubmit, errors, control, getValues } = useForm();
+    const {handleSubmit, errors, control } = useForm();
     const [artifact1, setArtifact1] = React.useState<Artifact | null>(props.artifactRelations.artifact1);
     const [artifact2, setArtifact2] = React.useState<Artifact | null>(props.artifactRelations.artifact2);
     const [artifact1Settings, setArtifact1Settings] = React.useState<{ [key: string]: string }>({});
@@ -57,15 +57,13 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
     const [relation, setRelation] = React.useState<ArtifactRelation>(props.artifactRelations);
 
     React.useEffect(() => {
-        updateArtifactsSettings1();
-        updateArtifactsSettings2();
+        updateArtifactsSettings();
     }, [artifact1, artifact2, relation])
 
     const handleClose = () => {
         setArtifact1(props.artifactRelations.artifact1);
         setArtifact2(props.artifactRelations.artifact2);
-        updateArtifactsSettings1();
-        updateArtifactsSettings2();
+        updateArtifactsSettings();
         setSetting1(null);
         setSetting2(null);
         setRelationTypeId(-1);
@@ -99,22 +97,12 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
         handleClose();
     }
 
-    const updateArtifactsSettings1 = () => {
-        if (artifact1 !== null && artifact1 !== undefined) {
-            setArtifact1Settings(artifact1.settings);
-        }
-        else {
-            setArtifact1Settings({});
-        }
-    }
-
-    const updateArtifactsSettings2 = () => {
-        if (artifact2 !== null && artifact2 !== undefined) {
-            setArtifact2Settings(artifact2.settings);
-        }
-        else {
-            setArtifact2Settings({});
-        }
+    const updateArtifactsSettings = () => {
+        (artifact1 !== null && artifact1 !== undefined) ?
+            setArtifact1Settings(artifact1.settings) : setArtifact1Settings({});
+        
+         (artifact2 !== null && artifact2 !== undefined) ?
+            setArtifact2Settings(artifact2.settings) : setArtifact2Settings({});
     }
 
     const handleChange = (event: React.ChangeEvent<{ name?: string | undefined; value: unknown }>) => {
