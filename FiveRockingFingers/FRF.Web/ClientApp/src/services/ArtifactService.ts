@@ -55,7 +55,7 @@ class ArtifactService {
 
     static getRelations = async (artifactId: number) => {
         try {
-            return await axios.get(`${ARTIFACTS_URL}GetRelation/${artifactId}`);
+            return await axios.get(`${ARTIFACTS_URL}/${artifactId}/GetRelations`);
         } catch (error) {
             return error.response ? error.response : error.message;
         }
@@ -87,7 +87,7 @@ class ArtifactService {
     
     static updateArtifactsRelations = async (artifactId: number, artifactRelationsList: any) => {
         try {
-            return await axios.put(`${ARTIFACTS_URL}UpdateRelations/${artifactId}`, artifactRelationsList);
+            return await axios.put(`${ARTIFACTS_URL}/${artifactId}/UpdateRelations`, artifactRelationsList);
         } catch (error) {
             return error.response ? error.response : error.message;
         }

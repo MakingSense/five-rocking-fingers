@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField } from '@material-ui/core';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormHelperText, InputLabel, MenuItem, Select } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Controller, useForm } from 'react-hook-form';
 import Typography from '@material-ui/core/Typography';
@@ -61,8 +61,7 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
 
 
     React.useEffect(() => {
-        updateArtifactsSettings1();
-        updateArtifactsSettings2();
+        updateArtifactsSettings();
     }, [artifact1, artifact2, relationList])
 
     const handleClose = () => {
@@ -74,8 +73,7 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
     const resetState = () => {
         setArtifact1(null);
         setArtifact2(null);
-        updateArtifactsSettings1();
-        updateArtifactsSettings2();
+        updateArtifactsSettings();
         setSetting1(null);
         setSetting2(null);
         setRelationTypeId(-1);
@@ -92,7 +90,7 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
         while (!flag && i < relationList.length) {
 
             let relation = relationList[i];            
-            if ((artifact1.name === relation.artifact1.name && artifact2.name === relation.artifact2.name && setting1.key === relation.artifact1Property && setting2.key === relation.artifact2Property) || (artifact1.name === relation.artifact2.name && artifact2.name === relation.artifact1.name && setting1.key === relation.artifact2Property && setting2.key === relation.artifact1Property)) {
+            if (areRelationsEqual(relation)) {
                 flag = true;
             }
 
@@ -105,7 +103,7 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
 
                 let relation = props.artifactsRelations[i];
 
-                if ((artifact1.name === relation.artifact1.name && artifact2.name === relation.artifact2.name && setting1.key === relation.artifact1Property && setting2.key === relation.artifact2Property) || (artifact1.name === relation.artifact2.name && artifact2.name === relation.artifact1.name && setting1.key === relation.artifact2Property && setting2.key === relation.artifact1Property)) {
+                if (areRelationsEqual(relation)) {
                     flag = true;
                 }
 
@@ -114,6 +112,13 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
         }
 
         return flag;
+    }
+
+    const areRelationsEqual = (relation: ArtifactRelation) => {
+        if (artifact1 === null || artifact2 === null || setting1 === null || setting2 === null) {
+            return false;
+        }
+        return artifact1.name === relation.artifact1.name && artifact2.name === relation.artifact2.name && setting1.key === relation.artifact1Property && setting2.key === relation.artifact2Property) || (artifact1.name === relation.artifact2.name && artifact2.name === relation.artifact1.name && setting1.key === relation.artifact2Property && setting2.key === relation.artifact1Property;
     }
 
     const handleConfirm = async () => {
@@ -156,16 +161,13 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
         setRelationList(relationListCopy);
     }
 
-    const updateArtifactsSettings1 = () => {
+    const updateArtifactsSettings = () => {
         if (artifact1 !== null && artifact1 !== undefined) {
             setArtifact1Settings(artifact1.settings);
         }
         else {
             setArtifact1Settings({});
         }
-    }
-
-    const updateArtifactsSettings2 = () => {
         if (artifact2 !== null && artifact2 !== undefined) {
             setArtifact2Settings(artifact2.settings);
         }
@@ -224,7 +226,6 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
         }
         setIsErrorRelationRepeated(false);
         let newRelation: ArtifactRelation = {
-            id: null,
             artifact1: artifact1 as Artifact,
             artifact2: artifact2 as Artifact,
             artifact1Property: setting1?.key as string,
