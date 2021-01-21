@@ -57,10 +57,11 @@ namespace FRF.Core.Tests.Services
         }
 
         private Artifact CreateArtifact(Project project, ArtifactType artifactType)
-        {
+        {   
+            var random = new Random();
             var artifact = new Artifact()
             {
-                Name = "[Mock] Artifact name",
+                Name = "[Mock] Artifact name "+ random.Next(500),
                 Provider = "[Mock] AWS",
                 CreatedDate = DateTime.Now,
                 Project = project,
@@ -692,32 +693,34 @@ namespace FRF.Core.Tests.Services
             // Arange
             var artifactsRelationUpdated = new List<ArtifactsRelation>();
             var artifactsRelationInDb = new List<DataAccess.EntityModels.ArtifactsRelation>();
+            var artifactType = CreateArtifactType();
+            var project = CreateProject();
+            var artifactBase = CreateArtifact(project, artifactType);
+            var artifactIdToUpdate = artifactBase.Id;
             var i = 0;
             while (i < 3)
             {
-                var artifactType = CreateArtifactType();
-                var project = CreateProject();
                 var artifact = CreateArtifact(project, artifactType);
                 var artifact1Id = artifact.Id;
-                var artifact2Id = artifact1Id++;
+                var artifact2Id = artifactIdToUpdate;
 
                 var artifactRelation = CreateArtifactsRelationModel(artifact1Id, artifact2Id);
-                artifactsRelationUpdated.Add(artifactRelation);
-
-                var artifactRelationDb =
-                    _mapper.Map<DataAccess.EntityModels.ArtifactsRelation>(
-                        CreateArtifactsRelationModel(artifact1Id, artifact2Id));
+                
+                var artifactRelationDb = _mapper.Map<DataAccess.EntityModels.ArtifactsRelation>(CreateArtifactsRelationModel(artifact1Id, artifact2Id));
                 await _dataAccess.ArtifactsRelation.AddAsync(artifactRelationDb);
+
+                artifactRelation.Id = artifactRelationDb.Id;
+                artifactsRelationUpdated.Add(artifactRelation);
                 artifactsRelationInDb.Add(artifactRelationDb);
-                var art = CreateArtifact(project, artifactType);
+                
                 i++;
             }
 
             await _dataAccess.SaveChangesAsync();
-
+            
             // Act
-            var response = await _classUnderTest.UpdateRelationAsync(artifactsRelationUpdated[0].Artifact1Id, artifactsRelationUpdated);
-
+            var response = await _classUnderTest.UpdateRelationAsync(artifactIdToUpdate, artifactsRelationUpdated);
+            
             // Assert
             Assert.True(response.Success);
             Assert.IsType<ServiceResponse<IList<Models.ArtifactsRelation>>>(response);
@@ -787,7 +790,7 @@ namespace FRF.Core.Tests.Services
         }
 
         [Fact]
-        public async Task Delete_ReturnsNull_RelationNotExist()
+        public async Task DeleteRelationAsync_ReturnsNull_RelationNotExist()
         {
             // Arange
             var artifactRelationId = new Guid();
@@ -803,7 +806,7 @@ namespace FRF.Core.Tests.Services
         }
 
         [Fact]
-        public async Task Delete_ReturnsRelation()
+        public async Task DeleteRelationAsync_ReturnsRelation()
         {
             // Arange
             var project = CreateProject();
@@ -811,18 +814,19 @@ namespace FRF.Core.Tests.Services
             var artifact1 = CreateArtifact(project, artifactType);
             var artifact2 = CreateArtifact(project, artifactType);
             var artifactRelation = CreateArtifactsRelationModel(artifact1.Id, artifact2.Id);
+            var artifactRelationMapped = _mapper.Map<FRF.DataAccess.EntityModels.ArtifactsRelation>(artifactRelation);
 
-            await _dataAccess.ArtifactsRelation.AddAsync(_mapper.Map<FRF.DataAccess.EntityModels.ArtifactsRelation>(artifactRelation));
+            await _dataAccess.ArtifactsRelation.AddAsync(artifactRelationMapped);
             await _dataAccess.SaveChangesAsync();
 
             // Act
-            var response = await _classUnderTest.DeleteRelationAsync(artifactRelation.Id);
+            var response = await _classUnderTest.DeleteRelationAsync(artifactRelationMapped.Id);
 
             // Assert
             Assert.True(response.Success);
             Assert.IsType<ServiceResponse<ArtifactsRelation>>(response);
             var resultValue = Assert.IsAssignableFrom<ArtifactsRelation>(response.Value);
-            Assert.Equal(resultValue.Id, artifactRelation.Id);
+            Assert.Equal(resultValue.Id, artifactRelationMapped.Id);
             Assert.Equal(resultValue.Artifact1Id, artifactRelation.Artifact1Id);
             Assert.Equal(resultValue.Artifact2Id, artifactRelation.Artifact2Id);
             Assert.Equal(resultValue.RelationTypeId, artifactRelation.RelationTypeId);

@@ -22,7 +22,7 @@ namespace FRF.Core.Services
             _mapper = mapper;
         }
 
-        private async Task<bool> IsAnyArtifactExcept (IList<ArtifactsRelation> artifactsRelations)
+        private async Task<bool> DoArtifactsExist (IList<ArtifactsRelation> artifactsRelations)
         {
             var dbArtifactsId = await _dataContext.Artifacts.Select(a => a.Id).ToListAsync();
             var artifactsRelationIds = artifactsRelations
@@ -32,13 +32,17 @@ namespace FRF.Core.Services
             return artifactsRelationIds.Except(dbArtifactsId).Any();
         }
 
-        private bool IsAnyRelationRepeated(IList<EntityModels.ArtifactsRelation> dbArtifactRelations, IList<ArtifactsRelation> artifactsRelations)
+        private bool IsAnyRelationRepeated(IList<EntityModels.ArtifactsRelation> dbArtifactRelations,
+            IList<ArtifactsRelation> artifactsRelations)
         {
-           
             return artifactsRelations.Any(ar => dbArtifactRelations.Any(dbAr =>
-                dbAr.Artifact1Id == ar.Artifact1Id && dbAr.Artifact2Id == ar.Artifact2Id &&
-                dbAr.Artifact1Property.Equals(ar.Artifact1Property, StringComparison.InvariantCultureIgnoreCase) &&
-                dbAr.Artifact2Property.Equals(ar.Artifact2Property, StringComparison.InvariantCultureIgnoreCase)));
+                (dbAr.Artifact1Id == ar.Artifact1Id && dbAr.Artifact2Id == ar.Artifact2Id &&
+                 dbAr.Artifact1Property.Equals(ar.Artifact1Property, StringComparison.InvariantCultureIgnoreCase) &&
+                 dbAr.Artifact2Property.Equals(ar.Artifact2Property, StringComparison.InvariantCultureIgnoreCase))
+                ||
+                (dbAr.Artifact1Id == ar.Artifact2Id && dbAr.Artifact2Id == ar.Artifact1Id &&
+                 dbAr.Artifact1Property.Equals(ar.Artifact2Property, StringComparison.InvariantCultureIgnoreCase) &&
+                 dbAr.Artifact2Property.Equals(ar.Artifact1Property, StringComparison.InvariantCultureIgnoreCase))));
         }
 
         public async Task<ServiceResponse<List<Artifact>>> GetAll()
@@ -174,16 +178,18 @@ namespace FRF.Core.Services
 
         public async Task<ServiceResponse<IList<ArtifactsRelation>>> SetRelationAsync(IList<ArtifactsRelation> artifactRelations)
         {
-            var isAnyArtifactExcept = await IsAnyArtifactExcept(artifactRelations);
-            if (isAnyArtifactExcept) return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid, "At least one of the artifact Ids provided doesn't exist"));
+            var artifactsExist = await DoArtifactsExist(artifactRelations);
+            if (artifactsExist) return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid, "At least one of the artifact Ids provided doesn't exist"));
 
             var dbArtifactRelations = await _dataContext.ArtifactsRelation.Where(ar =>
                     ar.Artifact1Id == artifactRelations[0].Artifact1Id ||
-                    ar.Artifact2Id == artifactRelations[0].Artifact2Id)
+                    ar.Artifact2Id == artifactRelations[0].Artifact2Id ||
+                    ar.Artifact2Id == artifactRelations[0].Artifact1Id ||
+                    ar.Artifact1Id == artifactRelations[0].Artifact2Id)
                 .ToListAsync();
 
-            var isAnyArtifactRepeated = IsAnyRelationRepeated(dbArtifactRelations, artifactRelations);
-            if (isAnyArtifactRepeated)
+            var relationsRepeated = IsAnyRelationRepeated(dbArtifactRelations, artifactRelations);
+            if (relationsRepeated)
                 return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationAlreadyExisted, "At least one of the relations already existed"));
 
             var resultArtifactRelations = _mapper.Map<IList<EntityModels.ArtifactsRelation>>(artifactRelations);
@@ -193,14 +199,19 @@ namespace FRF.Core.Services
             return new ServiceResponse<IList<ArtifactsRelation>>(_mapper.Map<IList<ArtifactsRelation>>(resultArtifactRelations));
         }
 
-        public async Task<IList<ArtifactsRelation>> GetRelationsAsync(int artifactId)
+        public async Task<ServiceResponse<IList<ArtifactsRelation>>> GetAllRelationsOfAnArtifactAsync(int artifactId)
         {
-            var artifactsRelations = await _dataContext.ArtifactsRelation
-                .Include(ar => ar.Artifact1)
+            var result = await _dataContext.ArtifactsRelation.Include(ar => ar.Artifact1)
                 .Include(ar => ar.Artifact2)
-                .Where(ar => ar.Artifact1Id == artifactId || ar.Artifact2Id == artifactId).ToListAsync();
-            var resultArtifactRelations = _mapper.Map<List<ArtifactsRelation>>(artifactsRelations);
-            return resultArtifactRelations;
+                .Where(ar => ar.Artifact1Id == artifactId || ar.Artifact2Id == artifactId)
+                .ToListAsync();
+
+            if (!result.Any())
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotExist,
+                    $"There is no relations for the artifact with Id = {artifactId}"));
+
+            var resultArtifactRelations = _mapper.Map<List<ArtifactsRelation>>(result);
+            return new ServiceResponse<IList<ArtifactsRelation>>(resultArtifactRelations);
         }
 
         public async Task<ServiceResponse<IList<ArtifactsRelation>>> GetAllRelationsByProjectIdAsync(int projectId)
@@ -212,7 +223,7 @@ namespace FRF.Core.Services
             }
 
             var artifactsRelations = await _dataContext.ArtifactsRelation
-                .Where(ar => ar.Artifact1.ProjectId == projectId)
+                .Where(ar => ar.Artifact1.ProjectId == projectId || ar.Artifact2.ProjectId == projectId)
                 .Include(ar => ar.Artifact1)
                 .Include(ar => ar.Artifact2)
                 .ToListAsync();
@@ -234,31 +245,42 @@ namespace FRF.Core.Services
             return new ServiceResponse<ArtifactsRelation>(_mapper.Map<ArtifactsRelation>(artifactsRelation));
         }
 
-        public async Task<ServiceResponse<IList<ArtifactsRelation>>> UpdateRelationAsync(int artifact1Id,
+        public async Task<ServiceResponse<IList<ArtifactsRelation>>> UpdateRelationAsync(int artifactId,
             IList<ArtifactsRelation> artifactsRelationsNew)
         {
-            var isAnyArtifactExcept = await IsAnyArtifactExcept(artifactsRelationsNew);
-            if (isAnyArtifactExcept) return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid, "At least one of the artifact Ids provided doesn't exist")); ;
+            var existArtifactId = await _dataContext.Artifacts.AnyAsync(a => a.Id == artifactId);
+            if (!existArtifactId)
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.ArtifactNotExists, $"There is no artifact with Id = {artifactId}"));
+
+            var artifactsExist = await DoArtifactsExist(artifactsRelationsNew);
+            if (artifactsExist)
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid,
+                    "At least one of the artifact Ids provided doesn't exist"));
 
             var relationsOriginal = await _dataContext.ArtifactsRelation
-                .Where(ar => ar.Artifact1Id == artifact1Id || ar.Artifact2Id == artifact1Id)
+                .Where(ar => ar.Artifact1Id == artifactId || ar.Artifact2Id == artifactId)
                 .Include(ar => ar.Artifact1)
                 .Include(ar => ar.Artifact2)
                 .ToListAsync();
+
+            var relationsWithOriginalRepeated = IsAnyRelationRepeated(relationsOriginal, artifactsRelationsNew);
+            if (relationsWithOriginalRepeated)
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid,
+                    "At least one of the artifact relation provided already exist"));
+
+            var relationInNewListRepeated = artifactsRelationsNew.GroupBy(ar => ar)
+                .Where(groupAr => groupAr.Count() > 1)
+                .Select(ar => ar.Key)
+                .Any();
+            if (relationInNewListRepeated)
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid,
+                    "At least one of the artifact relation provided is repeated"));
 
             foreach (var relationOriginal in relationsOriginal)
             {
                 foreach (var relationNew in artifactsRelationsNew)
                 {
-                    if (relationOriginal.Id != relationNew.Id)
-                    {
-                        var isAnyArtifactRepeated = IsAnyRelationRepeated(relationsOriginal,
-                            new List<ArtifactsRelation> { relationNew });
-                        if (isAnyArtifactRepeated) continue;
-
-                        await _dataContext.ArtifactsRelation.AddAsync(
-                            _mapper.Map<EntityModels.ArtifactsRelation>(relationNew));
-                    }
+                    if (relationOriginal.Id != relationNew.Id) continue;
 
                     relationOriginal.Artifact1Id = relationNew.Artifact1Id;
                     relationOriginal.Artifact2Id = relationNew.Artifact2Id;
