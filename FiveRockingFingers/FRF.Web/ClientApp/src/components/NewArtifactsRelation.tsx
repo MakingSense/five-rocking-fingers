@@ -118,7 +118,7 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
         if (artifact1 === null || artifact2 === null || setting1 === null || setting2 === null) {
             return false;
         }
-        return artifact1.name === relation.artifact1.name && artifact2.name === relation.artifact2.name && setting1.key === relation.artifact1Property && setting2.key === relation.artifact2Property) || (artifact1.name === relation.artifact2.name && artifact2.name === relation.artifact1.name && setting1.key === relation.artifact2Property && setting2.key === relation.artifact1Property;
+        return (artifact1.name === relation.artifact1.name && artifact2.name === relation.artifact2.name && setting1.key === relation.artifact1Property && setting2.key === relation.artifact2Property) || (artifact1.name === relation.artifact2.name && artifact2.name === relation.artifact1.name && setting1.key === relation.artifact2Property && setting2.key === relation.artifact1Property);
     }
 
     const handleConfirm = async () => {
