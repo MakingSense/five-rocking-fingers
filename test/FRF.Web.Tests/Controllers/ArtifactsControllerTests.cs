@@ -62,6 +62,22 @@ namespace FRF.Web.Tests.Controllers
             return artifactRelation;
         }
 
+        private ArtifactsRelationInsertDTO CreateArtifactsRelationInsertDTO(int artifact1Id, int artifact2Id)
+        {
+            var random = new Random();
+            var propertyId = random.Next(1000);
+            var artifactRelation = new ArtifactsRelationInsertDTO()
+            {
+                Artifact1Id = artifact1Id,
+                Artifact2Id = artifact2Id,
+                Artifact1Property = "Mock 1 Property " + propertyId,
+                Artifact2Property = "Mock 2 Property " + propertyId,
+                RelationTypeId = 1
+            };
+
+            return artifactRelation;
+        }
+
         private ArtifactType CreateArtifactType()
         {
             var artifactType = new ArtifactType
@@ -600,17 +616,17 @@ namespace FRF.Web.Tests.Controllers
         public async Task SetRelationAsync_ReturnOK()
         {
             // Arrange
-            var artifactsRelationDtos = new List<ArtifactsRelationDTO>();
+            var artifactsRelationDtos = new List<ArtifactsRelationInsertDTO>();
             for (var i = 0; i < 3; i++)
             {
-                var artifactRelation = CreateArtifactsRelationDTO(i, ++i);
+                var artifactRelation = CreateArtifactsRelationInsertDTO(i, ++i);
                 artifactsRelationDtos.Add(artifactRelation);
             }
             _artifactsService
                 .Setup(mock => mock.SetRelationAsync(It.IsAny<List<ArtifactsRelation>>()))
                 .ReturnsAsync(new ServiceResponse<IList<ArtifactsRelation>>(_mapper.Map<IList<ArtifactsRelation>>(artifactsRelationDtos)));
             // Act
-            var result = await _classUnderTest.SetRelationAsync(_mapper.Map<IList<ArtifactsRelationInsertDTO>>(artifactsRelationDtos));
+            var result = await _classUnderTest.SetRelationAsync(artifactsRelationDtos);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
@@ -623,8 +639,8 @@ namespace FRF.Web.Tests.Controllers
         public async Task SetRelationAsync_ReturnBadRequest()
         {
             // Arrange
-            var artifactsRelationDtos = new List<ArtifactsRelationDTO>();
-            var artifactRelation = CreateArtifactsRelationDTO(1, 2);
+            var artifactsRelationDtos = new List<ArtifactsRelationInsertDTO>();
+            var artifactRelation = CreateArtifactsRelationInsertDTO(1, 2);
             artifactsRelationDtos.Add(artifactRelation);
 
             _artifactsService
@@ -632,7 +648,7 @@ namespace FRF.Web.Tests.Controllers
                 .ReturnsAsync(new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid, "Error Message")));
 
             // Act
-            var result = await _classUnderTest.SetRelationAsync(_mapper.Map<IList<ArtifactsRelationInsertDTO>>(artifactsRelationDtos));
+            var result = await _classUnderTest.SetRelationAsync(artifactsRelationDtos);
 
             // Assert
             var response = Assert.IsType<BadRequestResult>(result);
@@ -692,7 +708,7 @@ namespace FRF.Web.Tests.Controllers
         }
 
         [Fact]
-        public async Task DeleteRelationAsync_ReturnOk()
+        public async Task DeleteRelationAsync_ReturnNoContent()
         {
             // Arrange
             var projectId = 1;
@@ -710,15 +726,7 @@ namespace FRF.Web.Tests.Controllers
             var result = await _classUnderTest.DeleteRelationAsync(artifactRelation.Id);
 
             // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result);
-            var returnValue = Assert.IsAssignableFrom<ArtifactsRelationDTO>(okResult.Value);
-            AssertCompareArtifactArtifactDTO(artifact1, returnValue.Artifact1);
-            AssertCompareArtifactArtifactDTO(artifact2, returnValue.Artifact2);
-            Assert.Equal(returnValue.Artifact1Id, artifact1.Id);
-            Assert.Equal(returnValue.Artifact2Id, artifact2.Id);
-            Assert.Equal(returnValue.Artifact1Property, artifactRelation.Artifact1Property);
-            Assert.Equal(returnValue.Artifact2Property, artifactRelation.Artifact2Property);
-            Assert.Equal(returnValue.RelationTypeId, artifactRelation.RelationTypeId);
+            Assert.IsType<NoContentResult>(result);
             _artifactsService.Verify(mock => mock.DeleteRelationAsync(It.IsAny<Guid>()), Times.Once);
         }
 
