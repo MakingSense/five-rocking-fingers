@@ -254,7 +254,7 @@ namespace FRF.Core.Services
 
             var artifactsExist = await DoArtifactsExist(artifactsRelationsNew);
             if (artifactsExist)
-                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid,
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.ArtifactNotExists,
                     "At least one of the artifact Ids provided doesn't exist"));
 
             var relationsOriginal = await _dataContext.ArtifactsRelation
