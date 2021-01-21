@@ -116,7 +116,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpGet]
-        [Route("api/[controller]/{artifactId}/[action]")]
+        [Route("~/api/[controller]/{artifactId}/[action]")]
         public async Task<IActionResult> GetRelationsAsync(int artifactId)
         {
             var result = await _artifactsService.GetAllRelationsOfAnArtifactAsync(artifactId);
@@ -150,7 +150,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpPut]
-        [Route("api/[controller]/{artifactId}/[action]")]
+        [Route("~/api/[controller]/{artifactId}/[action]")]
         public async Task<IActionResult> UpdateRelationsAsync(int artifactId,
             IList<ArtifactsRelationUpdateDTO> artifactRelationUpdatedList)
         {
