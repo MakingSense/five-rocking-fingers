@@ -28,7 +28,7 @@ namespace FRF.Web.Dtos
                 .ReverseMap();
             CreateMap<Categories.CategoryUpsertDTO, Category>();
             CreateMap<Artifact, ArtifactDTO>()
-                .ForMember(dest => dest.Settings, opt => opt.MapFrom<XMLHelper>());
+                .ForMember(dest => dest.Settings, opt => opt.MapFrom<XmlResolver>());
             CreateMap<ArtifactUpsertDTO, Artifact>();
             CreateMap<ArtifactType, ArtifactTypeDTO>()
                 .ReverseMap();

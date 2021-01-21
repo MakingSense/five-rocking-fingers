@@ -6,6 +6,6 @@ export default interface Artifact {
     name: string;
     provider: string;
     settings: {[key: string] : string};
-    project: Project;
+    projectId: number;
     artifactType: ArtifactType;
 }
