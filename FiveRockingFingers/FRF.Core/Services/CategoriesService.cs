@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FRF.Core.Models;
+using FRF.Core.Response;
 using FRF.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using EntityModels = FRF.DataAccess.EntityModels;
@@ -22,25 +23,34 @@ namespace FRF.Core.Services
             _mapper = mapper;
         }
 
-        public async Task<List<Category>> GetAllAsync()
+        public async Task<ServiceResponse<List<Category>>> GetAllAsync()
         {
-            var result = await _dataContext.Categories
+            var categories = await _dataContext.Categories
                 .Include(c => c.ProjectCategories)
                     .ThenInclude(pc => pc.Project)
                 .ToListAsync();
-            return _mapper.Map<List<Category>>(result);
+
+            var mappedCategories = _mapper.Map<List<Category>>(categories);
+            return new ServiceResponse<List<Category>>(mappedCategories);
         }
 
-        public async Task<Category> GetAsync(int id)
+        public async Task<ServiceResponse<Category>> GetAsync(int id)
         {
             var category = await _dataContext
                 .Categories.Include(c => c.ProjectCategories)
                     .ThenInclude(pc => pc.Project)
                 .SingleOrDefaultAsync(c => c.Id == id);
-            return _mapper.Map<Category>(category);
+
+            if (category == null)
+            {
+                return new ServiceResponse<Category>(new Error(ErrorCodes.CategoryNotExists, $"There is no category with Id = {id}"));
+            }
+
+            var mappedCategory = _mapper.Map<Category>(category);
+            return new ServiceResponse<Category>(mappedCategory);
         }
 
-        public async Task<Category> SaveAsync(Category category)
+        public async Task<ServiceResponse<Category>> SaveAsync(Category category)
         {
             // Maps the category into an EntityModel, deleting the Id if there was one.
             var mappedCategory = _mapper.Map<EntityModels.Category>(category);            
@@ -51,10 +61,10 @@ namespace FRF.Core.Services
             // Saves changes
             await _dataContext.SaveChangesAsync();
 
-            return _mapper.Map<Category>(mappedCategory);
+            return new ServiceResponse<Category>(_mapper.Map<Category>(mappedCategory));
         }
 
-        public async Task<Category> UpdateAsync(Category category)
+        public async Task<ServiceResponse<Category>> UpdateAsync(Category category)
         {
             var result = await _dataContext.Categories
                 .Include(c => c.ProjectCategories)
@@ -64,17 +74,20 @@ namespace FRF.Core.Services
 
             await _dataContext.SaveChangesAsync();
 
-            return _mapper.Map<Category>(result);
+            var mappedCategory = _mapper.Map<Category>(result);
+            return new ServiceResponse<Category>(mappedCategory);
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task<ServiceResponse<Category>> DeleteAsync(int id)
         {
             var categoryToDelete = await _dataContext.Categories
                 .Include(c => c.ProjectCategories)
                 .SingleAsync(c => c.Id == id);
             _dataContext.Categories.Remove(categoryToDelete);
             await _dataContext.SaveChangesAsync();
-            return;
+
+            var mappedCategory = _mapper.Map<Category>(categoryToDelete);
+            return new ServiceResponse<Category>(mappedCategory);
         }
     }
 }
