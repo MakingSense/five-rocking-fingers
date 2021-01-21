@@ -38,13 +38,11 @@ namespace FRF.Core.Services
             return artifactsRelations.Any(ar => dbArtifactRelations.Any(dbAr =>
                 (dbAr.Artifact1Id == ar.Artifact1Id && dbAr.Artifact2Id == ar.Artifact2Id &&
                  dbAr.Artifact1Property.Equals(ar.Artifact1Property, StringComparison.InvariantCultureIgnoreCase) &&
-                 dbAr.Artifact2Property.Equals(ar.Artifact2Property, StringComparison.InvariantCultureIgnoreCase) &&
-                 dbAr.RelationTypeId == ar.RelationTypeId)
+                 dbAr.Artifact2Property.Equals(ar.Artifact2Property, StringComparison.InvariantCultureIgnoreCase))
                 ||
                 (dbAr.Artifact1Id == ar.Artifact2Id && dbAr.Artifact2Id == ar.Artifact1Id &&
                  dbAr.Artifact1Property.Equals(ar.Artifact2Property, StringComparison.InvariantCultureIgnoreCase) &&
-                 dbAr.Artifact2Property.Equals(ar.Artifact1Property, StringComparison.InvariantCultureIgnoreCase) &&
-                 dbAr.RelationTypeId == ar.RelationTypeId)));
+                 dbAr.Artifact2Property.Equals(ar.Artifact1Property, StringComparison.InvariantCultureIgnoreCase))));
         }
 
         public async Task<ServiceResponse<List<Artifact>>> GetAll()
@@ -209,7 +207,7 @@ namespace FRF.Core.Services
                 .ToListAsync();
 
             if (!result.Any())
-                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotExist,
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotExists,
                     $"There is no relations for the artifact with Id = {artifactId}"));
 
             var resultArtifactRelations = _mapper.Map<List<ArtifactsRelation>>(result);
@@ -239,7 +237,7 @@ namespace FRF.Core.Services
                 .FirstOrDefaultAsync(ar => ar.Id.Equals(artifactRelationId));
             if (artifactsRelation == null)
             {
-                return new ServiceResponse<ArtifactsRelation>(new Error(ErrorCodes.RelationNotExist, $"There is no relation with Id={artifactRelationId}"));
+                return new ServiceResponse<ArtifactsRelation>(new Error(ErrorCodes.RelationNotExists, $"There is no relation with Id={artifactRelationId}"));
             }
             _dataContext.ArtifactsRelation.Remove(artifactsRelation);
             await _dataContext.SaveChangesAsync();
@@ -250,6 +248,10 @@ namespace FRF.Core.Services
         public async Task<ServiceResponse<IList<ArtifactsRelation>>> UpdateRelationAsync(int artifactId,
             IList<ArtifactsRelation> artifactsRelationsNew)
         {
+            var existArtifactId = await _dataContext.Artifacts.AnyAsync(a => a.Id == artifactId);
+            if (!existArtifactId)
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.ArtifactNotExists, $"There is no artifact with Id = {artifactId}"));
+
             var artifactsExist = await DoArtifactsExist(artifactsRelationsNew);
             if (artifactsExist)
                 return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid,
