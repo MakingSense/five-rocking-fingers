@@ -53,7 +53,7 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
     const [artifact2Settings, setArtifact2Settings] = React.useState<{ [key: string]: string }>({});
     const [setting1, setSetting1] = React.useState<KeyValueStringPair | null>(null);
     const [setting2, setSetting2] = React.useState<KeyValueStringPair | null>(null);
-    const [relationTypeId, setRelationTypeId] = React.useState<number>(-1);
+    const [relationTypeId, setRelationTypeId] = React.useState<number>(props.artifactRelations.relationTypeId);
     const [relation, setRelation] = React.useState<ArtifactRelation>(props.artifactRelations);
 
     React.useEffect(() => {
@@ -66,7 +66,7 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
         updateArtifactsSettings();
         setSetting1(null);
         setSetting2(null);
-        setRelationTypeId(-1);
+        setRelationTypeId(props.artifactRelations.relationTypeId);
         setRelation(props.artifactRelations);
         props.closeEditArtifactsRelation();
     }
