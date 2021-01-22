@@ -16,9 +16,10 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const RelationCard = (props: { Relation: ArtifactRelation, index: number, deleteRelation: Function }) => {
+const RelationCard = (props: { Relation: ArtifactRelation, index: number, deleteRelation: Function, isDeletable: boolean }) => {
 
     const classes = useStyles();
+    const [deletable, setDeletable] = React.useState(props.isDeletable);
 
     const mapRelationTypeId = (id: number) => {
         switch (+id) {
@@ -32,16 +33,20 @@ const RelationCard = (props: { Relation: ArtifactRelation, index: number, delete
                 return null;
         }
     }
-       
+
     return (
         <div>
             <Typography className={classes.inline} gutterBottom>
                 {props.Relation.artifact1.name}: {props.Relation.artifact1Property} {mapRelationTypeId(props.Relation.relationTypeId)} {props.Relation.artifact2.name}: {props.Relation.artifact2Property}
             </Typography>
-            <IconButton className={classes.inline} onClick={event => props.deleteRelation(props.index)} aria-label="delete" color="secondary">
-                <DeleteIcon />
-            </IconButton>
-        </div>
+            {
+                deletable ?
+                    <IconButton className={classes.inline} onClick={event => props.deleteRelation(props.index)} aria-label="delete" color="secondary">
+                        <DeleteIcon />
+                    </IconButton> : 
+                    <></>
+            }        
+            </div>
     );
 }
 

@@ -247,6 +247,7 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                         Relation={relation}
                         deleteRelation={deleteRelation}
                         index={index}
+                        isDeletable={true}
                     />
                 )}
                 <hr />
