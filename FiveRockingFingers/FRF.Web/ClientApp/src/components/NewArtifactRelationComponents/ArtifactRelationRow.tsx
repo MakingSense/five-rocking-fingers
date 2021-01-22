@@ -37,7 +37,7 @@ const ArtifactRelationRow = (props: { artifactRelation: ArtifactRelation, artifa
         setOpenEditArtifactRelation(false);
     }
 
-    const realationType = (id: number) => {
+    const relationType = (id: number) => {
         switch (props.artifactRelation.relationTypeId) {
             case 0:
                 return <ArrowForwardIcon />
@@ -55,7 +55,7 @@ const ArtifactRelationRow = (props: { artifactRelation: ArtifactRelation, artifa
             <tr key={props.artifactRelation.id}>
                 <td>{props.artifactRelation.artifact1.name}</td>
                 <td>{props.artifactRelation.artifact1Property}</td>
-                <td>{realationType(props.artifactRelation.relationTypeId)}</td>
+                <td>{relationType(props.artifactRelation.relationTypeId)}</td>
                 <td>{props.artifactRelation.artifact2.name}</td>
                 <td>{props.artifactRelation.artifact2Property}</td>
                 <td className={classes.root}>

@@ -55,11 +55,11 @@ const ArtifactsRelationTable = (props: { artifactId: number, projectId: number }
                 setArtifacts(response.data);
             }
             else {
-                manageOpenSnackbar({ message: "Hubo un error al cargar los artifacts", severity: "error" });
+                manageOpenSnackbar({ message: "Hubo un error al cargar los artefactos", severity: "error" });
             }
         }
         catch {
-            manageOpenSnackbar({ message: "Hubo un error al cargar los artifacts", severity: "error" });
+            manageOpenSnackbar({ message: "Hubo un error al cargar los artefactos", severity: "error" });
         }
     }
     const openNewArtifactsRelation = () => {
