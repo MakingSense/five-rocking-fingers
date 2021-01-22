@@ -31,7 +31,7 @@ namespace FiveRockingFingers.Controllers
         public async Task<IActionResult> GetAllAsync()
         {
             var currentUserId = await _userService.GetCurrentUserIdAsync();
-            var response = await _projectService.GetAllAsync(currentUserId);
+            var response = await _projectService.GetAllAsync(currentUserId.Value);
 
             var projectsDto = _mapper.Map<IEnumerable<ProjectDTO>>(response.Value);
             return Ok(projectsDto);
@@ -52,7 +52,7 @@ namespace FiveRockingFingers.Controllers
         {
             var currentUserId = await _userService.GetCurrentUserIdAsync();
 
-            projectDto.Users.Add(new UserProfileUpsertDTO() {UserId = currentUserId});
+            projectDto.Users.Add(new UserProfileUpsertDTO() {UserId = currentUserId.Value});
 
             var project = _mapper.Map<Project>(projectDto);
             if (project == null) return BadRequest();

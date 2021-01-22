@@ -94,7 +94,7 @@ namespace FRF.Core.Tests.Services
             var userProfile = CreateUsersProfile();
             _userService
                 .Setup(mock => mock.GetUserPublicProfileAsync(It.IsAny<Guid>()))
-                .ReturnsAsync(userProfile);
+                .ReturnsAsync(new ServiceResponse<UsersProfile>(userProfile));
 
             // Act
             var result = await _classUnderTest.GetAllAsync(userByProject.UserId);
@@ -145,10 +145,10 @@ namespace FRF.Core.Tests.Services
 
             _userService
                 .Setup(mock => mock.GetCurrentUserIdAsync())
-                .ReturnsAsync(new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba"));
+                .ReturnsAsync(new ServiceResponse<Guid>(new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba")));
             _userService
                 .Setup(mock => mock.GetUserPublicProfileAsync(It.IsAny<Guid>()))
-                .ReturnsAsync(userProfile);
+                .ReturnsAsync(new ServiceResponse<UsersProfile>(userProfile));
 
             // Act
             var result = await _classUnderTest.GetAsync(project.Id);
@@ -180,6 +180,10 @@ namespace FRF.Core.Tests.Services
         {
             // Arange
             var projectId = 0;
+
+            _userService
+                .Setup(mock => mock.GetCurrentUserIdAsync())
+                .ReturnsAsync(new ServiceResponse<Guid>(new Guid()));
 
             // Act
             var result = await _classUnderTest.GetAsync(projectId);
@@ -407,7 +411,7 @@ namespace FRF.Core.Tests.Services
             CreateUserByProject(project);
             _userService
                 .Setup(mock => mock.GetCurrentUserIdAsync())
-                .ReturnsAsync(new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba"));
+                .ReturnsAsync(new ServiceResponse<Guid>(new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba")));
 
             // Act
             var result = await _classUnderTest.DeleteAsync(project.Id);
@@ -425,7 +429,7 @@ namespace FRF.Core.Tests.Services
             var projectId = 0;
             _userService
                 .Setup(mock => mock.GetCurrentUserIdAsync())
-                .ReturnsAsync(new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba"));
+                .ReturnsAsync(new ServiceResponse<Guid>(new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba")));
             // Act
             var result = await _classUnderTest.DeleteAsync(projectId);
 
