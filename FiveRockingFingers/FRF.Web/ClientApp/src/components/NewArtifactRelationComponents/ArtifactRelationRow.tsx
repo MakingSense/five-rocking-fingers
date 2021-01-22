@@ -2,7 +2,6 @@ import * as React from 'react';
 import ArtifactRelation from '../../interfaces/ArtifactRelation'
 import { Button } from 'reactstrap';
 import EditArtifactRelation from './EditArtifactRelation';
-import SnackbarSettings from '../../interfaces/SnackbarSettings';
 import SyncAltIcon from '@material-ui/icons/SyncAlt';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
@@ -20,12 +19,10 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const ArtifactRelationRow = (props: { artifactRelation: ArtifactRelation, artifactId: number, openSnackbar: Function, artifacts: Artifact[], updateList: Function }) => {
+const ArtifactRelationRow = (props: { artifactRelation: ArtifactRelation, artifactId: number, openSnackbar: Function, artifacts: Artifact[], updateList: Function, artifactsRelations: ArtifactRelation[]}) => {
 
     const classes = useStyles();
     const [openConfirmDialog, setOpenConfirmDialog] = React.useState(false);
-    const [openSnackBar, setOpenSnackbar] = React.useState(false);
-    const [snackbarSettings, setSnackbarSettings] = React.useState<SnackbarSettings>({ message: "", severity: undefined });
     const [openEditArtifactRelation, setOpenEditArtifactRelation] = React.useState(false);
 
     const deleteButtonClick = () => {
@@ -62,8 +59,8 @@ const ArtifactRelationRow = (props: { artifactRelation: ArtifactRelation, artifa
                 <td>{props.artifactRelation.artifact2.name}</td>
                 <td>{props.artifactRelation.artifact2Property}</td>
                 <td className={classes.root}>
-                    <Button color="danger" onClick={deleteButtonClick}>Borrar</Button>
-                    <Button color="warning" onClick={editRelationClick}>Modificar</Button>
+                    <Button style={{ "min-height": "32px", width: "37%" }} color="danger" onClick={deleteButtonClick}>Borrar</Button>
+                    <Button style={{ "min-height": "32px", width: "37%" }} color="warning" onClick={editRelationClick}>Modificar</Button>
                 </td>
             </tr>
             <EditArtifactRelation
@@ -73,7 +70,8 @@ const ArtifactRelationRow = (props: { artifactRelation: ArtifactRelation, artifa
                 artifactRelations={props.artifactRelation}
                 openSnackbar={props.openSnackbar}
                 artifacts={props.artifacts}
-                updateList={props.updateList} />
+                updateList={props.updateList} 
+                artifactsRelations= {props.artifactsRelations}/>
 
             <DeleteArtifactsRelation
                 open={openConfirmDialog}

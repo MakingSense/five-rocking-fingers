@@ -8,14 +8,28 @@ import ArtifactRelation from '../../interfaces/ArtifactRelation';
 import Artifact from '../../interfaces/Artifact';
 import Typography from '@material-ui/core/Typography/Typography';
 import { Link } from 'react-router-dom';
+import NewArtifactsRelation from '../NewArtifactsRelation';
+import { makeStyles, Theme, createStyles } from '@material-ui/core';
+
+const useStyles = makeStyles((theme: Theme) =>
+    createStyles({
+        root: {
+            '& > *': {
+                marginRight: theme.spacing(1),
+                marginLeft: theme.spacing(1)
+            },
+        },
+    }),
+);
 
 const ArtifactsRelationTable = (props: { artifactId: number, projectId: number }) => {
-
+    const classes = useStyles();
     const [artifactsRelations, setArtifactsRelations] = React.useState<ArtifactRelation[]>([]);
     const [openSnackbar, setOpenSnackbar] = React.useState(false);
     const [snackbarSettings, setSnackbarSettings] = React.useState<SnackbarSettings>({ message: "", severity: undefined });
     const [artifacts, setArtifacts] = React.useState<Artifact[]>([]);
     const [updateList, setUpdateList] = React.useState(false);
+    const [showNewArtifactsRelation, setShowNewArtifactsRelation] = React.useState(false);
 
     const getArtifactsRelations = async () => {
         try {
@@ -48,7 +62,12 @@ const ArtifactsRelationTable = (props: { artifactId: number, projectId: number }
             manageOpenSnackbar({ message: "Hubo un error al cargar los artifacts", severity: "error" });
         }
     }
-
+    const openNewArtifactsRelation = () => {
+        setShowNewArtifactsRelation(true);
+    }
+    const closeNewArtifactsRelation = () => {
+        setShowNewArtifactsRelation(false);
+    }
     React.useEffect(() => {
         getArtifactsRelations();
         getArtifacts();
@@ -74,7 +93,10 @@ const ArtifactsRelationTable = (props: { artifactId: number, projectId: number }
                         <th>Direccion</th>
                         <th>Artefacto 2</th>
                         <th>Setting 2</th>
-                        <th><Button color="primary" tag={Link} to={`/projects/${props.projectId}/artifacts/`}>Volver</Button></th>
+                        <th className={classes.root}>
+                            <Button style={{ "min-height": "32px", width: "37%" }} color="primary" tag={Link} to={`/projects/${props.projectId}/artifacts/`}>Volver</Button>
+                            <Button style={{ "min-height": "32px", width: "37%" }} color="success" onClick={openNewArtifactsRelation}>Nueva relación</Button>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -87,7 +109,8 @@ const ArtifactsRelationTable = (props: { artifactId: number, projectId: number }
                                     artifactRelation={relation}
                                     openSnackbar={manageOpenSnackbar}
                                     artifacts={artifacts}
-                                    updateList={handleUpdateList} />
+                                    updateList={handleUpdateList} 
+                                    artifactsRelations={artifactsRelations}/>
                             )
                             : <td colSpan={6}><Typography align="center" variant="h5" gutterBottom>
                                 Artefacto sin relaciones
@@ -99,6 +122,15 @@ const ArtifactsRelationTable = (props: { artifactId: number, projectId: number }
                 severity={snackbarSettings.severity}
                 open={openSnackbar}
                 setOpen={setOpenSnackbar}
+            />
+            <NewArtifactsRelation
+                showNewArtifactsRelation={showNewArtifactsRelation}
+                closeNewArtifactsRelation={closeNewArtifactsRelation}
+                projectId={props.projectId}
+                setOpenSnackbar={setOpenSnackbar}
+                setSnackbarSettings={setSnackbarSettings}
+                artifacts={artifacts}
+                artifactsRelations={artifactsRelations}
             />
         </React.Fragment>
     );

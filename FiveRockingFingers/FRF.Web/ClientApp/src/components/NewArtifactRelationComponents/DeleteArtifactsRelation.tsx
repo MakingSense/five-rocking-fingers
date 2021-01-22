@@ -2,9 +2,11 @@ import { Button, Dialog, DialogActions, DialogContent, DialogContentText, Dialog
 import * as React from 'react';
 import ArtifactService from '../../services/ArtifactService';
 import ArtifactRelation from '../../interfaces/ArtifactRelation';
+import RelationCard from './RelationCard';
+import Typography from '@material-ui/core/Typography/Typography';
 
 const DeleteArtifactsRelation = (props: { open: boolean, setOpen: Function, artifactRelationToDelete: ArtifactRelation, openSnackbar: Function, updateList: Function }) => {
-
+    const [relationList, setRelationList] = React.useState<ArtifactRelation[]>([]);
     const handleClose = () => {
         props.setOpen(false);
     };
@@ -27,8 +29,15 @@ const DeleteArtifactsRelation = (props: { open: boolean, setOpen: Function, arti
     };
 
     const handleCancel = () => {
+        setRelationList([]);
         handleClose();
     };
+
+    const deleteRelation = (index: number) => {
+        let relationListCopy = [...relationList];
+        relationListCopy.splice(index, 1);
+        setRelationList(relationListCopy);
+    }
 
     return (
         <div>
@@ -38,10 +47,19 @@ const DeleteArtifactsRelation = (props: { open: boolean, setOpen: Function, arti
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
             >
-                <DialogTitle id="alert-dialog-title">{"¿Está seguro que desea eliminar el artefacto?"}</DialogTitle>
+                <DialogTitle id="alert-dialog-title">{"¿Está seguro que desea eliminar la relacion entre los artefactos?"}</DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        ¿ Desea eliminar la relacion ?
+                            <RelationCard
+                                Relation={props.artifactRelationToDelete}
+                                deleteRelation={deleteRelation}
+                                index={0}
+                                isDeletable={false}
+                            />
+                        <hr />
+                    </DialogContentText>
+                    <DialogContentText id="alert-dialog-description">
+                        ¿ Desea eliminar ?
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
