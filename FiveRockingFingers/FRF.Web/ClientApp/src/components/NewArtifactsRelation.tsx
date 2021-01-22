@@ -77,6 +77,9 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
         setSetting1(null);
         setSetting2(null);
         setRelationTypeId(-1);
+        setIsErrorRelationRepeated(false);
+        setIsErrorEmptyField(false);
+        setIsErrorOneRelationCreated(false);
     }
 
     const isRelationRepeated = () => {
