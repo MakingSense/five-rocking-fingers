@@ -652,7 +652,6 @@ namespace FRF.Core.Tests.Services
             var artifactsRelationUpdated = new List<ArtifactsRelation>();
             var artifactsRelationInDb = new List<DataAccess.EntityModels.ArtifactsRelation>();
             var i = 0;
-            var artifactId = 0;
             while (i < 3)
             {
                 var artifactType = CreateArtifactType();
@@ -679,7 +678,7 @@ namespace FRF.Core.Tests.Services
             Assert.False(response.Success);
             Assert.IsType<ServiceResponse<IList<Models.ArtifactsRelation>>>(response);
             Assert.NotNull(response.Error);
-            Assert.Equal(response.Error.Code, ErrorCodes.RelationNotValid);
+            Assert.Equal(response.Error.Code, ErrorCodes.ArtifactNotExists);
 
             Assert.Equal(artifactsRelationInDb[0].Artifact1Property, artifactsRelationUpdated[0].Artifact1Property);
             Assert.Equal(artifactsRelationInDb[0].Artifact2Property, artifactsRelationUpdated[0].Artifact2Property);
@@ -790,6 +789,51 @@ namespace FRF.Core.Tests.Services
         }
 
         [Fact]
+        public async Task GetAllRelationsOfAnArtifactAsync_ReturnsListOfRelations()
+        {
+            // Arange
+            var project = CreateProject();
+            var artifactType = CreateArtifactType();
+            var artifact1 = CreateArtifact(project, artifactType);
+            var artifact2 = CreateArtifact(project, artifactType);
+            var artifactRelation = CreateArtifactsRelationModel(artifact1.Id, artifact2.Id);
+            var artifactRelationMapped = _mapper.Map<FRF.DataAccess.EntityModels.ArtifactsRelation>(artifactRelation);
+
+            await _dataAccess.ArtifactsRelation.AddAsync(artifactRelationMapped);
+            await _dataAccess.SaveChangesAsync();
+
+            // Act
+            var response = await _classUnderTest.GetAllRelationsOfAnArtifactAsync(artifact1.Id);
+
+            // Assert
+            Assert.True(response.Success);
+            Assert.IsType<ServiceResponse<IList<ArtifactsRelation>>>(response);
+            var resultValue = Assert.IsAssignableFrom<IList<ArtifactsRelation>>(response.Value);
+            Assert.Equal(resultValue[0].Id, artifactRelationMapped.Id);
+            Assert.Equal(resultValue[0].Artifact1Id, artifactRelation.Artifact1Id);
+            Assert.Equal(resultValue[0].Artifact2Id, artifactRelation.Artifact2Id);
+            Assert.Equal(resultValue[0].RelationTypeId, artifactRelation.RelationTypeId);
+            Assert.Equal(resultValue[0].Artifact1Property, artifactRelation.Artifact1Property);
+            Assert.Equal(resultValue[0].Artifact2Property, artifactRelation.Artifact2Property);
+        }
+
+        [Fact]
+        public async Task GetAllRelationsOfAnArtifactAsync_ReturnsRelationNotExists()
+        {
+            // Arange
+            var artifactId = 0;
+
+            // Act
+            var response = await _classUnderTest.GetAllRelationsOfAnArtifactAsync(artifactId);
+
+            // Assert
+            Assert.False(response.Success);
+            Assert.IsType<ServiceResponse<IList<Models.ArtifactsRelation>>>(response);
+            Assert.NotNull(response.Error);
+            Assert.Equal(response.Error.Code, ErrorCodes.RelationNotExists);
+        }
+
+        [Fact]
         public async Task DeleteRelationAsync_ReturnsNull_RelationNotExist()
         {
             // Arange
@@ -802,7 +846,7 @@ namespace FRF.Core.Tests.Services
             Assert.False(response.Success);
             Assert.IsType<ServiceResponse<ArtifactsRelation>>(response);
             Assert.NotNull(response.Error);
-            Assert.Equal(response.Error.Code, ErrorCodes.RelationNotExist);
+            Assert.Equal(response.Error.Code, ErrorCodes.RelationNotExists);
         }
 
         [Fact]

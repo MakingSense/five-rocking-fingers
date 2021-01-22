@@ -63,7 +63,7 @@ namespace FRF.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> SaveAsync(ArtifactUpsertDTO artifactDto)
         {
-            var artifact = _mapper.Map<FRF.Core.Models.Artifact>(artifactDto);
+            var artifact = _mapper.Map<Artifact>(artifactDto);
 
             var response = await _artifactsService.Save(artifact);
             var artifactCreated = _mapper.Map<ArtifactDTO>(response.Value);
@@ -121,9 +121,8 @@ namespace FRF.Web.Controllers
         {
             var result = await _artifactsService.GetAllRelationsOfAnArtifactAsync(artifactId);
 
-            if (!result.Success) return BadRequest();
-
-            return Ok(_mapper.Map<IList<ArtifactsRelationDTO>>(result.Value));
+            var artifactsRelationsDTO = _mapper.Map<IList<ArtifactsRelationDTO>>(result.Value);
+            return Ok(artifactsRelationsDTO);
         }
 
         [HttpGet("{projectId}")]
@@ -141,10 +140,7 @@ namespace FRF.Web.Controllers
         public async Task<IActionResult> DeleteRelationAsync(Guid relationId)
         {
             var result = await _artifactsService.DeleteRelationAsync(relationId);
-            if (!result.Success)
-            {
-                return NotFound();
-            }
+            if (!result.Success) return NotFound();
 
             return NoContent();
         }
@@ -156,7 +152,9 @@ namespace FRF.Web.Controllers
         {
             var artifactsRelationsList = _mapper.Map<IList<ArtifactsRelation>>(artifactRelationUpdatedList);
             var result = await _artifactsService.UpdateRelationAsync(artifactId, artifactsRelationsList);
-            if(!result.Success && result.Error.Code == ErrorCodes.ArtifactNotExists) return NotFound();
+
+            if (!result.Success && result.Error.Code == ErrorCodes.ArtifactNotExists) return NotFound();
+
             if (!result.Success && result.Error.Code == ErrorCodes.RelationNotValid) return BadRequest();
 
             var artifactsResult = _mapper.Map<IList<ArtifactsRelationDTO>>(result.Value);

@@ -206,10 +206,6 @@ namespace FRF.Core.Services
                 .Where(ar => ar.Artifact1Id == artifactId || ar.Artifact2Id == artifactId)
                 .ToListAsync();
 
-            if (!result.Any())
-                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotExists,
-                    $"There is no relations for the artifact with Id = {artifactId}"));
-
             var resultArtifactRelations = _mapper.Map<List<ArtifactsRelation>>(result);
             return new ServiceResponse<IList<ArtifactsRelation>>(resultArtifactRelations);
         }
@@ -254,7 +250,7 @@ namespace FRF.Core.Services
 
             var artifactsExist = await DoArtifactsExist(artifactsRelationsNew);
             if (artifactsExist)
-                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid,
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.ArtifactNotExists,
                     "At least one of the artifact Ids provided doesn't exist"));
 
             var relationsOriginal = await _dataContext.ArtifactsRelation
