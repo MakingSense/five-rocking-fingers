@@ -141,7 +141,7 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
         try {
             let response = await ArtifactService.setRelations(artifactsRelationsList);
             if (response.status === 200) {
-                props.setSnackbarSettings({ message: "Las relaciones han sido creado con éxito", severity: "success" });
+                props.setSnackbarSettings({ message: "Las relaciones han sido creadas con éxito", severity: "success" });
                 props.setOpenSnackbar(true);
             } else {
                 props.setSnackbarSettings({ message: "Hubo un error al crear las relaciones", severity: "error" });
