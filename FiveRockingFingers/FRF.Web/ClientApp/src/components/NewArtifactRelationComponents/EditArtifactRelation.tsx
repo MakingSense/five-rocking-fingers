@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation: Function, artifactId: number, artifactRelations: ArtifactRelation, openSnackbar: Function, artifacts: Artifact[], updateList: Function }) => {
+const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation: Function, artifactId: number, artifactRelations: ArtifactRelation, openSnackbar: Function, artifacts: Artifact[], updateList: Function,artifactsRelations: ArtifactRelation[] }) => {
 
     const classes = useStyles();
     const {handleSubmit, errors, control } = useForm();
@@ -55,6 +55,7 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
     const [setting2, setSetting2] = React.useState<KeyValueStringPair | null>(null);
     const [relationTypeId, setRelationTypeId] = React.useState<number>(props.artifactRelations.relationTypeId);
     const [relation, setRelation] = React.useState<ArtifactRelation>(props.artifactRelations);
+    const [isErrorRelationRepeated, setIsErrorRelationRepeated] = React.useState<boolean>(false);
 
     const updateArtifactsSettings = () => {
         (artifact1 !== null && artifact1 !== undefined) ?
@@ -68,6 +69,37 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
         updateArtifactsSettings();
     }, [artifact1, artifact2, relation])
 
+    const areRelationsEqual = (relation: ArtifactRelation) => {
+        if (artifact1 === null || artifact2 === null || setting1 === null || setting2 === null) {
+            return false;
+        }
+        return (artifact1.name === relation.artifact1.name && artifact2.name === relation.artifact2.name && setting1.key === relation.artifact1Property && setting2.key === relation.artifact2Property && relationTypeId === relation.relationTypeId) || (artifact1.name === relation.artifact2.name && artifact2.name === relation.artifact1.name && setting1.key === relation.artifact2Property && setting2.key === relation.artifact1Property && relationTypeId === relation.relationTypeId);
+    }
+
+    const isRelationRepeated = () => {
+        let flag = false
+        let i = 0;
+
+        if (artifact1 === null || artifact2 === null || setting1 === null || setting2 === null) {
+            return flag;
+        }
+
+        if (!flag) {
+            i = 0;
+            while (!flag && i < props.artifactsRelations.length) {
+                let relation = props.artifactsRelations[i];
+
+                if (areRelationsEqual(relation)) {
+                    flag = true;
+                }
+
+                i++
+            }
+        }
+
+        return flag;
+    }
+
     const handleClose = () => {
         setArtifact1(props.artifactRelations.artifact1);
         setArtifact2(props.artifactRelations.artifact2);
@@ -76,10 +108,18 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
         setSetting2(null);
         setRelationTypeId(props.artifactRelations.relationTypeId);
         setRelation(props.artifactRelations);
+        setIsErrorRelationRepeated(false);
         props.closeEditArtifactsRelation();
     }
 
     const handleConfirm = async () => {
+
+        if (isRelationRepeated()) {
+            setIsErrorRelationRepeated(true);
+            return;
+        }
+        else setIsErrorRelationRepeated(false);
+
         let artifactsRelationsList: any[] = [];
         let artifactsRelation = {
             id: relation.id,
@@ -279,6 +319,11 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
                     {errors.settings ?
                         <Typography gutterBottom className={classes.error}>
                             Todos los campos deben ser completados para modificar una relación
+                        </Typography> : null
+                    }
+                    {isErrorRelationRepeated ?
+                        <Typography gutterBottom className={classes.error}>
+                            La relación ya existe
                         </Typography> : null
                     }
                 </form>
