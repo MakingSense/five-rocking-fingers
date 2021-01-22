@@ -39,7 +39,7 @@ namespace FRF.Core.Services
                 var response = await _userManager.CreateAsync(newCognitoUser, newUser.Password);
 
                 if (!response.Succeeded)
-                    return new ServiceResponse<string>(new Error(ErrorCodes.SignUpError, ""));
+                    return new ServiceResponse<string>(new Error(ErrorCodes.InvalidCredentials, ""));
 
                 //Auto validate the new user. They will not be included in the production build
                 await _cognitoIdentity.AdminUpdateUserAttributesAsync(new AdminUpdateUserAttributesRequest
@@ -60,18 +60,18 @@ namespace FRF.Core.Services
 
                 var token = await _signInManager.UserManager.FindByEmailAsync(newUser.Email);
                 if (token == null)
-                    return new ServiceResponse<string>(new Error(ErrorCodes.SignUpError, ""));
+                    return new ServiceResponse<string>(new Error(ErrorCodes.AuthenticationServerCurrentlyUnavailable, ""));
 
                 var result =
                     await _signInManager.PasswordSignInAsync(token, newUser.Password, false, false);
                 return result.Succeeded
                     ? new ServiceResponse<string>(token.UserID)
-                    : new ServiceResponse<string>(new Error(ErrorCodes.SignUpError, ""));
+                    : new ServiceResponse<string>(new Error(ErrorCodes.AuthenticationServerCurrentlyUnavailable, ""));
             }
-            catch (Exception e)
+            catch
             {
-                //throw exception from cognito user pool
-                throw new Exception("Sign up failed: " + e.Message);
+                return new ServiceResponse<string>(new Error(ErrorCodes.AuthenticationServerCurrentlyUnavailable, ""));
+
             }
         }
     }

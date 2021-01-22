@@ -43,7 +43,7 @@ namespace FRF.Core.Tests.Services
             // Assert
             Assert.IsType<ServiceResponse<string>>(result);
             Assert.False(result.Success);
-            Assert.Equal(ErrorCodes.SignUpError, result.Error.Code);
+            Assert.Equal(ErrorCodes.InvalidCredentials, result.Error.Code);
 
             _userManagerMock.Verify(mock => mock.CreateAsync(It.IsAny<CognitoUser>(), It.IsAny<string>()), Times.Once);
             _signInManagerMock.Verify(
@@ -72,7 +72,7 @@ namespace FRF.Core.Tests.Services
             // Assert
             Assert.IsType<ServiceResponse<string>>(result);
             Assert.False(result.Success);
-            Assert.Equal(ErrorCodes.SignUpError, result.Error.Code);
+            Assert.Equal(ErrorCodes.AuthenticationServerCurrentlyUnavailable, result.Error.Code);
 
             _userManagerMock.Verify(mock => mock.CreateAsync(It.IsAny<CognitoUser>(), It.IsAny<string>()), Times.Once);
 
@@ -112,7 +112,7 @@ namespace FRF.Core.Tests.Services
             // Assert
             Assert.IsType<ServiceResponse<string>>(result);
             Assert.False(result.Success);
-            Assert.Equal(ErrorCodes.SignUpError, result.Error.Code);
+            Assert.Equal(ErrorCodes.AuthenticationServerCurrentlyUnavailable, result.Error.Code);
             
             _userManagerMock.Verify(mock => mock.CreateAsync(It.IsAny<CognitoUser>(), It.IsAny<string>()), Times.Once);
 
