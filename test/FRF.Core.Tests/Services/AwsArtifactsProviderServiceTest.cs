@@ -72,7 +72,6 @@ namespace FRF.Core.Tests.Services
             Assert.IsType<ServiceResponse<List<KeyValuePair<string, string>>>>(result);
             Assert.True(result.Success);
             var response = result.Value;
-            //var response = Assert.IsType<List<KeyValuePair<string, string>>>(result);
 
             Assert.NotEmpty(response);
             _httpClientFactory.Verify(mock => mock.CreateClient(string.Empty), Times.Once);
