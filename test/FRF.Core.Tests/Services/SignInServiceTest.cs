@@ -33,7 +33,7 @@ namespace FRF.Core.Tests.Services
             // Assert
             Assert.IsType<ServiceResponse<string>>(result);
             Assert.False(result.Success);
-            Assert.Equal(ErrorCodes.AuthentificationError, result.Error.Code);
+            Assert.Equal(ErrorCodes.InvalidCredentials, result.Error.Code);
 
             _userManagerMock.Verify(mock => mock.FindByEmailAsync(It.IsAny<string>()), Times.Once);
         }
@@ -57,7 +57,7 @@ namespace FRF.Core.Tests.Services
             // Assert
             Assert.IsType<ServiceResponse<string>>(result);
             Assert.False(result.Success);
-            Assert.Equal(ErrorCodes.AuthentificationError, result.Error.Code);
+            Assert.Equal(ErrorCodes.InvalidCredentials, result.Error.Code);
 
             _userManagerMock.Verify(mock => mock.FindByEmailAsync(It.IsAny<string>()), Times.Once);
 

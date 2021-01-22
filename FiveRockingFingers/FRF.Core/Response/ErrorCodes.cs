@@ -13,6 +13,7 @@
         public const int RelationNotValid = 11;
 
         // User errors
-        public const int AuthenticationError = 20;
+        public const int InvalidCredentials = 20;
+        public const int AuthenticationServerCurrentlyUnavailable = 21;
     }
 }

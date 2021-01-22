@@ -2,7 +2,6 @@
 using FRF.Core.Models;
 using FRF.Core.Response;
 using Microsoft.AspNetCore.Identity;
-using System;
 using System.Threading.Tasks;
 
 namespace FRF.Core.Services
@@ -31,18 +30,18 @@ namespace FRF.Core.Services
             {
                 //First Look if the email exist
                 var token = await _signInManager.UserManager.FindByEmailAsync(userEmail);
-                if (token == null) return new ServiceResponse<string>(new Error(ErrorCodes.AuthentificationError, ""));
+                if (token == null) return new ServiceResponse<string>(new Error(ErrorCodes.InvalidCredentials, ""));
 
                 var result = await _signInManager.PasswordSignInAsync(token, userPassword,
                     userSignIn.RememberMe, lockoutOnFailure: false);
                 return result.Succeeded
                     ? new ServiceResponse<string>(token.UserID)
-                    : new ServiceResponse<string>(new Error(ErrorCodes.AuthentificationError, ""));
+                    : new ServiceResponse<string>(new Error(ErrorCodes.InvalidCredentials, ""));
             }
-            catch (Exception e)
+            catch
             {
                 //throw message exception from AWS Cognito User Pool
-                throw new Exception(e.Message);
+                return new ServiceResponse<string>(new Error(ErrorCodes.AuthenticationServerCurrentlyUnavailable, ""));
             }
         }
     }
