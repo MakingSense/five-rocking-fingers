@@ -56,6 +56,14 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
     const [relationTypeId, setRelationTypeId] = React.useState<number>(props.artifactRelations.relationTypeId);
     const [relation, setRelation] = React.useState<ArtifactRelation>(props.artifactRelations);
 
+    const updateArtifactsSettings = () => {
+        (artifact1 !== null && artifact1 !== undefined) ?
+            setArtifact1Settings(artifact1.settings) : setArtifact1Settings({});
+        
+         (artifact2 !== null && artifact2 !== undefined) ?
+            setArtifact2Settings(artifact2.settings) : setArtifact2Settings({});
+    }
+
     React.useEffect(() => {
         updateArtifactsSettings();
     }, [artifact1, artifact2, relation])
@@ -85,24 +93,16 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
         try {
             let response = await ArtifactService.updateArtifactsRelations(props.artifactId, artifactsRelationsList);
             if (response.status === 200) {
-                props.openSnackbar({ message: "La relacion ha sido creado con éxito", severity: "success" });
+                props.openSnackbar({ message: "La relacion ha sido modificada con éxito", severity: "success" });
                 props.updateList();
             } else {
-                props.openSnackbar({ message: "Hubo un error al crear la relacion", severity: "error" });
+                props.openSnackbar({ message: "Hubo un error al modificar la relacion", severity: "error" });
             }
         }
         catch (error) {
-            props.openSnackbar({ message: "Hubo un error al crear la relacion", severity: "error" });
+            props.openSnackbar({ message: "Hubo un error al modificar la relacion", severity: "error" });
         }
         handleClose();
-    }
-
-    const updateArtifactsSettings = () => {
-        (artifact1 !== null && artifact1 !== undefined) ?
-            setArtifact1Settings(artifact1.settings) : setArtifact1Settings({});
-        
-         (artifact2 !== null && artifact2 !== undefined) ?
-            setArtifact2Settings(artifact2.settings) : setArtifact2Settings({});
     }
 
     const handleChange = (event: React.ChangeEvent<{ name?: string | undefined; value: unknown }>) => {
@@ -273,12 +273,12 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
                     </FormControl>
                     {errors.settings ?
                         <Typography gutterBottom className={classes.error}>
-                            Al menos debe crear una relación
+                            Al menos debe modificar una relación
                         </Typography> : null
                     }
                     {errors.settings ?
                         <Typography gutterBottom className={classes.error}>
-                            Todos los campos deben ser completados para crear una relación
+                            Todos los campos deben ser completados para modificar una relación
                         </Typography> : null
                     }
                 </form>
