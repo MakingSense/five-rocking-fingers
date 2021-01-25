@@ -7,21 +7,9 @@ import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 import Artifact from '../../interfaces/Artifact';
 import DeleteArtifactsRelation from './DeleteArtifactsRelation';
-import { createStyles, makeStyles, Theme } from '@material-ui/core';
-
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        root: {
-            '& > *': {
-                margin: theme.spacing(1),
-            },
-        },
-    }),
-);
 
 const ArtifactRelationRow = (props: { artifactRelation: ArtifactRelation, artifactId: number, openSnackbar: Function, artifacts: Artifact[], updateList: Function, artifactsRelations: ArtifactRelation[]}) => {
 
-    const classes = useStyles();
     const [openConfirmDialog, setOpenConfirmDialog] = React.useState(false);
     const [openEditArtifactRelation, setOpenEditArtifactRelation] = React.useState(false);
 
@@ -58,8 +46,8 @@ const ArtifactRelationRow = (props: { artifactRelation: ArtifactRelation, artifa
                 <td>{relationType(props.artifactRelation.relationTypeId)}</td>
                 <td>{props.artifactRelation.artifact2.name}</td>
                 <td>{props.artifactRelation.artifact2Property}</td>
-                <td className={classes.root}>
-                    <Button style={{ "min-height": "32px", width: "37%" }} color="danger" onClick={deleteButtonClick}>Borrar</Button>
+                <td>
+                    <Button className="mx-3" style={{ "min-height": "32px", width: "37%" }} color="danger" onClick={deleteButtonClick}>Borrar</Button>
                     <Button style={{ "min-height": "32px", width: "37%" }} color="warning" onClick={editRelationClick}>Modificar</Button>
                 </td>
             </tr>

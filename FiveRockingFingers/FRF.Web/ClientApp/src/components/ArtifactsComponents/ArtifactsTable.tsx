@@ -8,20 +8,8 @@ import ArtifactRelation from '../../interfaces/ArtifactRelation'
 import NewArtifactDialog from '../NewArtifactDialog';
 import NewArtifactsRelation from '../NewArtifactsRelation';
 import ArtifactService from '../../services/ArtifactService';
-import { makeStyles, Theme, createStyles } from '@material-ui/core';
-
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        root: {
-            '& > *': {
-                margin: theme.spacing(1),
-            },
-        },
-    }),
-);
 
 const ArtifactsTable = (props: { projectId: number }) => {
-    const classes = useStyles();
     const [artifacts, setArtifacts] = React.useState<Artifact[]>([]);
     const [openSnackbar, setOpenSnackbar] = React.useState(false);
     const [snackbarSettings, setSnackbarSettings] = React.useState<SnackbarSettings>({ message: "", severity: undefined });
@@ -95,8 +83,8 @@ const ArtifactsTable = (props: { projectId: number }) => {
                         <th>Nombre</th>
                         <th>Provedor</th>
                         <th>Tipo</th>
-                        <th className={classes.root}>
-                            <Button style={{ "min-height": "32px", width: "21%" }} color="success" onClick={openNewArtifactDialog}>Nuevo artefacto</Button>
+                        <th >
+                            <Button className="mx-3" style={{ "min-height": "32px", width: "21%" }} color="success" onClick={openNewArtifactDialog}>Nuevo artefacto</Button>
                             <Button style={{ "min-height": "32px", width: "20%" }} color="success" onClick={openNewArtifactsRelation}>Nueva relación</Button>
                         </th>
                     </tr>
