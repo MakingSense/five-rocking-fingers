@@ -39,7 +39,7 @@ namespace FRF.Core.Services
                 var response = await _userManager.CreateAsync(newCognitoUser, newUser.Password);
 
                 if (!response.Succeeded)
-                    return new ServiceResponse<string>(new Error(ErrorCodes.InvalidCredentials, ""));
+                    return new ServiceResponse<string>(new Error(ErrorCodes.InvalidCredentials, "There was an error with your email and/or password"));
 
                 //Auto validate the new user. They will not be included in the production build
                 await _cognitoIdentity.AdminUpdateUserAttributesAsync(new AdminUpdateUserAttributesRequest
@@ -60,17 +60,17 @@ namespace FRF.Core.Services
 
                 var token = await _signInManager.UserManager.FindByEmailAsync(newUser.Email);
                 if (token == null)
-                    return new ServiceResponse<string>(new Error(ErrorCodes.AuthenticationServerCurrentlyUnavailable, ""));
+                    return new ServiceResponse<string>(new Error(ErrorCodes.AuthenticationServerCurrentlyUnavailable, "There was an error with the Authentication service"));
 
                 var result =
                     await _signInManager.PasswordSignInAsync(token, newUser.Password, false, false);
                 return result.Succeeded
                     ? new ServiceResponse<string>(token.UserID)
-                    : new ServiceResponse<string>(new Error(ErrorCodes.AuthenticationServerCurrentlyUnavailable, ""));
+                    : new ServiceResponse<string>(new Error(ErrorCodes.AuthenticationServerCurrentlyUnavailable, "There was an error with the Authentication service"));
             }
             catch
             {
-                return new ServiceResponse<string>(new Error(ErrorCodes.AuthenticationServerCurrentlyUnavailable, ""));
+                return new ServiceResponse<string>(new Error(ErrorCodes.AuthenticationServerCurrentlyUnavailable, "There was an error with the Authentication service"));
 
             }
         }
