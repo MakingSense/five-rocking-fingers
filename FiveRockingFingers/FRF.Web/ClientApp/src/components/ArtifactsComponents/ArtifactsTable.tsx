@@ -4,16 +4,18 @@ import Artifact from '../../interfaces/Artifact'
 import ArtifactsTableRow from './ArtifactsTableRow';
 import SnackbarMessage from '../../commons/SnackbarMessage';
 import SnackbarSettings from '../../interfaces/SnackbarSettings'
+import ArtifactRelation from '../../interfaces/ArtifactRelation'
 import NewArtifactDialog from '../NewArtifactDialog';
-import ProviderForm from '../NewArtifactDialogComponents/ProviderForm';
+import NewArtifactsRelation from '../NewArtifactsRelation';
 import ArtifactService from '../../services/ArtifactService';
 
 const ArtifactsTable = (props: { projectId: number }) => {
-
     const [artifacts, setArtifacts] = React.useState<Artifact[]>([]);
     const [openSnackbar, setOpenSnackbar] = React.useState(false);
     const [snackbarSettings, setSnackbarSettings] = React.useState<SnackbarSettings>({ message: "", severity: undefined });
     const [showNewArtifactDialog, setShowNewArtifactDialog] = React.useState(false);
+    const [showNewArtifactsRelation, setShowNewArtifactsRelation] = React.useState(false);
+    const [artifactsRelations, setArtifactsRelations] = React.useState<ArtifactRelation[]>([]);
 
     const getArtifacts = async () => {
         try {
@@ -28,7 +30,23 @@ const ArtifactsTable = (props: { projectId: number }) => {
         }
         catch {
             manageOpenSnackbar({ message: "Hubo un error al cargar los artifacts", severity: "error" });
-        }    
+        }
+    }
+
+    const getRelations = async () => {
+        try {
+            const response = await ArtifactService.getAllRelationsByProjectId(props.projectId);
+
+            if (response.status == 200) {
+                setArtifactsRelations(response.data);
+            }
+            else {
+                manageOpenSnackbar({ message: "Hubo un error al cargar las relaciones entre artefactos", severity: "error" });
+            }
+        }
+        catch {
+            manageOpenSnackbar({ message: "Hubo un error al cargar las relaciones entre artefactos", severity: "error" });
+        }
     }
 
     const closeNewArtifactDialog = () => {
@@ -39,8 +57,17 @@ const ArtifactsTable = (props: { projectId: number }) => {
         setShowNewArtifactDialog(true);
     }
 
+    const openNewArtifactsRelation = () => {
+        setShowNewArtifactsRelation(true);
+    }
+
+    const closeNewArtifactsRelation = () => {
+        setShowNewArtifactsRelation(false);
+    }
+
     React.useEffect(() => {
         getArtifacts();
+        getRelations();
     }, [props.projectId]);
 
     const manageOpenSnackbar = (settings: SnackbarSettings) => {
@@ -50,14 +77,15 @@ const ArtifactsTable = (props: { projectId: number }) => {
 
     return (
         <React.Fragment>
-            <Table striped bordered hover>
+            <Table striped bordered hover responsive>
                 <thead>
                     <tr>
                         <th>Nombre</th>
                         <th>Provedor</th>
                         <th>Tipo</th>
-                        <th>
-                            <Button color="success" onClick={openNewArtifactDialog}>Nuevo</Button>
+                        <th >
+                            <Button className="mx-3" style={{ minHeight: "32px", width: "21%" }} color="success" onClick={openNewArtifactDialog}>Nuevo artefacto</Button>
+                            <Button style={{ minHeight: "32px", width: "20%" }} color="success" onClick={openNewArtifactsRelation}>Nueva relación</Button>
                         </th>
                     </tr>
                 </thead>
@@ -68,8 +96,8 @@ const ArtifactsTable = (props: { projectId: number }) => {
                             artifact={artifact}
                             openSnackbar={manageOpenSnackbar}
                             updateList={getArtifacts}
-                            />
-                            )
+                        />
+                        )
                         : null}
                 </tbody>
             </Table>
@@ -87,7 +115,15 @@ const ArtifactsTable = (props: { projectId: number }) => {
                 setOpenSnackbar={setOpenSnackbar}
                 setSnackbarSettings={setSnackbarSettings}
             />
-
+            <NewArtifactsRelation
+                showNewArtifactsRelation={showNewArtifactsRelation}
+                closeNewArtifactsRelation={closeNewArtifactsRelation}
+                projectId={props.projectId}
+                setOpenSnackbar={setOpenSnackbar}
+                setSnackbarSettings={setSnackbarSettings}
+                artifacts={artifacts}
+                artifactsRelations={artifactsRelations}
+            />
         </React.Fragment>
     );
 };
