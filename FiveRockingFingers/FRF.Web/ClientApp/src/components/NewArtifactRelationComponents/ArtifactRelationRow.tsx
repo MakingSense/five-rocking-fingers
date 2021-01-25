@@ -47,8 +47,8 @@ const ArtifactRelationRow = (props: { artifactRelation: ArtifactRelation, artifa
                 <td>{props.artifactRelation.artifact2.name}</td>
                 <td>{props.artifactRelation.artifact2Property}</td>
                 <td>
-                    <Button className="mx-3" style={{ "min-height": "32px", width: "37%" }} color="danger" onClick={deleteButtonClick}>Borrar</Button>
-                    <Button style={{ "min-height": "32px", width: "37%" }} color="warning" onClick={editRelationClick}>Modificar</Button>
+                    <Button className="mx-3" style={{ minHeight: "32px", width: "37%" }} color="danger" onClick={deleteButtonClick}>Borrar</Button>
+                    <Button style={{ minHeight: "32px", width: "37%" }} color="warning" onClick={editRelationClick}>Modificar</Button>
                 </td>
             </tr>
             <EditArtifactRelation

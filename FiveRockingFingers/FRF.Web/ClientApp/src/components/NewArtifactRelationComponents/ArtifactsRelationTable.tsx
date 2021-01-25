@@ -81,8 +81,8 @@ const ArtifactsRelationTable = (props: { artifactId: number, projectId: number }
                         <th>Artefacto 2</th>
                         <th>Setting 2</th>
                         <th >
-                            <Button className="mx-3" style={{ "min-height": "32px", width: "37%" }} color="primary" tag={Link} to={`/projects/${props.projectId}/artifacts/`}>Volver</Button>
-                            <Button style={{ "min-height": "32px", width: "38%" }} color="success" onClick={openNewArtifactsRelation}>Nueva relación</Button>
+                            <Button className="mx-3" style={{ minHeight: "32px", width: "37%" }} color="primary" tag={Link} to={`/projects/${props.projectId}/artifacts/`}>Volver</Button>
+                            <Button style={{ minHeight: "32px", width: "38%" }} color="success" onClick={openNewArtifactsRelation}>Nueva relación</Button>
                         </th>
                     </tr>
                 </thead>

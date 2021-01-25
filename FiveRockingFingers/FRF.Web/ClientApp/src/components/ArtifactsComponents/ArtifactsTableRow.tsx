@@ -19,8 +19,8 @@ const ArtifactsTableRow = (props: { artifact: Artifact, openSnackbar: Function, 
           <td>{props.artifact.artifactType.name}</td>
           <td >
             <Button
-            className="mx-3" 
-              style={{ "min-height": "32px", width: "20%" }}
+                className="mx-3" 
+                style={{ minHeight: "32px", width: "20%" }}
               color="danger"
               onClick={deleteButtonClick}
             >
@@ -28,7 +28,7 @@ const ArtifactsTableRow = (props: { artifact: Artifact, openSnackbar: Function, 
             </Button>
 
             <Button
-              style={{ "min-height": "32px", width: "20%" }}
+                style={{ minHeight: "32px", width: "20%" }}
               color="info"
               tag={Link}
               to={`/projects/${props.artifact.projectId}/artifacts/${props.artifact.id}`}

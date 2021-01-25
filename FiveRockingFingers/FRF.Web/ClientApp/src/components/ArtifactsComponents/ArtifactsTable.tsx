@@ -84,8 +84,8 @@ const ArtifactsTable = (props: { projectId: number }) => {
                         <th>Provedor</th>
                         <th>Tipo</th>
                         <th >
-                            <Button className="mx-3" style={{ "min-height": "32px", width: "21%" }} color="success" onClick={openNewArtifactDialog}>Nuevo artefacto</Button>
-                            <Button style={{ "min-height": "32px", width: "20%" }} color="success" onClick={openNewArtifactsRelation}>Nueva relación</Button>
+                            <Button className="mx-3" style={{ minHeight: "32px", width: "21%" }} color="success" onClick={openNewArtifactDialog}>Nuevo artefacto</Button>
+                            <Button style={{ minHeight: "32px", width: "20%" }} color="success" onClick={openNewArtifactsRelation}>Nueva relación</Button>
                         </th>
                     </tr>
                 </thead>
