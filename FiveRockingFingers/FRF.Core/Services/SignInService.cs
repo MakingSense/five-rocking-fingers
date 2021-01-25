@@ -30,18 +30,18 @@ namespace FRF.Core.Services
             {
                 //First Look if the email exist
                 var token = await _signInManager.UserManager.FindByEmailAsync(userEmail);
-                if (token == null) return new ServiceResponse<string>(new Error(ErrorCodes.InvalidCredentials, ""));
+                if (token == null) return new ServiceResponse<string>(new Error(ErrorCodes.InvalidCredentials, "There was an error with your email and/or password"));
 
                 var result = await _signInManager.PasswordSignInAsync(token, userPassword,
                     userSignIn.RememberMe, lockoutOnFailure: false);
                 return result.Succeeded
                     ? new ServiceResponse<string>(token.UserID)
-                    : new ServiceResponse<string>(new Error(ErrorCodes.InvalidCredentials, ""));
+                    : new ServiceResponse<string>(new Error(ErrorCodes.InvalidCredentials, "There was an error with your email and/or password"));
             }
             catch
             {
                 //throw message exception from AWS Cognito User Pool
-                return new ServiceResponse<string>(new Error(ErrorCodes.AuthenticationServerCurrentlyUnavailable, ""));
+                return new ServiceResponse<string>(new Error(ErrorCodes.AuthenticationServerCurrentlyUnavailable, "There was an error with the authentication server"));
             }
         }
     }
