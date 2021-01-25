@@ -52,6 +52,46 @@ class ArtifactService {
             return error.response ? error.response : error.message;
         }
     };
+
+    static getRelations = async (artifactId: number) => {
+        try {
+            return await axios.get(`${ARTIFACTS_URL}${artifactId}/GetRelations`);
+        } catch (error) {
+            return error.response ? error.response : error.message;
+        }
+    };
+
+    static deleteRelation = async (id: string) => {
+        try {
+            return await axios.delete(`${ARTIFACTS_URL}DeleteRelation/${id}`);
+        } catch (error) {
+            return error.response ? error.response : error.message;
+        }
+    };
+    
+    static setRelations = async (artifactRelationsList: any) => {
+        try {
+            return await axios.post(`${ARTIFACTS_URL}SetRelation`, artifactRelationsList);
+        } catch (error) {
+            return error.response ? error.response : error.message;
+        }
+    };
+
+    static getAllRelationsByProjectId = async (projectId: number) => {
+        try {
+            return await axios.get(`${ARTIFACTS_URL}GetAllRelationsByProjectId/${projectId}`);
+        } catch (error) {
+            return error.response ? error.response : error.message;
+        }
+    };
+    
+    static updateArtifactsRelations = async (artifactId: number, artifactRelationsList: any) => {
+        try {
+            return await axios.put(`${ARTIFACTS_URL}${artifactId}/UpdateRelations`, artifactRelationsList);
+        } catch (error) {
+            return error.response ? error.response : error.message;
+        }
+    };
 }
 
 export default ArtifactService;
