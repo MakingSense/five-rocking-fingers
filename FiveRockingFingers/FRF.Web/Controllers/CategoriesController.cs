@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace FRF.Web.Controllers
 {
     [ApiController]
-    [Route("api/[controller]/[action]")]
+    [Route("api/categories")]
     [Authorize]
     public class CategoriesController : ControllerBase
     {
@@ -47,7 +47,7 @@ namespace FRF.Web.Controllers
             return Ok(categoryDto);
         }
 
-        [HttpPost]
+        [HttpPost("newCategory")]
         public async Task<IActionResult> SaveAsync(CategoryUpsertDTO categoryDto)
         {
             var category = _mapper.Map<FRF.Core.Models.Category>(categoryDto);
