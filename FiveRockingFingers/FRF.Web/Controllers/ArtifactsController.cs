@@ -12,7 +12,7 @@ using FRF.Core.Response;
 namespace FRF.Web.Controllers
 {
     [ApiController]
-    [Route("api/[controller]/[action]")]
+    [Route("api/artifacts")]
     [Authorize]
     public class ArtifactsController : ControllerBase
     {
@@ -35,7 +35,7 @@ namespace FRF.Web.Controllers
             return Ok(artifactsDto);
         }
 
-        [HttpGet("{projectId}")]
+        [HttpGet("projects/{projectId}")]
         public async Task<IActionResult> GetAllByProjectIdAsync(int projectId)
         {
             var artifacts = await _artifactsService.GetAllByProjectId(projectId);
@@ -60,7 +60,7 @@ namespace FRF.Web.Controllers
             return Ok(artifactDto);
         }
 
-        [HttpPost]
+        [HttpPost("newArtifact")]
         public async Task<IActionResult> SaveAsync(ArtifactUpsertDTO artifactDto)
         {
             var artifact = _mapper.Map<Artifact>(artifactDto);
@@ -104,7 +104,7 @@ namespace FRF.Web.Controllers
             return NoContent();
         }
 
-        [HttpPost]
+        [HttpPost("relations")]
         public async Task<IActionResult> SetRelationAsync(IList<ArtifactsRelationInsertDTO> artifactRelationList)
         {
             var artifactsRelations = _mapper.Map<IList<ArtifactsRelation>>(artifactRelationList);
@@ -115,8 +115,7 @@ namespace FRF.Web.Controllers
             return Ok(artifactsResult);
         }
 
-        [HttpGet]
-        [Route("~/api/[controller]/{artifactId}/[action]")]
+        [HttpGet("{artifactId}/relations")]
         public async Task<IActionResult> GetRelationsAsync(int artifactId)
         {
             var result = await _artifactsService.GetAllRelationsOfAnArtifactAsync(artifactId);
@@ -125,7 +124,7 @@ namespace FRF.Web.Controllers
             return Ok(artifactsRelationsDTO);
         }
 
-        [HttpGet("{projectId}")]
+        [HttpGet("relations/projects/{projectId}")]
         public async Task<IActionResult> GetAllRelationsByProjectIdAsync(int projectId)
         {
             var result = await _artifactsService.GetAllRelationsByProjectIdAsync(projectId);
@@ -136,7 +135,7 @@ namespace FRF.Web.Controllers
 
         }
 
-        [HttpDelete("{relationId}")]
+        [HttpDelete("relations/{relationId}")]
         public async Task<IActionResult> DeleteRelationAsync(Guid relationId)
         {
             var result = await _artifactsService.DeleteRelationAsync(relationId);
@@ -145,8 +144,7 @@ namespace FRF.Web.Controllers
             return NoContent();
         }
 
-        [HttpPut]
-        [Route("~/api/[controller]/{artifactId}/[action]")]
+        [HttpPut("{artifactId}/relations")]
         public async Task<IActionResult> UpdateRelationsAsync(int artifactId,
             IList<ArtifactsRelationUpdateDTO> artifactRelationUpdatedList)
         {
