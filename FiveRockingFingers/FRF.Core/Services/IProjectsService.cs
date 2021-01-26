@@ -2,15 +2,16 @@
 using FRF.Core.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FRF.Core.Response;
 
 namespace FRF.Core.Services
 {
     public interface IProjectsService
     {
-        Task<List<Project>> GetAllAsync(Guid userId);
-        Task<Project> GetAsync(int id);
-        Task<Project> UpdateAsync(Project project);
-        Task<bool> DeleteAsync(int id);
-        Task<Project> SaveAsync(Project project);
+        Task<ServiceResponse<List<Project>>> GetAllAsync(Guid userId);
+        Task<ServiceResponse<Project>> GetAsync(int id);
+        Task<ServiceResponse<Project>> UpdateAsync(Project project);
+        Task<ServiceResponse<Project>> DeleteAsync(int id);
+        Task<ServiceResponse<Project>> SaveAsync(Project project);
     }
 }
