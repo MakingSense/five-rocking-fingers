@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace FiveRockingFingers.Controllers
 {
     [ApiController]
-    [Route("api/[controller]/[action]")]
+    [Route("api/projects")]
     [Authorize]
     public class ProjectsController : ControllerBase
     {
@@ -47,7 +47,7 @@ namespace FiveRockingFingers.Controllers
             return Ok(projectDto);
         }
 
-        [HttpPost]
+        [HttpPost("newProject")]
         public async Task<IActionResult> SaveAsync(ProjectUpsertDTO projectDto)
         {
             var currentUserId = await _userService.GetCurrentUserIdAsync();
@@ -64,7 +64,7 @@ namespace FiveRockingFingers.Controllers
             return Ok(projectCreated);
         }
 
-        [HttpPut]
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAsync(int id, ProjectUpsertDTO projectDto)
         {
             var response = await _projectService.GetAsync(id);
