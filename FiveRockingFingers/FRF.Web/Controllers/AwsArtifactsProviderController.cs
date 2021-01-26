@@ -29,28 +29,30 @@ namespace FRF.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> GetNamesAsync()
         {
-            var productsNames = await _artifactsProviderService.GetNamesAsync();
-            if (productsNames==null)
+            var response = await _artifactsProviderService.GetNamesAsync();
+            if (!response.Success)
             {
                 return StatusCode(503);
             }
-            return Ok(productsNames);
+            return Ok(response.Value);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAttributesAsync(string serviceCode)
         {
-            var attributes = await _artifactsProviderService.GetAttributesAsync(serviceCode);
+            var response = await _artifactsProviderService.GetAttributesAsync(serviceCode);
 
-            return Ok(_mapper.Map<List<ProviderArtifactSettingDTO>>(attributes));
+            var attributes = _mapper.Map<List<ProviderArtifactSettingDTO>>(response.Value);
+            return Ok(attributes);
         }
 
         [HttpPost]
         public async Task<IActionResult> GetProductsAsync(List<KeyValuePair<string, string>> settings, string serviceCode)
         {
-            var products = await _artifactsProviderService.GetProductsAsync(settings, serviceCode);
+            var response = await _artifactsProviderService.GetProductsAsync(settings, serviceCode);
 
-            return Ok(_mapper.Map<List<PricingTermDTO>>(products));
+            var products = _mapper.Map<List<PricingTermDTO>>(response.Value);
+            return Ok(products);
         }
     }
 }

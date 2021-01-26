@@ -1,7 +1,7 @@
 ﻿using Amazon.Extensions.CognitoAuthentication;
 using FRF.Core.Models;
+using FRF.Core.Response;
 using Microsoft.AspNetCore.Identity;
-using System;
 using System.Threading.Tasks;
 
 namespace FRF.Core.Services
@@ -21,7 +21,7 @@ namespace FRF.Core.Services
         /// </summary>
         /// <param name="userSignIn">User Object with email and password</param>
         /// <returns>If is a correct user, return true and user id otherwise return false</returns>
-        public async Task<Tuple<bool, string>> SignInAsync(UserSignIn userSignIn)
+        public async Task<ServiceResponse<string>> SignInAsync(UserSignIn userSignIn)
         {
             var userEmail = userSignIn.Email.Trim();
             var userPassword = userSignIn.Password.Trim();
@@ -30,18 +30,18 @@ namespace FRF.Core.Services
             {
                 //First Look if the email exist
                 var token = await _signInManager.UserManager.FindByEmailAsync(userEmail);
-                if (token == null) return new Tuple<bool, string>(false, "");
+                if (token == null) return new ServiceResponse<string>(new Error(ErrorCodes.InvalidCredentials, "There was an error with your email and/or password"));
 
                 var result = await _signInManager.PasswordSignInAsync(token, userPassword,
                     userSignIn.RememberMe, lockoutOnFailure: false);
                 return result.Succeeded
-                    ? new Tuple<bool, string>(true, token.UserID)
-                    : new Tuple<bool, string>(false, "");
+                    ? new ServiceResponse<string>(token.UserID)
+                    : new ServiceResponse<string>(new Error(ErrorCodes.InvalidCredentials, "There was an error with your email and/or password"));
             }
-            catch (Exception e)
+            catch
             {
                 //throw message exception from AWS Cognito User Pool
-                throw new Exception(e.Message);
+                return new ServiceResponse<string>(new Error(ErrorCodes.AuthenticationServerCurrentlyUnavailable, "There was an error with the authentication server"));
             }
         }
     }
