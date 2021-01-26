@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace FRF.Web.Controllers
 {
     [ApiController]
-    [Route("api/[controller]/[action]")]
+    [Route("api")]
     [Authorize]
     public class BudgetController : ControllerBase
     {
@@ -17,7 +17,7 @@ namespace FRF.Web.Controllers
             _budgetService = budgetService;
         }
 
-        [HttpGet("{projectId}")]
+        [HttpGet("/project/{projectId}/budget")]
         public async Task<IActionResult> GetBudget(int projectId)
         {
             var response = await _budgetService.GetBudget(projectId);

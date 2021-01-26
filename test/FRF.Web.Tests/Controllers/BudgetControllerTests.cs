@@ -38,7 +38,7 @@ namespace FRF.Web.Tests.Controllers
             //Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
             var returnValue = Assert.IsType<decimal>(okResult.Value);
-            Assert.Equal(returnValue, budget);
+            Assert.Equal(budget, returnValue);
             _budgetService.Verify(mock => mock.GetBudget(It.IsAny<int>()), Times.Once);
         }
 
@@ -46,7 +46,6 @@ namespace FRF.Web.Tests.Controllers
         public async Task GetBudget_ReturnsNotFound()
         {
             //Arrange
-            var budget = 10m;
             var projectId = 1;
             _budgetService.Setup(mock => mock.GetBudget(It.IsAny<int>()))
                 .ReturnsAsync(new ServiceResponse<decimal>(new Error(ErrorCodes.ProjectNotExists, "[Mock] Message")));

@@ -78,7 +78,7 @@ namespace FRF.Core.Tests.Services
             //Assert
             Assert.IsType<ServiceResponse<decimal>>(response);
             Assert.True(response.Success);
-            Assert.Equal(response.Value, artifact.GetPrice());
+            Assert.Equal(artifact.GetPrice(), response.Value);
             _artifactsService.Verify(mock => mock.GetAllByProjectId(It.IsAny<int>()), Times.Once);
         }
 
@@ -96,7 +96,7 @@ namespace FRF.Core.Tests.Services
             //Assert
             Assert.IsType<ServiceResponse<decimal>>(response);
             Assert.False(response.Success);
-            Assert.Equal(response.Error.Code, ErrorCodes.ProjectNotExists);
+            Assert.Equal(ErrorCodes.ProjectNotExists, response.Error.Code);
             _artifactsService.Verify(mock => mock.GetAllByProjectId(It.IsAny<int>()), Times.Once);
         }
     }
