@@ -16,5 +16,8 @@
         // User errors
         public const int InvalidCredentials = 20;
         public const int AuthenticationServerCurrentlyUnavailable = 21;
+        
+        // External errors
+        public const int AmazonApiError = 30;
     }
 }

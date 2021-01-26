@@ -1,5 +1,5 @@
 ﻿using FRF.Core.Models;
-using Newtonsoft.Json.Linq;
+using FRF.Core.Response;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -10,8 +10,8 @@ namespace FRF.Core.Services
     /// </summary>
     public interface IArtifactsProviderService
     {
-        Task<List<KeyValuePair<string, string>>> GetNamesAsync();
-        Task<List<ProviderArtifactSetting>> GetAttributesAsync(string serviceCode);
-        Task<List<PricingTerm>> GetProductsAsync(List<KeyValuePair<string, string>> settings, string serviceCode);
+        Task<ServiceResponse<List<KeyValuePair<string, string>>>> GetNamesAsync();
+        Task<ServiceResponse<List<ProviderArtifactSetting>>> GetAttributesAsync(string serviceCode);
+        Task<ServiceResponse<List<PricingTerm>>> GetProductsAsync(List<KeyValuePair<string, string>> settings, string serviceCode);
     }
 }

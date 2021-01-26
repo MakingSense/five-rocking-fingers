@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FRF.Core.Models;
+using FRF.Core.Response;
 using FRF.Core.Services;
 using FRF.Web.Controllers;
 using FRF.Web.Dtos.Artifacts;
@@ -102,7 +103,7 @@ namespace FRF.Web.Tests.Controllers
             var artifactList = CreateArtifactsNamesList();
             _artifactProviderService
                 .Setup(mock => mock.GetNamesAsync())
-                .ReturnsAsync(artifactList);
+                .ReturnsAsync(new ServiceResponse<List<KeyValuePair<string, string>>>(artifactList));
 
             // Act
             var result = await _classUnderTest.GetNamesAsync();
@@ -122,10 +123,10 @@ namespace FRF.Web.Tests.Controllers
         public async Task GetNamesAsync_ReturnsServiceUnavailable()
         {
             // Arrange
-            List<KeyValuePair<string, string>> artifactList = null;
             _artifactProviderService
                 .Setup(mock => mock.GetNamesAsync())
-                .ReturnsAsync(artifactList);
+                .ReturnsAsync(new ServiceResponse<List<KeyValuePair<string, string>>>(
+                    new Error(ErrorCodes.AmazonApiError, "Error message")));
             // Act
             var result = await _classUnderTest.GetNamesAsync();
 
@@ -144,7 +145,7 @@ namespace FRF.Web.Tests.Controllers
 
             _artifactProviderService
                 .Setup(mock => mock.GetAttributesAsync(It.IsAny<string>()))
-                .ReturnsAsync(artifactSettings);
+                .ReturnsAsync(new ServiceResponse<List<ProviderArtifactSetting>>(artifactSettings));
 
             // Act
             var result = await _classUnderTest.GetAttributesAsync(serviceCode);
@@ -173,7 +174,7 @@ namespace FRF.Web.Tests.Controllers
 
             _artifactProviderService
                 .Setup(mock => mock.GetProductsAsync(It.IsAny<List<KeyValuePair<string, string>>>(), It.IsAny<string>()))
-                .ReturnsAsync(pricingTermList);
+                .ReturnsAsync(new ServiceResponse<List<PricingTerm>>(pricingTermList));
 
             // Act
             var result = await _classUnderTest.GetProductsAsync(artifactSettingsList, serviceCode);
