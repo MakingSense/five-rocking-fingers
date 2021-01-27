@@ -8,7 +8,7 @@ export default class ProjectService {
 
     static save = async (project: Project) => {
         try {
-            return await axios.post(`${PROJECTS_URL}/newProject`,
+            return await axios.post(`${PROJECTS_URL}`,
                 {
                     name: project.name,
                     owner: project.owner,

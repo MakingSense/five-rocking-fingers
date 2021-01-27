@@ -47,7 +47,7 @@ namespace FiveRockingFingers.Controllers
             return Ok(projectDto);
         }
 
-        [HttpPost("newProject")]
+        [HttpPost]
         public async Task<IActionResult> SaveAsync(ProjectUpsertDTO projectDto)
         {
             var currentUserId = await _userService.GetCurrentUserIdAsync();
