@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace FRF.Web.Controllers
 {
-    [Route("api/awsArtifactsProvider")]
+    [Route("api/aws-artifacts-provider")]
     [ApiController]
     [Authorize]
     public class AwsArtifactsProviderController : ControllerBase

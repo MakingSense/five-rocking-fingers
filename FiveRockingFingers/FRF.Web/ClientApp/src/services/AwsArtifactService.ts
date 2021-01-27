@@ -2,7 +2,7 @@ import axios from 'axios'
 import { BASE_URL } from '../Constants';
 import KeyValueStringPair from '../interfaces/KeyValueStringPair';
 
-const AWS_ARTIFACTS_PROVIDER_URL = `${BASE_URL}awsArtifactsProvider`;
+const AWS_ARTIFACTS_PROVIDER_URL = `${BASE_URL}aws-artifacts-provider`;
 
 export default class AwsArtifactsService {
 
