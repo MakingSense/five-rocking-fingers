@@ -35,7 +35,7 @@ namespace FRF.Web.Controllers
             return Ok(artifactsDto);
         }
 
-        [HttpGet("projects/{projectId}")]
+        [HttpGet("~/api/projects/{projectId}/artifacts")]
         public async Task<IActionResult> GetAllByProjectIdAsync(int projectId)
         {
             var artifacts = await _artifactsService.GetAllByProjectId(projectId);
@@ -60,7 +60,7 @@ namespace FRF.Web.Controllers
             return Ok(artifactDto);
         }
 
-        [HttpPost("newArtifact")]
+        [HttpPost]
         public async Task<IActionResult> SaveAsync(ArtifactUpsertDTO artifactDto)
         {
             var artifact = _mapper.Map<Artifact>(artifactDto);
@@ -124,7 +124,7 @@ namespace FRF.Web.Controllers
             return Ok(artifactsRelationsDTO);
         }
 
-        [HttpGet("relations/projects/{projectId}")]
+        [HttpGet("~/projects/{projectId}/relations")]
         public async Task<IActionResult> GetAllRelationsByProjectIdAsync(int projectId)
         {
             var result = await _artifactsService.GetAllRelationsByProjectIdAsync(projectId);
@@ -135,7 +135,7 @@ namespace FRF.Web.Controllers
 
         }
 
-        [HttpDelete("relations/{relationId}")]
+        [HttpDelete("~/relations/{relationId}")]
         public async Task<IActionResult> DeleteRelationAsync(Guid relationId)
         {
             var result = await _artifactsService.DeleteRelationAsync(relationId);
