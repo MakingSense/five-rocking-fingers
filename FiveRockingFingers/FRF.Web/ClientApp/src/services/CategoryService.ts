@@ -24,7 +24,7 @@ class CategoryService {
 
     static save = async (category: Category) => {
         try {
-            return await axios.post(`${CATEGORIES_URL}/newCategory`, category);
+            return await axios.post(`${CATEGORIES_URL}`, category);
         } catch (error) {
             return error.response ? error.response : error.message;
         }

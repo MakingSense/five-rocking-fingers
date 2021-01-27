@@ -47,7 +47,7 @@ namespace FRF.Web.Controllers
             return Ok(categoryDto);
         }
 
-        [HttpPost("newCategory")]
+        [HttpPost]
         public async Task<IActionResult> SaveAsync(CategoryUpsertDTO categoryDto)
         {
             var category = _mapper.Map<FRF.Core.Models.Category>(categoryDto);
