@@ -16,7 +16,7 @@ namespace FRF.Core.Models
         public int ArtifactTypeId { get; set; }
         public ArtifactType ArtifactType { get; set; }
 
-        public decimal GetPrice()
+        public virtual decimal GetPrice()
         {
             return 100;
         }
