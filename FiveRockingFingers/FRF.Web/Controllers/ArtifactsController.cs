@@ -104,7 +104,7 @@ namespace FRF.Web.Controllers
             return NoContent();
         }
 
-        [HttpPost("relations")]
+        [HttpPost("~/api/relations")]
         public async Task<IActionResult> SetRelationAsync(IList<ArtifactsRelationInsertDTO> artifactRelationList)
         {
             var artifactsRelations = _mapper.Map<IList<ArtifactsRelation>>(artifactRelationList);
