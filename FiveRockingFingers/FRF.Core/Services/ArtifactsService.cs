@@ -5,8 +5,12 @@ using FRF.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
+using System.Xml.Schema;
 using EntityModels = FRF.DataAccess.EntityModels;
 
 namespace FRF.Core.Services
@@ -126,6 +130,11 @@ namespace FRF.Core.Services
             if(! await _dataContext.ArtifactType.AnyAsync(at => at.Id == artifact.ArtifactTypeId))
             {
                 return new ServiceResponse<Artifact>(new Error(ErrorCodes.ArtifactTypeNotExists, $"There is no artifact type with Id = {artifact.ArtifactTypeId}"));
+            }
+
+            if(artifact.Provider == "Custom" && !ValidateSettings(artifact.Settings))
+            {
+                return new ServiceResponse<Artifact>(new Error(ErrorCodes.ArtifactTypeNotExists, $"Settings are incorrect"));
             }
 
             // Maps the artifact into an EntityModel, deleting the Id if there was one, and setting the CreatedDate field
@@ -310,6 +319,38 @@ namespace FRF.Core.Services
             await _dataContext.SaveChangesAsync();
 
             return new ServiceResponse<IList<ArtifactsRelation>>(artifactsRelationsNew);
+        }
+
+        private bool ValidateSettings(XElement settings)
+        {
+
+            var isAnError = true;
+
+            string rootPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+
+            var path = Path.Combine(rootPath, "CustomArtifact.xsd");
+
+            XmlSchemaSet schemaSet = new XmlSchemaSet();
+            schemaSet.Add(null, path);          
+
+            XDocument settingsDoc = new XDocument(settings);
+
+            XmlReaderSettings xrs = new XmlReaderSettings();
+            xrs.ValidationType = ValidationType.Schema;
+            xrs.ValidationFlags |= XmlSchemaValidationFlags.ReportValidationWarnings;
+            xrs.Schemas = schemaSet;
+            xrs.ValidationEventHandler += (s, e) => {
+                if(e != null)
+                {
+                    isAnError = false;
+                }                
+            };
+
+            XmlReader xr = XmlReader.Create(settingsDoc.CreateReader(), xrs);
+
+            while (xr.Read()) { }
+
+            return isAnError;
         }
     }
 }
