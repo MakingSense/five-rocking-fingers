@@ -100,12 +100,12 @@ const Confirmation = (props: { showNewArtifactDialog: boolean, closeNewArtifactD
                 }
                 {provider !== 'Custom' && props.awsPricingTerm !== null ?
                     <React.Fragment>
-                        {createPropertieLabel("Unit", props.awsPricingTerm.pricingDimension.unit)}
+                        {createPropertieLabel("Unit", props.awsPricingTerm.pricingDimensions[0].unit)}
                         {createPropertieLabel("Lease Contract Length", props.awsPricingTerm.leaseContractLength)}
                         {createPropertieLabel("Purchase Option", props.awsPricingTerm.purchaseOption)}
-                        {createPropertieLabel("Description", props.awsPricingTerm.pricingDimension.description)}
-                        {createPropertieLabel("Currency", props.awsPricingTerm.pricingDimension.currency)}
-                        {createPropertieLabel("Price per unit", props.awsPricingTerm.pricingDimension.pricePerUnit.toString())}
+                        {createPropertieLabel("Description", props.awsPricingTerm.pricingDimensions[0].description)}
+                        {createPropertieLabel("Currency", props.awsPricingTerm.pricingDimensions[0].currency)}
+                        {createPropertieLabel("Price per unit", props.awsPricingTerm.pricingDimensions[0].pricePerUnit.toString())}
                         {createPropertieLabel("Term", props.awsPricingTerm.term)}
                     </React.Fragment>
                     : null

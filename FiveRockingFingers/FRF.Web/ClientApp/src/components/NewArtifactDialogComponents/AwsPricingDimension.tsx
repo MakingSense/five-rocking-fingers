@@ -9,6 +9,7 @@ import KeyValueStringPair from '../../interfaces/KeyValueStringPair';
 import PricingTerm from '../../interfaces/PricingTerm';
 import ArtifactService from '../../services/ArtifactService';
 import AwsArtifactService from '../../services/AwsArtifactService';
+import PricingDimension from '../../interfaces/PricingDimension';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -79,9 +80,30 @@ const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewAr
         for (let i = 0; i < props.settingsList.length; i++) {
             settingsObject[props.settingsList[i].name] = props.settingsList[i].value;
         }
-        Object.assign(settingFinalObject, settingsObject, awsPricingDimensionList[index]);
+        Object.assign(settingFinalObject, settingsObject, createPricingTermObject(index));
 
         return settingFinalObject;
+    }
+
+    const createPricingTermObject = (index: number) => {
+        let awsPricingDimension = awsPricingDimensionList[index];
+        let pricingTermObject: { sku: string, term: string, leaseContractLength: string, offeringClass: string, purchaseOption: string, pricingDimension: { [key: string]: PricingDimension }} = {
+            sku: awsPricingDimension.sku,
+            term: awsPricingDimension.term,
+            leaseContractLength: awsPricingDimension.leaseContractLength,
+            offeringClass: awsPricingDimension.offeringClass,
+            purchaseOption: awsPricingDimension.purchaseOption,
+            pricingDimension: {}
+        };
+        let pricingDimensionObject: { [key: string]: PricingDimension } = {};
+
+        awsPricingDimension.pricingDimensions.forEach((pricingDimension, i) => {
+            pricingDimensionObject[`range${i}`] = pricingDimension;
+        });
+
+        pricingTermObject.pricingDimension = pricingDimensionObject;
+
+        return pricingTermObject;
     }
 
     const createPropertieLabel = (propertie: string, value: string | null) => {
@@ -96,12 +118,12 @@ const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewAr
     const pricingTermToString = (pricingTerm: PricingTerm) => {
         return (
             <React.Fragment>
-                {createPropertieLabel("Unit", pricingTerm.pricingDimension.unit)}
+                {createPropertieLabel("Unit", pricingTerm.pricingDimensions[0].unit)}
                 {createPropertieLabel("Lease Contract Length", pricingTerm.leaseContractLength)}
                 {createPropertieLabel("Purchase Option", pricingTerm.purchaseOption)}
-                {createPropertieLabel("Description", pricingTerm.pricingDimension.description)}
-                {createPropertieLabel("Currency", pricingTerm.pricingDimension.currency)}
-                {createPropertieLabel("Price per unit", pricingTerm.pricingDimension.pricePerUnit.toString())}
+                {createPropertieLabel("Description", pricingTerm.pricingDimensions[0].description)}
+                {createPropertieLabel("Currency", pricingTerm.pricingDimensions[0].currency)}
+                {createPropertieLabel("Price per unit", pricingTerm.pricingDimensions[0].pricePerUnit.toString())}
                 {createPropertieLabel("Term", pricingTerm.term)}
                 <hr/>
             </React.Fragment>
