@@ -28,7 +28,7 @@ namespace FRF.Core.Services
             var currentUser = _signInManager.Context.User;
             var result = await _userManager.GetUserAsync(currentUser);
             if (result == null)
-                return new ServiceResponse<Guid>(new Error(ErrorCodes.UserNotExists, ""));
+                return new ServiceResponse<Guid>(new Error(ErrorCodes.UserNotExists, "There was an error getting the user's Id"));
 
             var userId = new Guid(result.UserID);
             return new ServiceResponse<Guid>(userId);
@@ -38,7 +38,7 @@ namespace FRF.Core.Services
         {
             var response = await _userManager.FindByEmailAsync(email);
             if (response == null)
-                return new ServiceResponse<UsersProfile>(new Error(ErrorCodes.UserNotExists, ""));
+                return new ServiceResponse<UsersProfile>(new Error(ErrorCodes.UserNotExists, "There was an error getting the user's profile"));
 
             var user = new UsersProfile
             {
@@ -54,7 +54,7 @@ namespace FRF.Core.Services
         {
             var response = await _userManager.FindByIdAsync(userId.ToString());
             if (response == null)
-                return new ServiceResponse<UsersProfile>(new Error(ErrorCodes.UserNotExists, ""));
+                return new ServiceResponse<UsersProfile>(new Error(ErrorCodes.UserNotExists, "There was an error getting the user's profile"));
 
             var user = new UsersProfile
             {
