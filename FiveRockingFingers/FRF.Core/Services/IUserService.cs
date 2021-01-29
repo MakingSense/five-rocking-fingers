@@ -1,4 +1,5 @@
 ﻿using FRF.Core.Models;
+using FRF.Core.Response;
 using System;
 using System.Threading.Tasks;
 
@@ -8,8 +9,8 @@ namespace FRF.Core.Services
     {
         
         Task Logout();
-        Task<Guid> GetCurrentUserIdAsync();
-        Task<UsersProfile> GetUserPublicProfileAsync(string email);
-        Task<UsersProfile> GetUserPublicProfileAsync(Guid userId);
+        Task<ServiceResponse<Guid>> GetCurrentUserIdAsync();
+        Task<ServiceResponse<UsersProfile>> GetUserPublicProfileAsync(string email);
+        Task<ServiceResponse<UsersProfile>> GetUserPublicProfileAsync(Guid userId);
     }
 }

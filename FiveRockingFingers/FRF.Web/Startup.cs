@@ -85,10 +85,11 @@ namespace FRF.Web
 			services.AddTransient<IArtifactsService, ArtifactsService>();
 			services.AddTransient<ICategoriesService, CategoriesService>();
 			services.AddTransient<IArtifactsProviderService, AwsArtifactsProviderService>();
+			services.AddTransient<IBudgetService, BudgetService>();
 
-            
-			
-            services.AddSwaggerGen(c =>
+
+
+			services.AddSwaggerGen(c =>
 			{
 				c.SwaggerDoc("v1", new OpenApiInfo {Title = "Five Rocking Fingers", Version = "v1"});
 				c.CustomSchemaIds(i => i.FullName);

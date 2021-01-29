@@ -54,9 +54,9 @@ namespace FRF.Web.Controllers
             if (string.IsNullOrWhiteSpace(email)) return BadRequest();
             
             var userProfile = await _userService.GetUserPublicProfileAsync(email); 
-            if (userProfile == null) return NotFound();
+            if (!userProfile.Success) return NotFound();
 
-            var userPublicProfile = _mapper.Map<UserProfileDTO>(userProfile);
+            var userPublicProfile = _mapper.Map<UserProfileDTO>(userProfile.Value);
             
             return Ok(userPublicProfile);
         }

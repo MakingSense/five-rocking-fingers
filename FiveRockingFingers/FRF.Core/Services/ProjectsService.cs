@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FRF.Core.Models;
+using FRF.Core.Response;
 using FRF.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -23,7 +24,7 @@ namespace FRF.Core.Services
             _userService = userService;
         }
 
-        public async Task<List<Project>> GetAllAsync(Guid userId)
+        public async Task<ServiceResponse<List<Project>>> GetAllAsync(Guid userId)
         {
             var result = await _dataContext.UsersByProject
                 .Where(up => up.UserId == userId)
@@ -38,16 +39,16 @@ namespace FRF.Core.Services
 
             foreach (var user in projects.SelectMany(project => project.UsersByProject))
             {
-                var userPublicProfile =await _userService.GetUserPublicProfileAsync(user.UserId);
-                if (userPublicProfile == null) continue;
-                user.Fullname = userPublicProfile.Fullname;
-                user.Email = userPublicProfile.Email;
+                var response = await _userService.GetUserPublicProfileAsync(user.UserId);
+                if (!response.Success) continue;
+                user.Fullname = response.Value.Fullname;
+                user.Email = response.Value.Email;
             }
 
-            return projects;
+            return new ServiceResponse<List<Project>>(projects);
         }
 
-        public async Task<Project> SaveAsync(Project project)
+        public async Task<ServiceResponse<Project>> SaveAsync(Project project)
         {
             // Gets the categories from the database on a list
             var categoryList = new List<EntityModels.Category>();
@@ -56,7 +57,10 @@ namespace FRF.Core.Services
                 var categoryToAdd =
                     await _dataContext.Categories.SingleOrDefaultAsync(c => c.Id == category.Category.Id);
 
-                if (categoryToAdd == null) return null;
+                if (categoryToAdd == null) 
+                    return new ServiceResponse<Project>(
+                        new Error(ErrorCodes.CategoryNotExists, "At least one of the selected categories doesn't exist")
+                        );
 
                 categoryList.Add(categoryToAdd);
             }
@@ -97,42 +101,49 @@ namespace FRF.Core.Services
             await _dataContext.Projects.AddAsync(mappedProject);
             await _dataContext.SaveChangesAsync();
 
-            return _mapper.Map<Project>(mappedProject);
+            var result = _mapper.Map<Project>(mappedProject);
+            return new ServiceResponse<Project>(result);
         }
 
-        public async Task<Project> GetAsync(int id)
+        public async Task<ServiceResponse<Project>> GetAsync(int id)
         {
-            var userId =await _userService.GetCurrentUserIdAsync();
+            var userId = await _userService.GetCurrentUserIdAsync();
             var result = await _dataContext.UsersByProject
-                .Where(up => up.UserId == userId)
+                .Where(up => up.UserId == userId.Value)
                 .Include(pr=>pr.Project)
                 .ThenInclude(c=>c.ProjectCategories)
                 .ThenInclude(ca=>ca.Category).Include(pp=>pp.Project)
                 .ThenInclude(upp=>upp.UsersByProject)
                 .SingleOrDefaultAsync(p=>p.ProjectId==id);
 
-            if (result == null) return null;
+            if (result == null)
+                return new ServiceResponse<Project>(
+                    new Error(ErrorCodes.ProjectNotExists, $"There is no project with Id = {id}")
+                    );
 
             var project = _mapper.Map<Project>(result.Project);
             foreach (var user in project.UsersByProject)
             {
-                var userPublicProfile = await _userService.GetUserPublicProfileAsync(user.UserId);
-                if (userPublicProfile == null) continue;
-                user.Fullname = userPublicProfile.Fullname;
-                user.Email = userPublicProfile.Email;
+                var response = await _userService.GetUserPublicProfileAsync(user.UserId);
+                if (!response.Success) continue;
+                user.Fullname = response.Value.Fullname;
+                user.Email = response.Value.Email;
             }
 
-            return project;
+            return new ServiceResponse<Project>(project);
         }
 
-        public async Task<Project> UpdateAsync(Project project)
+        public async Task<ServiceResponse<Project>> UpdateAsync(Project project)
         {
             var categoryList = new List<EntityModels.Category>();
             foreach (var category in project.ProjectCategories)
             {
                 var categoryToAdd =
                     await _dataContext.Categories.SingleOrDefaultAsync(c => c.Id == category.Category.Id);
-                if (categoryToAdd == null) return null;
+                if (categoryToAdd == null)
+                    return new ServiceResponse<Project>(
+                        new Error(ErrorCodes.CategoryNotExists, "At least one of the selected categories doesn't exist")
+                        );
 
                 categoryList.Add(categoryToAdd);
             }
@@ -162,7 +173,10 @@ namespace FRF.Core.Services
                 .Include(up => up.UsersByProject)
                 .SingleOrDefaultAsync(p => p.Id == project.Id);
 
-            if (result == null) return null;
+            if (result == null)
+                return new ServiceResponse<Project>(
+                    new Error(ErrorCodes.ProjectNotExists, $"There is no project with Id = {project.Id}")
+                    );
 
             result.Name = project.Name;
             result.Owner = project.Owner;
@@ -173,23 +187,30 @@ namespace FRF.Core.Services
             result.UsersByProject = mappedUBP;
 
             await _dataContext.SaveChangesAsync();
-            return _mapper.Map<Project>(result);
+
+            var mappedProject = _mapper.Map<Project>(result);
+            return new ServiceResponse<Project>(mappedProject);
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<ServiceResponse<Project>> DeleteAsync(int id)
         {
             var userId = await _userService.GetCurrentUserIdAsync();
             var projectToDelete = await _dataContext.UsersByProject
-                .Where(ubp => ubp.UserId == userId)
+                .Where(ubp => ubp.UserId == userId.Value)
                 .Include(pr => pr.Project)
                 .Select(ubp=> ubp.Project)
                 .SingleOrDefaultAsync(p => p.Id == id);
 
-            if (projectToDelete == null) return false;
+            if (projectToDelete == null)
+                return new ServiceResponse<Project>(
+                    new Error(ErrorCodes.ProjectNotExists, $"There is no project with Id = {id}")
+                    );
 
             _dataContext.Projects.Remove(projectToDelete);
             await _dataContext.SaveChangesAsync();
-            return true;
+
+            var mappedProject = _mapper.Map<Project>(projectToDelete);
+            return new ServiceResponse<Project>(mappedProject);
         }
     }
 }

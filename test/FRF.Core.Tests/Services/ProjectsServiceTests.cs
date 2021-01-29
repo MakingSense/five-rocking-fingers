@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FRF.Core.Models;
+using FRF.Core.Response;
 using FRF.Core.Services;
 using FRF.DataAccess.EntityModels;
 using Microsoft.Extensions.Configuration;
@@ -93,23 +94,25 @@ namespace FRF.Core.Tests.Services
             var userProfile = CreateUsersProfile();
             _userService
                 .Setup(mock => mock.GetUserPublicProfileAsync(It.IsAny<Guid>()))
-                .ReturnsAsync(userProfile);
+                .ReturnsAsync(new ServiceResponse<UsersProfile>(userProfile));
 
             // Act
             var result = await _classUnderTest.GetAllAsync(userByProject.UserId);
 
             // Assert
-            Assert.IsType<List<Models.Project>>(result);
-            Assert.Single(result);
-            Assert.Equal(project.Id, result[0].Id);
-            Assert.Equal(project.Name, result[0].Name);
-            Assert.Equal(project.Owner, result[0].Owner);
-            Assert.Equal(project.Client, result[0].Client);
-            Assert.Equal(project.Budget, result[0].Budget);
-            Assert.Equal(project.CreatedDate, result[0].CreatedDate);
-            Assert.Equal(project.ModifiedDate, result[0].ModifiedDate);
+            Assert.IsType<ServiceResponse<List<Models.Project>>>(result);
+            Assert.True(result.Success);
+            var resultValue = Assert.Single(result.Value);
 
-            var usersProfiles = result[0].UsersByProject.ToList();
+            Assert.Equal(project.Id, resultValue.Id);
+            Assert.Equal(project.Name, resultValue.Name);
+            Assert.Equal(project.Owner, resultValue.Owner);
+            Assert.Equal(project.Client, resultValue.Client);
+            Assert.Equal(project.Budget, resultValue.Budget);
+            Assert.Equal(project.CreatedDate, resultValue.CreatedDate);
+            Assert.Equal(project.ModifiedDate, resultValue.ModifiedDate);
+
+            var usersProfiles = resultValue.UsersByProject.ToList();
             Assert.Equal(userProfile.Email, usersProfiles[0].Email);
             Assert.Equal(userProfile.UserId, usersProfiles[0].UserId);
             Assert.Equal(userProfile.Fullname, usersProfiles[0].Fullname);
@@ -127,8 +130,9 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetAllAsync(userId);
 
             // Assert
-            Assert.IsType<List<Models.Project>>(result);
-            Assert.Empty(result);
+            Assert.IsType<ServiceResponse<List<Models.Project>>>(result);
+            Assert.True(result.Success);
+            Assert.Empty(result.Value);
         }
 
        [Fact]
@@ -141,26 +145,28 @@ namespace FRF.Core.Tests.Services
 
             _userService
                 .Setup(mock => mock.GetCurrentUserIdAsync())
-                .ReturnsAsync(new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba"));
+                .ReturnsAsync(new ServiceResponse<Guid>(new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba")));
             _userService
                 .Setup(mock => mock.GetUserPublicProfileAsync(It.IsAny<Guid>()))
-                .ReturnsAsync(userProfile);
+                .ReturnsAsync(new ServiceResponse<UsersProfile>(userProfile));
 
             // Act
             var result = await _classUnderTest.GetAsync(project.Id);
 
             // Assert
-            Assert.IsType<Models.Project>(result);
+            Assert.IsType<ServiceResponse<Models.Project>>(result);
+            Assert.True(result.Success);
+            var resultValue = result.Value;
 
-            Assert.Equal(project.Id, result.Id);
-            Assert.Equal(project.Name, result.Name);
-            Assert.Equal(project.Owner, result.Owner);
-            Assert.Equal(project.Client, result.Client);
-            Assert.Equal(project.Budget, result.Budget);
-            Assert.Equal(project.CreatedDate, result.CreatedDate);
-            Assert.Equal(project.ModifiedDate, result.ModifiedDate);
+            Assert.Equal(project.Id, resultValue.Id);
+            Assert.Equal(project.Name, resultValue.Name);
+            Assert.Equal(project.Owner, resultValue.Owner);
+            Assert.Equal(project.Client, resultValue.Client);
+            Assert.Equal(project.Budget, resultValue.Budget);
+            Assert.Equal(project.CreatedDate, resultValue.CreatedDate);
+            Assert.Equal(project.ModifiedDate, resultValue.ModifiedDate);
 
-            var usersProfiles = result.UsersByProject.ToList();
+            var usersProfiles = resultValue.UsersByProject.ToList();
             Assert.Equal(userProfile.Email, usersProfiles[0].Email);
             Assert.Equal(userProfile.UserId, usersProfiles[0].UserId);
             Assert.Equal(userProfile.Fullname, usersProfiles[0].Fullname);
@@ -170,16 +176,22 @@ namespace FRF.Core.Tests.Services
         }
 
         [Fact]
-        public async Task GetAsync_ReturnsNull()
+        public async Task GetAsync_ReturnsErrorNoProject()
         {
             // Arange
             var projectId = 0;
+
+            _userService
+                .Setup(mock => mock.GetCurrentUserIdAsync())
+                .ReturnsAsync(new ServiceResponse<Guid>(new Guid()));
 
             // Act
             var result = await _classUnderTest.GetAsync(projectId);
 
             // Assert
-            Assert.Null(result);
+            Assert.IsType<ServiceResponse<Models.Project>>(result);
+            Assert.False(result.Success);
+            Assert.Equal(result.Error.Code, ErrorCodes.ProjectNotExists);
         }
 
         [Fact]
@@ -206,16 +218,20 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.SaveAsync(projectToSave);
 
             // Assert
-            Assert.Equal(projectToSave.Name, result.Name);
-            Assert.Equal(projectToSave.Owner, result.Owner);
-            Assert.Equal(projectToSave.Client, result.Client);
-            Assert.Equal(projectToSave.Budget, result.Budget);
-            Assert.Null(result.ModifiedDate);
-            Assert.Equal(projectToSave.UsersByProject.ToList()[0].UserId, result.UsersByProject.ToList()[0].UserId);
+            Assert.IsType<ServiceResponse<Models.Project>>(result);
+            Assert.True(result.Success);
+            var resultValue = result.Value;
+
+            Assert.Equal(projectToSave.Name, resultValue.Name);
+            Assert.Equal(projectToSave.Owner, resultValue.Owner);
+            Assert.Equal(projectToSave.Client, resultValue.Client);
+            Assert.Equal(projectToSave.Budget, resultValue.Budget);
+            Assert.Null(resultValue.ModifiedDate);
+            Assert.Equal(projectToSave.UsersByProject.ToList()[0].UserId, resultValue.UsersByProject.ToList()[0].UserId);
         }
 
         [Fact]
-        public async Task SaveAsync_ReturnsNullNoCategory()
+        public async Task SaveAsync_ReturnsErrorNoCategory()
         {
             // Arange
             var project = CreateProject();
@@ -245,7 +261,9 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.SaveAsync(projectToSave);
 
             // Assert
-            Assert.Null(result);
+            Assert.IsType<ServiceResponse<Models.Project>>(result);
+            Assert.False(result.Success);
+            Assert.Equal(result.Error.Code, ErrorCodes.CategoryNotExists);
         }
 
         [Fact]
@@ -291,17 +309,21 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.UpdateAsync(projectToUpdate);
 
             // Assert
-            Assert.Equal(projectToUpdate.Name, result.Name);
-            Assert.Equal(projectToUpdate.Owner, result.Owner);
-            Assert.Equal(projectToUpdate.Client, result.Client);
-            Assert.Equal(projectToUpdate.Budget, result.Budget);
-            Assert.Equal(projectToUpdate.CreatedDate, result.CreatedDate);
-            Assert.NotNull(result.ModifiedDate);
-            Assert.Equal(projectToUpdate.UsersByProject.ToList()[0].UserId, result.UsersByProject.ToList()[0].UserId);
+            Assert.IsType<ServiceResponse<Models.Project>>(result);
+            Assert.True(result.Success);
+            var resultValue = result.Value;
+
+            Assert.Equal(projectToUpdate.Name, resultValue.Name);
+            Assert.Equal(projectToUpdate.Owner, resultValue.Owner);
+            Assert.Equal(projectToUpdate.Client, resultValue.Client);
+            Assert.Equal(projectToUpdate.Budget, resultValue.Budget);
+            Assert.Equal(projectToUpdate.CreatedDate, resultValue.CreatedDate);
+            Assert.NotNull(resultValue.ModifiedDate);
+            Assert.Equal(projectToUpdate.UsersByProject.ToList()[0].UserId, resultValue.UsersByProject.ToList()[0].UserId);
         }
 
         [Fact]
-        public async Task UpdateAsync_ReturnsNullNoCategory()
+        public async Task UpdateAsync_ReturnsErrorNoCategory()
         {
             // Arange
             var project = CreateProject();
@@ -329,11 +351,13 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.UpdateAsync(projectToUpdate);
 
             // Assert
-            Assert.Null(result);
+            Assert.IsType<ServiceResponse<Models.Project>>(result);
+            Assert.False(result.Success);
+            Assert.Equal(result.Error.Code, ErrorCodes.CategoryNotExists);
         }
 
         [Fact]
-        public async Task UpdateAsync_ReturnsNullNoResult()
+        public async Task UpdateAsync_ReturnsErrorNoProject()
         {
             // Arange
             var project = CreateProject();
@@ -344,7 +368,7 @@ namespace FRF.Core.Tests.Services
             {
                 Category = new Models.Category()
                 {
-                    Id = 0,
+                    Id = category.Id,
                     Name = category.Name,
                     Description = category.Description
                 }
@@ -374,39 +398,45 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.UpdateAsync(projectToUpdate);
 
             // Assert
-            Assert.Null(result);
+            Assert.IsType<ServiceResponse<Models.Project>>(result);
+            Assert.False(result.Success);
+            Assert.Equal(result.Error.Code, ErrorCodes.ProjectNotExists);
         }
 
         [Fact]
-        public async Task DeleteAsync_ReturnsTrue()
+        public async Task DeleteAsync_ReturnsProject()
         {
             // Arange
             var project = CreateProject();
             CreateUserByProject(project);
             _userService
                 .Setup(mock => mock.GetCurrentUserIdAsync())
-                .ReturnsAsync(new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba"));
+                .ReturnsAsync(new ServiceResponse<Guid>(new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba")));
 
             // Act
             var result = await _classUnderTest.DeleteAsync(project.Id);
 
             // Assert
-            Assert.True(result);
+            Assert.IsType<ServiceResponse<Models.Project>>(result);
+            Assert.True(result.Success);
+            Assert.NotNull(result.Value);
         }
 
         [Fact]
-        public async Task DeleteAsync_ReturnsFalse()
+        public async Task DeleteAsync_ReturnsErrorNoProject()
         {
             // Arange
             var projectId = 0;
             _userService
                 .Setup(mock => mock.GetCurrentUserIdAsync())
-                .ReturnsAsync(new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba"));
+                .ReturnsAsync(new ServiceResponse<Guid>(new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba")));
             // Act
             var result = await _classUnderTest.DeleteAsync(projectId);
 
             // Assert
-            Assert.False(result);
+            Assert.IsType<ServiceResponse<Models.Project>>(result);
+            Assert.False(result.Success);
+            Assert.Equal(result.Error.Code, ErrorCodes.ProjectNotExists);
         }
     }
 }

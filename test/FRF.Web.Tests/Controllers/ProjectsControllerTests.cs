@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
 using FiveRockingFingers.Controllers;
 using FRF.Core.Models;
+using FRF.Core.Response;
 using FRF.Core.Services;
 using FRF.Web.Dtos;
 using FRF.Web.Dtos.Projects;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -93,7 +93,7 @@ namespace FRF.Web.Tests.Controllers
             var project = CreateProject(projectId);
             _projectsService
                 .Setup(mock => mock.GetAsync(It.IsAny<int>()))
-                .ReturnsAsync(project);
+                .ReturnsAsync(new ServiceResponse<Project>(project));
 
             // Act
             var result = await _classUnderTest.GetAsync(projectId);
@@ -116,6 +116,10 @@ namespace FRF.Web.Tests.Controllers
             var rnd = new Random();
             var projectId = rnd.Next(1, 99999);
 
+            _projectsService
+                .Setup(mock => mock.GetAsync(It.IsAny<int>()))
+                .ReturnsAsync(new ServiceResponse<Project>(new Error(ErrorCodes.ProjectNotExists, "Error message")));
+
             // Act
             var result = await _classUnderTest.GetAsync(projectId);
 
@@ -132,10 +136,14 @@ namespace FRF.Web.Tests.Controllers
             var sizeOfList = 5;
             var listOfMockProject = new List<Project>();
             for (var i = 0; i < sizeOfList; i++) listOfMockProject.Add(CreateProject(i));
-            
+
+            _userService
+                .Setup(mock => mock.GetCurrentUserIdAsync())
+                .ReturnsAsync(new ServiceResponse<Guid>(new Guid()));
+
             _projectsService
                 .Setup(mock => mock.GetAllAsync(It.IsAny<Guid>()))
-                .ReturnsAsync(listOfMockProject);
+                .ReturnsAsync(new ServiceResponse<List<Project>>(listOfMockProject));
 
             // Act
             var result = await _classUnderTest.GetAllAsync();
@@ -145,7 +153,7 @@ namespace FRF.Web.Tests.Controllers
             var returnValue = Assert.IsType<List<ProjectDTO>>(okResult.Value);
 
             Assert.Equal(sizeOfList, returnValue.Count);
-            //_userService.Verify(mock => mock.GetCurrentUserIdAsync(), Times.Once);
+            _userService.Verify(mock => mock.GetCurrentUserIdAsync(), Times.Once);
             _projectsService.Verify(mock => mock.GetAllAsync(It.IsAny<Guid>()), Times.Once);
         }
 
@@ -155,9 +163,13 @@ namespace FRF.Web.Tests.Controllers
             // Arrange
             var listOfMockProjectEmpty = new List<Project>();
 
+            _userService
+                .Setup(mock => mock.GetCurrentUserIdAsync())
+                .ReturnsAsync(new ServiceResponse<Guid>(new Guid()));
+
             _projectsService
                 .Setup(mock => mock.GetAllAsync(It.IsAny<Guid>()))
-                .ReturnsAsync(listOfMockProjectEmpty);
+                .ReturnsAsync(new ServiceResponse<List<Project>>(listOfMockProjectEmpty));
 
             // Act
             var result = await _classUnderTest.GetAllAsync();
@@ -166,7 +178,7 @@ namespace FRF.Web.Tests.Controllers
             var okResult = Assert.IsType<OkObjectResult>(result);
             var returnValue = Assert.IsType<List<ProjectDTO>>(okResult.Value);
 
-            //_userService.Verify(mock => mock.GetCurrentUserIdAsync(), Times.Once);
+            _userService.Verify(mock => mock.GetCurrentUserIdAsync(), Times.Once);
             Assert.Empty(returnValue);
             _projectsService.Verify(mock => mock.GetAllAsync(It.IsAny<Guid>()), Times.Once);
         }
@@ -180,9 +192,13 @@ namespace FRF.Web.Tests.Controllers
             var project = CreateProject(projectId);
             var projectUpsertDTO = CreateProjectUpsertDto(project);
 
+            _userService
+                .Setup(mock => mock.GetCurrentUserIdAsync())
+                .ReturnsAsync(new ServiceResponse<Guid>(new Guid()));
+
             _projectsService
                 .Setup(mock => mock.SaveAsync(It.IsAny<Project>()))
-                .ReturnsAsync(project);
+                .ReturnsAsync(new ServiceResponse<Project>(project));
 
             // Act
             var result = await _classUnderTest.SaveAsync(projectUpsertDTO);
@@ -200,7 +216,7 @@ namespace FRF.Web.Tests.Controllers
         }
 
         [Fact]
-        public async Task Save_WhenProjectUpsertDTOIsInvalid_ReturnsBadRequest()
+        public async Task Update_WhenProjectDoesntExist_BadRequest()
         {
             // Arrange
             var rnd = new Random();
@@ -208,29 +224,40 @@ namespace FRF.Web.Tests.Controllers
             var project = CreateProject(projectId);
             var projectUpsertDTO = CreateProjectUpsertDto(project);
 
-            // Act
-            var result = await _classUnderTest.SaveAsync(projectUpsertDTO);
-
-            // Assert
-            Assert.IsType<BadRequestResult>(result);
-
-            _projectsService.Verify(mock => mock.SaveAsync(project), Times.Never);
-        }
-
-        [Fact]
-        public async Task Update_WhenGivenIdIsDifferentFromProjectId_BadRequest()
-        {
-            // Arrange
-            var rnd = new Random();
-            var projectId = rnd.Next(1, 99999);
-            var project = CreateProject(projectId);
-            var projectUpsertDTO = CreateProjectUpsertDto(project);
+            _projectsService
+                .Setup(mock => mock.GetAsync(It.IsAny<int>()))
+                .ReturnsAsync(new ServiceResponse<Project>(new Error(ErrorCodes.ProjectNotExists, "Error message")));
 
             // Act
-            var result = await _classUnderTest.UpdateAsync(9, projectUpsertDTO);
+            var result = await _classUnderTest.UpdateAsync(0, projectUpsertDTO);
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
+
+            _projectsService.Verify(mock => mock.UpdateAsync(It.IsAny<Project>()), Times.Never);
+            _projectsService.Verify(mock => mock.GetAsync(It.IsAny<int>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task Update_WhenGivenEmptyUserList_BadRequest()
+        {
+            // Arrange
+            var rnd = new Random();
+            var projectId = rnd.Next(1, 99999);
+            var project = CreateProject(projectId);
+            var projectUpsertDTO = CreateProjectUpsertDto(project);
+
+            projectUpsertDTO.Users.Clear();
+
+            _projectsService
+                .Setup(mock => mock.GetAsync(It.IsAny<int>()))
+                .ReturnsAsync(new ServiceResponse<Project>(project));
+
+            // Act
+            var result = await _classUnderTest.UpdateAsync(project.Id, projectUpsertDTO);
+
+            // Assert
+            Assert.IsType<BadRequestResult>(result);
 
             _projectsService.Verify(mock => mock.UpdateAsync(It.IsAny<Project>()), Times.Never);
             _projectsService.Verify(mock => mock.GetAsync(It.IsAny<int>()), Times.Once);
@@ -247,11 +274,11 @@ namespace FRF.Web.Tests.Controllers
 
             _projectsService
                 .Setup(mock => mock.GetAsync(It.IsAny<int>()))
-                .ReturnsAsync(project);
+                .ReturnsAsync(new ServiceResponse<Project>(project));
 
             _projectsService
                 .Setup(mock => mock.UpdateAsync(It.IsAny<Project>()))
-                .ReturnsAsync(project);
+                .ReturnsAsync(new ServiceResponse<Project>(project));
 
             // Act
             var result = await _classUnderTest.UpdateAsync(projectId, projectUpsertDTO);
@@ -276,11 +303,11 @@ namespace FRF.Web.Tests.Controllers
 
             _projectsService
                 .Setup(mock => mock.GetAsync(It.IsAny<int>()))
-                .ReturnsAsync(project);
+                .ReturnsAsync(new ServiceResponse<Project>(project));
 
             _projectsService
                 .Setup(mock => mock.DeleteAsync(It.IsAny<int>()))
-                .ReturnsAsync(true);
+                .ReturnsAsync(new ServiceResponse<Project>(project));
 
             // Act
             var result = await _classUnderTest.DeleteAsync(projectId);
@@ -298,6 +325,10 @@ namespace FRF.Web.Tests.Controllers
             // Arrange
             var rnd = new Random();
             var projectId = rnd.Next(1, 99999);
+
+            _projectsService
+                .Setup(mock => mock.GetAsync(It.IsAny<int>()))
+                .ReturnsAsync(new ServiceResponse<Project>(new Error(ErrorCodes.ProjectNotExists, "Error message")));
 
             // Act
             var result = await _classUnderTest.DeleteAsync(projectId);
@@ -318,11 +349,11 @@ namespace FRF.Web.Tests.Controllers
 
             _projectsService
                 .Setup(mock => mock.GetAsync(It.IsAny<int>()))
-                .ReturnsAsync(project);
+                .ReturnsAsync(new ServiceResponse<Project>(project));
 
             _projectsService
                 .Setup(mock => mock.DeleteAsync(It.IsAny<int>()))
-                .ReturnsAsync(false);
+                .ReturnsAsync(new ServiceResponse<Project>(new Error(ErrorCodes.ProjectNotExists, "Error message")));
 
             // Act
             var result = await _classUnderTest.DeleteAsync(projectId);

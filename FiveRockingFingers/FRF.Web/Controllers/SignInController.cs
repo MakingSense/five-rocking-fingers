@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
 using FRF.Core.Models;
+using FRF.Core.Response;
 using FRF.Core.Services;
 using FRF.Web.Dtos.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Threading.Tasks;
 
 namespace FRF.Web.Controllers
@@ -27,9 +27,10 @@ namespace FRF.Web.Controllers
         public async Task<ActionResult> SignIn(SignInDTO signInDto)
         {
             var userSignIn = _mapper.Map<UserSignIn>(signInDto);
-            var (isAuthorize, token) =await _signInService.SignInAsync(userSignIn);
-            if (isAuthorize) return Ok(token);
-            return BadRequest();
+            var response = await _signInService.SignInAsync(userSignIn);
+            if (!response.Success && response.Error.Code == ErrorCodes.InvalidCredentials) return Unauthorized();
+            if (!response.Success && response.Error.Code == ErrorCodes.AuthenticationServerCurrentlyUnavailable) return StatusCode(500);
+            return Ok(response.Value);
         }
     }
 }
