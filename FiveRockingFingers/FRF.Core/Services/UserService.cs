@@ -1,5 +1,6 @@
 ﻿using Amazon.Extensions.CognitoAuthentication;
 using FRF.Core.Models;
+using FRF.Core.Response;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Threading.Tasks;
@@ -22,20 +23,22 @@ namespace FRF.Core.Services
            await _signInManager.SignOutAsync();
         }
 
-        public async Task<Guid> GetCurrentUserIdAsync()
+        public async Task<ServiceResponse<Guid>> GetCurrentUserIdAsync()
         {
             var currentUser = _signInManager.Context.User;
             var result = await _userManager.GetUserAsync(currentUser);
-            if (result == null) return Guid.Empty;
+            if (result == null)
+                return new ServiceResponse<Guid>(new Error(ErrorCodes.UserNotExists, "There was an error getting the user's Id"));
 
             var userId = new Guid(result.UserID);
-            return userId;
+            return new ServiceResponse<Guid>(userId);
         }
 
-        public async Task<UsersProfile> GetUserPublicProfileAsync(string email)
+        public async Task<ServiceResponse<UsersProfile>> GetUserPublicProfileAsync(string email)
         {
             var response = await _userManager.FindByEmailAsync(email);
-            if (response == null) return null;
+            if (response == null)
+                return new ServiceResponse<UsersProfile>(new Error(ErrorCodes.UserNotExists, "There was an error getting the user's profile"));
 
             var user = new UsersProfile
             {
@@ -44,13 +47,14 @@ namespace FRF.Core.Services
                 UserId = new Guid(response.UserID)
             };
 
-            return user;
+            return new ServiceResponse<UsersProfile>(user);
         }
 
-        public async Task<UsersProfile> GetUserPublicProfileAsync(Guid userId)
+        public async Task<ServiceResponse<UsersProfile>> GetUserPublicProfileAsync(Guid userId)
         {
             var response = await _userManager.FindByIdAsync(userId.ToString());
-            if (response == null) return null;
+            if (response == null)
+                return new ServiceResponse<UsersProfile>(new Error(ErrorCodes.UserNotExists, "There was an error getting the user's profile"));
 
             var user = new UsersProfile
             {
@@ -59,7 +63,7 @@ namespace FRF.Core.Services
                 UserId = new Guid(response.UserID)
             };
 
-            return user;
+            return new ServiceResponse<UsersProfile>(user);
         }
     }
 }
