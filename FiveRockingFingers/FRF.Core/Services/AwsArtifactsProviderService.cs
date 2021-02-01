@@ -8,10 +8,9 @@ using FRF.Core.Base;
 using Microsoft.Extensions.Options;
 using Amazon.Pricing;
 using Amazon.Pricing.Model;
-using Amazon;
 using FRF.Core.Models;
-using Microsoft.Extensions.Configuration;
 using FRF.Core.Response;
+using System;
 
 namespace FRF.Core.Services
 {
@@ -21,6 +20,7 @@ namespace FRF.Core.Services
         private readonly AwsPricing _awsPricingOptions;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IAmazonPricing _pricingClient;
+        private const string AwsS3Service = "AmazonS3";
 
         public AwsArtifactsProviderService(IOptions<AwsPricing> awsApiString,
             IHttpClientFactory httpClientFactory, IAmazonPricing pricingClient)
@@ -28,6 +28,39 @@ namespace FRF.Core.Services
             _httpClientFactory = httpClientFactory;
             _awsPricingOptions = awsApiString.Value;
             _pricingClient = pricingClient;
+        }
+
+        private List<PricingTerm> RetrievePricingDetails(GetProductsResponse response,
+            List<PricingTerm> pricingDetailsList)
+        {
+            foreach (var price in response.PriceList)
+            {
+                var priceJson = JObject.Parse(price);
+                var sku = (string) priceJson.SelectTokens("product.sku").ToList()[0];
+                var terms = priceJson.SelectToken("terms").ToObject<JObject>();
+                if (terms == null)
+                {
+                    continue;
+                }
+
+                foreach (var term in terms.Properties())
+                {
+                    var termName = term.Name;
+                    var termProperties = term.Value.ToObject<JObject>();
+                    if (termProperties == null)
+                    {
+                        continue;
+                    }
+
+                    foreach (var termOption in termProperties)
+                    {
+                        var pricingTerm = CreatePricingTerm(sku, termName, termOption);
+                        pricingDetailsList.Add(pricingTerm);
+                    }
+                }
+            }
+
+            return new List<PricingTerm>(pricingDetailsList);
         }
 
         /// <summary>
@@ -142,15 +175,165 @@ namespace FRF.Core.Services
             {
                 return new ServiceResponse<List<PricingTerm>>(pricingDetailsList);
             }
+            AddProductToPricingDetails(response, pricingDetailsList);
+            return new ServiceResponse<List<PricingTerm>>(pricingDetailsList);
+        }
 
+        public async Task<ServiceResponse<List<PricingTerm>>> GetS3ProductsAsync(
+            List<KeyValuePair<string, string>> settings, bool isAutomaticMonitoring)
+        {
+            var pricingDetailsList = new List<PricingTerm>();
+            var storageFilters = new List<Filter>();
+            var writeRequestFilters = new List<Filter>();
+            var retrieveRequestFilters = new List<Filter>();
+            var locationFilter = new Filter {Field = "location", Type = "TERM_MATCH", Value = ""};
+            var storageClassFilter = new Filter {Field = "storageClass", Type = "TERM_MATCH", Value = ""};
+            var volumeTypeFilter = new Filter {Field = "volumeType", Type = "TERM_MATCH", Value = ""};
+            var writeRequestGroupValue = "S3-API-Tier1";
+            var retrieveRequestGroupValue = "S3-API-Tier2";
+
+            foreach (var (key, value) in settings)
+            {
+                var storageFilter = new Filter {Field = key, Type = "TERM_MATCH", Value = value};
+
+                storageFilters.Add(storageFilter);
+                switch (key)
+                {
+                    case "location":
+                        locationFilter.Value = value;
+                        break;
+                    case "storageClass":
+                        storageClassFilter.Value = value;
+                        break;
+                    case "volumeType":
+                        volumeTypeFilter.Value = value;
+                        break;
+                }
+            }
+
+            var storagePrice = await _pricingClient.GetProductsAsync(new GetProductsRequest
+            {
+                Filters = storageFilters,
+                FormatVersion = "aws_v1",
+                ServiceCode = AwsS3Service
+            });
+
+            if (storagePrice == null) return new ServiceResponse<List<PricingTerm>>(pricingDetailsList);
+
+            AddProductToPricingDetails(storagePrice, pricingDetailsList);
+
+            //Check if the product is Standard - Infrequent Access.
+            if (volumeTypeFilter.Value.Equals(
+                "Standard - Infrequent Access", StringComparison.InvariantCultureIgnoreCase))
+            {
+                writeRequestGroupValue = "S3-API-SIA-Tier1";
+                retrieveRequestGroupValue = "S3-API-SIA-Tier2";
+            }
+            //Check if the product is One Zone - Infrequent Access.
+            else if (volumeTypeFilter.Value.Equals("One Zone - Infrequent Access",
+                StringComparison.InvariantCultureIgnoreCase))
+            {
+                writeRequestGroupValue = "S3-API-ZIA-Tier1";
+                retrieveRequestGroupValue = "S3-API-ZIA-Tier2";
+            }
+
+            writeRequestFilters.Add(locationFilter);
+            writeRequestFilters.Add(new Filter {Field = "group", Type = "TERM_MATCH", Value = writeRequestGroupValue});
+
+            var writeRequestPrice = await _pricingClient.GetProductsAsync(new GetProductsRequest
+            {
+                Filters = writeRequestFilters,
+                FormatVersion = "aws_v1",
+                ServiceCode = AwsS3Service
+            });
+
+            if (writeRequestPrice == null) return new ServiceResponse<List<PricingTerm>>(pricingDetailsList);
+
+            AddProductToPricingDetails(writeRequestPrice, pricingDetailsList);
+
+            retrieveRequestFilters.Add(locationFilter);
+            retrieveRequestFilters.Add(new Filter
+                {Field = "group", Type = "TERM_MATCH", Value = retrieveRequestGroupValue});
+
+            var retrieveRequestPrice = await _pricingClient.GetProductsAsync(new GetProductsRequest
+            {
+                Filters = retrieveRequestFilters,
+                FormatVersion = "aws_v1",
+                ServiceCode = AwsS3Service
+            });
+
+            if (retrieveRequestPrice == null) return new ServiceResponse<List<PricingTerm>>(pricingDetailsList);
+
+            AddProductToPricingDetails(retrieveRequestPrice, pricingDetailsList);
+
+            //Check if the product is Intelligent-Tiering.
+            if (storageClassFilter.Value.Equals("Intelligent-Tiering", StringComparison.InvariantCultureIgnoreCase))
+                pricingDetailsList =
+                    await GetS3IntelligentTieringDetailList(locationFilter, pricingDetailsList, isAutomaticMonitoring);
+
+            return new ServiceResponse<List<PricingTerm>>(pricingDetailsList);
+        }
+
+        private async Task<List<PricingTerm>> GetS3IntelligentTieringDetailList(Filter locationFilter,
+            List<PricingTerm> pricingDetailsList, bool isAutomaticMonitoring)
+        {
+            var infrequentAccessFilters = new List<Filter>();
+            var frequentAccessFilters = new List<Filter>();
+
+            infrequentAccessFilters.Add(locationFilter);
+            infrequentAccessFilters.Add(new Filter
+                {Field = "volumeType", Type = "TERM_MATCH", Value = "Intelligent-Tiering Infrequent Access"});
+            var infrequentAccessPrice = await _pricingClient.GetProductsAsync(new GetProductsRequest
+            {
+                Filters = infrequentAccessFilters,
+                FormatVersion = "aws_v1",
+                ServiceCode = AwsS3Service
+            });
+
+            AddProductToPricingDetails(infrequentAccessPrice, pricingDetailsList);
+
+            frequentAccessFilters.Add(locationFilter);
+            frequentAccessFilters.Add(new Filter
+                {Field = "volumeType", Type = "TERM_MATCH", Value = "Intelligent-Tiering Frequent Access"});
+            var frequentAccessPrice = await _pricingClient.GetProductsAsync(new GetProductsRequest
+            {
+                Filters = frequentAccessFilters,
+                FormatVersion = "aws_v1",
+                ServiceCode = AwsS3Service
+            });
+
+            AddProductToPricingDetails(frequentAccessPrice, pricingDetailsList);
+
+            if (!isAutomaticMonitoring) return pricingDetailsList;
+
+            var monitoringFilters = new List<Filter>
+            {
+                locationFilter,
+                new Filter
+                    {Field = "feeCode", Type = "TERM_MATCH", Value = "S3-Monitoring and Automation-ObjectCount"}
+            };
+
+            var automaticMonitoringPrice = await _pricingClient.GetProductsAsync(new GetProductsRequest
+            {
+                Filters = monitoringFilters,
+                FormatVersion = "aws_v1",
+                ServiceCode = AwsS3Service
+            });
+
+            AddProductToPricingDetails(automaticMonitoringPrice, pricingDetailsList);
+
+            return pricingDetailsList;
+        }
+
+        private void AddProductToPricingDetails(GetProductsResponse response,
+            List<PricingTerm> pricingDetailsList)
+        {
             foreach (var price in response.PriceList)
             {
                 var priceJson = JObject.Parse(price);
-
                 var sku = (string)priceJson.SelectTokens("product.sku").ToList()[0];
                 var terms = priceJson.SelectToken("terms").ToObject<JObject>();
-
-                if(terms == null)
+                if (terms == null)
                 {
                     continue;
                 }
@@ -158,9 +341,7 @@ namespace FRF.Core.Services
                 foreach (var term in terms.Properties())
                 {
                     var termName = term.Name;
-
                     var termProperties = term.Value.ToObject<JObject>();
-
                     if (termProperties == null)
                     {
                         continue;
@@ -169,13 +350,10 @@ namespace FRF.Core.Services
                     foreach (var termOption in termProperties)
                     {
                         var pricingTerm = CreatePricingTerm(sku, termName, termOption);
-
                         pricingDetailsList.Add(pricingTerm);
                     }
                 }
             }
-
-            return new ServiceResponse<List<PricingTerm>>(pricingDetailsList);
         }
 
         private PricingTerm CreatePricingTerm(string sku, string termName, KeyValuePair<string, JToken> termOption)
@@ -185,25 +363,19 @@ namespace FRF.Core.Services
             var offeringClass = (string)termOptionProperties.SelectToken("termAttributes.OfferingClass");
             var purchaseOption = (string)termOptionProperties.SelectToken("termAttributes.PurchaseOption");
             var termPriceDimensions = termOptionProperties.SelectToken("priceDimensions").ToObject<JObject>().Properties().ToList();
-            var termPriceDimension = termPriceDimensions[0];
-            var pricingDimension = ExtractPricingDimension(termPriceDimension);
-            var pricingDetails = new PricingDimension();
-            if (termPriceDimensions.Count > 1)
+            var pricingDimensions = new List<PricingDimension>();
+
+            foreach(var termPriceDimension in termPriceDimensions)
             {
-                var termPriceDetail = termPriceDimensions[1];
-                pricingDetails = ExtractPricingDimension(termPriceDetail);
-            }
-            else
-            {
-                pricingDetails = null;
+                var pricingDimension = ExtractPricingDimension(termPriceDimension);
+                pricingDimensions.Add(pricingDimension);
             }
 
             var pricingTerm = new PricingTerm()
             {
                 Sku = sku,
                 Term = termName,
-                PricingDimension = pricingDimension,
-                PricingDetail = pricingDetails,
+                PricingDimensions = pricingDimensions,
                 LeaseContractLength = leaseContractLength,
                 OfferingClass = offeringClass,
                 PurchaseOption = purchaseOption
@@ -215,7 +387,11 @@ namespace FRF.Core.Services
         private PricingDimension ExtractPricingDimension(JProperty termPriceDimension)
         {
             float.TryParse((string)termPriceDimension.Value.SelectToken("beginRange"), out float beginRange);
-            float.TryParse((string)termPriceDimension.Value.SelectToken("endRange"), out float endRange);
+
+            if(!float.TryParse((string)termPriceDimension.Value.SelectToken("endRange"), out float endRange))
+            {
+                endRange = -1;
+            }
 
             var pricingDetails = new PricingDimension()
             {
@@ -225,7 +401,7 @@ namespace FRF.Core.Services
                 RateCode = (string)termPriceDimension.Value.SelectToken("rateCode"),
                 BeginRange = beginRange,
                 Currency = termPriceDimension.Value.SelectToken("pricePerUnit").ToObject<JObject>().Properties().ElementAt(0).Name,
-                PricePerUnit = (float)termPriceDimension.Value.SelectToken("pricePerUnit").ToObject<JObject>().Properties().ElementAt(0).Value,
+                PricePerUnit = (decimal)termPriceDimension.Value.SelectToken("pricePerUnit").ToObject<JObject>().Properties().ElementAt(0).Value,
             };
 
             return pricingDetails;
