@@ -32,24 +32,24 @@ namespace FRF.Core.Services
             return artifactsRelationIds.Except(dbArtifactsId).Any();
         }
 
-        private Artifact mapArtifact(EntityModels.Artifact artifact)
+        private Artifact MapArtifact(EntityModels.Artifact artifact)
         {
             switch (artifact.Provider)
             {
-                case "Custom":
+                case Constants.ArtifactTypes.CUSTOM:
                     return _mapper.Map<CustomArtifact>(artifact);
                 default:
                     return _mapper.Map<Artifact>(artifact);
             }
         }
 
-        private List<Artifact> mapArtifacts(List<EntityModels.Artifact> artifacts)
+        private List<Artifact> MapArtifacts(List<EntityModels.Artifact> artifacts)
         {
             var mappedArtifacts = new List<Artifact>();
 
             foreach (var artifact in artifacts)
             {
-                mappedArtifacts.Add(mapArtifact(artifact));
+                mappedArtifacts.Add(MapArtifact(artifact));
             }
 
             return mappedArtifacts;
@@ -98,7 +98,7 @@ namespace FRF.Core.Services
                         .ThenInclude(pc => pc.Category)
                 .ToListAsync();
 
-            var mappedArtifacts = mapArtifacts(artifacts);
+            var mappedArtifacts = MapArtifacts(artifacts);
             return new ServiceResponse<List<Artifact>>(mappedArtifacts);
         }
 
@@ -117,7 +117,7 @@ namespace FRF.Core.Services
                 .Where(a => a.ProjectId == projectId)
                 .ToListAsync();
 
-            var mappedArtifacts = mapArtifacts(artifacts);
+            var mappedArtifacts = MapArtifacts(artifacts);
 
             return new ServiceResponse<List<Artifact>>(mappedArtifacts);
         }
@@ -136,7 +136,7 @@ namespace FRF.Core.Services
                 return new ServiceResponse<Artifact>(new Error(ErrorCodes.ArtifactNotExists, $"There is no artifact with Id = {id}"));
             }
 
-            var mappedArtifact = mapArtifact(artifact);
+            var mappedArtifact = MapArtifact(artifact);
             return new ServiceResponse<Artifact>(mappedArtifact);
         }
 
@@ -165,7 +165,7 @@ namespace FRF.Core.Services
             // Saves changes
             await _dataContext.SaveChangesAsync();
 
-            return new ServiceResponse<Artifact>(mapArtifact(mappedArtifact));
+            return new ServiceResponse<Artifact>(MapArtifact(mappedArtifact));
         }
 
         public async Task<ServiceResponse<Artifact>> Update(Artifact artifact)
@@ -202,7 +202,7 @@ namespace FRF.Core.Services
             //Saves the updated aritfact in the database
             await _dataContext.SaveChangesAsync();
 
-            var mappedArtifact = mapArtifact(result);
+            var mappedArtifact = MapArtifact(result);
             return new ServiceResponse<Artifact>(mappedArtifact);
         }
 
@@ -217,7 +217,7 @@ namespace FRF.Core.Services
             _dataContext.Artifacts.Remove(artifactToDelete);
             await _dataContext.SaveChangesAsync();
 
-            var mappedArtifact = mapArtifact(artifactToDelete);
+            var mappedArtifact = MapArtifact(artifactToDelete);
             return new ServiceResponse<Artifact>(mappedArtifact);
         }
 
