@@ -124,7 +124,7 @@ namespace FRF.Web.Controllers
             return Ok(artifactsRelationsDTO);
         }
 
-        [HttpGet("~/projects/{projectId}/relations")]
+        [HttpGet("~/api/projects/{projectId}/relations")]
         public async Task<IActionResult> GetAllRelationsByProjectIdAsync(int projectId)
         {
             var result = await _artifactsService.GetAllRelationsByProjectIdAsync(projectId);
