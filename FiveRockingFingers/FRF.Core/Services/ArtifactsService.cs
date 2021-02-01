@@ -323,7 +323,6 @@ namespace FRF.Core.Services
 
         private bool ValidateSettings(XElement settings)
         {
-
             var isAnError = true;
 
             string rootPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
