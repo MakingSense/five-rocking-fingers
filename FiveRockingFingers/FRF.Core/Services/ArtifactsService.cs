@@ -36,7 +36,7 @@ namespace FRF.Core.Services
         {
             switch (artifact.Provider)
             {
-                case Constants.ArtifactTypes.CUSTOM:
+                case ArtifactTypes.Custom:
                     return _mapper.Map<CustomArtifact>(artifact);
                 default:
                     return _mapper.Map<Artifact>(artifact);
