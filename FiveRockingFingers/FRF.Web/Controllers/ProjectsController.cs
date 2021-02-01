@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace FiveRockingFingers.Controllers
 {
     [ApiController]
-    [Route("api/[controller]/[action]")]
+    [Route("api/projects")]
     [Authorize]
     public class ProjectsController : ControllerBase
     {
@@ -64,7 +64,7 @@ namespace FiveRockingFingers.Controllers
             return Ok(projectCreated);
         }
 
-        [HttpPut]
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAsync(int id, ProjectUpsertDTO projectDto)
         {
             var response = await _projectService.GetAsync(id);
