@@ -175,7 +175,7 @@ namespace FRF.Core.Tests.Services
             var term = "[Mock] Term";
             var unit = "[Mock] Unit";
             var endRange = "inf";
-            var decription = "[Mock] Description";
+            var description = "[Mock] Description";
             var rateCode = "[Mock] Rate Code";
             var beginRange = "10";
             var currency = "[Mock] Currency";
@@ -210,7 +210,7 @@ namespace FRF.Core.Tests.Services
                     "{ \"" + rateCode + "\":" +
                     "{ \"unit\":\"" + unit +"\"," +
                     "\"endRange\":\"" + endRange + "\"," +
-                    "\"description\":\"" + decription + "\"," +
+                    "\"description\":\"" + description + "\"," +
                     "\"appliesTo\":[]," +
                     "\"rateCode\":\"" + rateCode +"\"," +
                     "\"beginRange\":\"" + beginRange + "\"," +
@@ -244,7 +244,10 @@ namespace FRF.Core.Tests.Services
 
             // Assert
             float.TryParse(beginRange, out float beginRangeFloat);
-            float.TryParse(endRange, out float endRangeFloat);
+            if(!float.TryParse(endRange, out float endRangeFloat))
+            {
+                endRangeFloat = -1;
+            }
 
             Assert.IsType<ServiceResponse<List<PricingTerm>>>(result);
             var resultValue = result.Value;
@@ -255,13 +258,13 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(resultValue[0].PurchaseOption, purchaseOption);
             Assert.Equal(resultValue[0].OfferingClass, offeringClass);
             Assert.Equal(resultValue[0].LeaseContractLength, leaseContractLength);
-            Assert.Equal(resultValue[0].PricingDimension.BeginRange, beginRangeFloat);
-            Assert.Equal(resultValue[0].PricingDimension.Currency, currency);
-            Assert.Equal(resultValue[0].PricingDimension.Description, decription);
-            Assert.Equal(resultValue[0].PricingDimension.EndRange, endRangeFloat);
-            Assert.Equal(resultValue[0].PricingDimension.PricePerUnit, float.Parse(pricePerUnit, CultureInfo.InvariantCulture));
-            Assert.Equal(resultValue[0].PricingDimension.RateCode, rateCode);
-            Assert.Equal(resultValue[0].PricingDimension.Unit, unit);
+            Assert.Equal(resultValue[0].PricingDimensions[0].BeginRange, beginRangeFloat);
+            Assert.Equal(resultValue[0].PricingDimensions[0].Currency, currency);
+            Assert.Equal(resultValue[0].PricingDimensions[0].Description, description);
+            Assert.Equal(resultValue[0].PricingDimensions[0].EndRange, endRangeFloat);
+            Assert.Equal(resultValue[0].PricingDimensions[0].PricePerUnit, float.Parse(pricePerUnit, CultureInfo.InvariantCulture));
+            Assert.Equal(resultValue[0].PricingDimensions[0].RateCode, rateCode);
+            Assert.Equal(resultValue[0].PricingDimensions[0].Unit, unit);
         }
 
         [Fact]
