@@ -23,6 +23,11 @@ namespace FRF.Core
                 .ForMember(dest => dest.Id, act => act.Ignore())
                 .ForMember(dest => dest.ArtifactType, act => act.Ignore())
                 .ForMember(dest => dest.Project, act => act.Ignore());
+            CreateMap<DataAccess.EntityModels.Artifact, Models.CustomArtifact>()
+                .ReverseMap()
+                .ForMember(dest => dest.Id, act => act.Ignore())
+                .ForMember(dest => dest.ArtifactType, act => act.Ignore())
+                .ForMember(dest => dest.Project, act => act.Ignore());
             CreateMap<DataAccess.EntityModels.ArtifactType, Models.ArtifactType>()
                 .ReverseMap();
             CreateMap<DataAccess.EntityModels.UsersByProject, Models.UsersProfile>()

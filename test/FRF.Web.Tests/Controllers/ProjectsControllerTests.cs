@@ -136,7 +136,11 @@ namespace FRF.Web.Tests.Controllers
             var sizeOfList = 5;
             var listOfMockProject = new List<Project>();
             for (var i = 0; i < sizeOfList; i++) listOfMockProject.Add(CreateProject(i));
-            
+
+            _userService
+                .Setup(mock => mock.GetCurrentUserIdAsync())
+                .ReturnsAsync(new ServiceResponse<Guid>(new Guid()));
+
             _projectsService
                 .Setup(mock => mock.GetAllAsync(It.IsAny<Guid>()))
                 .ReturnsAsync(new ServiceResponse<List<Project>>(listOfMockProject));
@@ -149,7 +153,7 @@ namespace FRF.Web.Tests.Controllers
             var returnValue = Assert.IsType<List<ProjectDTO>>(okResult.Value);
 
             Assert.Equal(sizeOfList, returnValue.Count);
-            //_userService.Verify(mock => mock.GetCurrentUserIdAsync(), Times.Once);
+            _userService.Verify(mock => mock.GetCurrentUserIdAsync(), Times.Once);
             _projectsService.Verify(mock => mock.GetAllAsync(It.IsAny<Guid>()), Times.Once);
         }
 
@@ -158,6 +162,10 @@ namespace FRF.Web.Tests.Controllers
         {
             // Arrange
             var listOfMockProjectEmpty = new List<Project>();
+
+            _userService
+                .Setup(mock => mock.GetCurrentUserIdAsync())
+                .ReturnsAsync(new ServiceResponse<Guid>(new Guid()));
 
             _projectsService
                 .Setup(mock => mock.GetAllAsync(It.IsAny<Guid>()))
@@ -170,7 +178,7 @@ namespace FRF.Web.Tests.Controllers
             var okResult = Assert.IsType<OkObjectResult>(result);
             var returnValue = Assert.IsType<List<ProjectDTO>>(okResult.Value);
 
-            //_userService.Verify(mock => mock.GetCurrentUserIdAsync(), Times.Once);
+            _userService.Verify(mock => mock.GetCurrentUserIdAsync(), Times.Once);
             Assert.Empty(returnValue);
             _projectsService.Verify(mock => mock.GetAllAsync(It.IsAny<Guid>()), Times.Once);
         }
@@ -183,6 +191,10 @@ namespace FRF.Web.Tests.Controllers
             var projectId = rnd.Next(1, 99999);
             var project = CreateProject(projectId);
             var projectUpsertDTO = CreateProjectUpsertDto(project);
+
+            _userService
+                .Setup(mock => mock.GetCurrentUserIdAsync())
+                .ReturnsAsync(new ServiceResponse<Guid>(new Guid()));
 
             _projectsService
                 .Setup(mock => mock.SaveAsync(It.IsAny<Project>()))
