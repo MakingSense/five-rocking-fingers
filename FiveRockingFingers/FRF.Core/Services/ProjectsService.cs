@@ -39,10 +39,10 @@ namespace FRF.Core.Services
 
             foreach (var user in projects.SelectMany(project => project.UsersByProject))
             {
-                var userPublicProfile =await _userService.GetUserPublicProfileAsync(user.UserId);
-                if (userPublicProfile == null) continue;
-                user.Fullname = userPublicProfile.Fullname;
-                user.Email = userPublicProfile.Email;
+                var response = await _userService.GetUserPublicProfileAsync(user.UserId);
+                if (!response.Success) continue;
+                user.Fullname = response.Value.Fullname;
+                user.Email = response.Value.Email;
             }
 
             return new ServiceResponse<List<Project>>(projects);
@@ -107,9 +107,9 @@ namespace FRF.Core.Services
 
         public async Task<ServiceResponse<Project>> GetAsync(int id)
         {
-            var userId =await _userService.GetCurrentUserIdAsync();
+            var userId = await _userService.GetCurrentUserIdAsync();
             var result = await _dataContext.UsersByProject
-                .Where(up => up.UserId == userId)
+                .Where(up => up.UserId == userId.Value)
                 .Include(pr=>pr.Project)
                 .ThenInclude(c=>c.ProjectCategories)
                 .ThenInclude(ca=>ca.Category).Include(pp=>pp.Project)
@@ -124,10 +124,10 @@ namespace FRF.Core.Services
             var project = _mapper.Map<Project>(result.Project);
             foreach (var user in project.UsersByProject)
             {
-                var userPublicProfile = await _userService.GetUserPublicProfileAsync(user.UserId);
-                if (userPublicProfile == null) continue;
-                user.Fullname = userPublicProfile.Fullname;
-                user.Email = userPublicProfile.Email;
+                var response = await _userService.GetUserPublicProfileAsync(user.UserId);
+                if (!response.Success) continue;
+                user.Fullname = response.Value.Fullname;
+                user.Email = response.Value.Email;
             }
 
             return new ServiceResponse<Project>(project);
@@ -196,7 +196,7 @@ namespace FRF.Core.Services
         {
             var userId = await _userService.GetCurrentUserIdAsync();
             var projectToDelete = await _dataContext.UsersByProject
-                .Where(ubp => ubp.UserId == userId)
+                .Where(ubp => ubp.UserId == userId.Value)
                 .Include(pr => pr.Project)
                 .Select(ubp=> ubp.Project)
                 .SingleOrDefaultAsync(p => p.Id == id);

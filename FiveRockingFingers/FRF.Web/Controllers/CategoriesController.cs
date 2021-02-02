@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace FRF.Web.Controllers
 {
     [ApiController]
-    [Route("api/[controller]/[action]")]
+    [Route("api/categories")]
     [Authorize]
     public class CategoriesController : ControllerBase
     {
