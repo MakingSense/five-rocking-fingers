@@ -8,21 +8,9 @@ namespace FRF.Core.Models.AwsArtifacts
 {
     public class AmazonEc2Artifact : Artifact
     {
-        public const string ServiceCode = "AmazonEC2";
-        public string OperatingSystem { get; set; }
-        public string Vcpu { get; set; }
-        public string Memory { get; set; }
-        public string NetworkPerformance { get; set; }
-        public string TermType { get; set; }
-        public string InstanceType { get; set; }
-        public string CurrentGeneration { get; set; }
         public string PurchaseOption { get; set; }
-        public string Tenancy { get; set; }
-        public string Location { get; set; }
-        public decimal PricePerHour { get; set; }
-        public decimal Hours { get; set; }
-        public PricingDimension Range0 { get; set; }
-        public PricingDimension Range1 { get; set; }
+        public decimal PricePerUnit0 { get; set; }
+        public decimal PricePerUnit1 { get; set; }
         public string LeaseContractLength { get; set; }
         public decimal GetPrice()
         {
@@ -62,27 +50,27 @@ namespace FRF.Core.Models.AwsArtifacts
 
         private decimal GetPriceAllUpfront1Yr()
         {
-            return (decimal)(Range1.PricePerUnit / 12);
+            return PricePerUnit1 / 12;
         }
 
         private decimal GetPriceAllUpfront3Yr()
         {
-            return (decimal)(Range1.PricePerUnit / 36);
+            return PricePerUnit1 / 36;
         }
 
         private decimal GetPricePartialUpfront1Yr()
         {
-            return (decimal)(Range0.PricePerUnit * 730 + Range1.PricePerUnit / 12);
+            return PricePerUnit0 * 730 + PricePerUnit1 / 12;
         }
 
         private decimal GetPricePartialUpfront3Yr()
         {
-            return (decimal)(Range0.PricePerUnit * 730 + Range1.PricePerUnit / 36);
+            return PricePerUnit0 * 730 + PricePerUnit1 / 36;
         }
 
         private decimal GetPriceNoUpfront()
         {
-            return (decimal)(Range0.PricePerUnit * 730);
+            return PricePerUnit0 * 730;
         }
     }
 }
