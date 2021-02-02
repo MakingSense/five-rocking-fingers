@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using CoreModels = FRF.Core.Models;
 
 namespace FRF.Core.Tests.Services
 {
@@ -100,7 +101,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetAllAsync(userByProject.UserId);
 
             // Assert
-            Assert.IsType<ServiceResponse<List<Models.Project>>>(result);
+            Assert.IsType<ServiceResponse<List<CoreModels.Project>>>(result);
             Assert.True(result.Success);
             var resultValue = Assert.Single(result.Value);
 
@@ -130,7 +131,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetAllAsync(userId);
 
             // Assert
-            Assert.IsType<ServiceResponse<List<Models.Project>>>(result);
+            Assert.IsType<ServiceResponse<List<CoreModels.Project>>>(result);
             Assert.True(result.Success);
             Assert.Empty(result.Value);
         }
@@ -154,7 +155,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetAsync(project.Id);
 
             // Assert
-            Assert.IsType<ServiceResponse<Models.Project>>(result);
+            Assert.IsType<ServiceResponse<CoreModels.Project>>(result);
             Assert.True(result.Success);
             var resultValue = result.Value;
 
@@ -189,7 +190,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetAsync(projectId);
 
             // Assert
-            Assert.IsType<ServiceResponse<Models.Project>>(result);
+            Assert.IsType<ServiceResponse<CoreModels.Project>>(result);
             Assert.False(result.Success);
             Assert.Equal(result.Error.Code, ErrorCodes.ProjectNotExists);
         }
@@ -203,12 +204,12 @@ namespace FRF.Core.Tests.Services
                 UserId = new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba")
             };
 
-            var projectToSave = new Models.Project();
+            var projectToSave = new CoreModels.Project();
             projectToSave.Name = "[Mock] Project name 1";
             projectToSave.Owner = "[Mock] Project Owner";
             projectToSave.Client = "[Mock] Project Client";
             projectToSave.Budget = 1000;
-            projectToSave.ProjectCategories = new List<Models.ProjectCategory>();
+            projectToSave.ProjectCategories = new List<CoreModels.ProjectCategory>();
             projectToSave.UsersByProject = new List<UsersProfile>
             {
                 userByProject
@@ -218,7 +219,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.SaveAsync(projectToSave);
 
             // Assert
-            Assert.IsType<ServiceResponse<Models.Project>>(result);
+            Assert.IsType<ServiceResponse<CoreModels.Project>>(result);
             Assert.True(result.Success);
             var resultValue = result.Value;
 
@@ -237,22 +238,22 @@ namespace FRF.Core.Tests.Services
             var project = CreateProject();
             CreateUserByProject(project);
 
-            var category = new Models.Category
+            var category = new CoreModels.Category
             {
                 Id = 0,
                 Name = "[Mock] Category Name"
             };
 
-            var projectToSave = new Models.Project();
+            var projectToSave = new CoreModels.Project();
             projectToSave.Name = "[Mock] Project name 1";
             projectToSave.Owner = "[Mock] Project Owner";
             projectToSave.Client = "[Mock] Project Client";
             projectToSave.CreatedDate = DateTime.Now;
 
-            var projectCategories = new Models.ProjectCategory();
+            var projectCategories = new CoreModels.ProjectCategory();
             projectCategories.Category = category;
 
-            projectToSave.ProjectCategories = new List<Models.ProjectCategory>
+            projectToSave.ProjectCategories = new List<CoreModels.ProjectCategory>
             {
                 projectCategories
             };
@@ -261,7 +262,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.SaveAsync(projectToSave);
 
             // Assert
-            Assert.IsType<ServiceResponse<Models.Project>>(result);
+            Assert.IsType<ServiceResponse<CoreModels.Project>>(result);
             Assert.False(result.Success);
             Assert.Equal(result.Error.Code, ErrorCodes.CategoryNotExists);
         }
@@ -274,9 +275,9 @@ namespace FRF.Core.Tests.Services
             CreateUserByProject(project);
             var category = CreateCategory();
 
-            var projectCategory = new Models.ProjectCategory()
+            var projectCategory = new CoreModels.ProjectCategory()
             {
-                Category = new Models.Category()
+                Category = new CoreModels.Category()
                 {
                     Id = category.Id,
                     Name = category.Name,
@@ -289,7 +290,7 @@ namespace FRF.Core.Tests.Services
                 UserId = new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba")
             };
 
-            var projectToUpdate = new Models.Project();
+            var projectToUpdate = new CoreModels.Project();
             projectToUpdate.Id = project.Id;
             projectToUpdate.Name = "[Mock] Updated Project name";
             projectToUpdate.Owner = "[Mock] Updated Project Owner";
@@ -300,7 +301,7 @@ namespace FRF.Core.Tests.Services
             {
                 userByProject
             };
-            projectToUpdate.ProjectCategories = new List<Models.ProjectCategory>()
+            projectToUpdate.ProjectCategories = new List<CoreModels.ProjectCategory>()
             {
                 projectCategory
             };
@@ -309,7 +310,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.UpdateAsync(projectToUpdate);
 
             // Assert
-            Assert.IsType<ServiceResponse<Models.Project>>(result);
+            Assert.IsType<ServiceResponse<CoreModels.Project>>(result);
             Assert.True(result.Success);
             var resultValue = result.Value;
 
@@ -329,20 +330,20 @@ namespace FRF.Core.Tests.Services
             var project = CreateProject();
             CreateUserByProject(project);
 
-            var category = new Models.Category();
+            var category = new CoreModels.Category();
             category.Id = 0;
             category.Name = "[Mock] Category Name";
 
-            var projectToUpdate = new Models.Project();
+            var projectToUpdate = new CoreModels.Project();
             projectToUpdate.Name = "[Mock] Project name 1";
             projectToUpdate.Owner = "[Mock] Project Owner";
             projectToUpdate.Client = "[Mock] Project Client";
             projectToUpdate.CreatedDate = project.CreatedDate;
 
-            var projectCategories = new Models.ProjectCategory();
+            var projectCategories = new CoreModels.ProjectCategory();
             projectCategories.Category = category;
 
-            projectToUpdate.ProjectCategories = new List<Models.ProjectCategory>
+            projectToUpdate.ProjectCategories = new List<CoreModels.ProjectCategory>
             {
                 projectCategories
             };
@@ -351,7 +352,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.UpdateAsync(projectToUpdate);
 
             // Assert
-            Assert.IsType<ServiceResponse<Models.Project>>(result);
+            Assert.IsType<ServiceResponse<CoreModels.Project>>(result);
             Assert.False(result.Success);
             Assert.Equal(result.Error.Code, ErrorCodes.CategoryNotExists);
         }
@@ -364,9 +365,9 @@ namespace FRF.Core.Tests.Services
             CreateUserByProject(project);
             var category = CreateCategory();
 
-            var projectCategory = new Models.ProjectCategory()
+            var projectCategory = new CoreModels.ProjectCategory()
             {
-                Category = new Models.Category()
+                Category = new CoreModels.Category()
                 {
                     Id = category.Id,
                     Name = category.Name,
@@ -379,7 +380,7 @@ namespace FRF.Core.Tests.Services
                 UserId = new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba")
             };
 
-            var projectToUpdate = new Models.Project();
+            var projectToUpdate = new CoreModels.Project();
             projectToUpdate.Id = 0;
             projectToUpdate.Name = "[Mock] Project name 1";
             projectToUpdate.Owner = "[Mock] Project Owner";
@@ -389,7 +390,7 @@ namespace FRF.Core.Tests.Services
             {
                 userByProject
             };
-            projectToUpdate.ProjectCategories = new List<Models.ProjectCategory>()
+            projectToUpdate.ProjectCategories = new List<CoreModels.ProjectCategory>()
             {
                 projectCategory
             };
@@ -398,7 +399,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.UpdateAsync(projectToUpdate);
 
             // Assert
-            Assert.IsType<ServiceResponse<Models.Project>>(result);
+            Assert.IsType<ServiceResponse<CoreModels.Project>>(result);
             Assert.False(result.Success);
             Assert.Equal(result.Error.Code, ErrorCodes.ProjectNotExists);
         }
@@ -417,7 +418,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.DeleteAsync(project.Id);
 
             // Assert
-            Assert.IsType<ServiceResponse<Models.Project>>(result);
+            Assert.IsType<ServiceResponse<CoreModels.Project>>(result);
             Assert.True(result.Success);
             Assert.NotNull(result.Value);
         }
@@ -434,7 +435,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.DeleteAsync(projectId);
 
             // Assert
-            Assert.IsType<ServiceResponse<Models.Project>>(result);
+            Assert.IsType<ServiceResponse<CoreModels.Project>>(result);
             Assert.False(result.Success);
             Assert.Equal(result.Error.Code, ErrorCodes.ProjectNotExists);
         }
