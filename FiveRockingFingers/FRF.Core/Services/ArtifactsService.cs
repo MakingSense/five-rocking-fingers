@@ -156,9 +156,9 @@ namespace FRF.Core.Services
                 return new ServiceResponse<Artifact>(new Error(ErrorCodes.ArtifactTypeNotExists, $"There is no artifact type with Id = {artifact.ArtifactTypeId}"));
             }
 
-            if(artifact.Provider == "Custom" && !ValidateSettings(artifact.Settings))
+            if(artifact.Provider == ArtifactTypes.Custom && !ValidateSettings(artifact.Settings))
             {
-                return new ServiceResponse<Artifact>(new Error(ErrorCodes.ArtifactTypeNotExists, $"Settings are incorrect"));
+                return new ServiceResponse<Artifact>(new Error(ErrorCodes.InvalidSettings, $"Settings are invalid"));
             }
 
             // Maps the artifact into an EntityModel, deleting the Id if there was one, and setting the CreatedDate field
@@ -349,7 +349,7 @@ namespace FRF.Core.Services
         {
             var isAnError = true;
 
-            string rootPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            string rootPath = Path.GetDirectoryName(AppContext.BaseDirectory);
 
             var path = Path.Combine(rootPath, "CustomArtifact.xsd");
 
