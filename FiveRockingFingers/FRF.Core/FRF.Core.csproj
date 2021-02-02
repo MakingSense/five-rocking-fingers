@@ -16,8 +16,4 @@
     <ProjectReference Include="..\FRF.DataAccess\FRF.DataAccess.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Models\AwsArtifacts\" />
-  </ItemGroup>
-
 </Project>
