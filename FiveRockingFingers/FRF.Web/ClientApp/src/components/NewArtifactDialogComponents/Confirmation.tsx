@@ -105,7 +105,7 @@ const Confirmation = (props: { showNewArtifactDialog: boolean, closeNewArtifactD
                         {createPropertieLabel("Purchase Option", props.awsPricingTerm.purchaseOption)}
                         {createPropertieLabel("Description", props.awsPricingTerm.pricingDimensions[0].description)}
                         {createPropertieLabel("Currency", props.awsPricingTerm.pricingDimensions[0].currency)}
-                        {createPropertieLabel("Price per unit", props.awsPricingTerm.pricingDimensions[0].pricePerUnit.toString())}
+                        {createPropertieLabel("Price per unit", props.awsPricingTerm.pricingDimensions[0].pricePerUnit.toFixed(10))}
                         {createPropertieLabel("Term", props.awsPricingTerm.term)}
                     </React.Fragment>
                     : null

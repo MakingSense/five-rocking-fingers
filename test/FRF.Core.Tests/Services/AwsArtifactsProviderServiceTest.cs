@@ -253,18 +253,18 @@ namespace FRF.Core.Tests.Services
             var resultValue = result.Value;
             Assert.NotEmpty(resultValue);
 
-            Assert.Equal(resultValue[0].Sku, sku);
-            Assert.Equal(resultValue[0].Term, term);
-            Assert.Equal(resultValue[0].PurchaseOption, purchaseOption);
-            Assert.Equal(resultValue[0].OfferingClass, offeringClass);
-            Assert.Equal(resultValue[0].LeaseContractLength, leaseContractLength);
-            Assert.Equal(resultValue[0].PricingDimensions[0].BeginRange, beginRangeFloat);
-            Assert.Equal(resultValue[0].PricingDimensions[0].Currency, currency);
-            Assert.Equal(resultValue[0].PricingDimensions[0].Description, description);
-            Assert.Equal(resultValue[0].PricingDimensions[0].EndRange, endRangeFloat);
-            Assert.Equal(resultValue[0].PricingDimensions[0].PricePerUnit, float.Parse(pricePerUnit, CultureInfo.InvariantCulture));
-            Assert.Equal(resultValue[0].PricingDimensions[0].RateCode, rateCode);
-            Assert.Equal(resultValue[0].PricingDimensions[0].Unit, unit);
+            Assert.Equal(sku, resultValue[0].Sku);
+            Assert.Equal(term, resultValue[0].Term);
+            Assert.Equal(purchaseOption, resultValue[0].PurchaseOption);
+            Assert.Equal(offeringClass, resultValue[0].OfferingClass);
+            Assert.Equal(leaseContractLength, resultValue[0].LeaseContractLength);
+            Assert.Equal(beginRangeFloat, resultValue[0].PricingDimensions[0].BeginRange);
+            Assert.Equal(currency, resultValue[0].PricingDimensions[0].Currency);
+            Assert.Equal(description, resultValue[0].PricingDimensions[0].Description);
+            Assert.Equal(endRangeFloat, resultValue[0].PricingDimensions[0].EndRange);
+            Assert.Equal(decimal.Parse(pricePerUnit, CultureInfo.InvariantCulture), resultValue[0].PricingDimensions[0].PricePerUnit);
+            Assert.Equal(rateCode, resultValue[0].PricingDimensions[0].RateCode);
+            Assert.Equal(unit, resultValue[0].PricingDimensions[0].Unit);
         }
 
         [Fact]

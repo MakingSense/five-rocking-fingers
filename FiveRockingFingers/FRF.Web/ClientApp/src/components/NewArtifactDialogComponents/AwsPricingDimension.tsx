@@ -123,7 +123,7 @@ const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewAr
                 {createPropertieLabel("Purchase Option", pricingTerm.purchaseOption)}
                 {createPropertieLabel("Description", pricingTerm.pricingDimensions[0].description)}
                 {createPropertieLabel("Currency", pricingTerm.pricingDimensions[0].currency)}
-                {createPropertieLabel("Price per unit", pricingTerm.pricingDimensions[0].pricePerUnit.toString())}
+                {createPropertieLabel("Price per unit", pricingTerm.pricingDimensions[0].pricePerUnit.toFixed(10))}
                 {createPropertieLabel("Term", pricingTerm.term)}
                 <hr/>
             </React.Fragment>
