@@ -1,8 +1,8 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Amazon.CognitoIdentityProvider.Model;
 using Amazon.Extensions.CognitoAuthentication;
+using FRF.Core.Response;
 using FRF.Core.Services;
 using Microsoft.AspNetCore.Identity;
 using Moq;
@@ -27,7 +27,7 @@ namespace FRF.Core.Tests.Services
         }
 
         [Fact]
-        public async Task SignUpAsync_WhenSignUpFail_ReturnFalse()
+        public async Task SignUpAsync_WhenSignUpFail_ReturnError()
         {
             // Arrange
             var newUser = CreateUser();
@@ -41,8 +41,10 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.SignUpAsync(newUser);
 
             // Assert
-            Assert.False(result.Item1);
-            Assert.Equal(string.Empty, result.Item2);
+            Assert.IsType<ServiceResponse<string>>(result);
+            Assert.False(result.Success);
+            Assert.Equal(ErrorCodes.InvalidCredentials, result.Error.Code);
+
             _userManagerMock.Verify(mock => mock.CreateAsync(It.IsAny<CognitoUser>(), It.IsAny<string>()), Times.Once);
             _signInManagerMock.Verify(
                 mock => mock.PasswordSignInAsync(It.IsAny<CognitoUser>(), It.IsAny<string>(), false, false),
@@ -50,7 +52,7 @@ namespace FRF.Core.Tests.Services
         }
 
         [Fact]
-        public async Task SignUpAsync_WhenAutoVerificationFail_ReturnFalse()
+        public async Task SignUpAsync_WhenAutoVerificationFail_ReturnError()
         {
             // Arrange
             var newUser = CreateUser();
@@ -68,8 +70,9 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.SignUpAsync(newUser);
 
             // Assert
-            Assert.False(result.Item1);
-            Assert.Equal(string.Empty, result.Item2);
+            Assert.IsType<ServiceResponse<string>>(result);
+            Assert.False(result.Success);
+            Assert.Equal(ErrorCodes.AuthenticationServerCurrentlyUnavailable, result.Error.Code);
 
             _userManagerMock.Verify(mock => mock.CreateAsync(It.IsAny<CognitoUser>(), It.IsAny<string>()), Times.Once);
 
@@ -107,9 +110,10 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.SignUpAsync(newUser);
 
             // Assert
-            Assert.False(result.Item1);
-            Assert.Equal(string.Empty, result.Item2);
-
+            Assert.IsType<ServiceResponse<string>>(result);
+            Assert.False(result.Success);
+            Assert.Equal(ErrorCodes.AuthenticationServerCurrentlyUnavailable, result.Error.Code);
+            
             _userManagerMock.Verify(mock => mock.CreateAsync(It.IsAny<CognitoUser>(), It.IsAny<string>()), Times.Once);
 
             _cognitoClientMock.Verify(
@@ -160,9 +164,9 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.SignUpAsync(newUser);
 
             // Assert
-            Assert.IsType<Tuple<bool, string>>(result);
-            Assert.True(result.Item1);
-            Assert.Equal(cognitoUser.UserID, result.Item2);
+            Assert.IsType<ServiceResponse<string>>(result);
+            Assert.True(result.Success);
+            Assert.Equal(cognitoUser.UserID, result.Value);
 
             _userManagerMock.Verify(mock => mock.FindByEmailAsync(It.IsAny<string>()), Times.Once);
 

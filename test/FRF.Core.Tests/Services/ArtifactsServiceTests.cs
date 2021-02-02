@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using FRF.DataAccess.EntityModels;
 using Microsoft.Extensions.Configuration;
 using ArtifactsRelation = FRF.Core.Models.ArtifactsRelation;
+using CoreModels = FRF.Core.Models;
 using FRF.Core.Response;
 
 namespace FRF.Core.Tests.Services
@@ -75,11 +76,11 @@ namespace FRF.Core.Tests.Services
             return artifact;
         }
 
-        private Models.ArtifactsRelation CreateArtifactsRelationModel(int artifact1Id,int artifact2Id)
+        private CoreModels.ArtifactsRelation CreateArtifactsRelationModel(int artifact1Id,int artifact2Id)
         {
             var random = new Random();
             var propertyId = random.Next(1000);
-            var artifactRelation = new Models.ArtifactsRelation()
+            var artifactRelation = new CoreModels.ArtifactsRelation()
             {
                 Artifact1Id = artifact1Id,
                 Artifact2Id = artifact2Id,
@@ -103,7 +104,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetAll();
 
             // Assert
-            Assert.IsType<ServiceResponse<List<Models.Artifact>>>(result);
+            Assert.IsType<ServiceResponse<List<CoreModels.Artifact>>>(result);
             Assert.True(result.Success);
             var resultValue = Assert.Single(result.Value);
 
@@ -129,7 +130,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetAll();
 
             // Assert
-            Assert.IsType<ServiceResponse<List<Models.Artifact>>>(result);
+            Assert.IsType<ServiceResponse<List<CoreModels.Artifact>>>(result);
             Assert.True(result.Success);
             Assert.Empty(result.Value);
         }
@@ -146,7 +147,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetAllByProjectId(project.Id);
 
             // Assert
-            Assert.IsType<ServiceResponse<List<Models.Artifact>>>(result);
+            Assert.IsType<ServiceResponse<List<CoreModels.Artifact>>>(result);
             Assert.True(result.Success);
             var resultValue = Assert.Single(result.Value);
 
@@ -175,7 +176,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetAllByProjectId(projectId);
 
             // Assert
-            Assert.IsType<ServiceResponse<List<Models.Artifact>>>(result);
+            Assert.IsType<ServiceResponse<List<CoreModels.Artifact>>>(result);
             Assert.False(result.Success);
             Assert.NotNull(result.Error);
             Assert.Equal(result.Error.Code, ErrorCodes.ProjectNotExists);
@@ -192,7 +193,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetAllByProjectId(project.Id);
 
             // Assert
-            Assert.IsType<ServiceResponse<List<Models.Artifact>>>(result);
+            Assert.IsType<ServiceResponse<List<CoreModels.Artifact>>>(result);
             Assert.True(result.Success);
             Assert.Empty(result.Value);
         }
@@ -209,9 +210,9 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.Get(artifact.Id);
 
             // Assert
-            Assert.IsType<ServiceResponse<Models.Artifact>>(result);
+            Assert.IsType<ServiceResponse<CoreModels.Artifact>>(result);
             Assert.True(result.Success);
-            var resultValue = Assert.IsType<Models.Artifact>(result.Value);
+            var resultValue = Assert.IsType<CoreModels.Artifact>(result.Value);
 
             Assert.Equal(artifact.Id, resultValue.Id);
             Assert.Equal(artifact.Name, resultValue.Name);
@@ -238,7 +239,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.Get(artifactId);
 
             // Assert
-            Assert.IsType<ServiceResponse<Models.Artifact>>(result);
+            Assert.IsType<ServiceResponse<CoreModels.Artifact>>(result);
             Assert.False(result.Success);
             Assert.NotNull(result.Error);
             Assert.Equal(result.Error.Code, ErrorCodes.ArtifactNotExists);
@@ -251,7 +252,7 @@ namespace FRF.Core.Tests.Services
             var artifactType = CreateArtifactType();
             var project = CreateProject();
 
-            var artifactToSave = new Models.Artifact();
+            var artifactToSave = new CoreModels.Artifact();
             artifactToSave.Name = "[Mock] Artifact name 1";
             artifactToSave.Provider = "[Mock] AWS";
             artifactToSave.ProjectId = project.Id;
@@ -261,9 +262,9 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.Save(artifactToSave);
 
             // Assert
-            Assert.IsType<ServiceResponse<Models.Artifact>>(result);
+            Assert.IsType<ServiceResponse<CoreModels.Artifact>>(result);
             Assert.True(result.Success);
-            var resultValue = Assert.IsType<Models.Artifact>(result.Value);
+            var resultValue = Assert.IsType<CoreModels.Artifact>(result.Value);
 
             Assert.Equal(artifactToSave.Name, resultValue.Name);
             Assert.Equal(artifactToSave.Provider, resultValue.Provider);
@@ -284,15 +285,15 @@ namespace FRF.Core.Tests.Services
         {
             // Arange
             var artifactType = CreateArtifactType();
-            var artifactToSave = new Models.Artifact()
+            var artifactToSave = new CoreModels.Artifact()
             {
                 Name = "[Mock] Artifact name 1",
                 Provider = "[Mock] AWS",
                 CreatedDate = DateTime.Now,
                 ProjectId = 999,
-                Project = new Models.Project(),
+                Project = new CoreModels.Project(),
                 ArtifactTypeId = artifactType.Id,
-                ArtifactType = new Models.ArtifactType()
+                ArtifactType = new CoreModels.ArtifactType()
                 {
                     Id = artifactType.Id,
                     Description = artifactType.Description,
@@ -304,7 +305,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.Save(artifactToSave);
 
             // Assert
-            Assert.IsType<ServiceResponse<Models.Artifact>>(result);
+            Assert.IsType<ServiceResponse<CoreModels.Artifact>>(result);
             Assert.False(result.Success);
             Assert.NotNull(result.Error);
             Assert.Equal(result.Error.Code, ErrorCodes.ProjectNotExists);
@@ -315,27 +316,27 @@ namespace FRF.Core.Tests.Services
         {
             // Arange
             var project = CreateProject();
-            var artifactToSave = new Models.Artifact() 
+            var artifactToSave = new CoreModels.Artifact() 
             { 
                 Name = "[Mock] Artifact name 1",
                 Provider = "[Mock] AWS",
                 CreatedDate = DateTime.Now,
                 ProjectId = project.Id,
-                Project = new Models.Project {
+                Project = new CoreModels.Project {
                     Id = project.Id,
                     Name = project.Name,
                     CreatedDate = project.CreatedDate,
-                    ProjectCategories = new List<Models.ProjectCategory>()
+                    ProjectCategories = new List<CoreModels.ProjectCategory>()
                 },
                 ArtifactTypeId = 999,
-                ArtifactType = new Models.ArtifactType()
+                ArtifactType = new CoreModels.ArtifactType()
             };
 
             // Act
             var result = await _classUnderTest.Save(artifactToSave);
 
             // Assert
-            Assert.IsType<ServiceResponse<Models.Artifact>>(result);
+            Assert.IsType<ServiceResponse<CoreModels.Artifact>>(result);
             Assert.False(result.Success);
             Assert.NotNull(result.Error);
             Assert.Equal(result.Error.Code, ErrorCodes.ArtifactTypeNotExists);
@@ -366,25 +367,25 @@ namespace FRF.Core.Tests.Services
             _dataAccess.ArtifactType.Add(newArtifactType);
             _dataAccess.SaveChanges();
 
-            var artifactToUpdate = new Models.Artifact()
+            var artifactToUpdate = new CoreModels.Artifact()
             {
                 Id = artifact.Id,
                 Name = "[Mock] Updated name",
                 Provider = "[Mock] Updated provider",
                 CreatedDate = DateTime.Now,
                 ProjectId = newProject.Id,
-                Project = _mapper.Map<Models.Project>(newProject),
+                Project = _mapper.Map<CoreModels.Project>(newProject),
                 ArtifactTypeId = newArtifactType.Id,
-                ArtifactType = _mapper.Map<Models.ArtifactType>(newArtifactType)
+                ArtifactType = _mapper.Map<CoreModels.ArtifactType>(newArtifactType)
             };
 
             // Act
             var result = await _classUnderTest.Update(artifactToUpdate);
 
             // Assert
-            Assert.IsType<ServiceResponse<Models.Artifact>>(result);
+            Assert.IsType<ServiceResponse<CoreModels.Artifact>>(result);
             Assert.True(result.Success);
-            var resultValue = Assert.IsType<Models.Artifact>(result.Value);
+            var resultValue = Assert.IsType<CoreModels.Artifact>(result.Value);
 
             Assert.Equal(artifactToUpdate.Id, resultValue.Id);
             Assert.Equal(artifactToUpdate.Name, resultValue.Name);
@@ -409,7 +410,7 @@ namespace FRF.Core.Tests.Services
             // Arange
             var artifactType = CreateArtifactType();
             var project = CreateProject();
-            var artifactToUpdate = new Models.Artifact()
+            var artifactToUpdate = new CoreModels.Artifact()
             {
                 Id = 1,
                 Name = "[Mock] Updated name",
@@ -423,7 +424,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.Update(artifactToUpdate);
 
             // Assert
-            Assert.IsType<ServiceResponse<Models.Artifact>>(result);
+            Assert.IsType<ServiceResponse<CoreModels.Artifact>>(result);
             Assert.False(result.Success);
             Assert.NotNull(result.Error);
             Assert.Equal(result.Error.Code, ErrorCodes.ArtifactNotExists);
@@ -437,7 +438,7 @@ namespace FRF.Core.Tests.Services
             var project = CreateProject();
             var artifact = CreateArtifact(project, artifactType);
 
-            var artifactToUpdate = new Models.Artifact()
+            var artifactToUpdate = new CoreModels.Artifact()
             {
                 Id = artifact.Id,
                 Name = "[Mock] Updated name",
@@ -451,7 +452,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.Update(artifactToUpdate);
 
             // Assert
-            Assert.IsType<ServiceResponse<Models.Artifact>>(result);
+            Assert.IsType<ServiceResponse<CoreModels.Artifact>>(result);
             Assert.False(result.Success);
             Assert.NotNull(result.Error);
             Assert.Equal(result.Error.Code, ErrorCodes.ProjectNotExists);
@@ -465,7 +466,7 @@ namespace FRF.Core.Tests.Services
             var project = CreateProject();
             var artifact = CreateArtifact(project, artifactType);
 
-            var artifactToUpdate = new Models.Artifact()
+            var artifactToUpdate = new CoreModels.Artifact()
             {
                 Id = artifact.Id,
                 Name = "[Mock] Updated name",
@@ -479,7 +480,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.Update(artifactToUpdate);
 
             // Assert
-            Assert.IsType<ServiceResponse<Models.Artifact>>(result);
+            Assert.IsType<ServiceResponse<CoreModels.Artifact>>(result);
             Assert.False(result.Success);
             Assert.NotNull(result.Error);
             Assert.Equal(result.Error.Code, ErrorCodes.ArtifactTypeNotExists);
@@ -497,9 +498,9 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.Delete(artifact.Id);
 
             // Assert
-            Assert.IsType<ServiceResponse<Models.Artifact>>(result);
+            Assert.IsType<ServiceResponse<CoreModels.Artifact>>(result);
             Assert.True(result.Success);
-            var resultValue = Assert.IsType<Models.Artifact>(result.Value);
+            var resultValue = Assert.IsType<CoreModels.Artifact>(result.Value);
 
             Assert.Equal(artifact.Id, resultValue.Id);
             Assert.Equal(artifact.Name, resultValue.Name);
@@ -528,7 +529,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.Delete(0);
 
             // Assert
-            Assert.IsType<ServiceResponse<Models.Artifact>>(result);
+            Assert.IsType<ServiceResponse<CoreModels.Artifact>>(result);
             Assert.False(result.Success);
             Assert.NotNull(result.Error);
             Assert.Equal(result.Error.Code, ErrorCodes.ArtifactNotExists);
@@ -568,7 +569,7 @@ namespace FRF.Core.Tests.Services
 
             // Assert
             Assert.True(response.Success);
-            Assert.IsType<ServiceResponse<IList<Models.ArtifactsRelation>>>(response);
+            Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
             var resultValue = Assert.IsAssignableFrom<IList<ArtifactsRelation>>(response.Value);
             for (var j = 0; j < resultValue.Count; j++)
             {
@@ -598,7 +599,7 @@ namespace FRF.Core.Tests.Services
 
             // Assert
             Assert.False(response.Success);
-            Assert.IsType<ServiceResponse<IList<Models.ArtifactsRelation>>>(response);
+            Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
             Assert.NotNull(response.Error);
             Assert.Equal(response.Error.Code, ErrorCodes.RelationNotValid);
         }
@@ -635,7 +636,7 @@ namespace FRF.Core.Tests.Services
 
             // Assert
             Assert.False(response.Success);
-            Assert.IsType<ServiceResponse<IList<Models.ArtifactsRelation>>>(response);
+            Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
             Assert.NotNull(response.Error);
             Assert.Equal(response.Error.Code, ErrorCodes.RelationAlreadyExisted);
 
@@ -676,7 +677,7 @@ namespace FRF.Core.Tests.Services
 
             // Assert
             Assert.False(response.Success);
-            Assert.IsType<ServiceResponse<IList<Models.ArtifactsRelation>>>(response);
+            Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
             Assert.NotNull(response.Error);
             Assert.Equal(response.Error.Code, ErrorCodes.ArtifactNotExists);
 
@@ -722,7 +723,7 @@ namespace FRF.Core.Tests.Services
             
             // Assert
             Assert.True(response.Success);
-            Assert.IsType<ServiceResponse<IList<Models.ArtifactsRelation>>>(response);
+            Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
             var resultValue = Assert.IsAssignableFrom<IList<ArtifactsRelation>>(response.Value);
             for (var j = 0; j < resultValue.Count; j++)
             {
@@ -762,7 +763,7 @@ namespace FRF.Core.Tests.Services
 
             // Assert
             Assert.True(response.Success);
-            Assert.IsType<ServiceResponse<IList<Models.ArtifactsRelation>>>(response);
+            Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
             var resultValue = Assert.IsAssignableFrom<IList<ArtifactsRelation>>(response.Value);
             for (var j = 0; j < resultValue.Count; j++)
             {
@@ -783,7 +784,7 @@ namespace FRF.Core.Tests.Services
 
             // Assert
             Assert.False(response.Success);
-            Assert.IsType<ServiceResponse<IList<Models.ArtifactsRelation>>>(response);
+            Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
             Assert.NotNull(response.Error);
             Assert.Equal(response.Error.Code, ErrorCodes.ProjectNotExists);
         }
@@ -828,7 +829,7 @@ namespace FRF.Core.Tests.Services
 
             // Assert
             Assert.False(response.Success);
-            Assert.IsType<ServiceResponse<IList<Models.ArtifactsRelation>>>(response);
+            Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
             Assert.NotNull(response.Error);
             Assert.Equal(response.Error.Code, ErrorCodes.RelationNotExists);
         }

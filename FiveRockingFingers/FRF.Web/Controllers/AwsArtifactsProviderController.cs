@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace FRF.Web.Controllers
 {
-    [Route("api/[controller]/[action]")]
+    [Route("api/aws-artifacts-provider")]
     [ApiController]
     [Authorize]
     public class AwsArtifactsProviderController : ControllerBase
@@ -26,7 +26,7 @@ namespace FRF.Web.Controllers
         /// Retrieve all the artifact names from AWS provider.
         /// </summary>
         /// <returns></returns>
-        [HttpGet]
+        [HttpGet("names")]
         public async Task<IActionResult> GetNamesAsync()
         {
             var response = await _artifactsProviderService.GetNamesAsync();
@@ -37,7 +37,7 @@ namespace FRF.Web.Controllers
             return Ok(response.Value);
         }
 
-        [HttpGet]
+        [HttpGet("attributes")]
         public async Task<IActionResult> GetAttributesAsync(string serviceCode)
         {
             var response = await _artifactsProviderService.GetAttributesAsync(serviceCode);
@@ -46,7 +46,7 @@ namespace FRF.Web.Controllers
             return Ok(attributes);
         }
 
-        [HttpPost]
+        [HttpPost("products")]
         public async Task<IActionResult> GetProductsAsync(List<KeyValuePair<string, string>> settings, string serviceCode)
         {
             var response = await _artifactsProviderService.GetProductsAsync(settings, serviceCode);
