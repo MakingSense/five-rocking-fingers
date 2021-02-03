@@ -15,7 +15,7 @@ class ArtifactService {
 
     static getAllByProjectId = async (id: number) => {
         try {
-            return await axios.get(`${ARTIFACTS_URL}/projects/${id}/artifacts`);
+            return await axios.get(`${BASE_URL}projects/${id}/artifacts`);
         } catch (error) {
             return error.response ? error.response : error.message;
         }
