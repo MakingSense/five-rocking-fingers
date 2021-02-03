@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FRF.Core.Models;
 using FRF.Core.Response;
+using FRF.Core.XmlValidation;
 using FRF.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -156,7 +157,7 @@ namespace FRF.Core.Services
                 return new ServiceResponse<Artifact>(new Error(ErrorCodes.ArtifactTypeNotExists, $"There is no artifact type with Id = {artifact.ArtifactTypeId}"));
             }
 
-            if(artifact.Provider == ArtifactTypes.Custom && !ValidateSettings(artifact.Settings))
+            if(artifact.Provider == ArtifactTypes.Custom && !SettingsValidator.ValidateSettings(artifact.Settings))
             {
                 return new ServiceResponse<Artifact>(new Error(ErrorCodes.InvalidSettings, $"Settings are invalid"));
             }
@@ -343,37 +344,6 @@ namespace FRF.Core.Services
             await _dataContext.SaveChangesAsync();
 
             return new ServiceResponse<IList<ArtifactsRelation>>(artifactsRelationsNew);
-        }
-
-        private bool ValidateSettings(XElement settings)
-        {
-            var isAnError = true;
-
-            string rootPath = Path.GetDirectoryName(AppContext.BaseDirectory);
-
-            var path = Path.Combine(rootPath, "CustomArtifact.xsd");
-
-            XmlSchemaSet schemaSet = new XmlSchemaSet();
-            schemaSet.Add(null, path);          
-
-            XDocument settingsDoc = new XDocument(settings);
-
-            XmlReaderSettings xrs = new XmlReaderSettings();
-            xrs.ValidationType = ValidationType.Schema;
-            xrs.ValidationFlags |= XmlSchemaValidationFlags.ReportValidationWarnings;
-            xrs.Schemas = schemaSet;
-            xrs.ValidationEventHandler += (s, e) => {
-                if(e != null)
-                {
-                    isAnError = false;
-                }                
-            };
-
-            XmlReader xr = XmlReader.Create(settingsDoc.CreateReader(), xrs);
-
-            while (xr.Read()) { }
-
-            return isAnError;
-        }
+        }        
     }
 }
