@@ -4,6 +4,7 @@ using FRF.Web.Dtos.Artifacts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace FRF.Web.Controllers
@@ -51,6 +52,16 @@ namespace FRF.Web.Controllers
         {
             var response = await _artifactsProviderService.GetProductsAsync(settings, serviceCode);
 
+            var products = _mapper.Map<List<PricingTermDTO>>(response.Value);
+            return Ok(products);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetS3ProductsAsync(List<KeyValuePair<string, string>> settings, bool isAutomaticMonitoring)
+        {
+            if (!settings.Any(s => s.Key == "productFamily" && s.Value == "Storage"))
+                return BadRequest();
+            var response = await _artifactsProviderService.GetS3ProductsAsync(settings, isAutomaticMonitoring);
             var products = _mapper.Map<List<PricingTermDTO>>(response.Value);
             return Ok(products);
         }

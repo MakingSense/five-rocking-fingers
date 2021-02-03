@@ -58,7 +58,7 @@ namespace FRF.Web.Tests.Controllers
 
         private List<PricingTerm> CreatePricingTermList()
         {
-            var pricingDimension = new PricingDimension
+            var pricingDimension1 = new PricingDimension
             {
                 Unit = "[Mock] Unit",
                 EndRange = 100000f,
@@ -68,7 +68,7 @@ namespace FRF.Web.Tests.Controllers
                 Currency = "[Mock] Currency",
                 PricePerUnit = 99.99f
             };
-            var pricingDetail = new PricingDimension
+            var pricingDimension2 = new PricingDimension
             {
                 Unit = "[Mock] Unit 2",
                 EndRange = 100000f,
@@ -78,12 +78,17 @@ namespace FRF.Web.Tests.Controllers
                 Currency = "[Mock] Currency 2",
                 PricePerUnit = 99.99f
             };
+            var pricingDimensions = new List<PricingDimension>
+            {
+                pricingDimension1,
+                pricingDimension2
+            };
+
             var pricingTerm = new PricingTerm()
             {
                 Sku = "[Mock] Sku",
                 Term = "[Mock] Term",
-                PricingDimension = pricingDimension,
-                PricingDetail = pricingDetail,
+                PricingDimensions = pricingDimensions,
                 LeaseContractLength = "[Mock] Contract length",
                 OfferingClass = "[Mock] Offering class",
                 PurchaseOption = "[Mock] Purchase option"
@@ -183,26 +188,90 @@ namespace FRF.Web.Tests.Controllers
             var okResult = Assert.IsType<OkObjectResult>(result);
             var returnValue = Assert.IsType<List<PricingTermDTO>>(okResult.Value);
 
-            Assert.Equal(pricingTermList[0].Sku, returnValue[0].Sku);
-            Assert.Equal(pricingTermList[0].Term, returnValue[0].Term);
-            Assert.Equal(pricingTermList[0].LeaseContractLength, returnValue[0].LeaseContractLength);
-            Assert.Equal(pricingTermList[0].OfferingClass, returnValue[0].OfferingClass);
-            Assert.Equal(pricingTermList[0].PurchaseOption, returnValue[0].PurchaseOption);
-            Assert.Equal(pricingTermList[0].PricingDimension.BeginRange, returnValue[0].PricingDimension.BeginRange);
-            Assert.Equal(pricingTermList[0].PricingDimension.Currency, returnValue[0].PricingDimension.Currency);
-            Assert.Equal(pricingTermList[0].PricingDimension.Description, returnValue[0].PricingDimension.Description);
-            Assert.Equal(pricingTermList[0].PricingDimension.EndRange, returnValue[0].PricingDimension.EndRange);
-            Assert.Equal(pricingTermList[0].PricingDimension.PricePerUnit, returnValue[0].PricingDimension.PricePerUnit);
-            Assert.Equal(pricingTermList[0].PricingDimension.RateCode, returnValue[0].PricingDimension.RateCode);
-            Assert.Equal(pricingTermList[0].PricingDimension.Unit, returnValue[0].PricingDimension.Unit);
-            Assert.Equal(pricingTermList[0].PricingDetail.BeginRange, returnValue[0].PricingDetail.BeginRange);
-            Assert.Equal(pricingTermList[0].PricingDetail.Currency, returnValue[0].PricingDetail.Currency);
-            Assert.Equal(pricingTermList[0].PricingDetail.Description, returnValue[0].PricingDetail.Description);
-            Assert.Equal(pricingTermList[0].PricingDetail.EndRange, returnValue[0].PricingDetail.EndRange);
-            Assert.Equal(pricingTermList[0].PricingDetail.PricePerUnit, returnValue[0].PricingDetail.PricePerUnit);
-            Assert.Equal(pricingTermList[0].PricingDetail.RateCode, returnValue[0].PricingDetail.RateCode);
-            Assert.Equal(pricingTermList[0].PricingDetail.Unit, returnValue[0].PricingDetail.Unit);
+            foreach (var pricingTermDTO in returnValue)
+            {
+                Assert.Equal(pricingTermList[0].PricingDimensions[0].BeginRange, pricingTermDTO.PricingDimensions[0].BeginRange);
+                Assert.Equal(pricingTermList[0].PricingDimensions[0].Currency, pricingTermDTO.PricingDimensions[0].Currency);
+                Assert.Equal(pricingTermList[0].PricingDimensions[0].Description, pricingTermDTO.PricingDimensions[0].Description);
+                Assert.Equal(pricingTermList[0].PricingDimensions[0].EndRange, pricingTermDTO.PricingDimensions[0].EndRange);
+                Assert.Equal(pricingTermList[0].PricingDimensions[0].PricePerUnit, pricingTermDTO.PricingDimensions[0].PricePerUnit);
+                Assert.Equal(pricingTermList[0].PricingDimensions[0].RateCode, pricingTermDTO.PricingDimensions[0].RateCode);
+                Assert.Equal(pricingTermList[0].PricingDimensions[0].Unit, pricingTermDTO.PricingDimensions[0].Unit);
+                Assert.Equal(pricingTermList[0].PricingDimensions[1].BeginRange, pricingTermDTO.PricingDimensions[1].BeginRange);
+                Assert.Equal(pricingTermList[0].PricingDimensions[1].Currency, pricingTermDTO.PricingDimensions[1].Currency);
+                Assert.Equal(pricingTermList[0].PricingDimensions[1].Description, pricingTermDTO.PricingDimensions[1].Description);
+                Assert.Equal(pricingTermList[0].PricingDimensions[1].EndRange, pricingTermDTO.PricingDimensions[1].EndRange);
+                Assert.Equal(pricingTermList[0].PricingDimensions[1].PricePerUnit, pricingTermDTO.PricingDimensions[1].PricePerUnit);
+                Assert.Equal(pricingTermList[0].PricingDimensions[1].RateCode, pricingTermDTO.PricingDimensions[1].RateCode);
+                Assert.Equal(pricingTermList[0].PricingDimensions[1].Unit, pricingTermDTO.PricingDimensions[1].Unit);
+            }
+
             _artifactProviderService.Verify(mock => mock.GetProductsAsync(artifactSettingsList, serviceCode), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetAwsS3ProductsAsync_ReturnsOk()
+        {
+            // Arrange
+            var artifactSettingsList = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("productFamily", "Storage"),
+                new KeyValuePair<string, string>("volumeType", "Standard"),
+                new KeyValuePair<string, string>("storageClass", "General Purpose"),
+                new KeyValuePair<string, string>("location", "US East (N. Virginia)")
+            };
+
+            var pricingTermList = CreatePricingTermList();
+
+            _artifactProviderService
+                .Setup(mock => mock.GetS3ProductsAsync(It.IsAny<List<KeyValuePair<string, string>>>(), It.IsAny<bool>()))
+                .ReturnsAsync(new ServiceResponse<List<PricingTerm>>(pricingTermList));
+
+            // Act
+            var result = await _classUnderTest.GetS3ProductsAsync(artifactSettingsList, false);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var returnValue = Assert.IsType<List<PricingTermDTO>>(okResult.Value);
+            foreach (var pricingTermDTO in returnValue)
+            {
+                Assert.Equal(pricingTermList[0].PricingDimensions[0].BeginRange, pricingTermDTO.PricingDimensions[0].BeginRange);
+                Assert.Equal(pricingTermList[0].PricingDimensions[0].Currency, pricingTermDTO.PricingDimensions[0].Currency);
+                Assert.Equal(pricingTermList[0].PricingDimensions[0].Description, pricingTermDTO.PricingDimensions[0].Description);
+                Assert.Equal(pricingTermList[0].PricingDimensions[0].EndRange, pricingTermDTO.PricingDimensions[0].EndRange);
+                Assert.Equal(pricingTermList[0].PricingDimensions[0].PricePerUnit, pricingTermDTO.PricingDimensions[0].PricePerUnit);
+                Assert.Equal(pricingTermList[0].PricingDimensions[0].RateCode, pricingTermDTO.PricingDimensions[0].RateCode);
+                Assert.Equal(pricingTermList[0].PricingDimensions[0].Unit, pricingTermDTO.PricingDimensions[0].Unit);
+                Assert.Equal(pricingTermList[0].PricingDimensions[1].BeginRange, pricingTermDTO.PricingDimensions[1].BeginRange);
+                Assert.Equal(pricingTermList[0].PricingDimensions[1].Currency, pricingTermDTO.PricingDimensions[1].Currency);
+                Assert.Equal(pricingTermList[0].PricingDimensions[1].Description, pricingTermDTO.PricingDimensions[1].Description);
+                Assert.Equal(pricingTermList[0].PricingDimensions[1].EndRange, pricingTermDTO.PricingDimensions[1].EndRange);
+                Assert.Equal(pricingTermList[0].PricingDimensions[1].PricePerUnit, pricingTermDTO.PricingDimensions[1].PricePerUnit);
+                Assert.Equal(pricingTermList[0].PricingDimensions[1].RateCode, pricingTermDTO.PricingDimensions[1].RateCode);
+                Assert.Equal(pricingTermList[0].PricingDimensions[1].Unit, pricingTermDTO.PricingDimensions[1].Unit);
+            }  
+            _artifactProviderService.Verify(mock => mock.GetS3ProductsAsync(artifactSettingsList, It.IsAny<bool>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetAwsS3ProductsAsync_ReturnsBadRequest()
+        {
+            // Arrange
+            var artifactSettingsList = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("volumeType", "Standard"),
+                new KeyValuePair<string, string>("storageClass", "General Purpose"),
+                new KeyValuePair<string, string>("location", "US East (N. Virginia)")
+            };
+
+            var pricingTermList = CreatePricingTermList();
+
+            // Act
+            var result = await _classUnderTest.GetS3ProductsAsync(artifactSettingsList, false);
+
+            // Assert
+            Assert.IsType<BadRequestResult>(result);
+            _artifactProviderService.Verify(mock => mock.GetS3ProductsAsync(artifactSettingsList, It.IsAny<bool>()), Times.Never);
         }
     }
 }
