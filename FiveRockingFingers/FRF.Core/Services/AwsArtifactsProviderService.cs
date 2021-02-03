@@ -223,7 +223,7 @@ namespace FRF.Core.Services
                 RateCode = (string)termPriceDimension.Value.SelectToken("rateCode"),
                 BeginRange = beginRange,
                 Currency = termPriceDimension.Value.SelectToken("pricePerUnit").ToObject<JObject>().Properties().ElementAt(0).Name,
-                PricePerUnit = (float)termPriceDimension.Value.SelectToken("pricePerUnit").ToObject<JObject>().Properties().ElementAt(0).Value,
+                PricePerUnit = (decimal)termPriceDimension.Value.SelectToken("pricePerUnit").ToObject<JObject>().Properties().ElementAt(0).Value,
             };
 
             return pricingDetails;
