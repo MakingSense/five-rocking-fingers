@@ -15,6 +15,7 @@ namespace FRF.DataAccess
         public DbSet<Artifact> Artifacts { get; set; }
         public DbSet<ArtifactType> ArtifactType { get; set; }
         public DbSet<ArtifactsRelation> ArtifactsRelation { get; set; }
+        public DbSet<Provider> Providers { get; set; }
 
         public DataAccessContext(DbContextOptions<DataAccessContext> options, IConfiguration configuration) : base(options)
         {
