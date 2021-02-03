@@ -1,8 +1,9 @@
-﻿using System.Globalization;
+﻿using Newtonsoft.Json;
+using System.Xml;
 
 namespace FRF.Core.Models.AwsArtifacts
 {
-    public class AwsS3Artifact : Artifact
+    public class AwsS3 : Artifact
     {
         public decimal StoragePrice { get; set; }
         public int StorageUsed { get; set; }
@@ -11,10 +12,19 @@ namespace FRF.Core.Models.AwsArtifacts
         public decimal RetrieveRequestsPrice { get; set; }
         public int RetrieveRequestsUsed { get; set; }
         public int? InfrequentAccessMultiplier { get; set; }
+        public PricingDimensionPocos PricingDimensions { get; private set; }
 
         public override decimal GetPrice()
         {
-            return InfrequentAccessMultiplier != 0 && InfrequentAccessMultiplier != null ? GetIntelligentPrice() : GetStandardPrice();
+            var doc = new XmlDocument();
+            if (Settings.Element("product1") == null) return 0;
+            
+            doc.LoadXml(Settings.Element("product1").Element("pricingDimensions").ToString());
+            var priceDimensionsJson = JsonConvert.SerializeXmlNode(doc);
+            PricingDimensions = JsonConvert.DeserializeObject<PricingDimensionPocos>(priceDimensionsJson);
+
+            return InfrequentAccessMultiplier != 0 && InfrequentAccessMultiplier != null ?
+                GetIntelligentPrice() : GetStandardPrice();
         }
 
         private decimal GetStandardPrice()
@@ -28,18 +38,11 @@ namespace FRF.Core.Models.AwsArtifacts
 
         private decimal GetIntelligentPrice()
         {
-            if (!int.TryParse(
-                    Settings.Element("product1").Element("pricingDimensions").Element("range2").Element("endRange")
-                        .Value,
-                    out var endRange1) ||
-                !int.TryParse(
-                    Settings.Element("product1").Element("pricingDimensions").Element("range1").Element("endRange")
-                        .Value,
-                    out var endRange2) ||
-                !int.TryParse(
-                    Settings.Element("product1").Element("pricingDimensions").Element("range0").Element("beginRange")
-                        .Value,
-                    out var beginRangeLast)) return 0;
+            var endRange1 = PricingDimensions.PricingDimensions["range1"].EndRange;
+            var endRange2 = PricingDimensions.PricingDimensions["range2"].EndRange;
+            var beginRangeLast = PricingDimensions.PricingDimensions["range0"].BeginRange;
+            
+            if (endRange1 == 0 || endRange2 == 0 || beginRangeLast == 0) return 0;
 
             decimal storageFrequentAccessCost;
             const decimal InfrequentAccessPrice = 0.0125m;
@@ -48,23 +51,14 @@ namespace FRF.Core.Models.AwsArtifacts
             var storageFrequentAccessMultiplier = 1 - storageInfrequentAccessMultiplier;
             var storageFrequentAccessUsed = StorageUsed * storageFrequentAccessMultiplier;
             if (storageFrequentAccessUsed <= endRange1)
-            {
-                storageFrequentAccessCost = storageFrequentAccessUsed * decimal.Parse(
-                    Settings.Element("product1").Element("pricingDimensions").Element("range2").Element("pricePerUnit")
-                        .Value, CultureInfo.InvariantCulture);
-            }
+                storageFrequentAccessCost = storageFrequentAccessUsed *
+                                            PricingDimensions.PricingDimensions["range2"].PricePerUnit;
             else if (storageFrequentAccessUsed >= endRange2 && storageFrequentAccessUsed <= beginRangeLast)
-            {
-                storageFrequentAccessCost = storageFrequentAccessUsed * decimal.Parse(
-                    Settings.Element("product1").Element("pricingDimensions").Element("range1").Element("pricePerUnit")
-                        .Value, CultureInfo.InvariantCulture);
-            }
+                storageFrequentAccessCost = storageFrequentAccessUsed *
+                                            PricingDimensions.PricingDimensions["range1"].PricePerUnit;
             else
-            {
-                storageFrequentAccessCost = storageFrequentAccessUsed * decimal.Parse(
-                    Settings.Element("product1").Element("pricingDimensions").Element("range0").Element("pricePerUnit")
-                        .Value, CultureInfo.InvariantCulture);
-            }
+                storageFrequentAccessCost = storageFrequentAccessUsed *
+                                            PricingDimensions.PricingDimensions["range0"].PricePerUnit;
 
             var storageInfrequentAccessCost = storageInfrequentAccessMultiplier * StorageUsed * InfrequentAccessPrice;
             var writeRequestsCost = WriteRequestsUsed * WriteRequestsPrice;

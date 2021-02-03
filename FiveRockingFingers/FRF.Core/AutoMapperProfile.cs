@@ -26,7 +26,7 @@ namespace FRF.Core
                 .ForMember(dest => dest.Id, act => act.Ignore())
                 .ForMember(dest => dest.ArtifactType, act => act.Ignore())
                 .ForMember(dest => dest.Project, act => act.Ignore());
-            CreateMap<DataAccess.EntityModels.Artifact, AwsS3Artifact>()
+            CreateMap<DataAccess.EntityModels.Artifact, AwsS3>()
                 .ForMember(dest => dest.Id, act => act.Ignore())
                 .ForMember(dest => dest.ArtifactType, act => act.Ignore())
                 .ForMember(dest => dest.Project, act => act.Ignore())
@@ -53,7 +53,7 @@ namespace FRF.Core
                         decimal.Parse(
                             ar.Settings.Element("product3").Element("pricingDimensions").Element("pricePerUnit").Value,
                             NumberStyles.Float)));
-            CreateMap<AwsS3Artifact, DataAccess.EntityModels.Artifact > ()
+            CreateMap<AwsS3, DataAccess.EntityModels.Artifact > ()
                 .ForMember(dest => dest.Id, act => act.Ignore())
                 .ForMember(dest => dest.ArtifactType, act => act.Ignore())
                 .ForMember(dest => dest.Project, act => act.Ignore());
