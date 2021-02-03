@@ -11,6 +11,7 @@ using Amazon.Pricing.Model;
 using FRF.Core.Models;
 using FRF.Core.Response;
 using System;
+using Newtonsoft.Json;
 
 namespace FRF.Core.Services
 {
@@ -20,7 +21,6 @@ namespace FRF.Core.Services
         private readonly AwsPricing _awsPricingOptions;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IAmazonPricing _pricingClient;
-        private const string AwsS3Service = "AmazonS3";
 
         public AwsArtifactsProviderService(IOptions<AwsPricing> awsApiString,
             IHttpClientFactory httpClientFactory, IAmazonPricing pricingClient)
@@ -28,39 +28,6 @@ namespace FRF.Core.Services
             _httpClientFactory = httpClientFactory;
             _awsPricingOptions = awsApiString.Value;
             _pricingClient = pricingClient;
-        }
-
-        private List<PricingTerm> RetrievePricingDetails(GetProductsResponse response,
-            List<PricingTerm> pricingDetailsList)
-        {
-            foreach (var price in response.PriceList)
-            {
-                var priceJson = JObject.Parse(price);
-                var sku = (string) priceJson.SelectTokens("product.sku").ToList()[0];
-                var terms = priceJson.SelectToken("terms").ToObject<JObject>();
-                if (terms == null)
-                {
-                    continue;
-                }
-
-                foreach (var term in terms.Properties())
-                {
-                    var termName = term.Name;
-                    var termProperties = term.Value.ToObject<JObject>();
-                    if (termProperties == null)
-                    {
-                        continue;
-                    }
-
-                    foreach (var termOption in termProperties)
-                    {
-                        var pricingTerm = CreatePricingTerm(sku, termName, termOption);
-                        pricingDetailsList.Add(pricingTerm);
-                    }
-                }
-            }
-
-            return new List<PricingTerm>(pricingDetailsList);
         }
 
         /// <summary>
@@ -189,8 +156,8 @@ namespace FRF.Core.Services
             var locationFilter = new Filter {Field = "location", Type = "TERM_MATCH", Value = ""};
             var storageClassFilter = new Filter {Field = "storageClass", Type = "TERM_MATCH", Value = ""};
             var volumeTypeFilter = new Filter {Field = "volumeType", Type = "TERM_MATCH", Value = ""};
-            var writeRequestGroupValue = "S3-API-Tier1";
-            var retrieveRequestGroupValue = "S3-API-Tier2";
+            var writeRequestGroupValue = AwsS3Constants.WriteFrequentGroup;
+            var retrieveRequestGroupValue = AwsS3Constants.RetrieveFrequentGroup;
 
             foreach (var (key, value) in settings)
             {
@@ -215,7 +182,7 @@ namespace FRF.Core.Services
             {
                 Filters = storageFilters,
                 FormatVersion = "aws_v1",
-                ServiceCode = AwsS3Service
+                ServiceCode = AwsS3Constants.Service
             });
 
             if (storagePrice == null) return new ServiceResponse<List<PricingTerm>>(pricingDetailsList);
@@ -224,17 +191,17 @@ namespace FRF.Core.Services
 
             //Check if the product is Standard - Infrequent Access.
             if (volumeTypeFilter.Value.Equals(
-                "Standard - Infrequent Access", StringComparison.InvariantCultureIgnoreCase))
+                AwsS3Constants.StandardInfrequentAccessProduct, StringComparison.InvariantCultureIgnoreCase))
             {
-                writeRequestGroupValue = "S3-API-SIA-Tier1";
-                retrieveRequestGroupValue = "S3-API-SIA-Tier2";
+                writeRequestGroupValue = AwsS3Constants.WriteInfrequentGroup;
+                retrieveRequestGroupValue = AwsS3Constants.RetrieveInfrequentGroup;
             }
             //Check if the product is One Zone - Infrequent Access.
-            else if (volumeTypeFilter.Value.Equals("One Zone - Infrequent Access",
+            else if (volumeTypeFilter.Value.Equals(AwsS3Constants.InfrequentAccessProduct,
                 StringComparison.InvariantCultureIgnoreCase))
             {
-                writeRequestGroupValue = "S3-API-ZIA-Tier1";
-                retrieveRequestGroupValue = "S3-API-ZIA-Tier2";
+                writeRequestGroupValue = AwsS3Constants.WriteOneZoneInfrequentGroup;
+                retrieveRequestGroupValue = AwsS3Constants.RetrieveOneZoneInfrequentGroup;
             }
 
             writeRequestFilters.Add(locationFilter);
@@ -244,7 +211,7 @@ namespace FRF.Core.Services
             {
                 Filters = writeRequestFilters,
                 FormatVersion = "aws_v1",
-                ServiceCode = AwsS3Service
+                ServiceCode = AwsS3Constants.Service
             });
 
             if (writeRequestPrice == null) return new ServiceResponse<List<PricingTerm>>(pricingDetailsList);
@@ -259,7 +226,7 @@ namespace FRF.Core.Services
             {
                 Filters = retrieveRequestFilters,
                 FormatVersion = "aws_v1",
-                ServiceCode = AwsS3Service
+                ServiceCode = AwsS3Constants.Service
             });
 
             if (retrieveRequestPrice == null) return new ServiceResponse<List<PricingTerm>>(pricingDetailsList);
@@ -267,14 +234,14 @@ namespace FRF.Core.Services
             AddProductToPricingDetails(retrieveRequestPrice, pricingDetailsList);
 
             //Check if the product is Intelligent-Tiering.
-            if (storageClassFilter.Value.Equals("Intelligent-Tiering", StringComparison.InvariantCultureIgnoreCase))
+            if (storageClassFilter.Value.Equals(AwsS3Constants.IntelligentTieringProduct , StringComparison.InvariantCultureIgnoreCase))
                 pricingDetailsList =
-                    await GetS3IntelligentTieringDetailList(locationFilter, pricingDetailsList, isAutomaticMonitoring);
+                    await GetS3IntelligentTieringDetailListAsync(locationFilter, pricingDetailsList, isAutomaticMonitoring);
 
             return new ServiceResponse<List<PricingTerm>>(pricingDetailsList);
         }
 
-        private async Task<List<PricingTerm>> GetS3IntelligentTieringDetailList(Filter locationFilter,
+        private async Task<List<PricingTerm>> GetS3IntelligentTieringDetailListAsync(Filter locationFilter,
             List<PricingTerm> pricingDetailsList, bool isAutomaticMonitoring)
         {
             var infrequentAccessFilters = new List<Filter>();
@@ -282,24 +249,24 @@ namespace FRF.Core.Services
 
             infrequentAccessFilters.Add(locationFilter);
             infrequentAccessFilters.Add(new Filter
-                {Field = "volumeType", Type = "TERM_MATCH", Value = "Intelligent-Tiering Infrequent Access"});
+                {Field = "volumeType", Type = "TERM_MATCH", Value = AwsS3Constants.IntelligentInfrequentAccessProduct});
             var infrequentAccessPrice = await _pricingClient.GetProductsAsync(new GetProductsRequest
             {
                 Filters = infrequentAccessFilters,
                 FormatVersion = "aws_v1",
-                ServiceCode = AwsS3Service
+                ServiceCode = AwsS3Constants.Service
             });
 
             AddProductToPricingDetails(infrequentAccessPrice, pricingDetailsList);
 
             frequentAccessFilters.Add(locationFilter);
             frequentAccessFilters.Add(new Filter
-                {Field = "volumeType", Type = "TERM_MATCH", Value = "Intelligent-Tiering Frequent Access"});
+                {Field = "volumeType", Type = "TERM_MATCH", Value = AwsS3Constants.IntelligentFrequentAccessProduct});
             var frequentAccessPrice = await _pricingClient.GetProductsAsync(new GetProductsRequest
             {
                 Filters = frequentAccessFilters,
                 FormatVersion = "aws_v1",
-                ServiceCode = AwsS3Service
+                ServiceCode = AwsS3Constants.Service
             });
 
             AddProductToPricingDetails(frequentAccessPrice, pricingDetailsList);
@@ -310,14 +277,14 @@ namespace FRF.Core.Services
             {
                 locationFilter,
                 new Filter
-                    {Field = "feeCode", Type = "TERM_MATCH", Value = "S3-Monitoring and Automation-ObjectCount"}
+                    {Field = "feeCode", Type = "TERM_MATCH", Value = AwsS3Constants.AutomationObjectCountFee}
             };
 
             var automaticMonitoringPrice = await _pricingClient.GetProductsAsync(new GetProductsRequest
             {
                 Filters = monitoringFilters,
                 FormatVersion = "aws_v1",
-                ServiceCode = AwsS3Service
+                ServiceCode = AwsS3Constants.Service
             });
 
             AddProductToPricingDetails(automaticMonitoringPrice, pricingDetailsList);
@@ -330,13 +297,14 @@ namespace FRF.Core.Services
         {
             foreach (var price in response.PriceList)
             {
+                if (!price.StartsWith("{") || !price.EndsWith("}")) continue;
+
                 var priceJson = JObject.Parse(price);
-                var sku = (string)priceJson.SelectTokens("product.sku").ToList()[0];
+                if (priceJson == null) continue;
+                
+                var sku = priceJson.SelectToken("product.sku").Value<string>();
                 var terms = priceJson.SelectToken("terms").ToObject<JObject>();
-                if (terms == null)
-                {
-                    continue;
-                }
+                if (terms == null) continue;
 
                 foreach (var term in terms.Properties())
                 {
@@ -386,25 +354,16 @@ namespace FRF.Core.Services
 
         private PricingDimension ExtractPricingDimension(JProperty termPriceDimension)
         {
-            float.TryParse((string)termPriceDimension.Value.SelectToken("beginRange"), out float beginRange);
+            var termValues = termPriceDimension.Value;
+            
+            if (termValues.SelectToken("endRange").Value<string>().Equals("Inf")) termValues["endRange"] = -1;
 
-            if(!float.TryParse((string)termPriceDimension.Value.SelectToken("endRange"), out float endRange))
-            {
-                endRange = -1;
-            }
+            var pricePerUnit = (decimal)termValues.SelectToken("pricePerUnit").ToObject<JObject>().Properties().ElementAt(0).Value;
+            termValues.SelectToken("pricePerUnit").Replace(pricePerUnit);
 
-            var pricingDetails = new PricingDimension()
-            {
-                Unit = (string)termPriceDimension.Value.SelectToken("unit"),
-                EndRange = endRange,
-                Description = (string)termPriceDimension.Value.SelectToken("description"),
-                RateCode = (string)termPriceDimension.Value.SelectToken("rateCode"),
-                BeginRange = beginRange,
-                Currency = termPriceDimension.Value.SelectToken("pricePerUnit").ToObject<JObject>().Properties().ElementAt(0).Name,
-                PricePerUnit = (decimal)termPriceDimension.Value.SelectToken("pricePerUnit").ToObject<JObject>().Properties().ElementAt(0).Value,
-            };
+            
 
-            return pricingDetails;
+            return termValues.ToObject<PricingDimension>();
         }
 
         private static string ExtractName(string str)
