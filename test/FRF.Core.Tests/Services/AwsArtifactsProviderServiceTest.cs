@@ -244,10 +244,7 @@ namespace FRF.Core.Tests.Services
 
             // Assert
             float.TryParse(beginRange, out float beginRangeFloat);
-            if(!float.TryParse(endRange, out float endRangeFloat))
-            {
-                endRangeFloat = -1;
-            }
+            var endRangeFloat = -1f;
 
             Assert.IsType<ServiceResponse<List<PricingTerm>>>(result);
             var resultValue = result.Value;
