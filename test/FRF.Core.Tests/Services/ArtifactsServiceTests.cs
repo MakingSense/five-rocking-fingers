@@ -34,11 +34,22 @@ namespace FRF.Core.Tests.Services
             _classUnderTest = new ArtifactsService(_dataAccess, _mapper);
         }
 
-        private ArtifactType CreateArtifactType()
+        private Provider CreateProvider()
+        {
+            var provider = new Provider();
+            provider.Name = "[Mock] Provider name";
+            _dataAccess.Providers.Add(provider);
+            _dataAccess.SaveChanges();
+
+            return provider;
+        }
+
+        private ArtifactType CreateArtifactType(Provider provider)
         {
             var artifactType = new ArtifactType();
             artifactType.Name = "[Mock] Artifact type name";
             artifactType.Description = "[Mock] Artifact type description";
+            artifactType.Provider = provider;
             _dataAccess.ArtifactType.Add(artifactType);
             _dataAccess.SaveChanges();
 
@@ -63,7 +74,6 @@ namespace FRF.Core.Tests.Services
             var artifact = new Artifact()
             {
                 Name = "[Mock] Artifact name "+ random.Next(500),
-                Provider = "[Mock] AWS",
                 CreatedDate = DateTime.Now,
                 Project = project,
                 ProjectId = project.Id,
@@ -96,7 +106,8 @@ namespace FRF.Core.Tests.Services
         public async Task GetAllAsync_ReturnsList()
         {
             // Arange
-            var artifactType = CreateArtifactType();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
             var artifact = CreateArtifact(project, artifactType);
 
@@ -110,7 +121,6 @@ namespace FRF.Core.Tests.Services
 
             Assert.Equal(artifact.Id, resultValue.Id);
             Assert.Equal(artifact.Name, resultValue.Name);
-            Assert.Equal(artifact.Provider, resultValue.Provider);
             Assert.Equal(artifact.CreatedDate, resultValue.CreatedDate);
             Assert.Equal(artifact.ProjectId, resultValue.ProjectId);
             Assert.Equal(artifact.ArtifactTypeId, resultValue.ArtifactTypeId);
@@ -121,6 +131,9 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(artifact.ArtifactType.Id, resultValue.ArtifactType.Id);
             Assert.Equal(artifact.ArtifactType.Name, resultValue.ArtifactType.Name);
             Assert.Equal(artifact.ArtifactType.Description, resultValue.ArtifactType.Description);
+
+            Assert.Equal(artifact.ArtifactType.Provider.Id, resultValue.ArtifactType.Provider.Id);
+            Assert.Equal(artifact.ArtifactType.Provider.Name, resultValue.ArtifactType.Provider.Name);
         }
 
         [Fact]
@@ -139,7 +152,8 @@ namespace FRF.Core.Tests.Services
         public async Task GetAllByProjectIdAsync_ReturnList()
         {
             // Arange
-            var artifactType = CreateArtifactType();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
             var artifact = CreateArtifact(project, artifactType);
 
@@ -153,7 +167,6 @@ namespace FRF.Core.Tests.Services
 
             Assert.Equal(artifact.Id, resultValue.Id);
             Assert.Equal(artifact.Name, resultValue.Name);
-            Assert.Equal(artifact.Provider, resultValue.Provider);
             Assert.Equal(artifact.CreatedDate, resultValue.CreatedDate);
             Assert.Equal(artifact.ProjectId, resultValue.ProjectId);
             Assert.Equal(artifact.ArtifactTypeId, resultValue.ArtifactTypeId);
@@ -164,6 +177,9 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(artifact.ArtifactType.Id, resultValue.ArtifactType.Id);
             Assert.Equal(artifact.ArtifactType.Name, resultValue.ArtifactType.Name);
             Assert.Equal(artifact.ArtifactType.Description, resultValue.ArtifactType.Description);
+
+            Assert.Equal(artifact.ArtifactType.Provider.Id, resultValue.ArtifactType.Provider.Id);
+            Assert.Equal(artifact.ArtifactType.Provider.Name, resultValue.ArtifactType.Provider.Name);
         }
 
         [Fact]
@@ -186,7 +202,8 @@ namespace FRF.Core.Tests.Services
         public async Task GetAllByProjectIdAsync_ReturnEmptyList()
         {
             // Arange
-            var artifactType = CreateArtifactType();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
 
             // Act
@@ -202,7 +219,8 @@ namespace FRF.Core.Tests.Services
         public async Task GetAsync_ReturnsArtifact()
         {
             // Arange
-            var artifactType = CreateArtifactType();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
             var artifact = CreateArtifact(project, artifactType);
 
@@ -216,7 +234,6 @@ namespace FRF.Core.Tests.Services
 
             Assert.Equal(artifact.Id, resultValue.Id);
             Assert.Equal(artifact.Name, resultValue.Name);
-            Assert.Equal(artifact.Provider, resultValue.Provider);
             Assert.Equal(artifact.CreatedDate, resultValue.CreatedDate);
             Assert.Equal(artifact.ProjectId, resultValue.ProjectId);
             Assert.Equal(artifact.ArtifactTypeId, resultValue.ArtifactTypeId);
@@ -227,6 +244,9 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(artifact.ArtifactType.Id, resultValue.ArtifactType.Id);
             Assert.Equal(artifact.ArtifactType.Name, resultValue.ArtifactType.Name);
             Assert.Equal(artifact.ArtifactType.Description, resultValue.ArtifactType.Description);
+
+            Assert.Equal(artifact.ArtifactType.Provider.Id, resultValue.ArtifactType.Provider.Id);
+            Assert.Equal(artifact.ArtifactType.Provider.Name, resultValue.ArtifactType.Provider.Name);
         }
 
         [Fact]
@@ -249,12 +269,12 @@ namespace FRF.Core.Tests.Services
         public async Task SaveAsync_ReturnsArtifact()
         {
             // Arange
-            var artifactType = CreateArtifactType();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
 
             var artifactToSave = new CoreModels.Artifact();
             artifactToSave.Name = "[Mock] Artifact name 1";
-            artifactToSave.Provider = "[Mock] AWS";
             artifactToSave.ProjectId = project.Id;
             artifactToSave.ArtifactTypeId = artifactType.Id;
 
@@ -267,7 +287,6 @@ namespace FRF.Core.Tests.Services
             var resultValue = Assert.IsType<CoreModels.Artifact>(result.Value);
 
             Assert.Equal(artifactToSave.Name, resultValue.Name);
-            Assert.Equal(artifactToSave.Provider, resultValue.Provider);
             Assert.Null(resultValue.ModifiedDate);
             Assert.Equal(artifactToSave.ProjectId, resultValue.ProjectId);
             Assert.Equal(artifactToSave.ArtifactTypeId, resultValue.ArtifactTypeId);
@@ -278,17 +297,20 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(artifactType.Id, resultValue.ArtifactType.Id);
             Assert.Equal(artifactType.Name, resultValue.ArtifactType.Name);
             Assert.Equal(artifactType.Description, resultValue.ArtifactType.Description);
+
+            Assert.Equal(artifactType.Provider.Id, resultValue.ArtifactType.Provider.Id);
+            Assert.Equal(artifactType.Provider.Name, resultValue.ArtifactType.Provider.Name);
         }
 
         [Fact]
         public async Task SaveAsync_ExceptionNoProjectWithId()
         {
             // Arange
-            var artifactType = CreateArtifactType();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
             var artifactToSave = new CoreModels.Artifact()
             {
                 Name = "[Mock] Artifact name 1",
-                Provider = "[Mock] AWS",
                 CreatedDate = DateTime.Now,
                 ProjectId = 999,
                 Project = new CoreModels.Project(),
@@ -319,7 +341,6 @@ namespace FRF.Core.Tests.Services
             var artifactToSave = new CoreModels.Artifact() 
             { 
                 Name = "[Mock] Artifact name 1",
-                Provider = "[Mock] AWS",
                 CreatedDate = DateTime.Now,
                 ProjectId = project.Id,
                 Project = new CoreModels.Project {
@@ -346,7 +367,8 @@ namespace FRF.Core.Tests.Services
         public async Task UpdateAsync_ReturnsArtifact()
         {
             // Arange
-            var artifactType = CreateArtifactType();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
             var artifact = CreateArtifact(project, artifactType);
 
@@ -362,7 +384,8 @@ namespace FRF.Core.Tests.Services
             var newArtifactType = new ArtifactType()
             {
                 Name = "[Mock] Artifact type name",
-                Description = "[Mock] Artifact type description"
+                Description = "[Mock] Artifact type description",
+                Provider = provider
             };
             _dataAccess.ArtifactType.Add(newArtifactType);
             _dataAccess.SaveChanges();
@@ -371,7 +394,6 @@ namespace FRF.Core.Tests.Services
             {
                 Id = artifact.Id,
                 Name = "[Mock] Updated name",
-                Provider = "[Mock] Updated provider",
                 CreatedDate = DateTime.Now,
                 ProjectId = newProject.Id,
                 Project = _mapper.Map<CoreModels.Project>(newProject),
@@ -389,7 +411,6 @@ namespace FRF.Core.Tests.Services
 
             Assert.Equal(artifactToUpdate.Id, resultValue.Id);
             Assert.Equal(artifactToUpdate.Name, resultValue.Name);
-            Assert.Equal(artifactToUpdate.Provider, resultValue.Provider);
             Assert.Equal(artifact.CreatedDate, resultValue.CreatedDate);
             Assert.NotEqual(artifactToUpdate.CreatedDate, resultValue.CreatedDate); // This because it shouldn't allow CreatedDate change
             Assert.NotNull(resultValue.ModifiedDate);
@@ -402,19 +423,22 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(newArtifactType.Id, resultValue.ArtifactType.Id);
             Assert.Equal(newArtifactType.Name, resultValue.ArtifactType.Name);
             Assert.Equal(newArtifactType.Description, resultValue.ArtifactType.Description);
+
+            Assert.Equal(newArtifactType.Provider.Id, resultValue.ArtifactType.Provider.Id);
+            Assert.Equal(newArtifactType.Provider.Name, resultValue.ArtifactType.Provider.Name);
         }
 
         [Fact]
         public async Task UpdateAsync_ExceptionNoArtifactWithId()
         {
             // Arange
-            var artifactType = CreateArtifactType();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
             var artifactToUpdate = new CoreModels.Artifact()
             {
                 Id = 1,
                 Name = "[Mock] Updated name",
-                Provider = "[Mock] Updated provider",
                 CreatedDate = DateTime.Now,
                 ProjectId = project.Id,
                 ArtifactTypeId = artifactType.Id
@@ -434,7 +458,8 @@ namespace FRF.Core.Tests.Services
         public async Task UpdateAsync_ExceptionNoProjectWithId()
         {
             // Arange
-            var artifactType = CreateArtifactType();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
             var artifact = CreateArtifact(project, artifactType);
 
@@ -442,7 +467,6 @@ namespace FRF.Core.Tests.Services
             {
                 Id = artifact.Id,
                 Name = "[Mock] Updated name",
-                Provider = "[Mock] Updated provider",
                 CreatedDate = DateTime.Now,
                 ProjectId = 999,
                 ArtifactTypeId = artifactType.Id
@@ -462,7 +486,8 @@ namespace FRF.Core.Tests.Services
         public async Task UpdateAsync_ExceptionNoArtifactTypeWithId()
         {
             // Arange
-            var artifactType = CreateArtifactType();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
             var artifact = CreateArtifact(project, artifactType);
 
@@ -470,7 +495,6 @@ namespace FRF.Core.Tests.Services
             {
                 Id = artifact.Id,
                 Name = "[Mock] Updated name",
-                Provider = "[Mock] Updated provider",
                 CreatedDate = DateTime.Now,
                 ProjectId = project.Id,
                 ArtifactTypeId = 999
@@ -490,7 +514,8 @@ namespace FRF.Core.Tests.Services
         public async Task Delete_ReturnsArtifact()
         {
             // Arange
-            var artifactType = CreateArtifactType();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
             var artifact = CreateArtifact(project, artifactType);
 
@@ -504,7 +529,6 @@ namespace FRF.Core.Tests.Services
 
             Assert.Equal(artifact.Id, resultValue.Id);
             Assert.Equal(artifact.Name, resultValue.Name);
-            Assert.Equal(artifact.Provider, resultValue.Provider);
             Assert.Equal(artifact.CreatedDate, resultValue.CreatedDate);
             Assert.Equal(artifact.ProjectId, resultValue.ProjectId);
             Assert.Equal(artifact.ArtifactTypeId, resultValue.ArtifactTypeId);
@@ -515,13 +539,17 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(artifact.ArtifactType.Id, resultValue.ArtifactType.Id);
             Assert.Equal(artifact.ArtifactType.Name, resultValue.ArtifactType.Name);
             Assert.Equal(artifact.ArtifactType.Description, resultValue.ArtifactType.Description);
+
+            Assert.Equal(artifactType.Provider.Id, resultValue.ArtifactType.Provider.Id);
+            Assert.Equal(artifactType.Provider.Name, resultValue.ArtifactType.Provider.Name);
         }
 
         [Fact]
         public async Task Delete_ReturnsNull()
         {
             // Arange
-            var artifactType = CreateArtifactType();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
             var artifact = CreateArtifact(project, artifactType);
 
@@ -544,7 +572,8 @@ namespace FRF.Core.Tests.Services
             var i = 0;
             while (i < 3)
             {
-                var artifactType = CreateArtifactType();
+                var provider = CreateProvider();
+                var artifactType = CreateArtifactType(provider);
                 var project = CreateProject();
                 var artifact = CreateArtifact(project, artifactType);
                 var artifact1Id = artifact.Id;
@@ -613,7 +642,8 @@ namespace FRF.Core.Tests.Services
             var i = 0;
             while (i < 3)
             {
-                var artifactType = CreateArtifactType();
+                var provider = CreateProvider();
+                var artifactType = CreateArtifactType(provider);
                 var project = CreateProject();
                 var artifact1 = CreateArtifact(project, artifactType);
                 var artifact2 = CreateArtifact(project, artifactType);
@@ -655,7 +685,8 @@ namespace FRF.Core.Tests.Services
             var i = 0;
             while (i < 3)
             {
-                var artifactType = CreateArtifactType();
+                var provider = CreateProvider();
+                var artifactType = CreateArtifactType(provider);
                 var project = CreateProject();
                 var artifact = CreateArtifact(project, artifactType);
                 var artifact1Id = artifact.Id;
@@ -693,7 +724,8 @@ namespace FRF.Core.Tests.Services
             // Arange
             var artifactsRelationUpdated = new List<ArtifactsRelation>();
             var artifactsRelationInDb = new List<DataAccess.EntityModels.ArtifactsRelation>();
-            var artifactType = CreateArtifactType();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
             var artifactBase = CreateArtifact(project, artifactType);
             var artifactIdToUpdate = artifactBase.Id;
@@ -743,7 +775,8 @@ namespace FRF.Core.Tests.Services
             var i = 0;
             while (i < 3)
             {
-                var artifactType = CreateArtifactType();
+                var provider = CreateProvider();
+                var artifactType = CreateArtifactType(provider);
                 var artifact = CreateArtifact(project, artifactType);
                 var artifact1Id = artifact.Id;
                 var artifact2Id = artifact1Id++;
@@ -794,7 +827,8 @@ namespace FRF.Core.Tests.Services
         {
             // Arange
             var project = CreateProject();
-            var artifactType = CreateArtifactType();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
             var artifact1 = CreateArtifact(project, artifactType);
             var artifact2 = CreateArtifact(project, artifactType);
             var artifactRelation = CreateArtifactsRelationModel(artifact1.Id, artifact2.Id);
@@ -855,7 +889,8 @@ namespace FRF.Core.Tests.Services
         {
             // Arange
             var project = CreateProject();
-            var artifactType = CreateArtifactType();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
             var artifact1 = CreateArtifact(project, artifactType);
             var artifact2 = CreateArtifact(project, artifactType);
             var artifactRelation = CreateArtifactsRelationModel(artifact1.Id, artifact2.Id);
