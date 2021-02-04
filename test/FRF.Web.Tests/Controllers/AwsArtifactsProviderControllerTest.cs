@@ -58,7 +58,7 @@ namespace FRF.Web.Tests.Controllers
 
         private List<PricingTerm> CreatePricingTermList()
         {
-            var pricingDimension = new PricingDimension
+            var pricingDimension1 = new PricingDimension
             {
                 Unit = "[Mock] Unit",
                 EndRange = 100000f,
@@ -66,9 +66,9 @@ namespace FRF.Web.Tests.Controllers
                 RateCode = "[Mock] Rate code",
                 BeginRange = 0f,
                 Currency = "[Mock] Currency",
-                PricePerUnit = 99.99f
+                PricePerUnit = 99.99m
             };
-            var pricingDetail = new PricingDimension
+            var pricingDimension2 = new PricingDimension
             {
                 Unit = "[Mock] Unit 2",
                 EndRange = 100000f,
@@ -76,14 +76,19 @@ namespace FRF.Web.Tests.Controllers
                 RateCode = "[Mock] Rate code 2",
                 BeginRange = 0f,
                 Currency = "[Mock] Currency 2",
-                PricePerUnit = 99.99f
+                PricePerUnit = 99.99m
             };
+            var pricingDimensions = new List<PricingDimension>
+            {
+                pricingDimension1,
+                pricingDimension2
+            };
+
             var pricingTerm = new PricingTerm()
             {
                 Sku = "[Mock] Sku",
                 Term = "[Mock] Term",
-                PricingDimension = pricingDimension,
-                PricingDetail = pricingDetail,
+                PricingDimensions = pricingDimensions,
                 LeaseContractLength = "[Mock] Contract length",
                 OfferingClass = "[Mock] Offering class",
                 PurchaseOption = "[Mock] Purchase option"
@@ -188,20 +193,20 @@ namespace FRF.Web.Tests.Controllers
             Assert.Equal(pricingTermList[0].LeaseContractLength, returnValue[0].LeaseContractLength);
             Assert.Equal(pricingTermList[0].OfferingClass, returnValue[0].OfferingClass);
             Assert.Equal(pricingTermList[0].PurchaseOption, returnValue[0].PurchaseOption);
-            Assert.Equal(pricingTermList[0].PricingDimension.BeginRange, returnValue[0].PricingDimension.BeginRange);
-            Assert.Equal(pricingTermList[0].PricingDimension.Currency, returnValue[0].PricingDimension.Currency);
-            Assert.Equal(pricingTermList[0].PricingDimension.Description, returnValue[0].PricingDimension.Description);
-            Assert.Equal(pricingTermList[0].PricingDimension.EndRange, returnValue[0].PricingDimension.EndRange);
-            Assert.Equal(pricingTermList[0].PricingDimension.PricePerUnit, returnValue[0].PricingDimension.PricePerUnit);
-            Assert.Equal(pricingTermList[0].PricingDimension.RateCode, returnValue[0].PricingDimension.RateCode);
-            Assert.Equal(pricingTermList[0].PricingDimension.Unit, returnValue[0].PricingDimension.Unit);
-            Assert.Equal(pricingTermList[0].PricingDetail.BeginRange, returnValue[0].PricingDetail.BeginRange);
-            Assert.Equal(pricingTermList[0].PricingDetail.Currency, returnValue[0].PricingDetail.Currency);
-            Assert.Equal(pricingTermList[0].PricingDetail.Description, returnValue[0].PricingDetail.Description);
-            Assert.Equal(pricingTermList[0].PricingDetail.EndRange, returnValue[0].PricingDetail.EndRange);
-            Assert.Equal(pricingTermList[0].PricingDetail.PricePerUnit, returnValue[0].PricingDetail.PricePerUnit);
-            Assert.Equal(pricingTermList[0].PricingDetail.RateCode, returnValue[0].PricingDetail.RateCode);
-            Assert.Equal(pricingTermList[0].PricingDetail.Unit, returnValue[0].PricingDetail.Unit);
+            Assert.Equal(pricingTermList[0].PricingDimensions[0].BeginRange, returnValue[0].PricingDimensions[0].BeginRange);
+            Assert.Equal(pricingTermList[0].PricingDimensions[0].Currency, returnValue[0].PricingDimensions[0].Currency);
+            Assert.Equal(pricingTermList[0].PricingDimensions[0].Description, returnValue[0].PricingDimensions[0].Description);
+            Assert.Equal(pricingTermList[0].PricingDimensions[0].EndRange, returnValue[0].PricingDimensions[0].EndRange);
+            Assert.Equal(pricingTermList[0].PricingDimensions[0].PricePerUnit, returnValue[0].PricingDimensions[0].PricePerUnit);
+            Assert.Equal(pricingTermList[0].PricingDimensions[0].RateCode, returnValue[0].PricingDimensions[0].RateCode);
+            Assert.Equal(pricingTermList[0].PricingDimensions[0].Unit, returnValue[0].PricingDimensions[0].Unit);
+            Assert.Equal(pricingTermList[0].PricingDimensions[1].BeginRange, returnValue[0].PricingDimensions[1].BeginRange);
+            Assert.Equal(pricingTermList[0].PricingDimensions[1].Currency, returnValue[0].PricingDimensions[1].Currency);
+            Assert.Equal(pricingTermList[0].PricingDimensions[1].Description, returnValue[0].PricingDimensions[1].Description);
+            Assert.Equal(pricingTermList[0].PricingDimensions[1].EndRange, returnValue[0].PricingDimensions[1].EndRange);
+            Assert.Equal(pricingTermList[0].PricingDimensions[1].PricePerUnit, returnValue[0].PricingDimensions[1].PricePerUnit);
+            Assert.Equal(pricingTermList[0].PricingDimensions[1].RateCode, returnValue[0].PricingDimensions[1].RateCode);
+            Assert.Equal(pricingTermList[0].PricingDimensions[1].Unit, returnValue[0].PricingDimensions[1].Unit);
             _artifactProviderService.Verify(mock => mock.GetProductsAsync(artifactSettingsList, serviceCode), Times.Once);
         }
     }

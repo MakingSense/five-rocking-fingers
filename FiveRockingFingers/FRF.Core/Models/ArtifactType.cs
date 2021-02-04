@@ -8,5 +8,7 @@ namespace FRF.Core.Models
         public string Name { get; set; }
         public string Description { get; set; }
         public ICollection<Artifact> Artifacs { get; set; }
+        public Provider Provider { get; set; }
+        public string RequiredFields { get; set; }
     }
 }

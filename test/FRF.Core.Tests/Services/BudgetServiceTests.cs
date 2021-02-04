@@ -4,7 +4,6 @@ using FRF.Core.Services;
 using Moq;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -45,7 +44,6 @@ namespace FRF.Core.Tests.Services
             var artifact = new Artifact()
             {
                 Name = "[Mock] Artifact name " + random.Next(500),
-                Provider = "[Mock] AWS",
                 CreatedDate = DateTime.Now,
                 Project = project,
                 ProjectId = project.Id,

@@ -3,8 +3,7 @@
 export default interface PricingTerm {
     sku: string;
     term: string;
-    pricingDimension: PricingDimension;
-    pricingDetail: PricingDimension;
+    pricingDimensions: PricingDimension[];
     leaseContractLength: string;
     offeringClass: string;
     purchaseOption: string;
