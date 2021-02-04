@@ -1,11 +1,11 @@
-﻿using System;
+﻿using FRF.Core.Models;
+using FRF.Core.Response;
 using System.Threading.Tasks;
-using FRF.Core.Models;
 
 namespace FRF.Core.Services
 {
     public interface ISignUpService
     {
-        Task<Tuple<bool, string>> SignUpAsync(User newUser);
+        Task<ServiceResponse<string>> SignUpAsync(User newUser);
     }
 }

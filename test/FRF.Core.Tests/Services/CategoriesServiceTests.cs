@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
+using CoreModels = FRF.Core.Models;
 
 namespace FRF.Core.Tests.Services
 {
@@ -77,7 +78,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetAllAsync();
 
             // Assert
-            Assert.IsType<ServiceResponse<List<Models.Category>>>(result);
+            Assert.IsType<ServiceResponse<List<CoreModels.Category>>>(result);
             Assert.True(result.Success);
             var resultValue = Assert.Single(result.Value);
 
@@ -98,7 +99,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetAllAsync();
 
             // Assert
-            Assert.IsType<ServiceResponse<List<Models.Category>>>(result);
+            Assert.IsType<ServiceResponse<List<CoreModels.Category>>>(result);
             Assert.True(result.Success);
             Assert.Empty(result.Value);
         }
@@ -114,7 +115,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetAsync(category.Id);
 
             // Assert
-            Assert.IsType<ServiceResponse<Models.Category>>(result);
+            Assert.IsType<ServiceResponse<CoreModels.Category>>(result);
             Assert.True(result.Success);
             var resultValue = result.Value;
 
@@ -138,7 +139,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetAsync(categoryId);
 
             // Assert
-            Assert.IsType<ServiceResponse<Models.Category>>(result);
+            Assert.IsType<ServiceResponse<CoreModels.Category>>(result);
             Assert.False(result.Success);
             Assert.NotNull(result.Error);
             Assert.Equal(result.Error.Code, ErrorCodes.CategoryNotExists);
@@ -148,18 +149,18 @@ namespace FRF.Core.Tests.Services
         public async Task SaveAsync_ReturnsCategory()
         {
             // Arrange
-            var categoryToSave = new Models.Category()
+            var categoryToSave = new CoreModels.Category()
             {
                 Name = "Category name to save",
                 Description = "Category description to save",
-                ProjectCategories = new List<Models.ProjectCategory>()
+                ProjectCategories = new List<CoreModels.ProjectCategory>()
             };
 
             // Act
             var result = await _classUnderTest.SaveAsync(categoryToSave);
 
             // Assert
-            Assert.IsType<ServiceResponse<Models.Category>>(result);
+            Assert.IsType<ServiceResponse<CoreModels.Category>>(result);
             Assert.True(result.Success);
             var resultValue = result.Value;
 
@@ -175,7 +176,7 @@ namespace FRF.Core.Tests.Services
             var category = CreateCategory();
             var project = CreateProject(category);
 
-            var updatedCategory = new Models.Category()
+            var updatedCategory = new CoreModels.Category()
             {
                 Id = category.Id,
                 Name = "Updated name",
@@ -186,7 +187,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.UpdateAsync(updatedCategory);
 
             // Assert
-            Assert.IsType<ServiceResponse<Models.Category>>(result);
+            Assert.IsType<ServiceResponse<CoreModels.Category>>(result);
             Assert.True(result.Success);
             var resultValue = result.Value;
 
@@ -216,7 +217,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.DeleteAsync(category.Id);
 
             // Assert
-            Assert.IsType<ServiceResponse<Models.Category>>(result);
+            Assert.IsType<ServiceResponse<CoreModels.Category>>(result);
             Assert.True(result.Success);
             var resultValue = result.Value;
 

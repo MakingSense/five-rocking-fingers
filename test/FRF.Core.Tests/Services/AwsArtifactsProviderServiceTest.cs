@@ -3,11 +3,13 @@ using Amazon.Pricing;
 using Amazon.Pricing.Model;
 using FRF.Core.Base;
 using FRF.Core.Models;
+using FRF.Core.Response;
 using FRF.Core.Services;
 using Microsoft.Extensions.Options;
 using Moq;
 using Moq.Protected;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -67,7 +69,9 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetNamesAsync();
 
             // Assert
-            var response = Assert.IsType<List<KeyValuePair<string, string>>>(result);
+            Assert.IsType<ServiceResponse<List<KeyValuePair<string, string>>>>(result);
+            Assert.True(result.Success);
+            var response = result.Value;
 
             Assert.NotEmpty(response);
             _httpClientFactory.Verify(mock => mock.CreateClient(string.Empty), Times.Once);
@@ -135,10 +139,14 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetAttributesAsync(serviceCode);
 
             // Assert
-            Assert.IsType<List<ProviderArtifactSetting>>(result);
-            Assert.NotEmpty(result);
-            Assert.Equal(result[0].Name.Key, service.AttributeNames[0]);
-            Assert.Equal(result[0].Values[0], attributeValue.Value);
+            Assert.IsType<ServiceResponse<List<ProviderArtifactSetting>>>(result);
+            Assert.True(result.Success);
+
+            var settingsList = result.Value;
+            Assert.NotEmpty(settingsList);
+
+            Assert.Equal(settingsList[0].Name.Key, service.AttributeNames[0]);
+            Assert.Equal(settingsList[0].Values[0], attributeValue.Value);
             _client.Verify(mock => mock.DescribeServicesAsync(It.IsAny<DescribeServicesRequest>(), It.IsAny<CancellationToken>()), Times.Once);
             _client.Verify(mock => mock.GetAttributeValuesAsync(It.IsAny<GetAttributeValuesRequest>(), It.IsAny<CancellationToken>()), Times.Once);
         }
@@ -153,8 +161,9 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetAttributesAsync(serviceCode);
 
             // Assert
-            Assert.IsType<List<ProviderArtifactSetting>>(result);
-            Assert.Empty(result);
+            Assert.IsType<ServiceResponse<List<ProviderArtifactSetting>>>(result);
+            Assert.True(result.Success);
+            Assert.Empty(result.Value);
         }
 
         [Fact]
@@ -166,7 +175,7 @@ namespace FRF.Core.Tests.Services
             var term = "[Mock] Term";
             var unit = "[Mock] Unit";
             var endRange = "inf";
-            var decription = "[Mock] Description";
+            var description = "[Mock] Description";
             var rateCode = "[Mock] Rate Code";
             var beginRange = "10";
             var currency = "[Mock] Currency";
@@ -201,7 +210,7 @@ namespace FRF.Core.Tests.Services
                     "{ \"" + rateCode + "\":" +
                     "{ \"unit\":\"" + unit +"\"," +
                     "\"endRange\":\"" + endRange + "\"," +
-                    "\"description\":\"" + decription + "\"," +
+                    "\"description\":\"" + description + "\"," +
                     "\"appliesTo\":[]," +
                     "\"rateCode\":\"" + rateCode +"\"," +
                     "\"beginRange\":\"" + beginRange + "\"," +
@@ -235,22 +244,24 @@ namespace FRF.Core.Tests.Services
 
             // Assert
             float.TryParse(beginRange, out float beginRangeFloat);
-            float.TryParse(endRange, out float endRangeFloat);
+            var endRangeFloat = -1f;
 
-            Assert.IsType<List<PricingTerm>>(result);
-            Assert.NotEmpty(result);
-            Assert.Equal(result[0].Sku, sku);
-            Assert.Equal(result[0].Term, term);
-            Assert.Equal(result[0].PurchaseOption, purchaseOption);
-            Assert.Equal(result[0].OfferingClass, offeringClass);
-            Assert.Equal(result[0].LeaseContractLength, leaseContractLength);
-            Assert.Equal(result[0].PricingDimension.BeginRange, beginRangeFloat);
-            Assert.Equal(result[0].PricingDimension.Currency, currency);
-            Assert.Equal(result[0].PricingDimension.Description, decription);
-            Assert.Equal(result[0].PricingDimension.EndRange, endRangeFloat);
-            Assert.Equal(result[0].PricingDimension.PricePerUnit, float.Parse(pricePerUnit));
-            Assert.Equal(result[0].PricingDimension.RateCode, rateCode);
-            Assert.Equal(result[0].PricingDimension.Unit, unit);
+            Assert.IsType<ServiceResponse<List<PricingTerm>>>(result);
+            var resultValue = result.Value;
+            Assert.NotEmpty(resultValue);
+
+            Assert.Equal(sku, resultValue[0].Sku);
+            Assert.Equal(term, resultValue[0].Term);
+            Assert.Equal(purchaseOption, resultValue[0].PurchaseOption);
+            Assert.Equal(offeringClass, resultValue[0].OfferingClass);
+            Assert.Equal(leaseContractLength, resultValue[0].LeaseContractLength);
+            Assert.Equal(beginRangeFloat, resultValue[0].PricingDimensions[0].BeginRange);
+            Assert.Equal(currency, resultValue[0].PricingDimensions[0].Currency);
+            Assert.Equal(description, resultValue[0].PricingDimensions[0].Description);
+            Assert.Equal(endRangeFloat, resultValue[0].PricingDimensions[0].EndRange);
+            Assert.Equal(decimal.Parse(pricePerUnit, CultureInfo.InvariantCulture), resultValue[0].PricingDimensions[0].PricePerUnit);
+            Assert.Equal(rateCode, resultValue[0].PricingDimensions[0].RateCode);
+            Assert.Equal(unit, resultValue[0].PricingDimensions[0].Unit);
         }
 
         [Fact]
@@ -267,8 +278,9 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetProductsAsync(settings, serviceCode);
 
             // Assert
-            Assert.IsType<List<PricingTerm>>(result);
-            Assert.Empty(result);
+            Assert.IsType<ServiceResponse<List<PricingTerm>>>(result);
+            Assert.True(result.Success);
+            Assert.Empty(result.Value);
         }
     }
 }

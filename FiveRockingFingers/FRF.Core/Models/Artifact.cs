@@ -3,7 +3,7 @@ using System.Xml.Linq;
 
 namespace FRF.Core.Models
 {
-    public class Artifact
+    public class Artifact : IArtifactPricing
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -15,5 +15,10 @@ namespace FRF.Core.Models
         public Project Project { get; set; }
         public int ArtifactTypeId { get; set; }
         public ArtifactType ArtifactType { get; set; }
+
+        public virtual decimal GetPrice()
+        {
+            return 100;
+        }
     }
 }

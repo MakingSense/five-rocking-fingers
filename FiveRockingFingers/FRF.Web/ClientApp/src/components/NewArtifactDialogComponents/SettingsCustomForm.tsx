@@ -2,7 +2,6 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import * as React from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import ArtifactService from '../../services/ArtifactService';
 import Typography from '@material-ui/core/Typography';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -37,16 +36,39 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
     //Hook for saving the numbers of times a setting's name input is repeated
     const [settingsMap, setSettingsMap] = React.useState<{ [key: string]: number[] }>(props.settingsMap);
 
+    const [price, setPrice] = React.useState(() => {
+        let index = settingsList.findIndex(s => s.name === 'price');
+        if (index != -1) {
+            let price = settingsList[index];
+            settingsList.splice(index, 1);
+            props.setSettingsList(settingsList);
+            return price.value;
+        }
+        return 0;
+    });
+
     React.useEffect(() => {
         setNameSettingsErrors();
     }, [settingsMap]);
 
     //Create the artifact after submit
     const handleConfirm = async () => {
+        if (!settingsList.find(s => s.name === 'price')) {
+            settingsList.unshift({ name: 'price', value: price.toString() });
+        }
         props.setSettingsList(settingsList);
         props.setSettingsMap(settingsMap);
         props.setSettings({ settings: createSettingsObject() });
         props.handleNextStep();
+    }
+
+    const handleChangePrice = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+        setPrice(parseInt(event.target.value, 10));
+    }
+
+    const isPriceValid = () => {
+        if (price >= 0) return true
+        return false
     }
 
     //Handle changes in the inputs fields
@@ -120,7 +142,7 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
     //Check if there are names repeated in settingsMap
     const areNamesRepeated = (index: number) => {
         let key = searchIndexInObject(settingsMap, index);
-        if (key !=null && settingsMap[key].length > 1) {
+        if (key != null && (settingsMap[key].length > 1 || key === 'price')) {
             return true;
         }
         return false;
@@ -176,6 +198,7 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
     }
 
     const goPrevStep = () => {
+        settingsList.unshift({ name: 'price', value: price.toString() });
         props.setSettingsList(settingsList);
         props.setSettingsMap(settingsMap);
         props.handlePreviousStep();
@@ -189,6 +212,34 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
                     A continuación ingrese las propiedades de su nuevo artefacto custom y el valor que tomarán esas propiedades
                 </Typography>
                 <form className={classes.container}>
+                    <TextField
+                        disabled
+                        label="Nombre de la setting"
+                        helperText={"Requerido*"}
+                        variant="outlined"
+                        defaultValue='Precio'
+                        value='Precio'
+                        className={classes.inputF}
+                    />
+                    <Controller
+                        control={control}
+                        name={'price.value'}
+                        rules={{ validate: { isValid: () => isPriceValid() } }}
+                        render={({ onChange }) => (
+                            <TextField
+                                error={!isPriceValid()}
+                                label="Valor de la setting"
+                                helperText="Requerido*"
+                                variant="outlined"
+                                defaultValue={price}
+                                value={price}
+                                className={classes.inputF}
+                                onChange={event => { handleChangePrice(event); onChange(event); }}
+                                autoComplete='off'
+                                type="number"
+                            />
+                        )}
+                    />
                     {settingsList.map((setting: Setting, index: number) => {
                         return (
                             <React.Fragment key={index}>
@@ -198,7 +249,7 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
                                     rules={{ validate: { isValid: () => !isFieldEmpty(index, "name"), isRepeate: () => !areNamesRepeated(index) } }}
                                     render={({ onChange }) => (
                                         <TextField
-                                            error={errors.settings && errors.settings[index] && typeof errors.settings[index]?.name !== 'undefined'}
+                                            error={errors.settings && errors.settings[index] && typeof errors.settings[index]?.name !== 'undefined' || setting.name === 'price' }
                                             id={`name[${index}]`}
                                             name={`settings[${index}].name`}
                                             label="Nombre de la setting"

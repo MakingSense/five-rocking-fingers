@@ -12,5 +12,13 @@
         public const int RelationAlreadyExisted = 10;
         public const int RelationNotValid = 11;
         public const int RelationNotExists = 12;
+
+        // User errors
+        public const int InvalidCredentials = 20;
+        public const int AuthenticationServerCurrentlyUnavailable = 21;
+        public const int UserNotExists = 22;
+
+        // External errors
+        public const int AmazonApiError = 30;
     }
 }
