@@ -135,7 +135,7 @@ namespace FRF.Web.Controllers
 
         }
 
-        [HttpDelete("~/relations/{relationId}")]
+        [HttpDelete("~/api/relations/{relationId}")]
         public async Task<IActionResult> DeleteRelationAsync(Guid relationId)
         {
             var result = await _artifactsService.DeleteRelationAsync(relationId);
