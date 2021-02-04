@@ -44,6 +44,7 @@ namespace FRF.Web.Dtos
             CreateMap<PricingDimension, PricingDimensionDTO>();
             CreateMap<ArtifactsRelationInsertDTO, ArtifactsRelation>();
             CreateMap<ArtifactsRelationUpdateDTO, ArtifactsRelation>();
+            CreateMap<Provider, ProviderDTO>();
         }
     }
 }

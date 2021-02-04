@@ -35,7 +35,7 @@ namespace FRF.Core.Services
 
         private Artifact MapArtifact(EntityModels.Artifact artifact)
         {
-            switch (artifact.Provider)
+            switch (artifact.ArtifactType.Provider.Name)
             {
                 case ArtifactTypes.Custom:
                     return _mapper.Map<CustomArtifact>(artifact);
@@ -96,6 +96,7 @@ namespace FRF.Core.Services
         {
             var artifacts = await _dataContext.Artifacts
                 .Include(a => a.ArtifactType)
+                    .ThenInclude(a => a.Provider)
                 .Include(a => a.Project)
                     .ThenInclude(p => p.ProjectCategories)
                         .ThenInclude(pc => pc.Category)
@@ -114,6 +115,7 @@ namespace FRF.Core.Services
 
             var artifacts = await _dataContext.Artifacts
                 .Include(a => a.ArtifactType)
+                    .ThenInclude(a => a.Provider)
                 .Include(a => a.Project)
                     .ThenInclude(p => p.ProjectCategories)
                         .ThenInclude(pc => pc.Category)
@@ -129,6 +131,7 @@ namespace FRF.Core.Services
         {
             var artifact = await _dataContext.Artifacts
                 .Include(a => a.ArtifactType)
+                    .ThenInclude(a => a.Provider)
                 .Include(a => a.Project)
                     .ThenInclude(p => p.ProjectCategories)
                         .ThenInclude(pc => pc.Category)
@@ -168,7 +171,15 @@ namespace FRF.Core.Services
             // Saves changes
             await _dataContext.SaveChangesAsync();
 
-            return new ServiceResponse<Artifact>(MapArtifact(mappedArtifact));
+            var response = await _dataContext.Artifacts
+                .Include(a => a.ArtifactType)
+                    .ThenInclude(a => a.Provider)
+                .Include(a => a.Project)
+                    .ThenInclude(p => p.ProjectCategories)
+                        .ThenInclude(pc => pc.Category)
+                .SingleOrDefaultAsync(a => a.Id == mappedArtifact.Id);
+
+            return new ServiceResponse<Artifact>(MapArtifact(response));
         }
 
         public async Task<ServiceResponse<Artifact>> Update(Artifact artifact)
@@ -196,7 +207,6 @@ namespace FRF.Core.Services
 
             //Updates the artifact
             result.Name = artifact.Name;
-            result.Provider = artifact.Provider;
             result.Settings = artifact.Settings;
             result.ModifiedDate = DateTime.Now;
             result.ProjectId = artifact.ProjectId;
@@ -205,7 +215,15 @@ namespace FRF.Core.Services
             //Saves the updated aritfact in the database
             await _dataContext.SaveChangesAsync();
 
-            var mappedArtifact = MapArtifact(result);
+            var response = await _dataContext.Artifacts
+                .Include(a => a.ArtifactType)
+                    .ThenInclude(a => a.Provider)
+                .Include(a => a.Project)
+                    .ThenInclude(p => p.ProjectCategories)
+                        .ThenInclude(pc => pc.Category)
+                .SingleOrDefaultAsync(a => a.Id == result.Id);
+
+            var mappedArtifact = MapArtifact(response);
             return new ServiceResponse<Artifact>(mappedArtifact);
         }
 
