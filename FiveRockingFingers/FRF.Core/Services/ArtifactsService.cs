@@ -155,11 +155,11 @@ namespace FRF.Core.Services
             if(! await _dataContext.ArtifactType.AnyAsync(at => at.Id == artifact.ArtifactTypeId))
             {
                 return new ServiceResponse<Artifact>(new Error(ErrorCodes.ArtifactTypeNotExists, $"There is no artifact type with Id = {artifact.ArtifactTypeId}"));
-            }
+            }            
 
-            if(artifact.Provider == ArtifactTypes.Custom && !SettingsValidator.ValidateSettings(artifact.Settings))
+            if (!SettingsValidator.ValidateSettings(artifact))
             {
-                return new ServiceResponse<Artifact>(new Error(ErrorCodes.InvalidSettings, $"Settings are invalid"));
+                return new ServiceResponse<Artifact>(new Error(ErrorCodes.InvalidArtifactSettings, $"Settings are invalid"));
             }
 
             // Maps the artifact into an EntityModel, deleting the Id if there was one, and setting the CreatedDate field
@@ -199,6 +199,11 @@ namespace FRF.Core.Services
             if (!await _dataContext.ArtifactType.AnyAsync(at => at.Id == artifact.ArtifactTypeId))
             {
                 return new ServiceResponse<Artifact>(new Error(ErrorCodes.ArtifactTypeNotExists, $"There is no artifact type with Id = {artifact.ArtifactTypeId}"));
+            }
+
+            if (!SettingsValidator.ValidateSettings(artifact))
+            {
+                return new ServiceResponse<Artifact>(new Error(ErrorCodes.InvalidArtifactSettings, $"Settings are invalid"));
             }
 
             //Updates the artifact

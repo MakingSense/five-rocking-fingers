@@ -22,6 +22,6 @@
         public const int AmazonApiError = 30;
 
         //Artifacts errors
-        public const int InvalidSettings = 40;
+        public const int InvalidArtifactSettings = 40;
     }
 }
