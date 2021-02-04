@@ -282,7 +282,7 @@ namespace FRF.Core.Tests.Services
                 .ReturnsAsync(response);
 
             // Act
-            var result = await _classUnderTest.GetS3ProductsAsync(settings, false);
+            var result = await _classUnderTest.GetProductsAsync(settings, "AmazonS3");
 
             // Assert
             float.TryParse(beginRange, out float beginRangeFloat);
@@ -347,7 +347,7 @@ namespace FRF.Core.Tests.Services
                 .ReturnsAsync(response);
 
             // Act
-            var result = await _classUnderTest.GetS3ProductsAsync(settings, false);
+            var result = await _classUnderTest.GetProductsAsync(settings, "AmazonS3");
 
             // Assert
             float.TryParse(beginRange, out float beginRangeFloat);
@@ -413,7 +413,7 @@ namespace FRF.Core.Tests.Services
                 .ReturnsAsync(response);
 
             // Act
-            var result = await _classUnderTest.GetS3ProductsAsync(settings, false);
+            var result = await _classUnderTest.GetProductsAsync(settings, "AmazonS3");
 
             // Assert
             float.TryParse(beginRange, out float beginRangeFloat);

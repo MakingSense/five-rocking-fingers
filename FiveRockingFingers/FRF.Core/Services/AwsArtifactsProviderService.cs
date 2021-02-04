@@ -113,7 +113,19 @@ namespace FRF.Core.Services
             return attributeValues;
         }
 
-        public async Task<ServiceResponse<List<PricingTerm>>> GetProductsAsync(List<KeyValuePair<string, string>> settings, string serviceCode)
+        public async Task<ServiceResponse<List<PricingTerm>>> GetProductsAsync(
+            List<KeyValuePair<string, string>> settings, string serviceCode)
+        {
+            switch (serviceCode)
+            {
+                case AwsS3Constants.Service:
+                    return await GetS3ProductsAsync(settings, false);
+                default:
+                    return await GetDefaultProductsAsync(settings, serviceCode);
+            }
+        }
+
+        private async Task<ServiceResponse<List<PricingTerm>>> GetDefaultProductsAsync(List<KeyValuePair<string, string>> settings, string serviceCode)
         {
             var filters = new List<Filter>();
 
@@ -146,7 +158,7 @@ namespace FRF.Core.Services
             return new ServiceResponse<List<PricingTerm>>(pricingDetailsList);
         }
 
-        public async Task<ServiceResponse<List<PricingTerm>>> GetS3ProductsAsync(
+        private async Task<ServiceResponse<List<PricingTerm>>> GetS3ProductsAsync(
             List<KeyValuePair<string, string>> settings, bool isAutomaticMonitoring)
         {
             var pricingDetailsList = new List<PricingTerm>();
