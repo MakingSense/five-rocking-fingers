@@ -1,13 +1,13 @@
 ﻿import axios from 'axios';
 import { BASE_URL } from '../Constants'
 
-const ARTIFACTS_URL = `${BASE_URL}Artifacts/`;
+const ARTIFACTS_URL = `${BASE_URL}artifacts`;
 
 class ArtifactService {
 
     static getAll = async () => {
         try {
-            return await axios.get(`${ARTIFACTS_URL}GetAll`);
+            return await axios.get(`${ARTIFACTS_URL}`);
         } catch (error) {
             return error.response ? error.response : error.message;
         }
@@ -15,7 +15,7 @@ class ArtifactService {
 
     static getAllByProjectId = async (id: number) => {
         try {
-            return await axios.get(`${ARTIFACTS_URL}GetAllByProjectId/${id}`);
+            return await axios.get(`${BASE_URL}projects/${id}/artifacts`);
         } catch (error) {
             return error.response ? error.response : error.message;
         }
@@ -23,7 +23,7 @@ class ArtifactService {
 
     static get = async (id: number) => {
         try {
-            return await axios.get(`${ARTIFACTS_URL}Get/${id}`);
+            return await axios.get(`${ARTIFACTS_URL}/${id}`);
         } catch (error) {
             return error.response ? error.response : error.message;
         }
@@ -31,7 +31,7 @@ class ArtifactService {
 
     static save = async (artifact: any) => {
         try {
-            return await axios.post(`${ARTIFACTS_URL}Save`, artifact);
+            return await axios.post(`${ARTIFACTS_URL}`, artifact);
         } catch (error) {
             return error.response ? error.response : error.message;
         }
@@ -39,7 +39,7 @@ class ArtifactService {
 
     static update = async (id: number, artifact: any) => {
         try {
-            return await axios.put(`${ARTIFACTS_URL}Update/${id}`, artifact);
+            return await axios.put(`${ARTIFACTS_URL}/${id}`, artifact);
         } catch (error) {
             return error.response ? error.response : error.message;
         }
@@ -47,7 +47,7 @@ class ArtifactService {
 
     static delete = async (id: number) => {
         try {
-            return await axios.delete(`${ARTIFACTS_URL}Delete/${id}`);
+            return await axios.delete(`${ARTIFACTS_URL}/${id}`);
         } catch (error) {
             return error.response ? error.response : error.message;
         }
@@ -55,7 +55,7 @@ class ArtifactService {
 
     static getRelations = async (artifactId: number) => {
         try {
-            return await axios.get(`${ARTIFACTS_URL}${artifactId}/GetRelations`);
+            return await axios.get(`${ARTIFACTS_URL}/${artifactId}/relations`);
         } catch (error) {
             return error.response ? error.response : error.message;
         }
@@ -63,7 +63,7 @@ class ArtifactService {
 
     static deleteRelation = async (id: string) => {
         try {
-            return await axios.delete(`${ARTIFACTS_URL}DeleteRelation/${id}`);
+            return await axios.delete(`${BASE_URL}relations/${id}`);
         } catch (error) {
             return error.response ? error.response : error.message;
         }
@@ -71,7 +71,7 @@ class ArtifactService {
     
     static setRelations = async (artifactRelationsList: any) => {
         try {
-            return await axios.post(`${ARTIFACTS_URL}SetRelation`, artifactRelationsList);
+            return await axios.post(`${BASE_URL}relations`, artifactRelationsList);
         } catch (error) {
             return error.response ? error.response : error.message;
         }
@@ -79,7 +79,7 @@ class ArtifactService {
 
     static getAllRelationsByProjectId = async (projectId: number) => {
         try {
-            return await axios.get(`${ARTIFACTS_URL}GetAllRelationsByProjectId/${projectId}`);
+            return await axios.get(`${BASE_URL}projects/${projectId}/relations`);
         } catch (error) {
             return error.response ? error.response : error.message;
         }
@@ -87,7 +87,7 @@ class ArtifactService {
     
     static updateArtifactsRelations = async (artifactId: number, artifactRelationsList: any) => {
         try {
-            return await axios.put(`${ARTIFACTS_URL}${artifactId}/UpdateRelations`, artifactRelationsList);
+            return await axios.put(`${ARTIFACTS_URL}/${artifactId}/relations`, artifactRelationsList);
         } catch (error) {
             return error.response ? error.response : error.message;
         }
