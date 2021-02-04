@@ -185,25 +185,19 @@ namespace FRF.Core.Services
             var offeringClass = (string)termOptionProperties.SelectToken("termAttributes.OfferingClass");
             var purchaseOption = (string)termOptionProperties.SelectToken("termAttributes.PurchaseOption");
             var termPriceDimensions = termOptionProperties.SelectToken("priceDimensions").ToObject<JObject>().Properties().ToList();
-            var termPriceDimension = termPriceDimensions[0];
-            var pricingDimension = ExtractPricingDimension(termPriceDimension);
-            var pricingDetails = new PricingDimension();
-            if (termPriceDimensions.Count > 1)
+            var pricingDimensions = new List<PricingDimension>();
+
+            foreach(var termPriceDimension in termPriceDimensions)
             {
-                var termPriceDetail = termPriceDimensions[1];
-                pricingDetails = ExtractPricingDimension(termPriceDetail);
-            }
-            else
-            {
-                pricingDetails = null;
+                var pricingDimension = ExtractPricingDimension(termPriceDimension);
+                pricingDimensions.Add(pricingDimension);
             }
 
             var pricingTerm = new PricingTerm()
             {
                 Sku = sku,
                 Term = termName,
-                PricingDimension = pricingDimension,
-                PricingDetail = pricingDetails,
+                PricingDimensions = pricingDimensions,
                 LeaseContractLength = leaseContractLength,
                 OfferingClass = offeringClass,
                 PurchaseOption = purchaseOption
@@ -215,7 +209,11 @@ namespace FRF.Core.Services
         private PricingDimension ExtractPricingDimension(JProperty termPriceDimension)
         {
             float.TryParse((string)termPriceDimension.Value.SelectToken("beginRange"), out float beginRange);
-            float.TryParse((string)termPriceDimension.Value.SelectToken("endRange"), out float endRange);
+
+            if(!float.TryParse((string)termPriceDimension.Value.SelectToken("endRange"), out float endRange))
+            {
+                endRange = -1;
+            }
 
             var pricingDetails = new PricingDimension()
             {
@@ -225,7 +223,7 @@ namespace FRF.Core.Services
                 RateCode = (string)termPriceDimension.Value.SelectToken("rateCode"),
                 BeginRange = beginRange,
                 Currency = termPriceDimension.Value.SelectToken("pricePerUnit").ToObject<JObject>().Properties().ElementAt(0).Name,
-                PricePerUnit = (float)termPriceDimension.Value.SelectToken("pricePerUnit").ToObject<JObject>().Properties().ElementAt(0).Value,
+                PricePerUnit = (decimal)termPriceDimension.Value.SelectToken("pricePerUnit").ToObject<JObject>().Properties().ElementAt(0).Value,
             };
 
             return pricingDetails;
