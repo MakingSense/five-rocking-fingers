@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace FRF.DataAccess.EntityModels
 {
@@ -7,5 +8,6 @@ namespace FRF.DataAccess.EntityModels
         [Key]
         public int Id { get; set; }
         public string Name { get; set; }
+        public ICollection<ArtifactType> ArtifactType { get; set; }
     }
 }
