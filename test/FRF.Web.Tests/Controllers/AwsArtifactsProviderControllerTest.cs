@@ -66,7 +66,7 @@ namespace FRF.Web.Tests.Controllers
                 RateCode = "[Mock] Rate code",
                 BeginRange = 0f,
                 Currency = "[Mock] Currency",
-                PricePerUnit = 99.99f
+                PricePerUnit = 99.99m
             };
             var pricingDimension2 = new PricingDimension
             {
@@ -76,7 +76,7 @@ namespace FRF.Web.Tests.Controllers
                 RateCode = "[Mock] Rate code 2",
                 BeginRange = 0f,
                 Currency = "[Mock] Currency 2",
-                PricePerUnit = 99.99f
+                PricePerUnit = 99.99m
             };
             var pricingDimensions = new List<PricingDimension>
             {
