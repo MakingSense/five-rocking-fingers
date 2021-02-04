@@ -79,12 +79,23 @@ namespace FRF.Web.Tests.Controllers
             return artifactRelation;
         }
 
-        private ArtifactType CreateArtifactType()
+        private Provider CreateProvider()
+        {
+            var provider = new Provider
+            {
+                Name = "[Mock] Provider name"
+            };
+
+            return provider;
+        }
+
+        private ArtifactType CreateArtifactType(Provider provider)
         {
             var artifactType = new ArtifactType
             {
                 Name = "[Mock] Artifact type name",
-                Description = "[Mock] Artifact type description"
+                Description = "[Mock] Artifact type description",
+                Provider = provider
             };
 
             return artifactType;
@@ -109,7 +120,6 @@ namespace FRF.Web.Tests.Controllers
             {
                 Id = id,
                 Name = "[Mock] Artifact name",
-                Provider = "[Mock] AWS",
                 CreatedDate = DateTime.Now,
                 Project = project,
                 ProjectId = project.Id,
@@ -141,12 +151,15 @@ namespace FRF.Web.Tests.Controllers
                 ModifiedDate = null
             };
 
+            var provider = CreateProvider();
+
             var artifactTypeId = 1;
             var artifactType = new ArtifactType
             {
                 Id = artifactTypeId,
                 Name = "Artifact Type 1",
-                Description = "Description of Artifact Type 1"
+                Description = "Description of Artifact Type 1",
+                Provider = provider
             };
 
             var artifactId = 1;
@@ -154,7 +167,6 @@ namespace FRF.Web.Tests.Controllers
             {
                 Id = artifactId,
                 Name = "Artifact 1",
-                Provider = "AWS",
                 Settings = new XElement("Root",
                                 new XElement("Child1", 1),
                                 new XElement("Child2", 2),
@@ -202,12 +214,15 @@ namespace FRF.Web.Tests.Controllers
                 ModifiedDate = null
             };
 
+            var provider = CreateProvider();
+
             var artifactTypeId = 1;
             var artifactType = new ArtifactType
             {
                 Id = artifactTypeId,
                 Name = "Artifact Type 1",
-                Description = "Description of Artifact Type 1"
+                Description = "Description of Artifact Type 1",
+                Provider = provider
             };
 
             var artifactId = 1;
@@ -215,7 +230,6 @@ namespace FRF.Web.Tests.Controllers
             {
                 Id = artifactId,
                 Name = "Artifact 1",
-                Provider = "AWS",
                 Settings = new XElement("Root",
                                 new XElement("Child1", 1),
                                 new XElement("Child2", 2),
@@ -263,12 +277,15 @@ namespace FRF.Web.Tests.Controllers
                 ModifiedDate = null
             };
 
+            var provider = CreateProvider();
+
             var artifactTypeId = 1;
             var artifactType = new ArtifactType
             {
                 Id = artifactTypeId,
                 Name = "Artifact Type 1",
-                Description = "Description of Artifact Type 1"
+                Description = "Description of Artifact Type 1",
+                Provider = provider
             };
 
             var artifactId = 1;
@@ -276,7 +293,6 @@ namespace FRF.Web.Tests.Controllers
             {
                 Id = artifactId,
                 Name = "Artifact 1",
-                Provider = "AWS",
                 Settings = new XElement("Root",
                                 new XElement("Child1", 1),
                                 new XElement("Child2", 2),
@@ -347,12 +363,15 @@ namespace FRF.Web.Tests.Controllers
                 ModifiedDate = null
             };
 
+            var provider = CreateProvider();
+
             var artifactTypeId = 1;
             var artifactType = new ArtifactType
             {
                 Id = artifactTypeId,
                 Name = "Artifact Type 1",
-                Description = "Description of Artifact Type 1"
+                Description = "Description of Artifact Type 1",
+                Provider = provider
             };
 
             var artifactId = 1;
@@ -360,7 +379,6 @@ namespace FRF.Web.Tests.Controllers
             {
                 Id = artifactId,
                 Name = "Artifact 1",
-                Provider = "AWS",
                 Settings = new XElement("Root",
                                 new XElement("Child1", 1),
                                 new XElement("Child2", 2),
@@ -377,7 +395,6 @@ namespace FRF.Web.Tests.Controllers
             var artifactUpsertDTO = new ArtifactUpsertDTO
             {
                 Name = "Artifact 1",
-                Provider = "AWS",
                 Settings = new XElement("Root",
                                 new XElement("Child1", 1),
                                 new XElement("Child2", 2),
@@ -401,7 +418,6 @@ namespace FRF.Web.Tests.Controllers
             AssertCompareArtifactArtifactDTO(artifact, returnValue);
             _artifactsService.Verify(mock => mock.Save(It.Is<Artifact>(a => 
                 a.Name == artifactUpsertDTO.Name
-                && a.Provider == artifactUpsertDTO.Provider
                 && a.ProjectId == artifactUpsertDTO.ProjectId
                 && a.ArtifactTypeId == artifactUpsertDTO.ArtifactTypeId)), Times.Once);
         }
@@ -422,12 +438,15 @@ namespace FRF.Web.Tests.Controllers
                 ModifiedDate = null
             };
 
+            var provider = CreateProvider();
+
             var artifactTypeId = 1;
             var artifactType = new ArtifactType
             {
                 Id = artifactTypeId,
                 Name = "Artifact Type 1",
-                Description = "Description of Artifact Type 1"
+                Description = "Description of Artifact Type 1",
+                Provider = provider
             };
 
             var artifactId = 1;
@@ -435,7 +454,6 @@ namespace FRF.Web.Tests.Controllers
             {
                 Id = artifactId,
                 Name = "Artifact 1",
-                Provider = "AWS",
                 Settings = new XElement("Root",
                                 new XElement("Child1", 1),
                                 new XElement("Child2", 2),
@@ -452,7 +470,6 @@ namespace FRF.Web.Tests.Controllers
             var artifactUpsertDTO = new ArtifactUpsertDTO
             {
                 Name = "Artifact 1",
-                Provider = "AWS",
                 Settings = new XElement("Root",
                                 new XElement("Child1", 1),
                                 new XElement("Child2", 2),
@@ -501,18 +518,20 @@ namespace FRF.Web.Tests.Controllers
                 ModifiedDate = null
             };
 
+            var provider = CreateProvider();
+
             var artifactTypeId = 1;
             var artifactType = new ArtifactType
             {
                 Id = artifactTypeId,
                 Name = "Artifact Type 1",
-                Description = "Description of Artifact Type 1"
+                Description = "Description of Artifact Type 1",
+                Provider = provider
             };
 
             var artifactUpdate = new ArtifactUpsertDTO
             {
                 Name = "Artifact 1",
-                Provider = "AWS",
                 Settings = new XElement("Root",
                                 new XElement("Child1", 1),
                                 new XElement("Child2", 2),
@@ -550,12 +569,15 @@ namespace FRF.Web.Tests.Controllers
                 ModifiedDate = null
             };
 
+            var provider = CreateProvider();
+
             var artifactTypeId = 1;
             var artifactType = new ArtifactType
             {
                 Id = artifactTypeId,
                 Name = "Artifact Type 1",
-                Description = "Description of Artifact Type 1"
+                Description = "Description of Artifact Type 1",
+                Provider = provider
             };
 
             var artifactId = 1;
@@ -563,7 +585,6 @@ namespace FRF.Web.Tests.Controllers
             {
                 Id = artifactId,
                 Name = "Artifact 1",
-                Provider = "AWS",
                 Settings = new XElement("Root",
                                 new XElement("Child1", 1),
                                 new XElement("Child2", 2),
@@ -663,7 +684,8 @@ namespace FRF.Web.Tests.Controllers
             // Arrange
             var projectId = 1;
             var project = CreateProject(projectId);
-            var artifactType = CreateArtifactType();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
             var artifact1 = CreateArtifact(1, project, artifactType);
             var artifact2 = CreateArtifact(2, project, artifactType);
             var artifactsRelationsList = new List<ArtifactsRelation>();
@@ -695,7 +717,8 @@ namespace FRF.Web.Tests.Controllers
         {
             // Arrange
             var project = CreateProject(1);
-            var artifactType = CreateArtifactType();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
             var artifact1 = CreateArtifact(1, project, artifactType);
 
             _artifactsService
@@ -718,7 +741,8 @@ namespace FRF.Web.Tests.Controllers
             // Arrange
             var projectId = 1;
             var project = CreateProject(projectId);
-            var artifactType = CreateArtifactType();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
             var artifact1 = CreateArtifact(1, project, artifactType);
             var artifact2 = CreateArtifact(2, project, artifactType);
             var artifactsRelationsList = new List<ArtifactsRelation>();
@@ -769,7 +793,8 @@ namespace FRF.Web.Tests.Controllers
             // Arrange
             var projectId = 1;
             var project = CreateProject(projectId);
-            var artifactType = CreateArtifactType();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
             var artifact1 = CreateArtifact(1, project, artifactType);
             var artifact2 = CreateArtifact(2, project, artifactType);
             var artifactRelation = CreateArtifactsRelation(artifact1, artifact2);
@@ -812,7 +837,8 @@ namespace FRF.Web.Tests.Controllers
             var artifact1Id = 1;
             var artifact2Id = 2;
             var project = CreateProject(projectId);
-            var artifactType = CreateArtifactType();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
             var artifact1 = CreateArtifact(artifact1Id, project, artifactType);
             var artifact2 = CreateArtifact(artifact2Id, project, artifactType);
             var artifactRelation = CreateArtifactsRelation(artifact1, artifact2);
@@ -862,7 +888,8 @@ namespace FRF.Web.Tests.Controllers
             var artifact1Id = 1;
             var artifact2Id = 2;
             var project = CreateProject(projectId);
-            var artifactType = CreateArtifactType();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
             var artifact1 = CreateArtifact(artifact1Id, project, artifactType);
             var artifact2 = CreateArtifact(artifact2Id, project, artifactType);
             var artifactRelation = CreateArtifactsRelation(artifact1, artifact2);
@@ -899,7 +926,8 @@ namespace FRF.Web.Tests.Controllers
             var artifact1Id = 1;
             var artifact2Id = 2;
             var project = CreateProject(projectId);
-            var artifactType = CreateArtifactType();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
             var artifact1 = CreateArtifact(artifact1Id, project, artifactType);
             var artifact2 = CreateArtifact(artifact2Id, project, artifactType);
             var artifactRelation = CreateArtifactsRelation(artifact1, artifact2);
@@ -951,11 +979,12 @@ namespace FRF.Web.Tests.Controllers
         {
             Assert.Equal(artifact.Id, artifactDTO.Id);
             Assert.Equal(artifact.Name, artifactDTO.Name);
-            Assert.Equal(artifact.Provider, artifactDTO.Provider);
             Assert.Equal(artifact.ProjectId, artifactDTO.ProjectId);
             Assert.Equal(artifact.ArtifactType.Id, artifactDTO.ArtifactType.Id);
             Assert.Equal(artifact.ArtifactType.Name, artifactDTO.ArtifactType.Name);
             Assert.Equal(artifact.ArtifactType.Description, artifactDTO.ArtifactType.Description);
+            Assert.Equal(artifact.ArtifactType.Provider.Id, artifactDTO.ArtifactType.Provider.Id);
+            Assert.Equal(artifact.ArtifactType.Provider.Name, artifactDTO.ArtifactType.Provider.Name);
         }
     }
 }

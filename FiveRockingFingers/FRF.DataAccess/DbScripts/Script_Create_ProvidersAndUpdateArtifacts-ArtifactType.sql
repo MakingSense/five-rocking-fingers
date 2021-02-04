@@ -1,0 +1,18 @@
+USE FiveRockingFingers
+
+CREATE TABLE Providers (
+	Id INT NOT NULL PRIMARY KEY IDENTITY(1,1),
+	Name NVARCHAR(50) NOT NULL
+)
+
+ALTER TABLE Artifacts
+DROP COLUMN Provider
+
+ALTER TABLE ArtifactType
+ADD RequiredFields NVARCHAR(MAX)
+
+ALTER TABLE ArtifactType
+ADD ProviderId INT NOT NULL
+
+ALTER TABLE ArtifactType
+ADD FOREIGN KEY (ProviderId) REFERENCES Providers(Id)

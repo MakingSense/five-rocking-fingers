@@ -35,6 +35,7 @@ namespace FRF.Core
                 .ForMember(dest => dest.Id, act => act.Ignore());
             CreateMap<DataAccess.EntityModels.ArtifactsRelation, ArtifactsRelation>()
                 .ReverseMap();
+            CreateMap<DataAccess.EntityModels.Provider, Provider>();
         }
     }
 }

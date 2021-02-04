@@ -10,7 +10,6 @@ namespace FRF.DataAccess.EntityModels
         [Key]
         public int Id { get; set; }
         public string Name { get; set; }
-        public string Provider { get; set; }
         #nullable enable
         public string? SettingsXML { get; set; }
         #nullable disable
