@@ -12,6 +12,6 @@ namespace FRF.Web.Dtos.Artifacts
         public string RateCode { get; set; }
         public float BeginRange { get; set; }
         public string Currency { get; set; }
-        public float PricePerUnit { get; set; }
+        public decimal PricePerUnit { get; set; }
     }
 }

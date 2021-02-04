@@ -4,6 +4,11 @@ using System.Text;
 
 namespace FRF.Core.Models
 {
+    public class PricingDimensionPocos
+    {
+        public Dictionary<string,PricingDimension> PricingDimensions { get; set; }
+    }
+
     public class PricingDimension
     {
         public string Unit { get; set; }
@@ -12,6 +17,6 @@ namespace FRF.Core.Models
         public string RateCode { get; set; }
         public float BeginRange { get; set; }
         public string Currency { get; set; }
-        public float PricePerUnit { get; set; }
+        public decimal PricePerUnit { get; set; }
     }
 }

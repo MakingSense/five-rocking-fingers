@@ -356,14 +356,17 @@ namespace FRF.Core.Services
         {
             var termValues = termPriceDimension.Value;
             
-            if (termValues.SelectToken("endRange").Value<string>().Equals("Inf")) termValues["endRange"] = -1;
+            if (termValues.SelectToken("endRange").Value<string>().Equals("Inf",StringComparison.InvariantCultureIgnoreCase)) termValues["endRange"] = -1;
 
-            var pricePerUnit = (decimal)termValues.SelectToken("pricePerUnit").ToObject<JObject>().Properties().ElementAt(0).Value;
+            var pricePerUnitJObject = termValues.SelectToken("pricePerUnit").ToObject<JObject>().Properties().ElementAt(0);
+            var currency = pricePerUnitJObject.Name;
+            var pricePerUnit = pricePerUnitJObject.Value;
+
             termValues.SelectToken("pricePerUnit").Replace(pricePerUnit);
 
-            
-
-            return termValues.ToObject<PricingDimension>();
+            var pricingDimension = termValues.ToObject<PricingDimension>();
+            pricingDimension.Currency = currency;
+            return pricingDimension;
         }
 
         private static string ExtractName(string str)

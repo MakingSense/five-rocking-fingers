@@ -174,7 +174,7 @@ namespace FRF.Core.Tests.Services
             var sku = "[Mock] Sku";
             var term = "[Mock] Term";
             var unit = "[Mock] Unit";
-            var endRange = "inf";
+            var endRange = "-1";
             var description = "[Mock] Description";
             var rateCode = "[Mock] Rate Code";
             var beginRange = "10";
@@ -205,24 +205,24 @@ namespace FRF.Core.Tests.Services
 
             // Assert
             float.TryParse(beginRange, out float beginRangeFloat);
-            float.TryParse(endRange, out float endRangeFloat);
+            var endRangeFloat = -1f;
 
             Assert.IsType<ServiceResponse<List<PricingTerm>>>(result);
             var resultValue = result.Value;
             Assert.NotEmpty(resultValue);
 
-            Assert.Equal(resultValue[0].Sku, sku);
-            Assert.Equal(resultValue[0].Term, term);
-            Assert.Equal(resultValue[0].PurchaseOption, purchaseOption);
-            Assert.Equal(resultValue[0].OfferingClass, offeringClass);
-            Assert.Equal(resultValue[0].LeaseContractLength, leaseContractLength);
-            Assert.Equal(resultValue[0].PricingDimensions[0].BeginRange, beginRangeFloat);
-            Assert.Equal(resultValue[0].PricingDimensions[0].Currency, currency);
-            Assert.Equal(resultValue[0].PricingDimensions[0].Description, description);
-            Assert.Equal(resultValue[0].PricingDimensions[0].EndRange, endRangeFloat);
-            Assert.Equal(resultValue[0].PricingDimensions[0].PricePerUnit, (decimal)float.Parse(pricePerUnit, CultureInfo.InvariantCulture));
-            Assert.Equal(resultValue[0].PricingDimensions[0].RateCode, rateCode);
-            Assert.Equal(resultValue[0].PricingDimensions[0].Unit, unit);
+            Assert.Equal(sku, resultValue[0].Sku);
+            Assert.Equal(term, resultValue[0].Term);
+            Assert.Equal(purchaseOption, resultValue[0].PurchaseOption);
+            Assert.Equal(offeringClass, resultValue[0].OfferingClass);
+            Assert.Equal(leaseContractLength, resultValue[0].LeaseContractLength);
+            Assert.Equal(beginRangeFloat, resultValue[0].PricingDimensions[0].BeginRange);
+            Assert.Equal(currency, resultValue[0].PricingDimensions[0].Currency);
+            Assert.Equal(description, resultValue[0].PricingDimensions[0].Description);
+            Assert.Equal(endRangeFloat, resultValue[0].PricingDimensions[0].EndRange);
+            Assert.Equal(decimal.Parse(pricePerUnit, CultureInfo.InvariantCulture), resultValue[0].PricingDimensions[0].PricePerUnit);
+            Assert.Equal(rateCode, resultValue[0].PricingDimensions[0].RateCode);
+            Assert.Equal(unit, resultValue[0].PricingDimensions[0].Unit);
         }
 
         [Fact]
@@ -286,10 +286,7 @@ namespace FRF.Core.Tests.Services
 
             // Assert
             float.TryParse(beginRange, out float beginRangeFloat);
-            if (!float.TryParse(endRange, out float endRangeFloat))
-            {
-                endRangeFloat = -1;
-            }
+            var endRangeFloat = -1f;
 
             Assert.IsType<ServiceResponse<List<PricingTerm>>>(result);
             var resultValue = result.Value;
@@ -354,10 +351,7 @@ namespace FRF.Core.Tests.Services
 
             // Assert
             float.TryParse(beginRange, out float beginRangeFloat);
-            if (!float.TryParse(endRange, out float endRangeFloat))
-            {
-                endRangeFloat = -1;
-            }
+            var endRangeFloat = -1f;
 
             Assert.IsType<ServiceResponse<List<PricingTerm>>>(result);
             var resultValue = result.Value;
@@ -389,7 +383,7 @@ namespace FRF.Core.Tests.Services
             var sku = "[Mock] Sku";
             var term = "[Mock] Term";
             var unit = "[Mock] Unit";
-            var endRange = "inf";
+            var endRange = "Inf";
             var description = "[Mock] Description";
             var rateCode = "[Mock] Rate Code";
             var beginRange = "10";
@@ -423,10 +417,7 @@ namespace FRF.Core.Tests.Services
 
             // Assert
             float.TryParse(beginRange, out float beginRangeFloat);
-            if (!float.TryParse(endRange, out float endRangeFloat))
-            {
-                endRangeFloat = -1;
-            }
+            var endRangeFloat = -1f;
 
             Assert.IsType<ServiceResponse<List<PricingTerm>>>(result);
             var resultValue = result.Value;
@@ -498,5 +489,7 @@ namespace FRF.Core.Tests.Services
             };
             return response;
         }
+
+        
     }
 }

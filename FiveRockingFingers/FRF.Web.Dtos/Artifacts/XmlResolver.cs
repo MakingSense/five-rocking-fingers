@@ -27,7 +27,7 @@ namespace FRF.Web.Dtos.Artifacts
 
         private Dictionary<string, string> GetKeyValuePair(XElement xelement, Dictionary<string, string> settings)
         {
-            if(xelement.HasElements)
+            if(xelement.HasElements && !settings.ContainsKey(xelement.Name.ToString()))
             {
                 settings.Add(xelement.Name.ToString(), "");
             }
