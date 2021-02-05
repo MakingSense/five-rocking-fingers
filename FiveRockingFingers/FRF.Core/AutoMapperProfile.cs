@@ -40,17 +40,7 @@ namespace FRF.Core
                     act.MapFrom(ar =>
                         Convert.ToDecimal(
                             ar.Settings.Element("product0").Element("pricingDimension").Element("range0")
-                                .Element("pricePerUnit").Value, CultureInfo.InvariantCulture)))
-                .ForMember(dest => dest.WriteRequestsPrice, act =>
-                    act.MapFrom(ar =>
-                        decimal.Parse(
-                            ar.Settings.Element("product1").Element("pricingDimension").Element("range0").Element("pricePerUnit").Value,
-                            NumberStyles.Float)))
-                .ForMember(dest => dest.RetrieveRequestsPrice, act =>
-                    act.MapFrom(ar =>
-                        decimal.Parse(
-                            ar.Settings.Element("product2").Element("pricingDimension").Element("range0").Element("pricePerUnit").Value,
-                            NumberStyles.Float)));
+                                .Element("pricePerUnit").Value, CultureInfo.InvariantCulture)));
             CreateMap<AwsS3, DataAccess.EntityModels.Artifact > ()
                 .ForMember(dest => dest.Id, act => act.Ignore())
                 .ForMember(dest => dest.ArtifactType, act => act.Ignore())
