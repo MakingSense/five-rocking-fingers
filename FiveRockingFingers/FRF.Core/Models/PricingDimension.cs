@@ -1,14 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace FRF.Core.Models
+﻿namespace FRF.Core.Models
 {
-    public class PricingDimensionPocos
-    {
-        public Dictionary<string,PricingDimension> PricingDimensions { get; set; }
-    }
-
     public class PricingDimension
     {
         public string Unit { get; set; }

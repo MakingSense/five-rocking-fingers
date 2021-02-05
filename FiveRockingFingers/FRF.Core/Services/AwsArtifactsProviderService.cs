@@ -118,7 +118,7 @@ namespace FRF.Core.Services
         {
             switch (serviceCode)
             {
-                case AwsS3Constants.Service:
+                case AwsS3Descriptions.Service:
                     return await GetS3ProductsAsync(settings, false);
                 default:
                     return await GetDefaultProductsAsync(settings, serviceCode);
@@ -168,8 +168,8 @@ namespace FRF.Core.Services
             var locationFilter = new Filter {Field = "location", Type = "TERM_MATCH", Value = ""};
             var storageClassFilter = new Filter {Field = "storageClass", Type = "TERM_MATCH", Value = ""};
             var volumeTypeFilter = new Filter {Field = "volumeType", Type = "TERM_MATCH", Value = ""};
-            var writeRequestGroupValue = AwsS3Constants.WriteFrequentGroup;
-            var retrieveRequestGroupValue = AwsS3Constants.RetrieveFrequentGroup;
+            var writeRequestGroupValue = AwsS3Descriptions.WriteFrequentGroup;
+            var retrieveRequestGroupValue = AwsS3Descriptions.RetrieveFrequentGroup;
 
             foreach (var (key, value) in settings)
             {
@@ -194,26 +194,31 @@ namespace FRF.Core.Services
             {
                 Filters = storageFilters,
                 FormatVersion = "aws_v1",
-                ServiceCode = AwsS3Constants.Service
+                ServiceCode = AwsS3Descriptions.Service
             });
 
             if (storagePrice == null) return new ServiceResponse<List<PricingTerm>>(pricingDetailsList);
 
             AddProductToPricingDetails(storagePrice, pricingDetailsList);
 
+            //Check if the product is Intelligent-Tiering.
+            if (storageClassFilter.Value.Equals(AwsS3Descriptions.IntelligentTieringProduct, StringComparison.InvariantCultureIgnoreCase))
+                pricingDetailsList =
+                    await GetS3IntelligentTieringDetailListAsync(locationFilter, pricingDetailsList, isAutomaticMonitoring);
+
             //Check if the product is Standard - Infrequent Access.
             if (volumeTypeFilter.Value.Equals(
-                AwsS3Constants.StandardInfrequentAccessProduct, StringComparison.InvariantCultureIgnoreCase))
+                AwsS3Descriptions.StandardInfrequentAccessProduct, StringComparison.InvariantCultureIgnoreCase))
             {
-                writeRequestGroupValue = AwsS3Constants.WriteInfrequentGroup;
-                retrieveRequestGroupValue = AwsS3Constants.RetrieveInfrequentGroup;
+                writeRequestGroupValue = AwsS3Descriptions.WriteInfrequentGroup;
+                retrieveRequestGroupValue = AwsS3Descriptions.RetrieveInfrequentGroup;
             }
             //Check if the product is One Zone - Infrequent Access.
-            else if (volumeTypeFilter.Value.Equals(AwsS3Constants.InfrequentAccessProduct,
+            else if (volumeTypeFilter.Value.Equals(AwsS3Descriptions.InfrequentAccessProduct,
                 StringComparison.InvariantCultureIgnoreCase))
             {
-                writeRequestGroupValue = AwsS3Constants.WriteOneZoneInfrequentGroup;
-                retrieveRequestGroupValue = AwsS3Constants.RetrieveOneZoneInfrequentGroup;
+                writeRequestGroupValue = AwsS3Descriptions.WriteOneZoneInfrequentGroup;
+                retrieveRequestGroupValue = AwsS3Descriptions.RetrieveOneZoneInfrequentGroup;
             }
 
             writeRequestFilters.Add(locationFilter);
@@ -223,7 +228,7 @@ namespace FRF.Core.Services
             {
                 Filters = writeRequestFilters,
                 FormatVersion = "aws_v1",
-                ServiceCode = AwsS3Constants.Service
+                ServiceCode = AwsS3Descriptions.Service
             });
 
             if (writeRequestPrice == null) return new ServiceResponse<List<PricingTerm>>(pricingDetailsList);
@@ -238,17 +243,12 @@ namespace FRF.Core.Services
             {
                 Filters = retrieveRequestFilters,
                 FormatVersion = "aws_v1",
-                ServiceCode = AwsS3Constants.Service
+                ServiceCode = AwsS3Descriptions.Service
             });
 
             if (retrieveRequestPrice == null) return new ServiceResponse<List<PricingTerm>>(pricingDetailsList);
 
             AddProductToPricingDetails(retrieveRequestPrice, pricingDetailsList);
-
-            //Check if the product is Intelligent-Tiering.
-            if (storageClassFilter.Value.Equals(AwsS3Constants.IntelligentTieringProduct , StringComparison.InvariantCultureIgnoreCase))
-                pricingDetailsList =
-                    await GetS3IntelligentTieringDetailListAsync(locationFilter, pricingDetailsList, isAutomaticMonitoring);
 
             return new ServiceResponse<List<PricingTerm>>(pricingDetailsList);
         }
@@ -261,24 +261,24 @@ namespace FRF.Core.Services
 
             infrequentAccessFilters.Add(locationFilter);
             infrequentAccessFilters.Add(new Filter
-                {Field = "volumeType", Type = "TERM_MATCH", Value = AwsS3Constants.IntelligentInfrequentAccessProduct});
+                {Field = "volumeType", Type = "TERM_MATCH", Value = AwsS3Descriptions.IntelligentInfrequentAccessProduct});
             var infrequentAccessPrice = await _pricingClient.GetProductsAsync(new GetProductsRequest
             {
                 Filters = infrequentAccessFilters,
                 FormatVersion = "aws_v1",
-                ServiceCode = AwsS3Constants.Service
+                ServiceCode = AwsS3Descriptions.Service
             });
 
             AddProductToPricingDetails(infrequentAccessPrice, pricingDetailsList);
 
             frequentAccessFilters.Add(locationFilter);
             frequentAccessFilters.Add(new Filter
-                {Field = "volumeType", Type = "TERM_MATCH", Value = AwsS3Constants.IntelligentFrequentAccessProduct});
+                {Field = "volumeType", Type = "TERM_MATCH", Value = AwsS3Descriptions.IntelligentFrequentAccessProduct});
             var frequentAccessPrice = await _pricingClient.GetProductsAsync(new GetProductsRequest
             {
                 Filters = frequentAccessFilters,
                 FormatVersion = "aws_v1",
-                ServiceCode = AwsS3Constants.Service
+                ServiceCode = AwsS3Descriptions.Service
             });
 
             AddProductToPricingDetails(frequentAccessPrice, pricingDetailsList);
@@ -289,14 +289,14 @@ namespace FRF.Core.Services
             {
                 locationFilter,
                 new Filter
-                    {Field = "feeCode", Type = "TERM_MATCH", Value = AwsS3Constants.AutomationObjectCountFee}
+                    {Field = "feeCode", Type = "TERM_MATCH", Value = AwsS3Descriptions.AutomationObjectCountFee}
             };
 
             var automaticMonitoringPrice = await _pricingClient.GetProductsAsync(new GetProductsRequest
             {
                 Filters = monitoringFilters,
                 FormatVersion = "aws_v1",
-                ServiceCode = AwsS3Constants.Service
+                ServiceCode = AwsS3Descriptions.Service
             });
 
             AddProductToPricingDetails(automaticMonitoringPrice, pricingDetailsList);
