@@ -4,13 +4,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Xml;
-using Formatting = Newtonsoft.Json.Formatting;
 
 namespace FRF.Core.Models.AwsArtifacts
 {
     public class AwsS3 : Artifact
     {
-        public decimal StoragePrice { get; set; }
         public int StorageUsed { get; set; }
         public decimal WriteRequestsPrice { get; set; }
         public int WriteRequestsUsed { get; set; }
@@ -24,7 +22,7 @@ namespace FRF.Core.Models.AwsArtifacts
         {
             PricingDimensions = new Dictionary<string, PricingDimension>();
             var doc = new XmlDocument();
-            if (Settings.Element("product1") == null) return 0;
+            if (Settings.Element("product0") == null) return 0;
 
             doc.LoadXml(Settings.Element("product0").Element("pricingDimension").ToString());
             var priceDimensionsJson = JsonConvert.SerializeXmlNode(doc);
@@ -69,7 +67,22 @@ namespace FRF.Core.Models.AwsArtifacts
 
         private decimal GetStandardPrice()
         {
-            var storageCost = StoragePrice * StorageUsed;
+            var endRange1 = (decimal) PricingDimensions["range0"].EndRange;
+            var endRange2 = (decimal) PricingDimensions["range2"].EndRange;
+            var beginRangeLast = (decimal) PricingDimensions["range1"].BeginRange;
+
+            if (endRange1 == 0 || endRange2 == 0 || beginRangeLast == 0) return 0;
+
+            decimal storageCost;
+
+            if (StorageUsed <= endRange1)
+                storageCost = PricingDimensions["range2"].PricePerUnit * StorageUsed;
+
+            else if (StorageUsed >= endRange2 && StorageUsed <= beginRangeLast)
+                storageCost = PricingDimensions["range1"].PricePerUnit * StorageUsed;
+            else
+                storageCost = PricingDimensions["range0"].PricePerUnit * StorageUsed;
+
             var writeRequestCost = WriteRequestsPrice * WriteRequestsUsed;
             var retrieveRequestCost = RetrieveRequestsPrice * RetrieveRequestsUsed;
             var totalCost = storageCost + writeRequestCost + retrieveRequestCost;
@@ -103,7 +116,9 @@ namespace FRF.Core.Models.AwsArtifacts
             var storageInfrequentAccessCost = storageInfrequentAccessMultiplier * StorageUsed * InfrequentAccessPrice;
             var writeRequestsCost = WriteRequestsUsed * WriteRequestsPrice;
             var retrieveRequestsCost = RetrieveRequestsUsed * RetrieveRequestsPrice;
-            return storageFrequentAccessCost + storageInfrequentAccessCost + writeRequestsCost + retrieveRequestsCost;
+            
+            var totalCost = storageFrequentAccessCost + storageInfrequentAccessCost + writeRequestsCost + retrieveRequestsCost;
+            return totalCost;
         }
     }
 }

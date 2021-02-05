@@ -35,12 +35,7 @@ namespace FRF.Core
                 .ForMember(dest => dest.StorageUsed, act =>
                     act.MapFrom(ar => ar.Settings.Element("storageUsed").Value))
                 .ForMember(dest => dest.InfrequentAccessMultiplier, act =>
-                    act.MapFrom(ar => ar.Settings.Element("infrequentAccessMultiplier").Value))
-                .ForMember(dest => dest.StoragePrice, act =>
-                    act.MapFrom(ar =>
-                        Convert.ToDecimal(
-                            ar.Settings.Element("product0").Element("pricingDimension").Element("range0")
-                                .Element("pricePerUnit").Value, CultureInfo.InvariantCulture)));
+                    act.MapFrom(ar => ar.Settings.Element("infrequentAccessMultiplier").Value));
             CreateMap<AwsS3, DataAccess.EntityModels.Artifact > ()
                 .ForMember(dest => dest.Id, act => act.Ignore())
                 .ForMember(dest => dest.ArtifactType, act => act.Ignore())
