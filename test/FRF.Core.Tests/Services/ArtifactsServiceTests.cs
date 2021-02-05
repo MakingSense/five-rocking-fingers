@@ -315,12 +315,12 @@ namespace FRF.Core.Tests.Services
         public async Task SaveAsync_ReturnsExceptionInvalidArtifactSettings()
         {
             // Arange
-            var artifactType = CreateArtifactType();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
 
             var artifactToSave = new CoreModels.Artifact();
             artifactToSave.Name = "[Mock] Artifact name 1";
-            artifactToSave.Provider = "[Mock] AWS";
             artifactToSave.ProjectId = project.Id;
             artifactToSave.ArtifactTypeId = artifactType.Id;
             artifactToSave.Settings = new XElement("Settings");
@@ -471,8 +471,8 @@ namespace FRF.Core.Tests.Services
         public async Task UpdateAsync_ReturnsExceptionInvalidArtifactSettings()
         {
             // Arange
-            // Arange
-            var artifactType = CreateArtifactType();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
             var artifact = CreateArtifact(project, artifactType);
 
@@ -497,7 +497,6 @@ namespace FRF.Core.Tests.Services
             {
                 Id = artifact.Id,
                 Name = "[Mock] Updated name",
-                Provider = "[Mock] Updated provider",
                 CreatedDate = DateTime.Now,
                 ProjectId = newProject.Id,
                 Project = _mapper.Map<CoreModels.Project>(newProject),

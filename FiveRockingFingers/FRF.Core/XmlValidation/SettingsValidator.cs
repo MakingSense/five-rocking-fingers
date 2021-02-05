@@ -19,7 +19,7 @@ namespace FRF.Core.XmlValidation
 
             var path = "";
 
-            switch (artifact.Provider)
+            switch (artifact.ArtifactType.Provider.Name)
             {
                 case ArtifactTypes.Custom:
                     path = Path.Combine(rootPath, "CustomArtifact.xsd");
