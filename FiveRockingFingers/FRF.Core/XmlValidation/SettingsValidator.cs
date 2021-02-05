@@ -9,9 +9,9 @@ using System.Xml.Schema;
 
 namespace FRF.Core.XmlValidation
 {
-    public class SettingsValidator
+    public class SettingsValidator : ISettingsValidator
     {
-        public static bool ValidateSettings(Artifact artifact)
+        public bool ValidateSettings(Artifact artifact)
         {
             var areSettingsValid = true;
 

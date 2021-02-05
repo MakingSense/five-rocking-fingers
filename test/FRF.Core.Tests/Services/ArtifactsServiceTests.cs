@@ -11,6 +11,8 @@ using Microsoft.Extensions.Configuration;
 using ArtifactsRelation = FRF.Core.Models.ArtifactsRelation;
 using CoreModels = FRF.Core.Models;
 using FRF.Core.Response;
+using FRF.Core.XmlValidation;
+using System.Xml.Linq;
 
 namespace FRF.Core.Tests.Services
 {
@@ -21,6 +23,7 @@ namespace FRF.Core.Tests.Services
         private readonly DataAccessContextForTest _dataAccess;
         private readonly ArtifactsService _classUnderTest;
         private readonly DbContextOptions<DataAccessContextForTest> ContextOptions;
+        private readonly Mock<ISettingsValidator> _settingsValidator;
 
         public ArtifactsServiceTests()
         {
@@ -31,7 +34,9 @@ namespace FRF.Core.Tests.Services
             _dataAccess.Database.EnsureDeleted();
             _dataAccess.Database.EnsureCreated();
 
-            _classUnderTest = new ArtifactsService(_dataAccess, _mapper);
+            _settingsValidator = new Mock<ISettingsValidator>();
+
+            _classUnderTest = new ArtifactsService(_dataAccess, _mapper, _settingsValidator.Object);
         }
 
         private ArtifactType CreateArtifactType()
@@ -257,6 +262,10 @@ namespace FRF.Core.Tests.Services
             artifactToSave.Provider = "[Mock] AWS";
             artifactToSave.ProjectId = project.Id;
             artifactToSave.ArtifactTypeId = artifactType.Id;
+            artifactToSave.Settings = new XElement("Settings");
+
+            _settingsValidator.Setup(mock => mock.ValidateSettings(It.IsAny<CoreModels.Artifact>()))
+                .Returns(true);
 
             // Act
             var result = await _classUnderTest.Save(artifactToSave);
@@ -278,6 +287,30 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(artifactType.Id, resultValue.ArtifactType.Id);
             Assert.Equal(artifactType.Name, resultValue.ArtifactType.Name);
             Assert.Equal(artifactType.Description, resultValue.ArtifactType.Description);
+        }
+
+        [Fact]
+        public async Task SaveAsync_ReturnsExceptionInvalidArtifactSettings()
+        {
+            // Arange
+            var artifactType = CreateArtifactType();
+            var project = CreateProject();
+
+            var artifactToSave = new CoreModels.Artifact();
+            artifactToSave.Name = "[Mock] Artifact name 1";
+            artifactToSave.Provider = "[Mock] AWS";
+            artifactToSave.ProjectId = project.Id;
+            artifactToSave.ArtifactTypeId = artifactType.Id;
+            artifactToSave.Settings = new XElement("Settings");
+
+            // Act
+            var result = await _classUnderTest.Save(artifactToSave);
+
+            // Assert
+            Assert.IsType<ServiceResponse<CoreModels.Artifact>>(result);
+            Assert.False(result.Success);
+            Assert.NotNull(result.Error);
+            Assert.Equal(result.Error.Code, ErrorCodes.InvalidArtifactSettings);
         }
 
         [Fact]
@@ -376,8 +409,14 @@ namespace FRF.Core.Tests.Services
                 ProjectId = newProject.Id,
                 Project = _mapper.Map<CoreModels.Project>(newProject),
                 ArtifactTypeId = newArtifactType.Id,
-                ArtifactType = _mapper.Map<CoreModels.ArtifactType>(newArtifactType)
+                ArtifactType = _mapper.Map<CoreModels.ArtifactType>(newArtifactType),
+                Settings = new XElement("Settings")
             };
+
+            
+
+            _settingsValidator.Setup(mock => mock.ValidateSettings(It.IsAny<CoreModels.Artifact>()))
+                .Returns(true);
 
             // Act
             var result = await _classUnderTest.Update(artifactToUpdate);
@@ -402,6 +441,55 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(newArtifactType.Id, resultValue.ArtifactType.Id);
             Assert.Equal(newArtifactType.Name, resultValue.ArtifactType.Name);
             Assert.Equal(newArtifactType.Description, resultValue.ArtifactType.Description);
+        }
+
+        [Fact]
+        public async Task UpdateAsync_ReturnsExceptionInvalidArtifactSettings()
+        {
+            // Arange
+            // Arange
+            var artifactType = CreateArtifactType();
+            var project = CreateProject();
+            var artifact = CreateArtifact(project, artifactType);
+
+            var newProject = new Project()
+            {
+                Name = "[Mock] Project after update",
+                CreatedDate = DateTime.Now,
+                ProjectCategories = new List<ProjectCategory>()
+            };
+            _dataAccess.Projects.Add(newProject);
+            _dataAccess.SaveChanges();
+
+            var newArtifactType = new ArtifactType()
+            {
+                Name = "[Mock] Artifact type name",
+                Description = "[Mock] Artifact type description"
+            };
+            _dataAccess.ArtifactType.Add(newArtifactType);
+            _dataAccess.SaveChanges();
+
+            var artifactToUpdate = new CoreModels.Artifact()
+            {
+                Id = artifact.Id,
+                Name = "[Mock] Updated name",
+                Provider = "[Mock] Updated provider",
+                CreatedDate = DateTime.Now,
+                ProjectId = newProject.Id,
+                Project = _mapper.Map<CoreModels.Project>(newProject),
+                ArtifactTypeId = newArtifactType.Id,
+                ArtifactType = _mapper.Map<CoreModels.ArtifactType>(newArtifactType),
+                Settings = new XElement("Settings")
+            };
+
+            // Act
+            var result = await _classUnderTest.Save(artifactToUpdate);
+
+            // Assert
+            Assert.IsType<ServiceResponse<CoreModels.Artifact>>(result);
+            Assert.False(result.Success);
+            Assert.NotNull(result.Error);
+            Assert.Equal(result.Error.Code, ErrorCodes.InvalidArtifactSettings);
         }
 
         [Fact]

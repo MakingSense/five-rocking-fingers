@@ -20,11 +20,13 @@ namespace FRF.Core.Services
     {
         private readonly DataAccessContext _dataContext;
         private readonly IMapper _mapper;
+        private readonly ISettingsValidator _settingsValidator;
 
-        public ArtifactsService(DataAccessContext dataContext, IMapper mapper)
+        public ArtifactsService(DataAccessContext dataContext, IMapper mapper, ISettingsValidator settingsValidator)
         {
             _dataContext = dataContext;
             _mapper = mapper;
+            _settingsValidator = settingsValidator;
         }
 
         private async Task<bool> DoArtifactsExist (IList<ArtifactsRelation> artifactsRelations)
@@ -157,7 +159,7 @@ namespace FRF.Core.Services
                 return new ServiceResponse<Artifact>(new Error(ErrorCodes.ArtifactTypeNotExists, $"There is no artifact type with Id = {artifact.ArtifactTypeId}"));
             }            
 
-            if (!SettingsValidator.ValidateSettings(artifact))
+            if (!_settingsValidator.ValidateSettings(artifact))
             {
                 return new ServiceResponse<Artifact>(new Error(ErrorCodes.InvalidArtifactSettings, $"Settings are invalid"));
             }
@@ -201,7 +203,7 @@ namespace FRF.Core.Services
                 return new ServiceResponse<Artifact>(new Error(ErrorCodes.ArtifactTypeNotExists, $"There is no artifact type with Id = {artifact.ArtifactTypeId}"));
             }
 
-            if (!SettingsValidator.ValidateSettings(artifact))
+            if (!_settingsValidator.ValidateSettings(artifact))
             {
                 return new ServiceResponse<Artifact>(new Error(ErrorCodes.InvalidArtifactSettings, $"Settings are invalid"));
             }
