@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FRF.Core.Models.AwsArtifacts;
 using EntityModels = FRF.DataAccess.EntityModels;
 
 namespace FRF.Core.Services
@@ -38,6 +39,8 @@ namespace FRF.Core.Services
             {
                 case ArtifactTypes.Custom:
                     return _mapper.Map<CustomArtifact>(artifact);
+                case ArtifactTypes.Aws:
+                    return _mapper.Map<AwsS3>(artifact);
                 default:
                     return _mapper.Map<Artifact>(artifact);
             }
