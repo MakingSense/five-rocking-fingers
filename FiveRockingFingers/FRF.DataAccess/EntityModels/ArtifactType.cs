@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 
 namespace FRF.DataAccess.EntityModels
 {
@@ -12,5 +10,7 @@ namespace FRF.DataAccess.EntityModels
         public string Name { get; set; }
         public string Description { get; set; }
         public ICollection<Artifact> Artifacs { get; set; }
+        public Provider Provider { get; set; }
+        public string RequiredFields { get; set; }
     }
 }
