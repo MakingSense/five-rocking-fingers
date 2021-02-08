@@ -197,7 +197,7 @@ namespace FRF.Core.Services
                 ServiceCode = AwsS3Descriptions.Service
             });
 
-            if (storagePrice == null) return new ServiceResponse<List<PricingTerm>>(pricingDetailsList);
+            if (storagePrice == null || !storagePrice.PriceList.Any()) return new ServiceResponse<List<PricingTerm>>(pricingDetailsList);
 
             AddProductToPricingDetails(storagePrice, pricingDetailsList);
 
@@ -231,7 +231,7 @@ namespace FRF.Core.Services
                 ServiceCode = AwsS3Descriptions.Service
             });
 
-            if (writeRequestPrice == null) return new ServiceResponse<List<PricingTerm>>(pricingDetailsList);
+            if (writeRequestPrice == null || !storagePrice.PriceList.Any()) return new ServiceResponse<List<PricingTerm>>(pricingDetailsList);
 
             AddProductToPricingDetails(writeRequestPrice, pricingDetailsList);
 
@@ -246,7 +246,7 @@ namespace FRF.Core.Services
                 ServiceCode = AwsS3Descriptions.Service
             });
 
-            if (retrieveRequestPrice == null) return new ServiceResponse<List<PricingTerm>>(pricingDetailsList);
+            if (retrieveRequestPrice == null || !storagePrice.PriceList.Any()) return new ServiceResponse<List<PricingTerm>>(pricingDetailsList);
 
             AddProductToPricingDetails(retrieveRequestPrice, pricingDetailsList);
 
@@ -259,18 +259,6 @@ namespace FRF.Core.Services
             var infrequentAccessFilters = new List<Filter>();
             var frequentAccessFilters = new List<Filter>();
 
-            infrequentAccessFilters.Add(locationFilter);
-            infrequentAccessFilters.Add(new Filter
-                {Field = "volumeType", Type = "TERM_MATCH", Value = AwsS3Descriptions.IntelligentInfrequentAccessProduct});
-            var infrequentAccessPrice = await _pricingClient.GetProductsAsync(new GetProductsRequest
-            {
-                Filters = infrequentAccessFilters,
-                FormatVersion = "aws_v1",
-                ServiceCode = AwsS3Descriptions.Service
-            });
-
-            AddProductToPricingDetails(infrequentAccessPrice, pricingDetailsList);
-
             frequentAccessFilters.Add(locationFilter);
             frequentAccessFilters.Add(new Filter
                 {Field = "volumeType", Type = "TERM_MATCH", Value = AwsS3Descriptions.IntelligentFrequentAccessProduct});
@@ -282,6 +270,18 @@ namespace FRF.Core.Services
             });
 
             AddProductToPricingDetails(frequentAccessPrice, pricingDetailsList);
+
+            infrequentAccessFilters.Add(locationFilter);
+            infrequentAccessFilters.Add(new Filter
+                { Field = "volumeType", Type = "TERM_MATCH", Value = AwsS3Descriptions.IntelligentInfrequentAccessProduct });
+            var infrequentAccessPrice = await _pricingClient.GetProductsAsync(new GetProductsRequest
+            {
+                Filters = infrequentAccessFilters,
+                FormatVersion = "aws_v1",
+                ServiceCode = AwsS3Descriptions.Service
+            });
+
+            AddProductToPricingDetails(infrequentAccessPrice, pricingDetailsList);
 
             if (!isAutomaticMonitoring) return pricingDetailsList;
 
@@ -372,7 +372,7 @@ namespace FRF.Core.Services
 
             var pricePerUnitJObject = termValues.SelectToken("pricePerUnit").ToObject<JObject>().Properties().ElementAt(0);
             var currency = pricePerUnitJObject.Name;
-            var pricePerUnit = pricePerUnitJObject.Value;
+            var pricePerUnit = (decimal) pricePerUnitJObject.Value;
 
             termValues.SelectToken("pricePerUnit").Replace(pricePerUnit);
 
