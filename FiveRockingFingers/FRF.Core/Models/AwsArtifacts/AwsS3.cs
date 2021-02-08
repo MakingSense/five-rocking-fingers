@@ -30,8 +30,13 @@ namespace FRF.Core.Models.AwsArtifacts
             foreach (var jtoken in pricingDimensionsJToken)
             {
                 var name = jtoken.Name;
-                var price = jtoken.Value.ToObject<PricingDimension>();
-                PricingDimensions.Add(name,price);
+                var a = jtoken.First.SelectToken("pricePerUnit").Value<string>();
+                if (!string.IsNullOrWhiteSpace(a))
+                {
+                    var price = jtoken.Value.ToObject<PricingDimension>();
+                    PricingDimensions.Add(name, price);
+                }
+                else return 0;
             }
           
             if(InfrequentAccessMultiplier != 0 && InfrequentAccessMultiplier != null)
@@ -69,19 +74,16 @@ namespace FRF.Core.Models.AwsArtifacts
         {
             var endRange1 = (decimal) PricingDimensions["range0"].EndRange;
             var endRange2 = (decimal) PricingDimensions["range2"].EndRange;
-            var beginRangeLast = (decimal) PricingDimensions["range1"].BeginRange;
-
-            if (endRange1 == 0 || endRange2 == 0 || beginRangeLast == 0) return 0;
+            if (endRange1 == 0 || endRange2 == 0) return 0;
 
             decimal storageCost;
-
             if (StorageUsed <= endRange1)
-                storageCost = PricingDimensions["range2"].PricePerUnit * StorageUsed;
-
-            else if (StorageUsed >= endRange2 && StorageUsed <= beginRangeLast)
-                storageCost = PricingDimensions["range1"].PricePerUnit * StorageUsed;
-            else
                 storageCost = PricingDimensions["range0"].PricePerUnit * StorageUsed;
+
+            else if (StorageUsed >= endRange1 && StorageUsed <= endRange2)
+                storageCost = PricingDimensions["range2"].PricePerUnit * StorageUsed;
+            else
+                storageCost = PricingDimensions["range1"].PricePerUnit * StorageUsed;
 
             var writeRequestCost = WriteRequestsPrice * WriteRequestsUsed;
             var retrieveRequestCost = RetrieveRequestsPrice * RetrieveRequestsUsed;
@@ -91,11 +93,10 @@ namespace FRF.Core.Models.AwsArtifacts
 
         private decimal GetIntelligentPrice()
         {
-            var endRange1 = (decimal)PricingDimensions["range0"].EndRange;
+            var endRange0 = (decimal)PricingDimensions["range0"].EndRange;
             var endRange2 = (decimal)PricingDimensions["range2"].EndRange;
-            var beginRangeLast = (decimal)PricingDimensions["range1"].BeginRange;
 
-            if (endRange1 == 0 || endRange2 == 0 || beginRangeLast == 0) return 0;
+            if (endRange0 == 0 || endRange2 == 0) return 0;
 
             decimal storageFrequentAccessCost;
             const decimal InfrequentAccessPrice = 0.0125m;
@@ -103,15 +104,15 @@ namespace FRF.Core.Models.AwsArtifacts
             var storageInfrequentAccessMultiplier = (decimal) InfrequentAccessMultiplier / 100;
             var storageFrequentAccessMultiplier = 1 - storageInfrequentAccessMultiplier;
             var storageFrequentAccessUsed = StorageUsed * storageFrequentAccessMultiplier;
-            if (storageFrequentAccessUsed <= endRange1)
-                storageFrequentAccessCost = storageFrequentAccessUsed *
-                                            PricingDimensions["range2"].PricePerUnit;
-            else if (storageFrequentAccessUsed >= endRange2 && storageFrequentAccessUsed <= beginRangeLast)
-                storageFrequentAccessCost = storageFrequentAccessUsed *
-                                            PricingDimensions["range1"].PricePerUnit;
-            else
+            if (storageFrequentAccessUsed <= endRange0)
                 storageFrequentAccessCost = storageFrequentAccessUsed *
                                             PricingDimensions["range0"].PricePerUnit;
+            else if (storageFrequentAccessUsed >= endRange0 && storageFrequentAccessUsed <= endRange2)
+                storageFrequentAccessCost = storageFrequentAccessUsed *
+                                            PricingDimensions["range2"].PricePerUnit;
+            else
+                storageFrequentAccessCost = storageFrequentAccessUsed *
+                                            PricingDimensions["range1"].PricePerUnit;
 
             var storageInfrequentAccessCost = storageInfrequentAccessMultiplier * StorageUsed * InfrequentAccessPrice;
             var writeRequestsCost = WriteRequestsUsed * WriteRequestsPrice;
