@@ -165,9 +165,9 @@ namespace FRF.Core.Services
             var storageFilters = new List<Filter>();
             var writeRequestFilters = new List<Filter>();
             var retrieveRequestFilters = new List<Filter>();
-            var locationFilter = new Filter {Field = "location", Type = "TERM_MATCH", Value = ""};
-            var storageClassFilter = new Filter {Field = "storageClass", Type = "TERM_MATCH", Value = ""};
-            var volumeTypeFilter = new Filter {Field = "volumeType", Type = "TERM_MATCH", Value = ""};
+            var locationFilter = new Filter {Field = AwsS3Descriptions.Location, Type = "TERM_MATCH", Value = ""};
+            var storageClassFilter = new Filter {Field = AwsS3Descriptions.StorageClass, Type = "TERM_MATCH", Value = ""};
+            var volumeTypeFilter = new Filter {Field = AwsS3Descriptions.VolumeType, Type = "TERM_MATCH", Value = ""};
             var writeRequestGroupValue = AwsS3Descriptions.WriteFrequentGroup;
             var retrieveRequestGroupValue = AwsS3Descriptions.RetrieveFrequentGroup;
 
@@ -178,13 +178,13 @@ namespace FRF.Core.Services
                 storageFilters.Add(storageFilter);
                 switch (key)
                 {
-                    case "location":
+                    case AwsS3Descriptions.Location:
                         locationFilter.Value = value;
                         break;
-                    case "storageClass":
+                    case AwsS3Descriptions.StorageClass:
                         storageClassFilter.Value = value;
                         break;
-                    case "volumeType":
+                    case AwsS3Descriptions.VolumeType:
                         volumeTypeFilter.Value = value;
                         break;
                 }
@@ -261,7 +261,7 @@ namespace FRF.Core.Services
 
             frequentAccessFilters.Add(locationFilter);
             frequentAccessFilters.Add(new Filter
-                {Field = "volumeType", Type = "TERM_MATCH", Value = AwsS3Descriptions.IntelligentFrequentAccessProduct});
+                {Field = AwsS3Descriptions.VolumeType, Type = "TERM_MATCH", Value = AwsS3Descriptions.IntelligentFrequentAccessProduct});
             var frequentAccessPrice = await _pricingClient.GetProductsAsync(new GetProductsRequest
             {
                 Filters = frequentAccessFilters,
@@ -273,7 +273,7 @@ namespace FRF.Core.Services
 
             infrequentAccessFilters.Add(locationFilter);
             infrequentAccessFilters.Add(new Filter
-                { Field = "volumeType", Type = "TERM_MATCH", Value = AwsS3Descriptions.IntelligentInfrequentAccessProduct });
+                { Field = AwsS3Descriptions.VolumeType, Type = "TERM_MATCH", Value = AwsS3Descriptions.IntelligentInfrequentAccessProduct });
             var infrequentAccessPrice = await _pricingClient.GetProductsAsync(new GetProductsRequest
             {
                 Filters = infrequentAccessFilters,
