@@ -1,12 +1,17 @@
 ﻿using AutoMapper;
 using FRF.Core.Models;
 using FRF.Core.Response;
+using FRF.Core.XmlValidation;
 using FRF.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
+using System.Xml.Schema;
 using EntityModels = FRF.DataAccess.EntityModels;
 
 namespace FRF.Core.Services
@@ -15,11 +20,13 @@ namespace FRF.Core.Services
     {
         private readonly DataAccessContext _dataContext;
         private readonly IMapper _mapper;
+        private readonly ISettingsValidator _settingsValidator;
 
-        public ArtifactsService(DataAccessContext dataContext, IMapper mapper)
+        public ArtifactsService(DataAccessContext dataContext, IMapper mapper, ISettingsValidator settingsValidator)
         {
             _dataContext = dataContext;
             _mapper = mapper;
+            _settingsValidator = settingsValidator;
         }
 
         private async Task<bool> DoArtifactsExist (IList<ArtifactsRelation> artifactsRelations)
@@ -153,7 +160,15 @@ namespace FRF.Core.Services
             if(! await _dataContext.ArtifactType.AnyAsync(at => at.Id == artifact.ArtifactTypeId))
             {
                 return new ServiceResponse<Artifact>(new Error(ErrorCodes.ArtifactTypeNotExists, $"There is no artifact type with Id = {artifact.ArtifactTypeId}"));
+            }            
+
+            //----------Uncomment after create service for artifact types--------------
+            /*
+            if (!_settingsValidator.ValidateSettings(artifact))
+            {
+                return new ServiceResponse<Artifact>(new Error(ErrorCodes.InvalidArtifactSettings, $"Settings are invalid"));
             }
+            */
 
             // Maps the artifact into an EntityModel, deleting the Id if there was one, and setting the CreatedDate field
             var mappedArtifact = _mapper.Map<EntityModels.Artifact>(artifact);
@@ -201,6 +216,14 @@ namespace FRF.Core.Services
             {
                 return new ServiceResponse<Artifact>(new Error(ErrorCodes.ArtifactTypeNotExists, $"There is no artifact type with Id = {artifact.ArtifactTypeId}"));
             }
+
+            //----------Uncomment after create service for artifact types--------------
+            /*
+            if (!_settingsValidator.ValidateSettings(artifact))
+            {
+                return new ServiceResponse<Artifact>(new Error(ErrorCodes.InvalidArtifactSettings, $"Settings are invalid"));
+            }
+            */
 
             //Updates the artifact
             result.Name = artifact.Name;
@@ -352,6 +375,6 @@ namespace FRF.Core.Services
             await _dataContext.SaveChangesAsync();
 
             return new ServiceResponse<IList<ArtifactsRelation>>(artifactsRelationsNew);
-        }
+        }        
     }
 }

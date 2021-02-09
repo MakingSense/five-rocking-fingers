@@ -10,6 +10,7 @@ using Amazon.Runtime;
 using AutoMapper;
 using FRF.Core.Base;
 using FRF.Core.Services;
+using FRF.Core.XmlValidation;
 using FRF.DataAccess;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -86,6 +87,7 @@ namespace FRF.Web
 			services.AddTransient<ICategoriesService, CategoriesService>();
 			services.AddTransient<IArtifactsProviderService, AwsArtifactsProviderService>();
 			services.AddTransient<IBudgetService, BudgetService>();
+			services.AddTransient<ISettingsValidator, SettingsValidator>();
 
 
 
