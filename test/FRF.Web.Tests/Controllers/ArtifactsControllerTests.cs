@@ -704,11 +704,11 @@ namespace FRF.Web.Tests.Controllers
             var returnValue = Assert.IsAssignableFrom<IList<ArtifactsRelationDTO>>(okResult.Value);
             AssertCompareArtifactArtifactDTO(artifact1, returnValue[0].Artifact1);
             AssertCompareArtifactArtifactDTO(artifact2, returnValue[0].Artifact2);
-            Assert.Equal(returnValue[0].Artifact1Id, artifact1.Id);
-            Assert.Equal(returnValue[0].Artifact2Id, artifact2.Id);
-            Assert.Equal(returnValue[0].Artifact1Property, artifactRelation.Artifact1Property);
-            Assert.Equal(returnValue[0].Artifact2Property, artifactRelation.Artifact2Property);
-            Assert.Equal(returnValue[0].RelationTypeId, artifactRelation.RelationTypeId);
+            Assert.Equal(artifact1.Id, returnValue[0].Artifact1Id);
+            Assert.Equal(artifact2.Id, returnValue[0].Artifact2Id);
+            Assert.Equal(artifactRelation.Artifact1Property, returnValue[0].Artifact1Property);
+            Assert.Equal(artifactRelation.Artifact2Property, returnValue[0].Artifact2Property);
+            Assert.Equal(artifactRelation.RelationTypeId, returnValue[0].RelationTypeId);
             _artifactsService.Verify(mock => mock.GetAllRelationsOfAnArtifactAsync(It.IsAny<int>()), Times.Once);
         }
 
@@ -761,11 +761,11 @@ namespace FRF.Web.Tests.Controllers
             var returnValue = Assert.IsAssignableFrom<IList<ArtifactsRelationDTO>>(okResult.Value);
             AssertCompareArtifactArtifactDTO(artifact1, returnValue[0].Artifact1);
             AssertCompareArtifactArtifactDTO(artifact2, returnValue[0].Artifact2);
-            Assert.Equal(returnValue[0].Artifact1Id, artifact1.Id);
-            Assert.Equal(returnValue[0].Artifact2Id, artifact2.Id);
-            Assert.Equal(returnValue[0].Artifact1Property, artifactRelation.Artifact1Property);
-            Assert.Equal(returnValue[0].Artifact2Property, artifactRelation.Artifact2Property);
-            Assert.Equal(returnValue[0].RelationTypeId, artifactRelation.RelationTypeId);
+            Assert.Equal(artifact1.Id, returnValue[0].Artifact1Id);
+            Assert.Equal(artifact2.Id, returnValue[0].Artifact2Id);
+            Assert.Equal(artifactRelation.Artifact1Property, returnValue[0].Artifact1Property);
+            Assert.Equal(artifactRelation.Artifact2Property, returnValue[0].Artifact2Property);
+            Assert.Equal(artifactRelation.RelationTypeId, returnValue[0].RelationTypeId);
             _artifactsService.Verify(mock => mock.GetAllRelationsByProjectIdAsync(It.IsAny<int>()), Times.Once);
         }
 
@@ -872,11 +872,11 @@ namespace FRF.Web.Tests.Controllers
             var returnValue = Assert.IsAssignableFrom<IList<ArtifactsRelationDTO>>(okResult.Value);
             AssertCompareArtifactArtifactDTO(artifact1, returnValue[0].Artifact1);
             AssertCompareArtifactArtifactDTO(artifact2, returnValue[0].Artifact2);
-            Assert.Equal(returnValue[0].Artifact1Id, artifact1.Id);
-            Assert.Equal(returnValue[0].Artifact2Id, artifact2.Id);
-            Assert.Equal(returnValue[0].Artifact1Property, artifactRelation.Artifact1Property);
-            Assert.Equal(returnValue[0].Artifact2Property, artifactRelation.Artifact2Property);
-            Assert.Equal(returnValue[0].RelationTypeId, artifactRelation.RelationTypeId);
+            Assert.Equal(artifact1.Id, returnValue[0].Artifact1Id);
+            Assert.Equal(artifact2.Id, returnValue[0].Artifact2Id);
+            Assert.Equal(artifactRelation.Artifact1Property, returnValue[0].Artifact1Property);
+            Assert.Equal(artifactRelation.Artifact2Property, returnValue[0].Artifact2Property);
+            Assert.Equal(artifactRelation.RelationTypeId, returnValue[0].RelationTypeId);
             _artifactsService.Verify(mock => mock.UpdateRelationAsync(It.IsAny<int>(), It.IsAny<IList<ArtifactsRelation>>()), Times.Once);
         }
 
