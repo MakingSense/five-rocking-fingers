@@ -162,10 +162,13 @@ namespace FRF.Core.Services
                 return new ServiceResponse<Artifact>(new Error(ErrorCodes.ArtifactTypeNotExists, $"There is no artifact type with Id = {artifact.ArtifactTypeId}"));
             }            
 
+            //----------Uncomment after create service for artifact types--------------
+            /*
             if (!_settingsValidator.ValidateSettings(artifact))
             {
                 return new ServiceResponse<Artifact>(new Error(ErrorCodes.InvalidArtifactSettings, $"Settings are invalid"));
             }
+            */
 
             // Maps the artifact into an EntityModel, deleting the Id if there was one, and setting the CreatedDate field
             var mappedArtifact = _mapper.Map<EntityModels.Artifact>(artifact);
@@ -214,10 +217,13 @@ namespace FRF.Core.Services
                 return new ServiceResponse<Artifact>(new Error(ErrorCodes.ArtifactTypeNotExists, $"There is no artifact type with Id = {artifact.ArtifactTypeId}"));
             }
 
+            //----------Uncomment after create service for artifact types--------------
+            /*
             if (!_settingsValidator.ValidateSettings(artifact))
             {
                 return new ServiceResponse<Artifact>(new Error(ErrorCodes.InvalidArtifactSettings, $"Settings are invalid"));
             }
+            */
 
             //Updates the artifact
             result.Name = artifact.Name;
