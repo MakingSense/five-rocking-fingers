@@ -24,10 +24,9 @@ namespace FRF.Core
             CreateMap<DataAccess.EntityModels.Artifact, Models.Artifact>()
                 .ReverseMap()
                 .ForMember(dest => dest.Id, act => act.Ignore())
+                .ForMember(dest => dest.ArtifactType, act => act.Ignore())
                 .ForMember(dest => dest.Project, act => act.Ignore());
             CreateMap<DataAccess.EntityModels.Artifact, AwsS3>()
-                .ForMember(dest => dest.Id, act => act.Ignore())
-                .ForMember(dest => dest.Project, act => act.Ignore())
                 .ForMember(dest => dest.WriteRequestsUsed, act =>
                     act.MapFrom(ar => ar.Settings.Element("writeRequestsUsed").Value))
                 .ForMember(dest => dest.RetrieveRequestsUsed, act =>
@@ -36,10 +35,6 @@ namespace FRF.Core
                     act.MapFrom(ar => ar.Settings.Element("storageUsed").Value))
                 .ForMember(dest => dest.InfrequentAccessMultiplier, act =>
                     act.MapFrom(ar => ar.Settings.Element("infrequentAccessMultiplier").Value));
-            CreateMap<AwsS3, DataAccess.EntityModels.Artifact > ()
-                .ForMember(dest => dest.Id, act => act.Ignore())
-                .ForMember(dest => dest.ArtifactType, act => act.Ignore())
-                .ForMember(dest => dest.Project, act => act.Ignore());
             CreateMap<DataAccess.EntityModels.Artifact, Models.CustomArtifact>()
                 .ReverseMap()
                 .ForMember(dest => dest.Id, act => act.Ignore())
