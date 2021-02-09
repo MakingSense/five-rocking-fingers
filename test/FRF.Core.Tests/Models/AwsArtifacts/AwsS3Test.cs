@@ -29,7 +29,7 @@ namespace FRF.Core.Tests.Models
             var writeRequestsPrice = "5E-06";
             var retrieveRequestsPrice = "4E-07";
 
-            const decimal FinalCost = 17.3249920m;
+            const decimal FinalCost = 19.0473600m;
 
             _classUnderTest.Settings = RetrieveIntelligentTieringSettings(writeRequestsUsed, retrieveRequestsUsed, storageUsed,
                 infrequentAccessMultiplier, standardPricePerUnitTier1
