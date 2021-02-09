@@ -1,18 +1,14 @@
 ﻿using AutoMapper;
 using FRF.Core.Models;
+using FRF.Core.Models.AwsArtifacts;
 using FRF.Core.Response;
 using FRF.Core.XmlValidation;
 using FRF.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Xml;
-using System.Xml.Linq;
-using System.Xml.Schema;
-using FRF.Core.Models.AwsArtifacts;
 using EntityModels = FRF.DataAccess.EntityModels;
 
 namespace FRF.Core.Services

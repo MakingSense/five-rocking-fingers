@@ -11,7 +11,6 @@ using Amazon.Pricing.Model;
 using FRF.Core.Models;
 using FRF.Core.Response;
 using System;
-using Newtonsoft.Json;
 
 namespace FRF.Core.Services
 {
@@ -201,11 +200,6 @@ namespace FRF.Core.Services
 
             AddProductToPricingDetails(storagePrice, pricingDetailsList);
 
-            //Check if the product is Intelligent-Tiering.
-            if (storageClassFilter.Value.Equals(AwsS3Descriptions.IntelligentTieringProduct, StringComparison.InvariantCultureIgnoreCase))
-                pricingDetailsList =
-                    await GetS3IntelligentTieringDetailListAsync(locationFilter, pricingDetailsList, isAutomaticMonitoring);
-
             //Check if the product is Standard - Infrequent Access.
             if (volumeTypeFilter.Value.Equals(
                 AwsS3Descriptions.StandardInfrequentAccessProduct, StringComparison.InvariantCultureIgnoreCase))
@@ -250,6 +244,11 @@ namespace FRF.Core.Services
 
             AddProductToPricingDetails(retrieveRequestPrice, pricingDetailsList);
 
+            //Check if the product is Intelligent-Tiering.
+            if (storageClassFilter.Value.Equals(AwsS3Descriptions.IntelligentTieringProduct, StringComparison.InvariantCultureIgnoreCase))
+                pricingDetailsList =
+                    await GetS3IntelligentTieringDetailListAsync(locationFilter, pricingDetailsList, isAutomaticMonitoring);
+
             return new ServiceResponse<List<PricingTerm>>(pricingDetailsList);
         }
 
@@ -257,19 +256,6 @@ namespace FRF.Core.Services
             List<PricingTerm> pricingDetailsList, bool isAutomaticMonitoring)
         {
             var infrequentAccessFilters = new List<Filter>();
-            var frequentAccessFilters = new List<Filter>();
-
-            frequentAccessFilters.Add(locationFilter);
-            frequentAccessFilters.Add(new Filter
-                {Field = AwsS3Descriptions.VolumeType, Type = "TERM_MATCH", Value = AwsS3Descriptions.IntelligentFrequentAccessProduct});
-            var frequentAccessPrice = await _pricingClient.GetProductsAsync(new GetProductsRequest
-            {
-                Filters = frequentAccessFilters,
-                FormatVersion = "aws_v1",
-                ServiceCode = AwsS3Descriptions.Service
-            });
-
-            AddProductToPricingDetails(frequentAccessPrice, pricingDetailsList);
 
             infrequentAccessFilters.Add(locationFilter);
             infrequentAccessFilters.Add(new Filter

@@ -41,9 +41,9 @@ namespace FRF.Core.Models.AwsArtifacts
           
             if(InfrequentAccessMultiplier != 0 && InfrequentAccessMultiplier != null)
             {
-                InfrequentAccessStoragePrice = GetDecimalPrice("product1");
-                WriteRequestsPrice = GetDecimalPrice("product2");
-                RetrieveRequestsPrice = GetDecimalPrice("product3");
+                WriteRequestsPrice = GetDecimalPrice("product1");
+                RetrieveRequestsPrice = GetDecimalPrice("product2");
+                InfrequentAccessStoragePrice = GetDecimalPrice("product3");
                 return GetIntelligentPrice();
             }
             else
