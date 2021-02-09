@@ -5,6 +5,9 @@
         public const string Service = "AmazonS3";
         public const string WriteFrequentGroup = "S3-API-Tier1";
         public const string RetrieveFrequentGroup = "S3-API-Tier2";
+        public const string Location = "location";
+        public const string StorageClass = "storageClass";
+        public const string VolumeType = "volumeType";
 
         public const string StandardInfrequentAccessProduct = "Standard - Infrequent Access";
         public const string IntelligentInfrequentAccessProduct = "Intelligent-Tiering Infrequent Access";

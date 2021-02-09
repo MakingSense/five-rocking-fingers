@@ -174,7 +174,7 @@ namespace FRF.Core.Tests.Services
             var sku = "[Mock] Sku";
             var term = "[Mock] Term";
             var unit = "[Mock] Unit";
-            var endRange = "inf";
+            var endRange = "-1";
             var description = "[Mock] Description";
             var rateCode = "[Mock] Rate Code";
             var beginRange = "10";
@@ -191,49 +191,10 @@ namespace FRF.Core.Tests.Services
                 new KeyValuePair<string, string>("[Mock] Setting name", "[Mock] Setting value")
             };
 
-            var response = new GetProductsResponse
-            {
-                FormatVersion = "[Mock] Format Version",
-                NextToken = "[Mock] Next token",
-                PriceList = new List<string>
-                {
-                    "{\"product\":" +
-                    "{ \"productFamily\":\"[Mock] product family\"," +
-                    "\"attributes\":" +
-                    "{ \"" + attributeName + "\":\"" + attributeValue + "\"}," +
-                    "\"sku\":\"" + sku + "\"}," +
-                    "\"serviceCode\":\"" + serviceCode + "\"," +
-                    "\"terms\":" +
-                    "{ \"" + term + "\":" +
-                    "{ \"2227U2PX8M4F95R6.JRTCKXETXF\":" +
-                    "{ \"priceDimensions\":" +
-                    "{ \"" + rateCode + "\":" +
-                    "{ \"unit\":\"" + unit +"\"," +
-                    "\"endRange\":\"" + endRange + "\"," +
-                    "\"description\":\"" + description + "\"," +
-                    "\"appliesTo\":[]," +
-                    "\"rateCode\":\"" + rateCode +"\"," +
-                    "\"beginRange\":\"" + beginRange + "\"," +
-                    "\"pricePerUnit\":{ \"" + currency + "\":\"" + pricePerUnit + "\"} " +
-                    "} " +
-                    "}," +
-                    "\"sku\":\"" + sku + "\"," +
-                    "\"effectiveDate\":\"2020-12-01T00:00:00Z\"," +
-                    "\"offerTermCode\":\"" + offerTermCode + "\"," +
-                    "\"termAttributes\":" +
-                    "{ " +
-                    "\"LeaseContractLength\": \"" + leaseContractLength + "\"," +
-                    "\"OfferingClass\": \"" + offeringClass + "\"," +
-                    "\"PurchaseOption\": \"" + purchaseOption + "\"" +
-                    "}" +
-                    " }" +
-                    " }" +
-                    " }," +
-                    "\"version\":\"20201222221737\"," +
-                    "\"publicationDate\":\"2020-12-22T22:17:37Z\"" +
-                    "}"
-                }
-            };
+            var response = GetProductsResponse(attributeName, attributeValue, sku, serviceCode, term, rateCode, unit,
+                endRange, description, beginRange, currency, pricePerUnit, offerTermCode, leaseContractLength,
+                offeringClass, purchaseOption);
+
 
             _client
                 .Setup(mock => mock.GetProductsAsync(It.IsAny<GetProductsRequest>(), It.IsAny<CancellationToken>()))
@@ -282,5 +243,253 @@ namespace FRF.Core.Tests.Services
             Assert.True(result.Success);
             Assert.Empty(result.Value);
         }
+
+        [Fact]
+        public async Task GetS3ProductsAsync_ReturnListOfStandardProduct()
+        {
+            // Arange
+            var serviceCode = "[Mock] Service Code";
+            var sku = "[Mock] Sku";
+            var term = "[Mock] Term";
+            var unit = "[Mock] Unit";
+            var endRange = "inf";
+            var description = "[Mock] Description";
+            var rateCode = "[Mock] Rate Code";
+            var beginRange = "10";
+            var currency = "[Mock] Currency";
+            var pricePerUnit = "99.99";
+            var offerTermCode = "[Mock] Offer term code";
+            var leaseContractLength = "[Mock] Lease contract length";
+            var offeringClass = "[Mock] Offering class";
+            var purchaseOption = "[Mock] Purchase option";
+            var attributeName = "[Mock] Attribute name";
+            var attributeValue = "[Mock] Attribute value";
+
+            var response = GetProductsResponse(attributeName, attributeValue, sku, serviceCode, term, rateCode, unit,
+                endRange, description, beginRange, currency, pricePerUnit, offerTermCode, leaseContractLength,
+                offeringClass, purchaseOption);
+
+            var settings = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("productFamily", "Storage"),
+                new KeyValuePair<string,string>("storageClass","General Purpose"),
+                new KeyValuePair<string,string>("volumeType","Standard"),
+                new KeyValuePair<string,string>("location","US East (N. Virginia)")
+            };
+
+            _client
+                .Setup(mock => mock.GetProductsAsync(It.IsAny<GetProductsRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(response);
+
+            // Act
+            var result = await _classUnderTest.GetProductsAsync(settings, "AmazonS3");
+
+            // Assert
+            float.TryParse(beginRange, out float beginRangeFloat);
+            var endRangeFloat = -1f;
+
+            Assert.IsType<ServiceResponse<List<PricingTerm>>>(result);
+            var resultValue = result.Value;
+            Assert.NotEmpty(resultValue);
+            _client.Verify(mock => mock.GetProductsAsync(It.IsAny<GetProductsRequest>(), It.IsAny<CancellationToken>()), Times.AtMost(3));
+            foreach (var pricingTerm in resultValue)
+            {
+                Assert.Equal(sku, pricingTerm.Sku);
+                Assert.Equal(term, pricingTerm.Term);
+                Assert.Equal(purchaseOption, pricingTerm.PurchaseOption);
+                Assert.Equal(offeringClass, pricingTerm.OfferingClass);
+                Assert.Equal(leaseContractLength, pricingTerm.LeaseContractLength);
+                Assert.Equal(beginRangeFloat, pricingTerm.PricingDimensions[0].BeginRange);
+                Assert.Equal(currency, pricingTerm.PricingDimensions[0].Currency);
+                Assert.Equal(description, pricingTerm.PricingDimensions[0].Description);
+                Assert.Equal(endRangeFloat, pricingTerm.PricingDimensions[0].EndRange);
+                Assert.Equal((decimal)float.Parse(pricePerUnit, CultureInfo.InvariantCulture), pricingTerm.PricingDimensions[0].PricePerUnit);
+                Assert.Equal(rateCode, pricingTerm.PricingDimensions[0].RateCode);
+                Assert.Equal(unit, pricingTerm.PricingDimensions[0].Unit);
+            }
+            
+        }
+        [Fact]
+        public async Task GetS3ProductsAsync_ReturnListOfIntelligentTieringProduct()
+        {
+            // Arange
+            var serviceCode = "[Mock] Service Code";
+            var sku = "[Mock] Sku";
+            var term = "[Mock] Term";
+            var unit = "[Mock] Unit";
+            var endRange = "inf";
+            var description = "[Mock] Description";
+            var rateCode = "[Mock] Rate Code";
+            var beginRange = "10";
+            var currency = "[Mock] Currency";
+            var pricePerUnit = "99.99";
+            var offerTermCode = "[Mock] Offer term code";
+            var leaseContractLength = "[Mock] Lease contract length";
+            var offeringClass = "[Mock] Offering class";
+            var purchaseOption = "[Mock] Purchase option";
+            var attributeName = "[Mock] Attribute name";
+            var attributeValue = "[Mock] Attribute value";
+
+            var response = GetProductsResponse(attributeName, attributeValue, sku, serviceCode, term, rateCode, unit,
+                endRange, description, beginRange, currency, pricePerUnit, offerTermCode, leaseContractLength,
+                offeringClass, purchaseOption);
+
+            var settings = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("productFamily", "Storage"),
+                new KeyValuePair<string,string>("storageClass","Intelligent-Tiering"),
+                new KeyValuePair<string,string>("volumeType","Intelligent-Tiering Frequent Access"),
+                new KeyValuePair<string,string>("location","US East (N. Virginia)")
+            };
+
+            _client
+                .Setup(mock => mock.GetProductsAsync(It.IsAny<GetProductsRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(response);
+
+            // Act
+            var result = await _classUnderTest.GetProductsAsync(settings, "AmazonS3");
+
+            // Assert
+            float.TryParse(beginRange, out float beginRangeFloat);
+            var endRangeFloat = -1f;
+
+            Assert.IsType<ServiceResponse<List<PricingTerm>>>(result);
+            var resultValue = result.Value;
+            Assert.Equal(expected:5,resultValue.Count);
+            _client.Verify(mock => mock.GetProductsAsync(It.IsAny<GetProductsRequest>(), It.IsAny<CancellationToken>()), Times.AtMost(5));
+            foreach (var pricingTerm in resultValue)
+            {
+                Assert.Equal(sku, pricingTerm.Sku);
+                Assert.Equal(term, pricingTerm.Term);
+                Assert.Equal(purchaseOption, pricingTerm.PurchaseOption);
+                Assert.Equal(offeringClass, pricingTerm.OfferingClass);
+                Assert.Equal(leaseContractLength, pricingTerm.LeaseContractLength);
+                Assert.Equal(beginRangeFloat, pricingTerm.PricingDimensions[0].BeginRange);
+                Assert.Equal(currency, pricingTerm.PricingDimensions[0].Currency);
+                Assert.Equal(description, pricingTerm.PricingDimensions[0].Description);
+                Assert.Equal(endRangeFloat, pricingTerm.PricingDimensions[0].EndRange);
+                Assert.Equal((decimal)float.Parse(pricePerUnit, CultureInfo.InvariantCulture), pricingTerm.PricingDimensions[0].PricePerUnit);
+                Assert.Equal(rateCode, pricingTerm.PricingDimensions[0].RateCode);
+                Assert.Equal(unit, pricingTerm.PricingDimensions[0].Unit);
+            }
+
+        }
+
+        [Fact]
+        public async Task GetS3ProductsAsync_ReturnListOfOneZoneInfrequentAccessProduct()
+        {
+            // Arange
+            var serviceCode = "[Mock] Service Code";
+            var sku = "[Mock] Sku";
+            var term = "[Mock] Term";
+            var unit = "[Mock] Unit";
+            var endRange = "Inf";
+            var description = "[Mock] Description";
+            var rateCode = "[Mock] Rate Code";
+            var beginRange = "10";
+            var currency = "[Mock] Currency";
+            var pricePerUnit = "99.99";
+            var offerTermCode = "[Mock] Offer term code";
+            var leaseContractLength = "[Mock] Lease contract length";
+            var offeringClass = "[Mock] Offering class";
+            var purchaseOption = "[Mock] Purchase option";
+            var attributeName = "[Mock] Attribute name";
+            var attributeValue = "[Mock] Attribute value";
+
+            var response = GetProductsResponse(attributeName, attributeValue, sku, serviceCode, term, rateCode, unit,
+                endRange, description, beginRange, currency, pricePerUnit, offerTermCode, leaseContractLength,
+                offeringClass, purchaseOption);
+
+            var settings = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("productFamily", "Storage"),
+                new KeyValuePair<string,string>("storageClass","Infrequent Access"),
+                new KeyValuePair<string,string>("volumeType","One Zone - Infrequent Access"),
+                new KeyValuePair<string,string>("location","US East (N. Virginia)")
+            };
+
+            _client
+                .Setup(mock => mock.GetProductsAsync(It.IsAny<GetProductsRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(response);
+
+            // Act
+            var result = await _classUnderTest.GetProductsAsync(settings, "AmazonS3");
+
+            // Assert
+            float.TryParse(beginRange, out float beginRangeFloat);
+            var endRangeFloat = -1f;
+
+            Assert.IsType<ServiceResponse<List<PricingTerm>>>(result);
+            var resultValue = result.Value;
+            _client.Verify(mock=>mock.GetProductsAsync(It.IsAny<GetProductsRequest>(), It.IsAny<CancellationToken>()),Times.AtMost(3));
+            foreach (var pricingTerm in resultValue)
+            {
+                Assert.Equal(sku, pricingTerm.Sku);
+                Assert.Equal(term, pricingTerm.Term);
+                Assert.Equal(purchaseOption, pricingTerm.PurchaseOption);
+                Assert.Equal(offeringClass, pricingTerm.OfferingClass);
+                Assert.Equal(leaseContractLength, pricingTerm.LeaseContractLength);
+                Assert.Equal(beginRangeFloat, pricingTerm.PricingDimensions[0].BeginRange);
+                Assert.Equal(currency, pricingTerm.PricingDimensions[0].Currency);
+                Assert.Equal(description, pricingTerm.PricingDimensions[0].Description);
+                Assert.Equal(endRangeFloat, pricingTerm.PricingDimensions[0].EndRange);
+                Assert.Equal((decimal)float.Parse(pricePerUnit, CultureInfo.InvariantCulture), pricingTerm.PricingDimensions[0].PricePerUnit);
+                Assert.Equal(rateCode, pricingTerm.PricingDimensions[0].RateCode);
+                Assert.Equal(unit, pricingTerm.PricingDimensions[0].Unit);
+            }
+        }
+
+        private GetProductsResponse GetProductsResponse(string attributeName, string attributeValue, string sku,
+            string serviceCode, string term, string rateCode, string unit, string endRange, string description,
+            string beginRange, string currency, string pricePerUnit, string offerTermCode, string leaseContractLength,
+            string offeringClass, string purchaseOption)
+        {
+            var response = new GetProductsResponse
+            {
+                FormatVersion = "[Mock] Format Version",
+                NextToken = "[Mock] Next token",
+                PriceList = new List<string>
+                {
+                    "{\"product\":" +
+                    "{ \"productFamily\":\"[Mock] product family\"," +
+                    "\"attributes\":" +
+                    "{ \"" + attributeName + "\":\"" + attributeValue + "\"}," +
+                    "\"sku\":\"" + sku + "\"}," +
+                    "\"serviceCode\":\"" + serviceCode + "\"," +
+                    "\"terms\":" +
+                    "{ \"" + term + "\":" +
+                    "{ \"2227U2PX8M4F95R6.JRTCKXETXF\":" +
+                    "{ \"priceDimensions\":" +
+                    "{ \"" + rateCode + "\":" +
+                    "{ \"unit\":\"" + unit + "\"," +
+                    "\"endRange\":\"" + endRange + "\"," +
+                    "\"description\":\"" + description + "\"," +
+                    "\"appliesTo\":[]," +
+                    "\"rateCode\":\"" + rateCode + "\"," +
+                    "\"beginRange\":\"" + beginRange + "\"," +
+                    "\"pricePerUnit\":{ \"" + currency + "\":\"" + pricePerUnit + "\"} " +
+                    "} " +
+                    "}," +
+                    "\"sku\":\"" + sku + "\"," +
+                    "\"effectiveDate\":\"2020-12-01T00:00:00Z\"," +
+                    "\"offerTermCode\":\"" + offerTermCode + "\"," +
+                    "\"termAttributes\":" +
+                    "{ " +
+                    "\"LeaseContractLength\": \"" + leaseContractLength + "\"," +
+                    "\"OfferingClass\": \"" + offeringClass + "\"," +
+                    "\"PurchaseOption\": \"" + purchaseOption + "\"" +
+                    "}" +
+                    " }" +
+                    " }" +
+                    " }," +
+                    "\"version\":\"20201222221737\"," +
+                    "\"publicationDate\":\"2020-12-22T22:17:37Z\"" +
+                    "}"
+                }
+            };
+            return response;
+        }
+
+        
     }
 }
