@@ -799,10 +799,10 @@ namespace FRF.Core.Tests.Services
             Assert.NotNull(response.Error);
             Assert.Equal(response.Error.Code, ErrorCodes.ArtifactNotExists);
 
-            Assert.Equal(artifactsRelationInDb[0].Artifact1Property, artifactsRelationUpdated[0].Artifact1Property);
-            Assert.Equal(artifactsRelationInDb[0].Artifact2Property, artifactsRelationUpdated[0].Artifact2Property);
-            Assert.Equal(artifactsRelationInDb[0].Artifact2Id, artifactsRelationUpdated[0].Artifact2Id);
-            Assert.Equal(artifactsRelationInDb[0].Artifact1Id, artifactsRelationUpdated[0].Artifact1Id);
+            Assert.Equal(artifactsRelationUpdated[0].Artifact1Property, artifactsRelationInDb[0].Artifact1Property);
+            Assert.Equal(artifactsRelationUpdated[0].Artifact2Property, artifactsRelationInDb[0].Artifact2Property);
+            Assert.Equal(artifactsRelationUpdated[0].Artifact2Id, artifactsRelationInDb[0].Artifact2Id);
+            Assert.Equal(artifactsRelationUpdated[0].Artifact1Id, artifactsRelationInDb[0].Artifact1Id);
         }
 
         [Fact]
