@@ -756,7 +756,7 @@ namespace FRF.Core.Tests.Services
             Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
             Assert.NotNull(response.Error);
             Assert.Equal(ErrorCodes.RelationAlreadyExisted, response.Error.Code);
-
+            Assert.Null(response.Value);
             Assert.Equal(artifactsRelationToSave[0].Artifact1Property, artifactsRelationInDb[0].Artifact1Property);
             Assert.Equal(artifactsRelationToSave[0].Artifact2Property, artifactsRelationInDb[0].Artifact2Property);
             Assert.Equal(artifactsRelationToSave[0].Artifact2Id, artifactsRelationInDb[0].Artifact2Id);
@@ -798,7 +798,7 @@ namespace FRF.Core.Tests.Services
             Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
             Assert.NotNull(response.Error);
             Assert.Equal(response.Error.Code, ErrorCodes.ArtifactNotExists);
-
+            Assert.Null(response.Value);
             Assert.Equal(artifactsRelationUpdated[0].Artifact1Property, artifactsRelationInDb[0].Artifact1Property);
             Assert.Equal(artifactsRelationUpdated[0].Artifact2Property, artifactsRelationInDb[0].Artifact2Property);
             Assert.Equal(artifactsRelationUpdated[0].Artifact2Id, artifactsRelationInDb[0].Artifact2Id);
