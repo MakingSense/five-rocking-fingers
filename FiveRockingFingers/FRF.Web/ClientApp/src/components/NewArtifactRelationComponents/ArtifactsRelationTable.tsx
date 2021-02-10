@@ -15,9 +15,9 @@ const ArtifactsRelationTable = (props: { artifactId: number, projectId: number }
     const [openSnackbar, setOpenSnackbar] = React.useState(false);
     const [snackbarSettings, setSnackbarSettings] = React.useState<SnackbarSettings>({ message: "", severity: undefined });
     const [artifacts, setArtifacts] = React.useState<Artifact[]>([]);
-    const [updateList, setUpdateList] = React.useState(false);
+    const [updateList, setUpdateList] = React.useState(true);
     const [showNewArtifactsRelation, setShowNewArtifactsRelation] = React.useState(false);
-
+    
     const getArtifactsRelations = async () => {
         try {
             const response = await ArtifactService.getRelations(props.artifactId);
@@ -49,25 +49,27 @@ const ArtifactsRelationTable = (props: { artifactId: number, projectId: number }
             manageOpenSnackbar({ message: "Hubo un error al cargar los artefactos", severity: "error" });
         }
     }
+
+    React.useEffect(() => {
+        getArtifactsRelations();
+        getArtifacts();
+        setUpdateList(false);
+    }, [updateList]);
+
     const openNewArtifactsRelation = () => {
         setShowNewArtifactsRelation(true);
     }
     const closeNewArtifactsRelation = () => {
         setShowNewArtifactsRelation(false);
     }
-    React.useEffect(() => {
-        getArtifactsRelations();
-        getArtifacts();
-    }, [updateList]);
-
+    
     const manageOpenSnackbar = (settings: SnackbarSettings) => {
         setSnackbarSettings(settings);
         setOpenSnackbar(true);
     }
 
     const handleUpdateList = () => {
-        getArtifactsRelations();
-        getArtifacts();
+        setUpdateList(true);
     }
 
     return (
@@ -99,9 +101,9 @@ const ArtifactsRelationTable = (props: { artifactId: number, projectId: number }
                                     updateList={handleUpdateList} 
                                     artifactsRelations={artifactsRelations}/>
                             )
-                            : <td colSpan={6}><Typography align="center" variant="h5" gutterBottom>
+                            : <tr><td colSpan={6}><Typography align="center" variant="h5" gutterBottom>
                                 Artefacto sin relaciones
-                      </Typography></td> : null}
+                      </Typography></td></tr> : null}
                 </tbody>
             </Table>
             <SnackbarMessage
@@ -118,6 +120,7 @@ const ArtifactsRelationTable = (props: { artifactId: number, projectId: number }
                 setSnackbarSettings={setSnackbarSettings}
                 artifacts={artifacts}
                 artifactsRelations={artifactsRelations}
+                updateList={{update: true, setUpdate: handleUpdateList}}
             />
         </React.Fragment>
     );

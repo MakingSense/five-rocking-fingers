@@ -12,6 +12,11 @@ import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 import ArtifactService from '../services/ArtifactService';
 
+interface handlerUpdateList{
+    update: boolean,
+    setUpdate?: Function
+}
+
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         container: {
@@ -43,7 +48,7 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeNewArtifactsRelation: Function, projectId: number, setOpenSnackbar: Function, setSnackbarSettings: Function, artifacts: Artifact[], artifactsRelations: ArtifactRelation[] }) => {
+const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeNewArtifactsRelation: Function, projectId: number, setOpenSnackbar: Function, setSnackbarSettings: Function, artifacts: Artifact[], artifactsRelations: ArtifactRelation[], updateList: handlerUpdateList }) => {
 
     const classes = useStyles();
     const { handleSubmit, errors, control } = useForm();
@@ -58,7 +63,6 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
     const [isErrorRelationRepeated, setIsErrorRelationRepeated] = React.useState<boolean>(false);
     const [isErrorEmptyField, setIsErrorEmptyField] = React.useState<boolean>(false);
     const [isErrorOneRelationCreated, setIsErrorOneRelationCreated] = React.useState<boolean>(false);
-
 
     React.useEffect(() => {
         updateArtifactsSettings();
@@ -146,6 +150,7 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
             if (response.status === 200) {
                 props.setSnackbarSettings({ message: "Las relaciones han sido creadas con éxito", severity: "success" });
                 props.setOpenSnackbar(true);
+                if(props.updateList.update && props.updateList.setUpdate) props.updateList.setUpdate();
             } else {
                 props.setSnackbarSettings({ message: "Hubo un error al crear las relaciones", severity: "error" });
                 props.setOpenSnackbar(true);
