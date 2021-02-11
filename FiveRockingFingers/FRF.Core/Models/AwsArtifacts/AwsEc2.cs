@@ -59,7 +59,7 @@ namespace FRF.Core.Models.AwsArtifacts
         {
             var price = 0m;
 
-            if(VolumenApiName.Equals(AwsEc2Descriptions.VolumenApiNameGp3))
+            if(VolumenApiName.Equals(AwsEc2Descriptions.VolumenApiNameGp3Value))
             {
                 var numberOfIopsBillable = NumberOfIops - AwsEc2Descriptions.FreeTierGp3Iops;
 
@@ -71,7 +71,7 @@ namespace FRF.Core.Models.AwsArtifacts
                 return price;
             }
 
-            if(VolumenApiName.Equals(AwsEc2Descriptions.VolumenApiNameIo1) || VolumenApiName.Equals(AwsEc2Descriptions.VolumenApiNameIo2))
+            if(VolumenApiName.Equals(AwsEc2Descriptions.VolumenApiNameIo1Value) || VolumenApiName.Equals(AwsEc2Descriptions.VolumenApiNameIo2Value))
             {
                 price = NumberOfIops * IopsPricePerUnit;
 
@@ -85,7 +85,7 @@ namespace FRF.Core.Models.AwsArtifacts
         {
             var price = 0m;
 
-            if (VolumenApiName.Equals(AwsEc2Descriptions.VolumenApiNameGp3))
+            if (VolumenApiName.Equals(AwsEc2Descriptions.VolumenApiNameGp3Value))
             {
                 var numberOfMbpsThroughputBillable = NumberOfMbpsThroughput - AwsEc2Descriptions.FreeTierGp3Throughput;
 
@@ -97,7 +97,7 @@ namespace FRF.Core.Models.AwsArtifacts
                 return price;
             }
 
-            if (VolumenApiName.Equals(AwsEc2Descriptions.VolumenApiNameIo1) || VolumenApiName.Equals(AwsEc2Descriptions.VolumenApiNameIo2))
+            if (VolumenApiName.Equals(AwsEc2Descriptions.VolumenApiNameIo1Value) || VolumenApiName.Equals(AwsEc2Descriptions.VolumenApiNameIo2Value))
             {
                 price = NumberOfMbpsThroughput * ThroughputPricePerUnit;
 
