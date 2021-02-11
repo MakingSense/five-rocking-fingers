@@ -200,7 +200,7 @@ namespace FRF.Core.Tests.Services
             Assert.IsType<ServiceResponse<List<CoreModels.Artifact>>>(result);
             Assert.False(result.Success);
             Assert.NotNull(result.Error);
-            Assert.Equal(result.Error.Code, ErrorCodes.ProjectNotExists);
+            Assert.Equal(ErrorCodes.ProjectNotExists, result.Error.Code);
         }
 
         [Fact]
@@ -267,7 +267,7 @@ namespace FRF.Core.Tests.Services
             Assert.IsType<ServiceResponse<CoreModels.Artifact>>(result);
             Assert.False(result.Success);
             Assert.NotNull(result.Error);
-            Assert.Equal(result.Error.Code, ErrorCodes.ArtifactNotExists);
+            Assert.Equal(ErrorCodes.ArtifactNotExists, result.Error.Code);
         }
 
         [Fact]
@@ -332,7 +332,7 @@ namespace FRF.Core.Tests.Services
             Assert.IsType<ServiceResponse<CoreModels.Artifact>>(result);
             Assert.False(result.Success);
             Assert.NotNull(result.Error);
-            Assert.Equal(result.Error.Code, ErrorCodes.InvalidArtifactSettings);
+            Assert.Equal(ErrorCodes.InvalidArtifactSettings, result.Error.Code);
         }
 
         [Fact]
@@ -363,7 +363,7 @@ namespace FRF.Core.Tests.Services
             Assert.IsType<ServiceResponse<CoreModels.Artifact>>(result);
             Assert.False(result.Success);
             Assert.NotNull(result.Error);
-            Assert.Equal(result.Error.Code, ErrorCodes.ProjectNotExists);
+            Assert.Equal(ErrorCodes.ProjectNotExists, result.Error.Code);
         }
 
         [Fact]
@@ -393,7 +393,7 @@ namespace FRF.Core.Tests.Services
             Assert.IsType<ServiceResponse<CoreModels.Artifact>>(result);
             Assert.False(result.Success);
             Assert.NotNull(result.Error);
-            Assert.Equal(result.Error.Code, ErrorCodes.ArtifactTypeNotExists);
+            Assert.Equal(ErrorCodes.ArtifactTypeNotExists, result.Error.Code);
         }
 
         [Fact]
@@ -512,7 +512,7 @@ namespace FRF.Core.Tests.Services
             Assert.IsType<ServiceResponse<CoreModels.Artifact>>(result);
             Assert.False(result.Success);
             Assert.NotNull(result.Error);
-            Assert.Equal(result.Error.Code, ErrorCodes.InvalidArtifactSettings);
+            Assert.Equal(ErrorCodes.InvalidArtifactSettings, result.Error.Code);
         }
 
         [Fact]
@@ -538,7 +538,7 @@ namespace FRF.Core.Tests.Services
             Assert.IsType<ServiceResponse<CoreModels.Artifact>>(result);
             Assert.False(result.Success);
             Assert.NotNull(result.Error);
-            Assert.Equal(result.Error.Code, ErrorCodes.ArtifactNotExists);
+            Assert.Equal(ErrorCodes.ArtifactNotExists, result.Error.Code);
         }
 
         [Fact]
@@ -566,7 +566,7 @@ namespace FRF.Core.Tests.Services
             Assert.IsType<ServiceResponse<CoreModels.Artifact>>(result);
             Assert.False(result.Success);
             Assert.NotNull(result.Error);
-            Assert.Equal(result.Error.Code, ErrorCodes.ProjectNotExists);
+            Assert.Equal(ErrorCodes.ProjectNotExists, result.Error.Code);
         }
 
         [Fact]
@@ -594,7 +594,7 @@ namespace FRF.Core.Tests.Services
             Assert.IsType<ServiceResponse<CoreModels.Artifact>>(result);
             Assert.False(result.Success);
             Assert.NotNull(result.Error);
-            Assert.Equal(result.Error.Code, ErrorCodes.ArtifactTypeNotExists);
+            Assert.Equal(ErrorCodes.ArtifactTypeNotExists, result.Error.Code);
         }
 
         [Fact]
@@ -647,7 +647,7 @@ namespace FRF.Core.Tests.Services
             Assert.IsType<ServiceResponse<CoreModels.Artifact>>(result);
             Assert.False(result.Success);
             Assert.NotNull(result.Error);
-            Assert.Equal(result.Error.Code, ErrorCodes.ArtifactNotExists);
+            Assert.Equal(ErrorCodes.ArtifactNotExists, result.Error.Code);
         }
         
         [Fact]
@@ -717,7 +717,7 @@ namespace FRF.Core.Tests.Services
             Assert.False(response.Success);
             Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
             Assert.NotNull(response.Error);
-            Assert.Equal(response.Error.Code, ErrorCodes.RelationNotValid);
+            Assert.Equal(ErrorCodes.RelationNotValid, response.Error.Code);
         }
 
         [Fact]
@@ -755,12 +755,12 @@ namespace FRF.Core.Tests.Services
             Assert.False(response.Success);
             Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
             Assert.NotNull(response.Error);
-            Assert.Equal(response.Error.Code, ErrorCodes.RelationAlreadyExisted);
-
-            Assert.Equal(artifactsRelationInDb[0].Artifact1Property, artifactsRelationToSave[0].Artifact1Property);
-            Assert.Equal(artifactsRelationInDb[0].Artifact2Property, artifactsRelationToSave[0].Artifact2Property);
-            Assert.Equal(artifactsRelationInDb[0].Artifact2Id, artifactsRelationToSave[0].Artifact2Id);
-            Assert.Equal(artifactsRelationInDb[0].Artifact1Id, artifactsRelationToSave[0].Artifact1Id);
+            Assert.Equal(ErrorCodes.RelationAlreadyExisted, response.Error.Code);
+            Assert.Null(response.Value);
+            Assert.Equal(artifactsRelationToSave[0].Artifact1Property, artifactsRelationInDb[0].Artifact1Property);
+            Assert.Equal(artifactsRelationToSave[0].Artifact2Property, artifactsRelationInDb[0].Artifact2Property);
+            Assert.Equal(artifactsRelationToSave[0].Artifact2Id, artifactsRelationInDb[0].Artifact2Id);
+            Assert.Equal(artifactsRelationToSave[0].Artifact1Id, artifactsRelationInDb[0].Artifact1Id);
         }
 
         [Fact]
@@ -798,11 +798,11 @@ namespace FRF.Core.Tests.Services
             Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
             Assert.NotNull(response.Error);
             Assert.Equal(response.Error.Code, ErrorCodes.ArtifactNotExists);
-
-            Assert.Equal(artifactsRelationInDb[0].Artifact1Property, artifactsRelationUpdated[0].Artifact1Property);
-            Assert.Equal(artifactsRelationInDb[0].Artifact2Property, artifactsRelationUpdated[0].Artifact2Property);
-            Assert.Equal(artifactsRelationInDb[0].Artifact2Id, artifactsRelationUpdated[0].Artifact2Id);
-            Assert.Equal(artifactsRelationInDb[0].Artifact1Id, artifactsRelationUpdated[0].Artifact1Id);
+            Assert.Null(response.Value);
+            Assert.Equal(artifactsRelationUpdated[0].Artifact1Property, artifactsRelationInDb[0].Artifact1Property);
+            Assert.Equal(artifactsRelationUpdated[0].Artifact2Property, artifactsRelationInDb[0].Artifact2Property);
+            Assert.Equal(artifactsRelationUpdated[0].Artifact2Id, artifactsRelationInDb[0].Artifact2Id);
+            Assert.Equal(artifactsRelationUpdated[0].Artifact1Id, artifactsRelationInDb[0].Artifact1Id);
         }
 
         [Fact]
@@ -906,7 +906,7 @@ namespace FRF.Core.Tests.Services
             Assert.False(response.Success);
             Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
             Assert.NotNull(response.Error);
-            Assert.Equal(response.Error.Code, ErrorCodes.ProjectNotExists);
+            Assert.Equal(ErrorCodes.ProjectNotExists, response.Error.Code);
         }
 
         [Fact]
@@ -931,12 +931,12 @@ namespace FRF.Core.Tests.Services
             Assert.True(response.Success);
             Assert.IsType<ServiceResponse<IList<ArtifactsRelation>>>(response);
             var resultValue = Assert.IsAssignableFrom<IList<ArtifactsRelation>>(response.Value);
-            Assert.Equal(resultValue[0].Id, artifactRelationMapped.Id);
-            Assert.Equal(resultValue[0].Artifact1Id, artifactRelation.Artifact1Id);
-            Assert.Equal(resultValue[0].Artifact2Id, artifactRelation.Artifact2Id);
-            Assert.Equal(resultValue[0].RelationTypeId, artifactRelation.RelationTypeId);
-            Assert.Equal(resultValue[0].Artifact1Property, artifactRelation.Artifact1Property);
-            Assert.Equal(resultValue[0].Artifact2Property, artifactRelation.Artifact2Property);
+            Assert.Equal(artifactRelationMapped.Id, resultValue[0].Id);
+            Assert.Equal(artifactRelation.Artifact1Id, resultValue[0].Artifact1Id);
+            Assert.Equal(artifactRelation.Artifact2Id, resultValue[0].Artifact2Id);
+            Assert.Equal(artifactRelation.RelationTypeId, resultValue[0].RelationTypeId);
+            Assert.Equal(artifactRelation.Artifact1Property, resultValue[0].Artifact1Property);
+            Assert.Equal(artifactRelation.Artifact2Property, resultValue[0].Artifact2Property);
         }
 
         [Fact]
@@ -952,7 +952,7 @@ namespace FRF.Core.Tests.Services
             Assert.False(response.Success);
             Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
             Assert.NotNull(response.Error);
-            Assert.Equal(response.Error.Code, ErrorCodes.RelationNotExists);
+            Assert.Equal(ErrorCodes.RelationNotExists, response.Error.Code);
         }
 
         [Fact]
@@ -968,7 +968,7 @@ namespace FRF.Core.Tests.Services
             Assert.False(response.Success);
             Assert.IsType<ServiceResponse<ArtifactsRelation>>(response);
             Assert.NotNull(response.Error);
-            Assert.Equal(response.Error.Code, ErrorCodes.RelationNotExists);
+            Assert.Equal(ErrorCodes.RelationNotExists, response.Error.Code);
         }
 
         [Fact]
@@ -993,12 +993,12 @@ namespace FRF.Core.Tests.Services
             Assert.True(response.Success);
             Assert.IsType<ServiceResponse<ArtifactsRelation>>(response);
             var resultValue = Assert.IsAssignableFrom<ArtifactsRelation>(response.Value);
-            Assert.Equal(resultValue.Id, artifactRelationMapped.Id);
-            Assert.Equal(resultValue.Artifact1Id, artifactRelation.Artifact1Id);
-            Assert.Equal(resultValue.Artifact2Id, artifactRelation.Artifact2Id);
-            Assert.Equal(resultValue.RelationTypeId, artifactRelation.RelationTypeId);
-            Assert.Equal(resultValue.Artifact1Property, artifactRelation.Artifact1Property);
-            Assert.Equal(resultValue.Artifact2Property, artifactRelation.Artifact2Property);
+            Assert.Equal(artifactRelationMapped.Id, resultValue.Id);
+            Assert.Equal(artifactRelation.Artifact1Id, resultValue.Artifact1Id);
+            Assert.Equal(artifactRelation.Artifact2Id, resultValue.Artifact2Id);
+            Assert.Equal(artifactRelation.RelationTypeId, resultValue.RelationTypeId);
+            Assert.Equal(artifactRelation.Artifact1Property, resultValue.Artifact1Property);
+            Assert.Equal(artifactRelation.Artifact2Property, resultValue.Artifact2Property);
         }
     }
 }

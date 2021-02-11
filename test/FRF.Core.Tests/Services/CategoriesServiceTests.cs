@@ -87,9 +87,9 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(category.Id, resultValue.Id);
             Assert.Single(resultValue.ProjectCategories);
 
-            Assert.Equal(resultValue.ProjectCategories[0].Project.Name, project.Name);
-            Assert.Equal(resultValue.ProjectCategories[0].Project.Budget, project.Budget);
-            Assert.Equal(resultValue.ProjectCategories[0].Project.Id, project.Id);
+            Assert.Equal(project.Name, resultValue.ProjectCategories[0].Project.Name);
+            Assert.Equal(project.Budget, resultValue.ProjectCategories[0].Project.Budget);
+            Assert.Equal(project.Id, resultValue.ProjectCategories[0].Project.Id);
         }
 
         [Fact]
@@ -124,9 +124,9 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(category.Id, resultValue.Id);
             Assert.Single(resultValue.ProjectCategories);
 
-            Assert.Equal(resultValue.ProjectCategories[0].Project.Name, project.Name);
-            Assert.Equal(resultValue.ProjectCategories[0].Project.Budget, project.Budget);
-            Assert.Equal(resultValue.ProjectCategories[0].Project.Id, project.Id);
+            Assert.Equal(project.Name, resultValue.ProjectCategories[0].Project.Name);
+            Assert.Equal(project.Budget, resultValue.ProjectCategories[0].Project.Budget);
+            Assert.Equal(project.Id, resultValue.ProjectCategories[0].Project.Id);
         }
 
         [Fact]
@@ -142,7 +142,7 @@ namespace FRF.Core.Tests.Services
             Assert.IsType<ServiceResponse<CoreModels.Category>>(result);
             Assert.False(result.Success);
             Assert.NotNull(result.Error);
-            Assert.Equal(result.Error.Code, ErrorCodes.CategoryNotExists);
+            Assert.Equal(ErrorCodes.CategoryNotExists,result.Error.Code);
         }
 
         [Fact]
@@ -164,8 +164,8 @@ namespace FRF.Core.Tests.Services
             Assert.True(result.Success);
             var resultValue = result.Value;
 
-            Assert.Equal(resultValue.Name, categoryToSave.Name);
-            Assert.Equal(resultValue.Description, categoryToSave.Description);
+            Assert.Equal(categoryToSave.Name, resultValue.Name);
+            Assert.Equal(categoryToSave.Description, resultValue.Description);
             Assert.Empty(resultValue.ProjectCategories);
         }
 
@@ -191,19 +191,19 @@ namespace FRF.Core.Tests.Services
             Assert.True(result.Success);
             var resultValue = result.Value;
 
-            Assert.Equal(resultValue.Id, category.Id);
-            Assert.Equal(resultValue.Id, updatedCategory.Id);
+            Assert.Equal(category.Id, resultValue.Id);
+            Assert.Equal(updatedCategory.Id, resultValue.Id);
 
-            Assert.Equal(resultValue.Name, category.Name);
-            Assert.Equal(resultValue.Name, updatedCategory.Name);
+            Assert.Equal(category.Name, resultValue.Name);
+            Assert.Equal(updatedCategory.Name, resultValue.Name);
 
-            Assert.Equal(resultValue.Description, category.Description);
-            Assert.Equal(resultValue.Description, updatedCategory.Description);
+            Assert.Equal(category.Description, resultValue.Description);
+            Assert.Equal(updatedCategory.Description,resultValue.Description);
 
             Assert.Single(resultValue.ProjectCategories);
-            Assert.Equal(resultValue.ProjectCategories[0].Project.Name, project.Name);
-            Assert.Equal(resultValue.ProjectCategories[0].Project.Budget, project.Budget);
-            Assert.Equal(resultValue.ProjectCategories[0].Project.Id, project.Id);
+            Assert.Equal(project.Name, resultValue.ProjectCategories[0].Project.Name);
+            Assert.Equal(project.Budget, resultValue.ProjectCategories[0].Project.Budget);
+            Assert.Equal(project.Id, resultValue.ProjectCategories[0].Project.Id);
         }
 
         [Fact]
@@ -226,9 +226,9 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(category.Id, resultValue.Id);
             Assert.Single(resultValue.ProjectCategories);
 
-            Assert.Equal(resultValue.ProjectCategories[0].Project.Name, project.Name);
-            Assert.Equal(resultValue.ProjectCategories[0].Project.Budget, project.Budget);
-            Assert.Equal(resultValue.ProjectCategories[0].Project.Id, project.Id);
+            Assert.Equal(project.Name, resultValue.ProjectCategories[0].Project.Name);
+            Assert.Equal(project.Budget, resultValue.ProjectCategories[0].Project.Budget);
+            Assert.Equal(project.Id, resultValue.ProjectCategories[0].Project.Id);
         }
     }
 }
