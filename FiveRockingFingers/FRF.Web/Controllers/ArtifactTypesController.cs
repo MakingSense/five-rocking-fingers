@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace FRF.Web.Controllers
 {
     [ApiController]
-    [Route("api/atrifact-types")]
+    [Route("api/artifact-types")]
     [Authorize]
     public class ArtifactTypesController : ControllerBase
     {
