@@ -51,9 +51,11 @@ const ArtifactsRelationTable = (props: { artifactId: number, projectId: number }
     }
 
     React.useEffect(() => {
-        getArtifactsRelations();
-        getArtifacts();
-        setUpdateList(false);
+       if (updateList) {
+         getArtifactsRelations();
+         getArtifacts();
+         setUpdateList(false);
+       }
     }, [updateList]);
 
     const openNewArtifactsRelation = () => {

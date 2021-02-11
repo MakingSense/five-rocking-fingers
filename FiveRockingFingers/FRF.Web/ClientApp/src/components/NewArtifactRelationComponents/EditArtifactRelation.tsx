@@ -57,7 +57,6 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
     const [relation, setRelation] = React.useState<ArtifactRelation>(props.artifactRelations);
     const [isErrorRelationRepeated, setIsErrorRelationRepeated] = React.useState<boolean>(false);
     const [isErrorEmptyField, setIsErrorEmptyField] = React.useState<boolean>(false);
-    const [updateEdit, setUpdateEdit] = React.useState<boolean>(true);
 
     const updateArtifactsSettings = () => {
             props.updateList(true);
@@ -67,8 +66,7 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
 
     React.useEffect(() => {
         updateArtifactsSettings();
-        setUpdateEdit(false);
-    }, [updateEdit, artifact1, artifact2, relation])
+    }, [artifact1, artifact2, relation])
 
     const areRelationsEqual = (relation: ArtifactRelation) => {
         if (artifact1 === null || artifact2 === null || setting1 === null || setting2 === null) {
@@ -102,9 +100,9 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
     }
 
     const resetState = () => {
+        updateArtifactsSettings();
         setArtifact1(props.artifactRelations.artifact1);
         setArtifact2(props.artifactRelations.artifact2);
-        updateArtifactsSettings();
         setSetting1(null);
         setSetting2(null);
         setRelationTypeId(props.artifactRelations.relationTypeId);
@@ -114,7 +112,6 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
     }
 
     const handleClose = () => {
-        setUpdateEdit(true);
         resetState();
         props.closeEditArtifactsRelation();
     }
