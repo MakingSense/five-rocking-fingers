@@ -3,27 +3,9 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import * as React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import ArtifactType from '../../interfaces/ArtifactType';
+import ArtifactTypeService from '../../services/ArtifactTypeService';
+import { PROVIDERS } from '../../Constants';
 import Typography from '@material-ui/core/Typography';
-
-// Once the ArtifactType API and service are running, this should be replaced with a call to that API
-// Until then, you might an error if you don't have this 3 types created on your local DataBase before using this
-const constArtifactTypes = [
-    {
-        "id": 1,
-        "name": "Atype",
-        "description": "ADescription"
-    },
-    {
-        "id": 2,
-        "name": "Btype",
-        "description": "BDescription"
-    },
-    {
-        "id": 3,
-        "name": "Ctype",
-        "description": "CDescription"
-    }
-]
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -52,8 +34,13 @@ const CustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDia
     const [artifactTypes, setArtifactTypes] = React.useState([] as ArtifactType[]);
 
     React.useEffect(() => {
-        setArtifactTypes(constArtifactTypes);
+        getArtifactTypes();
     }, [])
+
+    const getArtifactTypes = async () => {
+        let artifactTypes = await ArtifactTypeService.getAllByProvider(PROVIDERS[1]);
+        setArtifactTypes(artifactTypes.data);
+    }
 
     const handleConfirm = async (data: { name: string, artifactType: string }) => {
         props.setName(data.name);
