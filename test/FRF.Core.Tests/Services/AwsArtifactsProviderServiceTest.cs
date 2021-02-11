@@ -145,8 +145,8 @@ namespace FRF.Core.Tests.Services
             var settingsList = result.Value;
             Assert.NotEmpty(settingsList);
 
-            Assert.Equal(settingsList[0].Name.Key, service.AttributeNames[0]);
-            Assert.Equal(settingsList[0].Values[0], attributeValue.Value);
+            Assert.Equal(service.AttributeNames[0], settingsList[0].Name.Key);
+            Assert.Equal(attributeValue.Value, settingsList[0].Values[0]);
             _client.Verify(mock => mock.DescribeServicesAsync(It.IsAny<DescribeServicesRequest>(), It.IsAny<CancellationToken>()), Times.Once);
             _client.Verify(mock => mock.GetAttributeValuesAsync(It.IsAny<GetAttributeValuesRequest>(), It.IsAny<CancellationToken>()), Times.Once);
         }
@@ -355,7 +355,7 @@ namespace FRF.Core.Tests.Services
 
             Assert.IsType<ServiceResponse<List<PricingTerm>>>(result);
             var resultValue = result.Value;
-            Assert.Equal(expected:5,resultValue.Count);
+            Assert.Equal(expected:4,resultValue.Count);
             _client.Verify(mock => mock.GetProductsAsync(It.IsAny<GetProductsRequest>(), It.IsAny<CancellationToken>()), Times.AtMost(5));
             foreach (var pricingTerm in resultValue)
             {

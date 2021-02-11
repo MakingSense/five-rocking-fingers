@@ -29,7 +29,7 @@ namespace FRF.Core.Tests.Models
             var writeRequestsPrice = "5E-06";
             var retrieveRequestsPrice = "4E-07";
 
-            const decimal FinalCost = 17.3249920m;
+            const decimal FinalCost = 19.0473600m;
 
             _classUnderTest.Settings = RetrieveIntelligentTieringSettings(writeRequestsUsed, retrieveRequestsUsed, storageUsed,
                 infrequentAccessMultiplier, standardPricePerUnitTier1
@@ -187,21 +187,6 @@ namespace FRF.Core.Tests.Models
                 "\"range0\":{" +
                 "\"beginRange\":\"0\"," +
                 "\"currency\":\"USD\"," +
-                "\"description\":\"[MOCK] GB-Month of storage used in Intelligent-Tiering, Infrequent Access Tier\"," +
-                "\"endRange\":\"-1\"," +
-                "\"pricePerUnit\":\"" + infrequentPricePerUnit + "\"," +
-                "\"rateCode\":\"[MOCK] \"," +
-                "\"unit\":\"GB-Mo\"}}," +
-                "\"purchaseOption\":[]," +
-                "\"sku\":\"[MOCK] \"," +
-                "\"term\":\"OnDemand\"}," +
-                "\"product2\":{" +
-                "\"leaseContractLength\":[]," +
-                "\"offeringClass\":[]," +
-                "\"pricingDimension\":{" +
-                "\"range0\":{" +
-                "\"beginRange\":\"0\"," +
-                "\"currency\":\"USD\"," +
                 "\"description\":\"[MOCK]  per 1,000 PUT, COPY, POST, or LIST requests\"," +
                 "\"endRange\":\"-1\"," +
                 "\"pricePerUnit\":\"" + writeRequestsPrice + "\"," +
@@ -210,7 +195,7 @@ namespace FRF.Core.Tests.Models
                 "\"purchaseOption\":[]," +
                 "\"sku\":\"[MOCK] \"," +
                 "\"term\":\"OnDemand\"}," +
-                "\"product3\":{\"leaseContractLength\":[]," +
+                "\"product2\":{\"leaseContractLength\":[]," +
                 "\"offeringClass\":[]," +
                 "\"pricingDimension\":{" +
                 "\"range0\":{" +
@@ -221,6 +206,21 @@ namespace FRF.Core.Tests.Models
                 "\"pricePerUnit\":\"" + retrieveRequestsPrice + "\"," +
                 "\"rateCode\":\"[MOCK] \"," +
                 "\"unit\":\"Requests\"}}," +
+                "\"purchaseOption\":[]," +
+                "\"sku\":\"[MOCK] \"," +
+                "\"term\":\"OnDemand\"}," +
+                "\"product3\":{" +
+                "\"leaseContractLength\":[]," +
+                "\"offeringClass\":[]," +
+                "\"pricingDimension\":{" +
+                "\"range0\":{" +
+                "\"beginRange\":\"0\"," +
+                "\"currency\":\"USD\"," +
+                "\"description\":\"[MOCK] GB-Month of storage used in Intelligent-Tiering, Infrequent Access Tier\"," +
+                "\"endRange\":\"-1\"," +
+                "\"pricePerUnit\":\"" + infrequentPricePerUnit + "\"," +
+                "\"rateCode\":\"[MOCK] \"," +
+                "\"unit\":\"GB-Mo\"}}," +
                 "\"purchaseOption\":[]," +
                 "\"sku\":\"[MOCK] \"," +
                 "\"term\":\"OnDemand\"}," +
