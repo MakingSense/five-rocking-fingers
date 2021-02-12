@@ -192,7 +192,7 @@ namespace FRF.Core.Tests.Services
             // Assert
             Assert.IsType<ServiceResponse<CoreModels.Project>>(result);
             Assert.False(result.Success);
-            Assert.Equal(result.Error.Code, ErrorCodes.ProjectNotExists);
+            Assert.Equal(ErrorCodes.ProjectNotExists, result.Error.Code);
         }
 
         [Fact]
@@ -264,7 +264,7 @@ namespace FRF.Core.Tests.Services
             // Assert
             Assert.IsType<ServiceResponse<CoreModels.Project>>(result);
             Assert.False(result.Success);
-            Assert.Equal(result.Error.Code, ErrorCodes.CategoryNotExists);
+            Assert.Equal(ErrorCodes.CategoryNotExists, result.Error.Code);
         }
 
         [Fact]
@@ -354,7 +354,7 @@ namespace FRF.Core.Tests.Services
             // Assert
             Assert.IsType<ServiceResponse<CoreModels.Project>>(result);
             Assert.False(result.Success);
-            Assert.Equal(result.Error.Code, ErrorCodes.CategoryNotExists);
+            Assert.Equal(ErrorCodes.CategoryNotExists, result.Error.Code);
         }
 
         [Fact]
@@ -401,7 +401,7 @@ namespace FRF.Core.Tests.Services
             // Assert
             Assert.IsType<ServiceResponse<CoreModels.Project>>(result);
             Assert.False(result.Success);
-            Assert.Equal(result.Error.Code, ErrorCodes.ProjectNotExists);
+            Assert.Equal(ErrorCodes.ProjectNotExists, result.Error.Code);
         }
 
         [Fact]
@@ -437,7 +437,7 @@ namespace FRF.Core.Tests.Services
             // Assert
             Assert.IsType<ServiceResponse<CoreModels.Project>>(result);
             Assert.False(result.Success);
-            Assert.Equal(result.Error.Code, ErrorCodes.ProjectNotExists);
+            Assert.Equal(ErrorCodes.ProjectNotExists, result.Error.Code);
         }
     }
 }
