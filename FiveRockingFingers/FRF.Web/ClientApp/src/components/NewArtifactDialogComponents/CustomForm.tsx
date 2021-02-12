@@ -1,11 +1,9 @@
 ﻿import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
 import * as React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import ArtifactType from '../../interfaces/ArtifactType';
-import ArtifactTypeService from '../../services/ArtifactTypeService';
-import { PROVIDERS } from '../../Constants';
-import Typography from '@material-ui/core/Typography';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -24,7 +22,7 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const CustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, handleNextStep: Function, handlePreviousStep: Function, setName: Function, setArtifactTypeId: Function, name: string|null, artifactTypeId: number|null }) => {
+const CustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, handleNextStep: Function, handlePreviousStep: Function, setName: Function, setArtifactTypeId: Function, name: string | null, artifactTypeId: number | null, getArtifactTypes: Function }) => {
 
     const classes = useStyles();
 
@@ -34,13 +32,11 @@ const CustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDia
     const [artifactTypes, setArtifactTypes] = React.useState([] as ArtifactType[]);
 
     React.useEffect(() => {
-        getArtifactTypes();
+        (async () => {
+            let artifactTypes = await props.getArtifactTypes(1);
+            setArtifactTypes(artifactTypes);
+        })();
     }, [])
-
-    const getArtifactTypes = async () => {
-        let artifactTypes = await ArtifactTypeService.getAllByProvider(PROVIDERS[1]);
-        setArtifactTypes(artifactTypes.data);
-    }
 
     const handleConfirm = async (data: { name: string, artifactType: string }) => {
         props.setName(data.name);

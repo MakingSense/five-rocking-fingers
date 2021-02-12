@@ -1,10 +1,8 @@
 ﻿﻿import { Button, createStyles, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormHelperText, makeStyles, TextField, Theme } from '@material-ui/core';
-import * as React from 'react';
 import Typography from '@material-ui/core/Typography';
 import Autocomplete from '@material-ui/lab/Autocomplete/Autocomplete';
+import * as React from 'react';
 import ArtifactType from '../../interfaces/ArtifactType';
-import { PROVIDERS } from '../../Constants';
-import ArtifactTypeService from '../../services/ArtifactTypeService';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -25,7 +23,7 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-const AwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, projectId: number, updateList: Function, setArtifactTypeId: Function, setOpenSnackbar: Function, setSnackbarSettings: Function, handleNextStep: Function, handlePreviousStep: Function, setName: Function }) => {
+const AwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, projectId: number, updateList: Function, setArtifactTypeId: Function, handleNextStep: Function, handlePreviousStep: Function, setName: Function, getArtifactTypes: Function }) => {
     const classes = useStyles();
     const [formError, setFormError] = React.useState(false);
     const [selectedArtifactType, setSelectedArtifactType] = React.useState<ArtifactType | null>(null);
@@ -35,15 +33,10 @@ const AwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog
 
     React.useEffect(() => {
         (async () => {
-            let artifactTypes = await getArtifactTypes();
+            let artifactTypes = await props.getArtifactTypes(0);
             setArtifactTypes(artifactTypes);
         })();
     }, [])
-
-    const getArtifactTypes = async () => {
-        let artifactTypes = await ArtifactTypeService.getAllByProvider(PROVIDERS[0]);
-        return artifactTypes.data as ArtifactType[];
-    }
 
     //Create the artifact after submit
     const handleConfirm = async () => {
@@ -65,6 +58,17 @@ const AwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog
         closeNewArtifactDialog();
     }
 
+    const handleInputChange = (event: object, newValue: string) => {
+        setInputSelectedArtifactType(newValue);
+        let selected = artifactTypes.filter(at => at.name === newValue);
+        if (selected.length === 1) {
+            setSelectedArtifactType(selected[0]);
+            setFormError(false);
+        } else {
+            setSelectedArtifactType(null)
+        }
+    }
+
     return (
         <Dialog open={showNewArtifactDialog}>
             <DialogTitle id="alert-dialog-title">
@@ -84,16 +88,7 @@ const AwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog
                             return option.name === value.name
                         }}
                         inputValue={inputSelectedArtifactType}
-                        onInputChange={(event, newValue) => {
-                            setInputSelectedArtifactType(newValue);
-                            let selected = artifactTypes.filter(at => at.name === newValue);
-                            if (selected.length === 1) {
-                                setSelectedArtifactType(selected[0]);
-                                setFormError(false);
-                            } else {
-                                setSelectedArtifactType(null)
-                            }
-                        }}
+                        onInputChange={handleInputChange}
                         className={classes.autoComplete}
                         renderInput={(params) => (
                             <TextField
