@@ -212,7 +212,7 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
         return relationList.length > 0;
     }
 
-    const isFieldEmpty = () => {
+    const hasFieldsEmpty = () => {
         if (artifact1 === null || artifact2 === null || setting1 === null || setting2 === null || relationTypeId === -1) {
             return true;
         }
@@ -223,7 +223,7 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
         if (isErrorOneRelationCreated) {
             setIsErrorOneRelationCreated(false);
         }
-        if (isFieldEmpty()) {
+        if (hasFieldsEmpty()) {
             setIsErrorEmptyField(true);
             return;
         }

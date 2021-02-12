@@ -116,7 +116,7 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
         props.closeEditArtifactsRelation();
     }
 
-    const isFieldEmpty = () => {
+    const hasFieldsEmpty = () => {
         if (artifact1 === null || artifact2 === null || setting1 === null || setting2 === null || relationTypeId === -1) {
             return true;
         }
@@ -124,7 +124,7 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
     }
 
     const handleConfirm = async () => {
-        if (isFieldEmpty()) {
+        if (hasFieldsEmpty()) {
             setIsErrorEmptyField(true);
             return;
         }
