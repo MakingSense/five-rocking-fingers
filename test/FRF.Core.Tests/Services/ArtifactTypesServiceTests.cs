@@ -75,7 +75,7 @@ namespace FRF.Core.Tests.Services
         }
 
         [Fact]
-        public async Task GetAll_ReturnsList()
+        public async Task GetAllAsync_ReturnsList()
         {
             // Arrange
             var provider1 = CreateProvider("[Mock] Provider Name 1");
@@ -88,7 +88,7 @@ namespace FRF.Core.Tests.Services
             var expectedList = new List<ArtifactType> { artifactType1, artifactType2, artifactType3 };
 
             // Act
-            var result = await _classUnderTest.GetAll();
+            var result = await _classUnderTest.GetAllAsync();
 
             // Assert
             Assert.IsType<ServiceResponse<List<CoreModels.ArtifactType>>>(result);
@@ -98,10 +98,10 @@ namespace FRF.Core.Tests.Services
         }
 
         [Fact]
-        public async Task GetAll_ReturnsEmptyList()
+        public async Task GetAllAsync_ReturnsEmptyList()
         {
             // Act
-            var result = await _classUnderTest.GetAll();
+            var result = await _classUnderTest.GetAllAsync();
 
             // Assert
             Assert.IsType<ServiceResponse<List<CoreModels.ArtifactType>>>(result);
@@ -110,7 +110,7 @@ namespace FRF.Core.Tests.Services
         }
 
         [Fact]
-        public async Task GetAllByProvider_ReturnsList()
+        public async Task GetAllByProviderAsync_ReturnsList()
         {
             // Arrange
             var provider1 = CreateProvider("[Mock] Provider Name 1");
@@ -123,7 +123,7 @@ namespace FRF.Core.Tests.Services
             var expectedList = new List<ArtifactType> { artifactType1, artifactType2 };
 
             // Act
-            var result = await _classUnderTest.GetAllByProvider(provider1.Name);
+            var result = await _classUnderTest.GetAllByProviderAsync(provider1.Name);
 
             // Assert
             Assert.IsType<ServiceResponse<List<CoreModels.ArtifactType>>>(result);
@@ -133,13 +133,13 @@ namespace FRF.Core.Tests.Services
         }
 
         [Fact]
-        public async Task GetAllByProvider_ReturnsEmptyList()
+        public async Task GetAllByProviderAsync_ReturnsEmptyList()
         {
             // Arrange
             var provider = CreateProvider("[Mock] Provider Name 1");
 
             // Act
-            var result = await _classUnderTest.GetAllByProvider(provider.Name);
+            var result = await _classUnderTest.GetAllByProviderAsync(provider.Name);
 
             // Assert
             Assert.IsType<ServiceResponse<List<CoreModels.ArtifactType>>>(result);
@@ -148,13 +148,13 @@ namespace FRF.Core.Tests.Services
         }
 
         [Fact]
-        public async Task GetAllByProvider_ErrorProviderNotExists()
+        public async Task GetAllByProviderAsync_ErrorProviderNotExists()
         {
             // Arrange
             var providerName = "[Mock] Provider name";
 
             // Act
-            var result = await _classUnderTest.GetAllByProvider(providerName);
+            var result = await _classUnderTest.GetAllByProviderAsync(providerName);
 
             // Assert
             Assert.IsType<ServiceResponse<List<CoreModels.ArtifactType>>>(result);

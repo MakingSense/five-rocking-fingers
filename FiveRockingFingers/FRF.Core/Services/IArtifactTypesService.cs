@@ -7,7 +7,7 @@ namespace FRF.Core.Services
 {
     public interface IArtifactTypesService
     {
-        Task<ServiceResponse<List<ArtifactType>>> GetAll();
-        Task<ServiceResponse<List<ArtifactType>>> GetAllByProvider(string providerName);
+        Task<ServiceResponse<List<ArtifactType>>> GetAllAsync();
+        Task<ServiceResponse<List<ArtifactType>>> GetAllByProviderAsync(string providerName);
     }
 }

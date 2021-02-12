@@ -25,7 +25,7 @@ namespace FRF.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllAsync()
         {
-            var artifactTypes = await _artifactTypesService.GetAll();
+            var artifactTypes = await _artifactTypesService.GetAllAsync();
             var artifactTypesDto = _mapper.Map<IEnumerable<ArtifactTypeDTO>>(artifactTypes.Value);
 
             return Ok(artifactTypesDto);
@@ -34,9 +34,13 @@ namespace FRF.Web.Controllers
         [HttpGet("{providerName}")]
         public async Task<IActionResult> GetAllByProviderAsync(string providerName)
         {
-            var artifactTypes = await _artifactTypesService.GetAllByProvider(providerName);
-            var artifactTypesDto = _mapper.Map<IEnumerable<ArtifactTypeDTO>>(artifactTypes.Value);
+            var artifactTypes = await _artifactTypesService.GetAllByProviderAsync(providerName);
+            if (!artifactTypes.Success)
+            {
+                return NotFound();
+            }
 
+            var artifactTypesDto = _mapper.Map<IEnumerable<ArtifactTypeDTO>>(artifactTypes.Value);
             return Ok(artifactTypesDto);
         }
     }
