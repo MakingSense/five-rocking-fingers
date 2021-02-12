@@ -1,29 +1,9 @@
 ﻿import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
 import * as React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import ArtifactType from '../../interfaces/ArtifactType';
-import Typography from '@material-ui/core/Typography';
-
-// Once the ArtifactType API and service are running, this should be replaced with a call to that API
-// Until then, you might an error if you don't have this 3 types created on your local DataBase before using this
-const constArtifactTypes = [
-    {
-        "id": 1,
-        "name": "Atype",
-        "description": "ADescription"
-    },
-    {
-        "id": 2,
-        "name": "Btype",
-        "description": "BDescription"
-    },
-    {
-        "id": 3,
-        "name": "Ctype",
-        "description": "CDescription"
-    }
-]
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -42,7 +22,7 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const CustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, handleNextStep: Function, handlePreviousStep: Function, setName: Function, setArtifactTypeId: Function, name: string|null, artifactTypeId: number|null }) => {
+const CustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, handleNextStep: Function, handlePreviousStep: Function, setName: Function, setArtifactTypeId: Function, name: string | null, artifactTypeId: number | null, getArtifactTypes: Function }) => {
 
     const classes = useStyles();
 
@@ -52,7 +32,10 @@ const CustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDia
     const [artifactTypes, setArtifactTypes] = React.useState([] as ArtifactType[]);
 
     React.useEffect(() => {
-        setArtifactTypes(constArtifactTypes);
+        (async () => {
+            let artifactTypes = await props.getArtifactTypes(1);
+            setArtifactTypes(artifactTypes);
+        })();
     }, [])
 
     const handleConfirm = async (data: { name: string, artifactType: string }) => {

@@ -7,6 +7,7 @@
         public const int ArtifactTypeNotExists = 2;
         public const int CategoryNotExists = 3;
         public const int ProjectNotExists = 4;
+        public const int ProviderNotExists = 5;
 
         // Relation errors
         public const int RelationAlreadyExisted = 10;
