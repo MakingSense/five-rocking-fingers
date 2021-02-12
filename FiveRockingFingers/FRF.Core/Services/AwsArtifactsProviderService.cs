@@ -295,30 +295,30 @@ namespace FRF.Core.Services
         private async Task<ServiceResponse<List<PricingTerm>>> GetEc2ProductsAsync(List<KeyValuePair<string, string>> settings)
         {
             //Filters get from settings
-            Filter locationFilter = new Filter { Field = AwsEc2Descriptions.Location, Type = "TERM_MATCH", Value = "" };
-            Filter operatingSystemFilter = new Filter { Field = AwsEc2Descriptions.OperatingSystem, Type = "TERM_MATCH", Value = "" };
-            Filter preInstalledSwFilter = new Filter { Field = AwsEc2Descriptions.PreInstalledSw, Type = "TERM_MATCH", Value = "" };
-            Filter instanceTypeFilter = new Filter { Field = AwsEc2Descriptions.InstanceType, Type = "TERM_MATCH", Value = "" };
-            Filter vcpuFilter = new Filter { Field = AwsEc2Descriptions.Vcpu, Type = "TERM_MATCH", Value = "" };
-            Filter memoryFilter = new Filter { Field = AwsEc2Descriptions.Memory, Type = "TERM_MATCH", Value = "" };
-            Filter networkPerformanceFilter = new Filter { Field = AwsEc2Descriptions.NetworkPerformance, Type = "TERM_MATCH", Value = "" };
-            Filter storageFilter = new Filter { Field = AwsEc2Descriptions.Storage, Type = "TERM_MATCH", Value = "" };
-            Filter volumeApiNameFilter = new Filter { Field = AwsEc2Descriptions.VolumeApiName, Type = "TERM_MATCH", Value = "" };
-            Filter transferTypeFilter = new Filter { Field = AwsEc2Descriptions.TransferType, Type = "TERM_MATCH", Value = "" };
-            Filter fromLocationFilter = new Filter { Field = AwsEc2Descriptions.FromLocation, Type = "TERM_MATCH", Value = "" };
-            Filter toLocationFilter = new Filter { Field = AwsEc2Descriptions.ToLocation, Type = "TERM_MATCH", Value = "" };
+            var locationFilter = new Filter { Field = AwsEc2Descriptions.Location, Type = "TERM_MATCH", Value = "" };
+            var operatingSystemFilter = new Filter { Field = AwsEc2Descriptions.OperatingSystem, Type = "TERM_MATCH", Value = "" };
+            var preInstalledSwFilter = new Filter { Field = AwsEc2Descriptions.PreInstalledSw, Type = "TERM_MATCH", Value = "" };
+            var instanceTypeFilter = new Filter { Field = AwsEc2Descriptions.InstanceType, Type = "TERM_MATCH", Value = "" };
+            var vcpuFilter = new Filter { Field = AwsEc2Descriptions.Vcpu, Type = "TERM_MATCH", Value = "" };
+            var memoryFilter = new Filter { Field = AwsEc2Descriptions.Memory, Type = "TERM_MATCH", Value = "" };
+            var networkPerformanceFilter = new Filter { Field = AwsEc2Descriptions.NetworkPerformance, Type = "TERM_MATCH", Value = "" };
+            var storageFilter = new Filter { Field = AwsEc2Descriptions.Storage, Type = "TERM_MATCH", Value = "" };
+            var volumeApiNameFilter = new Filter { Field = AwsEc2Descriptions.VolumeApiName, Type = "TERM_MATCH", Value = "" };
+            var transferTypeFilter = new Filter { Field = AwsEc2Descriptions.TransferType, Type = "TERM_MATCH", Value = "" };
+            var fromLocationFilter = new Filter { Field = AwsEc2Descriptions.FromLocation, Type = "TERM_MATCH", Value = "" };
+            var toLocationFilter = new Filter { Field = AwsEc2Descriptions.ToLocation, Type = "TERM_MATCH", Value = "" };
 
             //Filters that don't came in the settings
-            Filter locationTypeFilter = new Filter { Field = AwsEc2Descriptions.LocationType, Type = "TERM_MATCH", Value = AwsEc2Descriptions.LocationTypeValue };
-            Filter toLocationTypeFilter = new Filter { Field = AwsEc2Descriptions.ToLocationType, Type = "TERM_MATCH", Value = AwsEc2Descriptions.LocationTypeValue };
-            Filter fromLocationTypeFilter = new Filter { Field = AwsEc2Descriptions.FromLocation, Type = "TERM_MATCH", Value = AwsEc2Descriptions.LocationTypeValue };
-            Filter serviceCodeFilter = new Filter { Field = AwsEc2Descriptions.ServiceCode, Type = "TERM_MATCH", Value = AwsEc2Descriptions.ServiceValue };
-            Filter productFamilyComputeInstanceFilter = new Filter { Field = AwsEc2Descriptions.ProductFamily, Type = "TERM_MATCH", Value = AwsEc2Descriptions.ProductFamilyComputeInstanceValue };
-            Filter productFamilyEbsStorageFilter = new Filter { Field = AwsEc2Descriptions.ProductFamily, Type = "TERM_MATCH", Value = AwsEc2Descriptions.ProductFamilyEbsStorageValue };
-            Filter productFamilyEbsSnapshotFilter = new Filter { Field = AwsEc2Descriptions.ProductFamily, Type = "TERM_MATCH", Value = AwsEc2Descriptions.ProductFamilyEbsSnapshotsValue };
-            Filter productFamilyIopsFilter = new Filter { Field = AwsEc2Descriptions.ProductFamily, Type = "TERM_MATCH", Value = AwsEc2Descriptions.ProductFamilyEbsIopsValue };
-            Filter productFamilyThroughputFilter = new Filter { Field = AwsEc2Descriptions.ProductFamily, Type = "TERM_MATCH", Value = AwsEc2Descriptions.ProductFamilyEbsThroughputValue };
-            Filter productFamilyDataTransferFilter = new Filter { Field = AwsEc2Descriptions.ProductFamily, Type = "TERM_MATCH", Value = AwsEc2Descriptions.ProductFamilyDataTransferValue };
+            var locationTypeFilter = new Filter { Field = AwsEc2Descriptions.LocationType, Type = "TERM_MATCH", Value = AwsEc2Descriptions.LocationTypeValue };
+            var toLocationTypeFilter = new Filter { Field = AwsEc2Descriptions.ToLocationType, Type = "TERM_MATCH", Value = AwsEc2Descriptions.LocationTypeValue };
+            var fromLocationTypeFilter = new Filter { Field = AwsEc2Descriptions.FromLocationType, Type = "TERM_MATCH", Value = AwsEc2Descriptions.LocationTypeValue };
+            var serviceCodeFilter = new Filter { Field = AwsEc2Descriptions.ServiceCode, Type = "TERM_MATCH", Value = AwsEc2Descriptions.ServiceValue };
+            var productFamilyComputeInstanceFilter = new Filter { Field = AwsEc2Descriptions.ProductFamily, Type = "TERM_MATCH", Value = AwsEc2Descriptions.ProductFamilyComputeInstanceValue };
+            var productFamilyEbsStorageFilter = new Filter { Field = AwsEc2Descriptions.ProductFamily, Type = "TERM_MATCH", Value = AwsEc2Descriptions.ProductFamilyEbsStorageValue };
+            var productFamilyEbsSnapshotFilter = new Filter { Field = AwsEc2Descriptions.ProductFamily, Type = "TERM_MATCH", Value = AwsEc2Descriptions.ProductFamilyEbsSnapshotsValue };
+            var productFamilyIopsFilter = new Filter { Field = AwsEc2Descriptions.ProductFamily, Type = "TERM_MATCH", Value = AwsEc2Descriptions.ProductFamilyEbsIopsValue };
+            var productFamilyThroughputFilter = new Filter { Field = AwsEc2Descriptions.ProductFamily, Type = "TERM_MATCH", Value = AwsEc2Descriptions.ProductFamilyEbsThroughputValue };
+            var productFamilyDataTransferFilter = new Filter { Field = AwsEc2Descriptions.ProductFamily, Type = "TERM_MATCH", Value = AwsEc2Descriptions.ProductFamilyDataTransferValue };
             
             var pricingDetailsList = new List<PricingTerm>();
 
