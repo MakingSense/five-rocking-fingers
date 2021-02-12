@@ -6,6 +6,7 @@ namespace FRF.Core.Models
 {
     public class PricingTerm
     {
+        public string Product { get; set; }
         public string Sku { get; set; }
         public string Term { get; set; }
         public List<PricingDimension> PricingDimensions { get; set; }

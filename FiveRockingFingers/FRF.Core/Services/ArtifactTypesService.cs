@@ -20,7 +20,7 @@ namespace FRF.Core.Services
             _mapper = mapper;
         }
 
-        public async Task<ServiceResponse<List<ArtifactType>>> GetAll()
+        public async Task<ServiceResponse<List<ArtifactType>>> GetAllAsync()
         {
             var artifactTypes = await _dataContext.ArtifactType
                 .Include(at => at.Provider)
@@ -30,16 +30,18 @@ namespace FRF.Core.Services
             return new ServiceResponse<List<ArtifactType>>(mappedArtifactTypes);
         }
 
-        public async Task<ServiceResponse<List<ArtifactType>>> GetAllByProvider(string providerName)
+        public async Task<ServiceResponse<List<ArtifactType>>> GetAllByProviderAsync(string providerName)
         {
-            if (!await _dataContext.Providers.AnyAsync(p => p.Name == providerName))
+            var trimmedName = providerName.Trim();
+
+            if (!await _dataContext.Providers.AnyAsync(p => p.Name == trimmedName))
             {
-                return new ServiceResponse<List<ArtifactType>>(new Error(ErrorCodes.ProviderNotExists, $"There is no '{providerName}' provider"));
+                return new ServiceResponse<List<ArtifactType>>(new Error(ErrorCodes.ProviderNotExists, $"There is no '{trimmedName}' provider"));
             }
 
             var artifactTypes = await _dataContext.ArtifactType
                 .Include(at => at.Provider)
-                .Where(at => at.Provider.Name == providerName)
+                .Where(at => at.Provider.Name == trimmedName)
                 .ToListAsync();
 
             var mappedArtifactTypes = _mapper.Map<List<ArtifactType>>(artifactTypes);

@@ -195,7 +195,6 @@ namespace FRF.Web.Tests.Controllers
             Assert.Equal(oldCategory.Id, returnValue.Id);
             Assert.Equal(updatedCategory.Name, returnValue.Name);
             Assert.Equal(updatedCategory.Description, returnValue.Description);
-            Assert.Equal(oldCategory.ProjectCategories, oldCategory.ProjectCategories);
 
             _categoriesService.Verify(mock => mock.GetAsync(It.IsAny<int>()), Times.Once);
             _categoriesService.Verify(mock => mock.UpdateAsync(It.IsAny<Category>()), Times.Once);

@@ -77,7 +77,7 @@ namespace FRF.Web.Tests.Controllers
             var artifactTypes = new List<ArtifactType> { artifactType1, artifactType2 };
 
             _artifactTypesService
-                .Setup(mock => mock.GetAll())
+                .Setup(mock => mock.GetAllAsync())
                 .ReturnsAsync(new ServiceResponse<List<ArtifactType>>(artifactTypes));
 
             // Act
@@ -90,7 +90,7 @@ namespace FRF.Web.Tests.Controllers
 
             AssertCompareList(artifactTypes, resultValueList);
 
-            _artifactTypesService.Verify(mock => mock.GetAll(), Times.Once);
+            _artifactTypesService.Verify(mock => mock.GetAllAsync(), Times.Once);
         }
 
         [Fact]
@@ -104,7 +104,7 @@ namespace FRF.Web.Tests.Controllers
             var artifactTypes = new List<ArtifactType> { artifactType1, artifactType2 };
 
             _artifactTypesService
-                .Setup(mock => mock.GetAllByProvider(It.IsAny<string>()))
+                .Setup(mock => mock.GetAllByProviderAsync(It.IsAny<string>()))
                 .ReturnsAsync(new ServiceResponse<List<ArtifactType>>(artifactTypes));
 
             // Act
@@ -117,7 +117,26 @@ namespace FRF.Web.Tests.Controllers
 
             AssertCompareList(artifactTypes, resultValueList);
 
-            _artifactTypesService.Verify(mock => mock.GetAllByProvider(It.IsAny<string>()), Times.Once);
+            _artifactTypesService.Verify(mock => mock.GetAllByProviderAsync(It.IsAny<string>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetAllByProviderAsync_ReturnsNotFound()
+        {
+            // Arrange
+            var providerName = "Custom";
+
+            _artifactTypesService
+                .Setup(mock => mock.GetAllByProviderAsync(It.IsAny<string>()))
+                .ReturnsAsync(new ServiceResponse<List<ArtifactType>>(new Error(ErrorCodes.ProviderNotExists, "[Mock] Error Message")));
+
+            // Act
+            var result = await _classUnderTest.GetAllByProviderAsync(providerName);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
+
+            _artifactTypesService.Verify(mock => mock.GetAllByProviderAsync(It.IsAny<string>()), Times.Once);
         }
     }
 }
