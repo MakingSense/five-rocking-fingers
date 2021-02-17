@@ -17,6 +17,7 @@ const ArtifactsTableRow = (props: { artifact: Artifact, openSnackbar: Function, 
           <td>{props.artifact.name}</td>
           <td>{props.artifact.provider}</td>
           <td>{props.artifact.artifactType.name}</td>
+          <td></td>
           <td >
             <Button
                 className="mx-3" 
