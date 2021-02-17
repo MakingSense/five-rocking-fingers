@@ -453,7 +453,7 @@ namespace FRF.Core.Services
         }
 
         private void AddProductToPricingDetails(GetProductsResponse response,
-            List<PricingTerm> pricingDetailsList, string product)
+            List<PricingTerm> pricingDetailsList, string product = "")
         {
             foreach (var price in response.PriceList)
             {
@@ -484,38 +484,6 @@ namespace FRF.Core.Services
             }
         }
 
-        private void AddProductToPricingDetails(GetProductsResponse response,
-            List<PricingTerm> pricingDetailsList)
-        {
-            foreach (var price in response.PriceList)
-            {
-                if (!price.StartsWith("{") || !price.EndsWith("}")) continue;
-
-                var priceJson = JObject.Parse(price);
-                if (priceJson == null) continue;
-                
-                var sku = priceJson.SelectToken("product.sku").Value<string>();
-                var terms = priceJson.SelectToken("terms").ToObject<JObject>();
-                if (terms == null) continue;
-
-                foreach (var term in terms.Properties())
-                {
-                    var termName = term.Name;
-                    var termProperties = term.Value.ToObject<JObject>();
-                    if (termProperties == null)
-                    {
-                        continue;
-                    }
-
-                    foreach (var termOption in termProperties)
-                    {
-                        var pricingTerm = CreatePricingTerm(sku, termName, termOption);
-                        pricingDetailsList.Add(pricingTerm);
-                    }
-                }
-            }
-        }
-
         private PricingTerm CreatePricingTerm(string sku, string termName, KeyValuePair<string, JToken> termOption, string product)
         {
             var termOptionProperties = termOption.Value;
@@ -534,34 +502,6 @@ namespace FRF.Core.Services
             var pricingTerm = new PricingTerm()
             {
                 Product = product,
-                Sku = sku,
-                Term = termName,
-                PricingDimensions = pricingDimensions,
-                LeaseContractLength = leaseContractLength,
-                OfferingClass = offeringClass,
-                PurchaseOption = purchaseOption
-            };
-
-            return pricingTerm;
-        }
-
-        private PricingTerm CreatePricingTerm(string sku, string termName, KeyValuePair<string, JToken> termOption)
-        {
-            var termOptionProperties = termOption.Value;
-            var leaseContractLength = (string)termOptionProperties.SelectToken("termAttributes.LeaseContractLength");
-            var offeringClass = (string)termOptionProperties.SelectToken("termAttributes.OfferingClass");
-            var purchaseOption = (string)termOptionProperties.SelectToken("termAttributes.PurchaseOption");
-            var termPriceDimensions = termOptionProperties.SelectToken("priceDimensions").ToObject<JObject>().Properties().ToList();
-            var pricingDimensions = new List<PricingDimension>();
-
-            foreach(var termPriceDimension in termPriceDimensions)
-            {
-                var pricingDimension = ExtractPricingDimension(termPriceDimension);
-                pricingDimensions.Add(pricingDimension);
-            }
-
-            var pricingTerm = new PricingTerm()
-            {
                 Sku = sku,
                 Term = termName,
                 PricingDimensions = pricingDimensions,
