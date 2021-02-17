@@ -22,7 +22,7 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
         {
             // Arrange
 
-            const decimal FinalCost = 1231.5354194444444444444444444m;
+            const decimal FinalCost = 1241.7754194444444444444444444m;
 
             _classUnderTest.Settings = CreateArtifactSettingsGp2();
 
@@ -38,7 +38,7 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
         {
             // Arrange
 
-            const decimal FinalCost = 1241.6154194444444444444444444m;
+            const decimal FinalCost = 1251.8554194444444444444444444m;
 
             _classUnderTest.Settings = CreateArtifactSettingsGp3();
 
@@ -54,7 +54,7 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
         {
             // Arrange
 
-            const decimal FinalCost = 1520.0754194444444444444444444m;
+            const decimal FinalCost = 1530.3154194444444444444444444m;
 
             _classUnderTest.Settings = CreateArtifactSettingsIo1();
 
@@ -101,7 +101,17 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
                         )
                     ),
                     new XElement("product5",
-                        new XElement("numberOfGbTransferIntraRegion", 1024),
+                        new XElement("numberOfGbTransfer", 1024),
+                        new XElement("transferType", AwsEc2Descriptions.IntraRegionDataTransfer),
+                        new XElement("pricingDimensions",
+                            new XElement("range0",
+                                new XElement("pricePerUnit", 0.0100000000)
+                            )
+                        )
+                    ),
+                    new XElement("product5",
+                        new XElement("numberOfGbTransfer", 1024),
+                        new XElement("transferType", "Data Transfer Type"),
                         new XElement("pricingDimensions",
                             new XElement("range0",
                                 new XElement("pricePerUnit", 0.0100000000)
@@ -165,7 +175,17 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
                         )
                     ),
                     new XElement("product5",
-                        new XElement("numberOfGbTransferIntraRegion", 1024),
+                        new XElement("numberOfGbTransfer", 1024),
+                        new XElement("transferType", AwsEc2Descriptions.IntraRegionDataTransfer),
+                        new XElement("pricingDimensions",
+                            new XElement("range0",
+                                new XElement("pricePerUnit", 0.0100000000)
+                            )
+                        )
+                    ),
+                    new XElement("product5",
+                        new XElement("numberOfGbTransfer", 1024),
+                        new XElement("transferType", "Data Transfer Type"),
                         new XElement("pricingDimensions",
                             new XElement("range0",
                                 new XElement("pricePerUnit", 0.0100000000)
@@ -221,7 +241,17 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
                         )
                     ),
                     new XElement("product5",
-                        new XElement("numberOfGbTransferIntraRegion", 1024),
+                        new XElement("numberOfGbTransfer", 1024),
+                        new XElement("transferType", AwsEc2Descriptions.IntraRegionDataTransfer),
+                        new XElement("pricingDimensions",
+                            new XElement("range0",
+                                new XElement("pricePerUnit", 0.0100000000)
+                            )
+                        )
+                    ),
+                    new XElement("product5",
+                        new XElement("numberOfGbTransfer", 1024),
+                        new XElement("transferType", "Data Transfer Type"),
                         new XElement("pricingDimensions",
                             new XElement("range0",
                                 new XElement("pricePerUnit", 0.0100000000)

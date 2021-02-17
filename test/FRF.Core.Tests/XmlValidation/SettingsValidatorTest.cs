@@ -202,7 +202,7 @@ namespace FRF.Core.Tests.XmlValidation
                         )
                     ),
                     new XElement("product5",
-                        new XElement("numberOfGbTransferIntraRegion", 1024),
+                        new XElement("numberOfGbTransfer", 1024),
                         new XElement("sku", "3F2BXQPS4TRZ6SR6"),
                         new XElement("productFamily", "Data Transfer"),
                         new XElement("term", "OnDemand"),
@@ -371,7 +371,7 @@ namespace FRF.Core.Tests.XmlValidation
                         )
                     ),
                     new XElement("product5",
-                        new XElement("numberOfGbTransferIntraRegion", 1024),
+                        new XElement("numberOfGbTransfer", 1024),
                         new XElement("sku", "3F2BXQPS4TRZ6SR6"),
                         new XElement("productFamily", "Data Transfer"),
                         new XElement("term", "OnDemand"),
@@ -520,7 +520,7 @@ namespace FRF.Core.Tests.XmlValidation
                         )
                     ),
                     new XElement("product5",
-                        new XElement("numberOfGbTransferIntraRegion", 1024),
+                        new XElement("numberOfGbTransfer", 1024),
                         new XElement("sku", "3F2BXQPS4TRZ6SR6"),
                         new XElement("productFamily", "Data Transfer"),
                         new XElement("term", "OnDemand"),

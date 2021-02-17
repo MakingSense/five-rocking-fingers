@@ -39,8 +39,7 @@ namespace FRF.Core.Models.AwsArtifacts
         public decimal ThroughputPricePerUnit { get; set; }
 
         //Data Transfer properties
-        public int NumberOfGbTransferIntraRegion { get; set; }
-        public decimal IntraTegionDataTransferPricePerUnit { get; set; }
+        public List<DataTransferEc2> DataTransferItems { get; set; }
 
         override public decimal GetPrice()
         {
@@ -59,7 +58,19 @@ namespace FRF.Core.Models.AwsArtifacts
 
         private decimal GetIntraRegionDataTransferPrice()
         {
-            var intraRegionDataTransferPrice = 2 * NumberOfGbTransferIntraRegion * IntraTegionDataTransferPricePerUnit;
+            var intraRegionDataTransferPrice = 0m;
+
+            foreach(var dataTransferItem in DataTransferItems)
+            {
+                if(dataTransferItem.TransferType.Equals(AwsEc2Descriptions.IntraRegionDataTransfer))
+                {
+                    intraRegionDataTransferPrice += 2 * dataTransferItem.NumberOfGbTransferIntraRegion * dataTransferItem.IntraTegionDataTransferPricePerUnit;
+                }
+                else
+                {
+                    intraRegionDataTransferPrice += dataTransferItem.NumberOfGbTransferIntraRegion * dataTransferItem.IntraTegionDataTransferPricePerUnit;
+                }
+            }
 
             return intraRegionDataTransferPrice;
         }
@@ -314,23 +325,55 @@ namespace FRF.Core.Models.AwsArtifacts
 
         private void GetDataTransferProperties()
         {
-            NumberOfGbTransferIntraRegion = int.Parse(Settings.Element("product5").Element("numberOfGbTransferIntraRegion").Value);
-            IntraTegionDataTransferPricePerUnit = GetDecimalPrice(Settings.Element("product5")
+            DataTransferItems = new List<DataTransferEc2>();
+
+            var dataTransferNodes = Settings.Elements("product5");
+
+            foreach(var dataTransferNode in dataTransferNodes)
+            {
+                var transferType = dataTransferNode.Element("transferType").Value;
+                var numberOfGbTransfer = int.Parse(dataTransferNode.Element("numberOfGbTransfer").Value);
+                var dataTransferPricePerUnit = GetDecimalPrice(dataTransferNode
                 .Element("pricingDimensions")
                 .Element("range0")
                 .Element("pricePerUnit")
                 .Value);
+
+                var dataTransferItem = new DataTransferEc2
+                {
+                    TransferType = transferType,
+                    NumberOfGbTransferIntraRegion = numberOfGbTransfer,
+                    IntraTegionDataTransferPricePerUnit = dataTransferPricePerUnit
+                };
+
+                DataTransferItems.Add(dataTransferItem);
+            }
         }
 
         private bool ArePricesCorrect()
         {
-            return IntraTegionDataTransferPricePerUnit != PriceError &&
+            return PricesInDataTransferItemsAreCorrect() &&
                 ThroughputPricePerUnit != PriceError &&
                 IopsPricePerUnit != PriceError &&
                 SnapshotPricePerUnit != PriceError &&
                 EbsPricePerUnit != PriceError &&
                 InstancePricePerUnit0 != PriceError &&
                 InstancePricePerUnit1 != PriceError;
+        }
+
+        private bool PricesInDataTransferItemsAreCorrect()
+        {
+            var flag = true;
+
+            foreach(var dataTransferItem in DataTransferItems)
+            {
+                if(dataTransferItem.IntraTegionDataTransferPricePerUnit == PriceError)
+                {
+                    flag = false;
+                }
+            }
+
+            return flag;
         }
 
         private decimal GetDecimalPrice(string pricePerUnit)

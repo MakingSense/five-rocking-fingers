@@ -195,10 +195,10 @@
           </xs:complexType>
         </xs:element>
         <!--This part is related to data transfer-->
-        <xs:element name="product5" minOccurs="0" maxOccurs="1">
+        <xs:element name="product5" minOccurs="0" maxOccurs="unbounded">
           <xs:complexType>
             <xs:sequence>
-              <xs:element name="numberOfGbTransferIntraRegion" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
+              <xs:element name="numberOfGbTransfer" type="xs:decimal" minOccurs="1" maxOccurs="1"/>
               <xs:element name="sku" type="xs:string" minOccurs="1" maxOccurs="1"/>
               <xs:element name="productFamily" type="xs:string" minOccurs="1" maxOccurs="1"/>
               <xs:element name="term" type="xs:string" minOccurs="1" maxOccurs="1"/>
