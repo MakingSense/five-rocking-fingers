@@ -8,21 +8,50 @@ import ArtifactRelation from '../../interfaces/ArtifactRelation'
 import NewArtifactDialog from '../NewArtifactDialog';
 import NewArtifactsRelation from '../NewArtifactsRelation';
 import ArtifactService from '../../services/ArtifactService';
+import ProjectService from '../../services/ProjectService';
+import ArtifactsTotalPrice from './ArtifactsTotalPrice';
 
-const ArtifactsTable = (props: { projectId: number }) => {
+const ArtifactsTable = (props: { projectId: number}) => {
     const [artifacts, setArtifacts] = React.useState<Artifact[]>([]);
     const [openSnackbar, setOpenSnackbar] = React.useState(false);
     const [snackbarSettings, setSnackbarSettings] = React.useState<SnackbarSettings>({ message: "", severity: undefined });
     const [showNewArtifactDialog, setShowNewArtifactDialog] = React.useState(false);
     const [showNewArtifactsRelation, setShowNewArtifactsRelation] = React.useState(false);
     const [artifactsRelations, setArtifactsRelations] = React.useState<ArtifactRelation[]>([]);
+    const [price, setPrice] = React.useState<string>('');
+    const [projectBudget, setProjectBudget] = React.useState<number>(-1);
+    const loading = projectBudget=== -1 || artifacts.length === 0;
+    const {projectId} = props;
+
+    const getTotalPrice = async () => {
+        try {
+          const response = await ProjectService.getBudget(projectId);
+          if(response.status === 200){
+            setPrice(response.data.toFixed(2));
+          }
+        } catch {
+          setPrice('');
+        }
+      };
+
+      const getProjectBudget = async () => {
+        try {
+          const response = await ProjectService.get(projectId);
+          if(response.status === 200){
+              const{budget} = response.data;
+              setProjectBudget(budget);
+          }
+        } catch {
+            setProjectBudget(-1);
+        }
+      };
 
     const getArtifacts = async () => {
         try {
-            const response = await ArtifactService.getAllByProjectId(props.projectId);
-
+            const response = await ArtifactService.getAllByProjectId(projectId);
             if (response.status == 200) {
                 setArtifacts(response.data);
+                getTotalPrice();
             }
             else {
                 manageOpenSnackbar({ message: "Hubo un error al cargar los artifacts", severity: "error" });
@@ -35,8 +64,7 @@ const ArtifactsTable = (props: { projectId: number }) => {
 
     const getRelations = async () => {
         try {
-            const response = await ArtifactService.getAllRelationsByProjectId(props.projectId);
-
+            const response = await ArtifactService.getAllRelationsByProjectId(projectId);
             if (response.status == 200) {
                 setArtifactsRelations(response.data);
             }
@@ -66,9 +94,10 @@ const ArtifactsTable = (props: { projectId: number }) => {
     }
 
     React.useEffect(() => {
+        getProjectBudget();
         getArtifacts();
         getRelations();
-    }, [props.projectId]);
+    }, [projectId]);
 
     const manageOpenSnackbar = (settings: SnackbarSettings) => {
         setSnackbarSettings(settings);
@@ -83,6 +112,7 @@ const ArtifactsTable = (props: { projectId: number }) => {
                         <th>Nombre</th>
                         <th>Provedor</th>
                         <th>Tipo</th>
+                        <th>Precio</th>
                         <th >
                             <Button className="mx-3" style={{ minHeight: "32px", width: "21%" }} color="success" onClick={openNewArtifactDialog}>Nuevo artefacto</Button>
                             <Button style={{ minHeight: "32px", width: "20%" }} color="success" onClick={openNewArtifactsRelation}>Nueva relación</Button>
@@ -90,15 +120,17 @@ const ArtifactsTable = (props: { projectId: number }) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {Array.isArray(artifacts)
-                        ? artifacts.map((artifact) => <ArtifactsTableRow
-                            key={artifact.id}
-                            artifact={artifact}
-                            openSnackbar={manageOpenSnackbar}
-                            updateList={getArtifacts}
-                        />
-                        )
-                        : null}
+                    {loading ? null : <>{
+                        Array.isArray(artifacts)
+                            ? artifacts.map((artifact) => <ArtifactsTableRow
+                                key={artifact.id}
+                                artifact={artifact}
+                                openSnackbar={manageOpenSnackbar}
+                                updateList={getArtifacts}
+                            />
+                            ) : null}
+                        <ArtifactsTotalPrice totalPrice={price} projectBudget={projectBudget} /></>
+                    }
                 </tbody>
             </Table>
             <SnackbarMessage
@@ -110,7 +142,7 @@ const ArtifactsTable = (props: { projectId: number }) => {
             <NewArtifactDialog
                 showNewArtifactDialog={showNewArtifactDialog}
                 closeNewArtifactDialog={closeNewArtifactDialog}
-                projectId={props.projectId}
+                projectId={projectId}
                 updateList={getArtifacts}
                 setOpenSnackbar={setOpenSnackbar}
                 setSnackbarSettings={setSnackbarSettings}
@@ -118,7 +150,7 @@ const ArtifactsTable = (props: { projectId: number }) => {
             <NewArtifactsRelation
                 showNewArtifactsRelation={showNewArtifactsRelation}
                 closeNewArtifactsRelation={closeNewArtifactsRelation}
-                projectId={props.projectId}
+                projectId={projectId}
                 setOpenSnackbar={setOpenSnackbar}
                 setSnackbarSettings={setSnackbarSettings}
                 artifacts={artifacts}

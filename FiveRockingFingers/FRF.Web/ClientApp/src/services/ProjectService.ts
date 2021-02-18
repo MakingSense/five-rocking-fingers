@@ -55,4 +55,20 @@ export default class ProjectService {
             return error.response ? error.response : error.message;
         }
     };
+
+    static get = async (id: number) => {
+        try {
+            return await axios.get(`${PROJECTS_URL}/${id}`);
+        } catch (error) {
+            return error.response ? error.response : error.message;
+        }
+    };
+
+    static getBudget = async (id : number) => {
+        try {
+            return await axios.get(`${PROJECTS_URL}/${id}/budget`);
+        } catch (error) {
+            return error.response ? error.response : error.message;
+        }
+    };
 }

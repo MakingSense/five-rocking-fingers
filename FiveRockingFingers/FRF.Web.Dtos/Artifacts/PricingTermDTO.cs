@@ -6,6 +6,7 @@ namespace FRF.Web.Dtos.Artifacts
 {
     public class PricingTermDTO
     {
+        public string Product { get; set; }
         public string Sku { get; set; }
         public string Term { get; set; }
         public List<PricingDimensionDTO> PricingDimensions { get; set; }
