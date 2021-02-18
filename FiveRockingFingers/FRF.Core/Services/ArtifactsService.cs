@@ -48,7 +48,7 @@ namespace FRF.Core.Services
                         case AwsS3Descriptions.Service:
                             return _mapper.Map<AwsS3>(artifact);
                         case AwsEc2Descriptions.ServiceValue:
-                            return _mapper.Map<AwsS3>(artifact);
+                            return _mapper.Map<AwsEc2>(artifact);
                         default:
                             return _mapper.Map<Artifact>(artifact);
                     }
