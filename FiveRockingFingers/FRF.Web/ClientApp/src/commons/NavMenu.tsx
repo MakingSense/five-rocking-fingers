@@ -1,27 +1,17 @@
-import HomeIcon from '@material-ui/icons/Home';
-import axios from 'axios';
 import * as React from 'react';
-import { Menu, ProSidebar, SidebarContent, SidebarHeader, SidebarFooter } from 'react-pro-sidebar';
+import { Menu, ProSidebar, SidebarContent, SidebarFooter } from 'react-pro-sidebar';
 import 'react-pro-sidebar/dist/css/styles.css';
 import { Link } from 'react-router-dom';
 import Project from '../interfaces/Project';
 import '../styles/NavMenu.css';
 import NavMenuItem from './NavMenuItem';
 import ProjectService from '../services/ProjectService';
-import UserProfile from '../interfaces/UserProfile';
-import UserService from '../services/UserService';
-
-const FaHome = () => (
-    <HomeIcon />
-);
 
 const NavMenu = () => {
 
     const [projects, setProjects] = React.useState<Project[]>([]);
-    const [user, setUser] = React.useState<UserProfile | null>(null);
     React.useEffect(() => {
         getProjects();
-        getUser();
     },
         []);
 
@@ -31,25 +21,11 @@ const NavMenu = () => {
 
         setProjects(response.data);
     }
-    const getUser = async () => {
-        const response = await UserService.get();
-        setUser({
-            fullName: response.data["fullname"],
-            email: response.data["email"],
-            userId: response.data["userId"],
-            avatar: response.data["avatar"]
-        });
-    }
     return (
         <ProSidebar>
-            <SidebarHeader>
-                {FaHome()}
-                {user?.fullName}
-                <Link to="/" />
-            </SidebarHeader>
             <SidebarContent>
                 <Menu>
-                    {projects
+                    {Array.isArray(projects)
                         ? projects.map((project) => (
                             <NavMenuItem key={project.id} project={project} />
                         ))
