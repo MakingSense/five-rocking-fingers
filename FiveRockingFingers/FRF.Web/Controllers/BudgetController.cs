@@ -17,7 +17,7 @@ namespace FRF.Web.Controllers
             _budgetService = budgetService;
         }
 
-        [HttpGet("/project/{projectId}/budget")]
+        [HttpGet("~/api/projects/{projectId}/budget")]
         public async Task<IActionResult> GetBudget(int projectId)
         {
             var response = await _budgetService.GetBudget(projectId);

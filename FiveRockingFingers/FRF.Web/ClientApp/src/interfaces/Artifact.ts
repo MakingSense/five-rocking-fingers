@@ -8,4 +8,5 @@ export default interface Artifact {
     settings: {[key: string] : string};
     projectId: number;
     artifactType: ArtifactType;
+    price: number;
 }

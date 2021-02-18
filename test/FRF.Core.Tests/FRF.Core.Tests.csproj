@@ -27,4 +27,11 @@
     </ContentWithTargetPath>
   </ItemGroup>
 
+  <ItemGroup>
+    <ContentWithTargetPath Include="..\..\FiveRockingFingers\FRF.Core\XmlValidation\AwsEc2.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>AwsEc2.xsd</TargetPath>
+    </ContentWithTargetPath>
+  </ItemGroup>
+
 </Project>

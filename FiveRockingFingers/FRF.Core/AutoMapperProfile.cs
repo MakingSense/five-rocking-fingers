@@ -40,6 +40,7 @@ namespace FRF.Core
                 .ForMember(dest => dest.Id, act => act.Ignore())
                 .ForMember(dest => dest.ArtifactType, act => act.Ignore())
                 .ForMember(dest => dest.Project, act => act.Ignore());
+            CreateMap<DataAccess.EntityModels.Artifact, Models.AwsArtifacts.AwsEc2>();
             CreateMap<DataAccess.EntityModels.ArtifactType, Models.ArtifactType>()
                 .ReverseMap();
             CreateMap<DataAccess.EntityModels.UsersByProject, Models.UsersProfile>()

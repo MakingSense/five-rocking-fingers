@@ -25,7 +25,15 @@ namespace FRF.Core.XmlValidation
                     path = Path.Combine(rootPath, "CustomArtifact.xsd");
                     break;
                 case ArtifactTypes.Aws:
-                    path = Path.Combine(rootPath, "AwsS3.xsd");
+                    switch (artifact.ArtifactType.Name)
+                    {
+                        case AwsS3Descriptions.Service:
+                            path = Path.Combine(rootPath, "AwsS3.xsd");
+                            break;
+                        case AwsEc2Descriptions.ServiceValue:
+                            path = Path.Combine(rootPath, "AwsEc2.xsd");
+                            break;
+                    }
                     break;
                 default:
                     return !areSettingsValid;
