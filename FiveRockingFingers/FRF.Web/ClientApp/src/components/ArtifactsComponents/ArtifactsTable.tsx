@@ -123,6 +123,7 @@ const ArtifactsTable = (props: { projectId: number }) => {
                 setSnackbarSettings={setSnackbarSettings}
                 artifacts={artifacts}
                 artifactsRelations={artifactsRelations}
+                updateList = {{update: false}}
             />
         </React.Fragment>
     );
