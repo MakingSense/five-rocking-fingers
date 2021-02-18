@@ -3,7 +3,6 @@ import * as React from 'react';
 import ArtifactService from '../../services/ArtifactService';
 import ArtifactRelation from '../../interfaces/ArtifactRelation';
 import RelationCard from './RelationCard';
-import Typography from '@material-ui/core/Typography/Typography';
 
 const DeleteArtifactsRelation = (props: { open: boolean, setOpen: Function, artifactRelationToDelete: ArtifactRelation, openSnackbar: Function, updateList: Function }) => {
     const [relationList, setRelationList] = React.useState<ArtifactRelation[]>([]);
@@ -16,7 +15,7 @@ const DeleteArtifactsRelation = (props: { open: boolean, setOpen: Function, arti
             const response = await ArtifactService.deleteRelation(props.artifactRelationToDelete.id!)
             if (response.status == 204) {
                 props.openSnackbar({ message: "La relacion ha sido borrado con éxito", severity: "success" });
-                props.updateList();
+                props.updateList(true);
             }
             else {
                 props.openSnackbar({ message: "Hubo un error al borrar la relacion", severity: "error" });
@@ -40,7 +39,7 @@ const DeleteArtifactsRelation = (props: { open: boolean, setOpen: Function, arti
     }
 
     return (
-        <div>
+        <>
             <Dialog
                 open={props.open}
                 onClose={handleClose}
@@ -71,7 +70,7 @@ const DeleteArtifactsRelation = (props: { open: boolean, setOpen: Function, arti
                     </Button>
                 </DialogActions>
             </Dialog>
-        </div>
+        </>
     );
 }
 

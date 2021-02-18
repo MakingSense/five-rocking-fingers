@@ -1,4 +1,5 @@
-﻿using FRF.Core.Models.AwsArtifacts;
+﻿using FRF.Core.Models;
+using FRF.Core.Models.AwsArtifacts;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -8,26 +9,19 @@ using Xunit;
 
 namespace FRF.Core.Tests.Models.AwsArtifacts
 {
-    public class AwsEc2Test
+    public class AwsEc2Tests
     {
-        private readonly AwsEc2 _classUnderTest;
-
-        public AwsEc2Test()
-        {
-            _classUnderTest = new AwsEc2();
-        }
-
         [Fact]
         public void GetPrice_Gp2()
         {
             // Arrange
-
-            const decimal FinalCost = 1231.5354194444444444444444444m;
-
-            _classUnderTest.Settings = CreateArtifactSettingsGp2();
+            const decimal FinalCost = 1241.7754194444444444444444444m;
+            var settings = CreateArtifactSettingsGp2();
+            var _classUnderTest = new AwsEc2(settings);
 
             // Act
             var result = _classUnderTest.GetPrice();
+
             // Assert
             Assert.IsType<decimal>(result);
             Assert.Equal(FinalCost, result);
@@ -38,12 +32,13 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
         {
             // Arrange
 
-            const decimal FinalCost = 1241.6154194444444444444444444m;
-
-            _classUnderTest.Settings = CreateArtifactSettingsGp3();
+            const decimal FinalCost = 1251.8554194444444444444444444m;
+            var settings = CreateArtifactSettingsGp3();
+            var _classUnderTest = new AwsEc2(settings);
 
             // Act
             var result = _classUnderTest.GetPrice();
+
             // Assert
             Assert.IsType<decimal>(result);
             Assert.Equal(FinalCost, result);
@@ -53,13 +48,13 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
         public void GetPrice_Io1()
         {
             // Arrange
-
-            const decimal FinalCost = 1520.0754194444444444444444444m;
-
-            _classUnderTest.Settings = CreateArtifactSettingsIo1();
+            const decimal FinalCost = 1530.3154194444444444444444444m;
+            var settings = CreateArtifactSettingsIo1();
+            var _classUnderTest = new AwsEc2(settings);
 
             // Act
             var result = _classUnderTest.GetPrice();
+
             // Assert
             Assert.IsType<decimal>(result);
             Assert.Equal(FinalCost, result);
@@ -101,7 +96,17 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
                         )
                     ),
                     new XElement("product5",
-                        new XElement("numberOfGbTransferIntraRegion", 1024),
+                        new XElement("numberOfGbTransfer", 1024),
+                        new XElement("transferType", AwsEc2Descriptions.IntraRegionDataTransfer),
+                        new XElement("pricingDimensions",
+                            new XElement("range0",
+                                new XElement("pricePerUnit", 0.0100000000)
+                            )
+                        )
+                    ),
+                    new XElement("product5",
+                        new XElement("numberOfGbTransfer", 1024),
+                        new XElement("transferType", "Data Transfer Type"),
                         new XElement("pricingDimensions",
                             new XElement("range0",
                                 new XElement("pricePerUnit", 0.0100000000)
@@ -165,7 +170,17 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
                         )
                     ),
                     new XElement("product5",
-                        new XElement("numberOfGbTransferIntraRegion", 1024),
+                        new XElement("numberOfGbTransfer", 1024),
+                        new XElement("transferType", AwsEc2Descriptions.IntraRegionDataTransfer),
+                        new XElement("pricingDimensions",
+                            new XElement("range0",
+                                new XElement("pricePerUnit", 0.0100000000)
+                            )
+                        )
+                    ),
+                    new XElement("product5",
+                        new XElement("numberOfGbTransfer", 1024),
+                        new XElement("transferType", "Data Transfer Type"),
                         new XElement("pricingDimensions",
                             new XElement("range0",
                                 new XElement("pricePerUnit", 0.0100000000)
@@ -221,7 +236,17 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
                         )
                     ),
                     new XElement("product5",
-                        new XElement("numberOfGbTransferIntraRegion", 1024),
+                        new XElement("numberOfGbTransfer", 1024),
+                        new XElement("transferType", AwsEc2Descriptions.IntraRegionDataTransfer),
+                        new XElement("pricingDimensions",
+                            new XElement("range0",
+                                new XElement("pricePerUnit", 0.0100000000)
+                            )
+                        )
+                    ),
+                    new XElement("product5",
+                        new XElement("numberOfGbTransfer", 1024),
+                        new XElement("transferType", "Data Transfer Type"),
                         new XElement("pricingDimensions",
                             new XElement("range0",
                                 new XElement("pricePerUnit", 0.0100000000)

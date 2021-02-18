@@ -84,6 +84,7 @@ namespace FRF.Web
 			services.AddTransient<ISignInService, SignInService>();
 			services.AddTransient<IUserService, UserService>();
 			services.AddTransient<IArtifactsService, ArtifactsService>();
+			services.AddTransient<IArtifactTypesService, ArtifactTypesService>();
 			services.AddTransient<ICategoriesService, CategoriesService>();
 			services.AddTransient<IArtifactsProviderService, AwsArtifactsProviderService>();
 			services.AddTransient<IBudgetService, BudgetService>();

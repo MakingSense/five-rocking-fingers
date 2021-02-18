@@ -9,6 +9,9 @@ import Confirmation from './NewArtifactDialogComponents/Confirmation';
 import Setting from '../interfaces/Setting';
 import KeyValueStringPair from '../interfaces/KeyValueStringPair';
 import PricingTerm from '../interfaces/PricingTerm';
+import { PROVIDERS } from '../Constants';
+import ArtifactTypeService from '../services/ArtifactTypeService';
+import ArtifactType from '../interfaces/ArtifactType';
 
 const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, projectId: number, updateList: Function, setOpenSnackbar: Function , setSnackbarSettings: Function }) => {
 
@@ -43,6 +46,23 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
         props.closeNewArtifactDialog()
     }
 
+    const getArtifactTypes = async (id: number) => {
+        try {
+            const response = await ArtifactTypeService.getAllByProvider(PROVIDERS[id]);
+            if (response.status === 200) {
+                return response.data as ArtifactType[];
+            } else {
+                props.setSnackbarSettings({ message: "Hubo un problema al cargar los tipos de artefactos.", severity: "error" });
+                props.setOpenSnackbar(true);
+                return [];
+            }
+        } catch {
+            props.setSnackbarSettings({ message: "Hubo un problema al cargar los tipos de artefactos.", severity: "error" });
+            props.setOpenSnackbar(true);
+            return [];
+        }
+    }
+
     switch (step) {
         case 1:
             return (
@@ -67,6 +87,7 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
                         setArtifactTypeId={setArtifactTypeId}
                         name={name}
                         artifactTypeId={artifactTypeId}
+                        getArtifactTypes={getArtifactTypes}
                     />
                 );
             }
@@ -78,11 +99,10 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
                         projectId={props.projectId}
                         setArtifactTypeId={setArtifactTypeId}
                         updateList={props.updateList}
-                        setOpenSnackbar={props.setOpenSnackbar}
-                        setSnackbarSettings={props.setSnackbarSettings}
                         handleNextStep={handleNextStep}
                         handlePreviousStep={handlePreviousStep}
                         setName={setName}
+                        getArtifactTypes={getArtifactTypes}
                     />
                 );
             }

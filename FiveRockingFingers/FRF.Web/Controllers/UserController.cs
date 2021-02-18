@@ -29,9 +29,10 @@ namespace FRF.Web.Controllers
         {
             var email = HttpContext.User.FindFirst(ClaimTypes.Email).Value;
             var userPublicProfile = await _userService.GetUserPublicProfileAsync(email);
-            if (userPublicProfile == null) return BadRequest();
-            
-            return Ok(userPublicProfile);
+            if (!userPublicProfile.Success) return BadRequest();
+
+            var mappedProfile = _mapper.Map<UserProfileDTO>(userPublicProfile.Value);
+            return Ok(mappedProfile);
         }
 
         [HttpGet("logout")]

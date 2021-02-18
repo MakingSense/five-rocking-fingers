@@ -56,13 +56,12 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
     const [relationTypeId, setRelationTypeId] = React.useState<number>(props.artifactRelations.relationTypeId);
     const [relation, setRelation] = React.useState<ArtifactRelation>(props.artifactRelations);
     const [isErrorRelationRepeated, setIsErrorRelationRepeated] = React.useState<boolean>(false);
+    const [isErrorEmptyField, setIsErrorEmptyField] = React.useState<boolean>(false);
 
     const updateArtifactsSettings = () => {
-        (artifact1 !== null && artifact1 !== undefined) ?
-            setArtifact1Settings(artifact1.settings) : setArtifact1Settings({});
-        
-         (artifact2 !== null && artifact2 !== undefined) ?
-            setArtifact2Settings(artifact2.settings) : setArtifact2Settings({});
+            props.updateList(true);
+            setArtifact1Settings(artifact1!.settings);
+            setArtifact2Settings(artifact2!.settings);
     }
 
     React.useEffect(() => {
@@ -100,20 +99,36 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
         return flag;
     }
 
-    const handleClose = () => {
+    const resetState = () => {
+        updateArtifactsSettings();
         setArtifact1(props.artifactRelations.artifact1);
         setArtifact2(props.artifactRelations.artifact2);
-        updateArtifactsSettings();
         setSetting1(null);
         setSetting2(null);
         setRelationTypeId(props.artifactRelations.relationTypeId);
         setRelation(props.artifactRelations);
         setIsErrorRelationRepeated(false);
+        setIsErrorEmptyField(false);
+    }
+
+    const handleClose = () => {
+        resetState();
         props.closeEditArtifactsRelation();
     }
 
-    const handleConfirm = async () => {
+    const hasFieldsEmpty = () => {
+        if (artifact1 === null || artifact2 === null || setting1 === null || setting2 === null || relationTypeId === -1) {
+            return true;
+        }
+        return false;
+    }
 
+    const handleConfirm = async () => {
+        if (hasFieldsEmpty()) {
+            setIsErrorEmptyField(true);
+            return;
+        }
+        setIsErrorEmptyField(false);
         if (isRelationRepeated()) {
             setIsErrorRelationRepeated(true);
             return;
@@ -239,7 +254,7 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
                                     }}
                                     onChange={(event) => handleSettingChange(event)}
                                     defaultValue={''}
-                                    value={setting1 !== null ? setting1.key : ''}
+                                    value={setting1 ? setting1.key : ''}
                                     error={false}
                                 >
                                     <MenuItem value="">
@@ -252,7 +267,7 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
                             control={control}
                             defaultValue={''}
                         />
-                        <FormHelperText>{setting1 !== null ? setting1?.value : null}</FormHelperText>
+                        <FormHelperText>{setting1 ? setting1?.value : null}</FormHelperText>
                     </FormControl>
                     <FormControl className={classes.selectDirection} error={Boolean(errors.artifactType)}>
                         <InputLabel htmlFor="type-select">Dirección</InputLabel>
@@ -296,7 +311,7 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
                                     }}
                                     onChange={(event) => handleSettingChange(event)}
                                     defaultValue={''}
-                                    value={setting2 !== null ? setting2.key : ''}
+                                    value={setting2 ? setting2.key : ''}
                                     error={false}
                                 >
                                     <MenuItem value="">
@@ -309,7 +324,7 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
                             control={control}
                             defaultValue={''}
                         />
-                        <FormHelperText>{setting2 !== null ? setting2?.value : null}</FormHelperText>
+                        <FormHelperText>{setting2 ? setting2?.value : null}</FormHelperText>
                     </FormControl>
                     {errors.settings ?
                         <Typography gutterBottom className={classes.error}>
@@ -324,6 +339,11 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
                     {isErrorRelationRepeated ?
                         <Typography gutterBottom className={classes.error}>
                             La relación ya existe
+                        </Typography> : null
+                    }
+                    {isErrorEmptyField ?
+                        <Typography gutterBottom className={classes.error}>
+                            Todos los campos deben ser completados para modificar una relación
                         </Typography> : null
                     }
                 </form>

@@ -54,6 +54,7 @@ namespace FRF.Core
 
         //Data transfer
         public const string ProductFamilyDataTransferValue = "Data Transfer";
+        public const string IntraRegionDataTransfer = "IntraRegion";
 
         //Free tier
         public const decimal FreeTierGp3Iops = 3000m;
