@@ -119,6 +119,8 @@ namespace FRF.Core.Services
             {
                 case AwsS3Descriptions.Service:
                     return await GetS3ProductsAsync(settings, false);
+                case AwsEc2Descriptions.ServiceValue:
+                    return await GetEc2ProductsAsync(settings);
                 default:
                     return await GetDefaultProductsAsync(settings, serviceCode);
             }
@@ -290,8 +292,168 @@ namespace FRF.Core.Services
             return pricingDetailsList;
         }
 
+        private async Task<ServiceResponse<List<PricingTerm>>> GetEc2ProductsAsync(List<KeyValuePair<string, string>> settings)
+        {
+            //Filters get from settings
+            var locationFilter = new Filter { Field = AwsEc2Descriptions.Location, Type = "TERM_MATCH", Value = "" };
+            var operatingSystemFilter = new Filter { Field = AwsEc2Descriptions.OperatingSystem, Type = "TERM_MATCH", Value = "" };
+            var preInstalledSwFilter = new Filter { Field = AwsEc2Descriptions.PreInstalledSw, Type = "TERM_MATCH", Value = "" };
+            var instanceTypeFilter = new Filter { Field = AwsEc2Descriptions.InstanceType, Type = "TERM_MATCH", Value = "" };
+            var vcpuFilter = new Filter { Field = AwsEc2Descriptions.Vcpu, Type = "TERM_MATCH", Value = "" };
+            var memoryFilter = new Filter { Field = AwsEc2Descriptions.Memory, Type = "TERM_MATCH", Value = "" };
+            var networkPerformanceFilter = new Filter { Field = AwsEc2Descriptions.NetworkPerformance, Type = "TERM_MATCH", Value = "" };
+            var storageFilter = new Filter { Field = AwsEc2Descriptions.Storage, Type = "TERM_MATCH", Value = "" };
+            var volumeApiNameFilter = new Filter { Field = AwsEc2Descriptions.VolumeApiName, Type = "TERM_MATCH", Value = "" };
+            var transferTypeFilter = new Filter { Field = AwsEc2Descriptions.TransferType, Type = "TERM_MATCH", Value = "" };
+            var fromLocationFilter = new Filter { Field = AwsEc2Descriptions.FromLocation, Type = "TERM_MATCH", Value = "" };
+            var toLocationFilter = new Filter { Field = AwsEc2Descriptions.ToLocation, Type = "TERM_MATCH", Value = "" };
+
+            //Filters that don't came in the settings
+            var locationTypeFilter = new Filter { Field = AwsEc2Descriptions.LocationType, Type = "TERM_MATCH", Value = AwsEc2Descriptions.LocationTypeValue };
+            var toLocationTypeFilter = new Filter { Field = AwsEc2Descriptions.ToLocationType, Type = "TERM_MATCH", Value = AwsEc2Descriptions.LocationTypeValue };
+            var fromLocationTypeFilter = new Filter { Field = AwsEc2Descriptions.FromLocationType, Type = "TERM_MATCH", Value = AwsEc2Descriptions.LocationTypeValue };
+            var serviceCodeFilter = new Filter { Field = AwsEc2Descriptions.ServiceCode, Type = "TERM_MATCH", Value = AwsEc2Descriptions.ServiceValue };
+            var productFamilyComputeInstanceFilter = new Filter { Field = AwsEc2Descriptions.ProductFamily, Type = "TERM_MATCH", Value = AwsEc2Descriptions.ProductFamilyComputeInstanceValue };
+            var productFamilyEbsStorageFilter = new Filter { Field = AwsEc2Descriptions.ProductFamily, Type = "TERM_MATCH", Value = AwsEc2Descriptions.ProductFamilyEbsStorageValue };
+            var productFamilyEbsSnapshotFilter = new Filter { Field = AwsEc2Descriptions.ProductFamily, Type = "TERM_MATCH", Value = AwsEc2Descriptions.ProductFamilyEbsSnapshotsValue };
+            var productFamilyIopsFilter = new Filter { Field = AwsEc2Descriptions.ProductFamily, Type = "TERM_MATCH", Value = AwsEc2Descriptions.ProductFamilyEbsIopsValue };
+            var productFamilyThroughputFilter = new Filter { Field = AwsEc2Descriptions.ProductFamily, Type = "TERM_MATCH", Value = AwsEc2Descriptions.ProductFamilyEbsThroughputValue };
+            var productFamilyDataTransferFilter = new Filter { Field = AwsEc2Descriptions.ProductFamily, Type = "TERM_MATCH", Value = AwsEc2Descriptions.ProductFamilyDataTransferValue };
+            
+            var pricingDetailsList = new List<PricingTerm>();
+
+            foreach (var (key, value) in settings)
+            {
+                switch (key)
+                {
+                    case AwsEc2Descriptions.Location:
+                        locationFilter.Value = value;
+                        break;
+                    case AwsEc2Descriptions.OperatingSystem:
+                        operatingSystemFilter.Value = value;
+                        break;
+                    case AwsEc2Descriptions.PreInstalledSw:
+                        preInstalledSwFilter.Value = value;
+                        break;
+                    case AwsEc2Descriptions.InstanceType:
+                        instanceTypeFilter.Value = value;
+                        break;
+                    case AwsEc2Descriptions.Vcpu:
+                        vcpuFilter.Value = value;
+                        break;
+                    case AwsEc2Descriptions.Memory:
+                        memoryFilter.Value = value;
+                        break;
+                    case AwsEc2Descriptions.NetworkPerformance:
+                        networkPerformanceFilter.Value = value;
+                        break;
+                    case AwsEc2Descriptions.Storage:
+                        storageFilter.Value = value;
+                        break;
+                    case AwsEc2Descriptions.VolumeApiName:
+                        volumeApiNameFilter.Value = value;
+                        break;
+                    case AwsEc2Descriptions.TransferType:
+                        transferTypeFilter.Value = value;
+                        break;
+                    case AwsEc2Descriptions.FromLocation:
+                        fromLocationFilter.Value = value;
+                        break;
+                    case AwsEc2Descriptions.ToLocation:
+                        toLocationFilter.Value = value;
+                        break;
+                }
+            }
+
+            var computeInstanceFilters = new List<Filter>
+            {
+                productFamilyComputeInstanceFilter,
+                locationFilter,
+                operatingSystemFilter,
+                preInstalledSwFilter,
+                instanceTypeFilter,
+                vcpuFilter,
+                memoryFilter,
+                networkPerformanceFilter,
+                storageFilter,
+                locationTypeFilter,
+                serviceCodeFilter
+            };
+
+            var ebsStorageFilters = new List<Filter>
+            {
+                productFamilyEbsStorageFilter,
+                locationFilter,
+                volumeApiNameFilter,
+                locationTypeFilter,
+                serviceCodeFilter
+            };
+
+            var ebsSnapshotFilters = new List<Filter>
+            {
+                productFamilyEbsSnapshotFilter,
+                locationFilter,
+                locationTypeFilter,
+                serviceCodeFilter
+            };
+
+            var iopsFilters = new List<Filter>
+            {
+                productFamilyIopsFilter,
+                locationFilter,
+                locationTypeFilter,
+                volumeApiNameFilter,
+                serviceCodeFilter
+            };
+
+            var throughputFilters = new List<Filter>
+            {
+                productFamilyThroughputFilter,
+                locationFilter,
+                locationTypeFilter,
+                volumeApiNameFilter,
+                serviceCodeFilter
+            };
+
+            var dataTransferFilters = new List<Filter>
+            {
+                productFamilyDataTransferFilter,
+                transferTypeFilter,
+                fromLocationFilter,
+                toLocationFilter,
+                toLocationTypeFilter,
+                fromLocationTypeFilter,
+                serviceCodeFilter
+            };
+
+            await SearchProductsAsync(AwsEc2Descriptions.ServiceValue, computeInstanceFilters, pricingDetailsList, AwsEc2Descriptions.ProductFamilyComputeInstanceValue);
+            await SearchProductsAsync(AwsEc2Descriptions.ServiceValue, ebsStorageFilters, pricingDetailsList, AwsEc2Descriptions.ProductFamilyEbsStorageValue);
+            await SearchProductsAsync(AwsEc2Descriptions.ServiceValue, ebsSnapshotFilters, pricingDetailsList, AwsEc2Descriptions.ProductFamilyEbsSnapshotsValue);
+            await SearchProductsAsync(AwsEc2Descriptions.ServiceValue, iopsFilters, pricingDetailsList, AwsEc2Descriptions.ProductFamilyEbsIopsValue);
+            await SearchProductsAsync(AwsEc2Descriptions.ServiceValue, throughputFilters, pricingDetailsList, AwsEc2Descriptions.ProductFamilyEbsThroughputValue);
+            await SearchProductsAsync(AwsEc2Descriptions.ServiceValue, dataTransferFilters, pricingDetailsList, AwsEc2Descriptions.ProductFamilyDataTransferValue);
+
+            return new ServiceResponse<List<PricingTerm>>(pricingDetailsList);
+        }
+
+        private async Task SearchProductsAsync(string serviceCode, List<Filter> computeInstanceFilters,
+            List<PricingTerm> pricingDetailsList, string product)
+        {
+            var response = await _pricingClient.GetProductsAsync(new GetProductsRequest
+            {
+                Filters = computeInstanceFilters,
+                FormatVersion = "aws_v1",
+                ServiceCode = serviceCode
+            });
+
+            if(response != null)
+            {
+                AddProductToPricingDetails(response, pricingDetailsList, product);
+            }            
+        }
+
         private void AddProductToPricingDetails(GetProductsResponse response,
-            List<PricingTerm> pricingDetailsList)
+            List<PricingTerm> pricingDetailsList, string product = "")
         {
             foreach (var price in response.PriceList)
             {
@@ -299,7 +461,7 @@ namespace FRF.Core.Services
 
                 var priceJson = JObject.Parse(price);
                 if (priceJson == null) continue;
-                
+
                 var sku = priceJson.SelectToken("product.sku").Value<string>();
                 var terms = priceJson.SelectToken("terms").ToObject<JObject>();
                 if (terms == null) continue;
@@ -315,14 +477,14 @@ namespace FRF.Core.Services
 
                     foreach (var termOption in termProperties)
                     {
-                        var pricingTerm = CreatePricingTerm(sku, termName, termOption);
+                        var pricingTerm = CreatePricingTerm(sku, termName, termOption, product);
                         pricingDetailsList.Add(pricingTerm);
                     }
                 }
             }
         }
 
-        private PricingTerm CreatePricingTerm(string sku, string termName, KeyValuePair<string, JToken> termOption)
+        private PricingTerm CreatePricingTerm(string sku, string termName, KeyValuePair<string, JToken> termOption, string product)
         {
             var termOptionProperties = termOption.Value;
             var leaseContractLength = (string)termOptionProperties.SelectToken("termAttributes.LeaseContractLength");
@@ -331,7 +493,7 @@ namespace FRF.Core.Services
             var termPriceDimensions = termOptionProperties.SelectToken("priceDimensions").ToObject<JObject>().Properties().ToList();
             var pricingDimensions = new List<PricingDimension>();
 
-            foreach(var termPriceDimension in termPriceDimensions)
+            foreach (var termPriceDimension in termPriceDimensions)
             {
                 var pricingDimension = ExtractPricingDimension(termPriceDimension);
                 pricingDimensions.Add(pricingDimension);
@@ -339,6 +501,7 @@ namespace FRF.Core.Services
 
             var pricingTerm = new PricingTerm()
             {
+                Product = product,
                 Sku = sku,
                 Term = termName,
                 PricingDimensions = pricingDimensions,
@@ -354,7 +517,7 @@ namespace FRF.Core.Services
         {
             var termValues = termPriceDimension.Value;
             
-            if (termValues.SelectToken("endRange").Value<string>().Equals("Inf",StringComparison.InvariantCultureIgnoreCase)) termValues["endRange"] = -1;
+            if (termValues.SelectToken("endRange") != null && termValues.SelectToken("endRange").Value<string>().Equals("Inf",StringComparison.InvariantCultureIgnoreCase)) termValues["endRange"] = -1;
 
             var pricePerUnitJObject = termValues.SelectToken("pricePerUnit").ToObject<JObject>().Properties().ElementAt(0);
             var currency = pricePerUnitJObject.Name;
