@@ -14,10 +14,10 @@ const ArtifactsTableRow = (props: { artifact: Artifact, openSnackbar: Function, 
     return (
       <>
         <tr>
-          <td>{props.artifact.name}</td>
-          <td>{props.artifact.provider}</td>
-          <td>{props.artifact.artifactType.name}</td>
-          <td></td>
+            <td>{props.artifact.name}</td>
+            <td>{props.artifact.provider}</td>
+            <td>{props.artifact.artifactType.name}</td>
+            <td>{props.artifact.price}</td>
           <td >
             <Button
                 className="mx-3" 

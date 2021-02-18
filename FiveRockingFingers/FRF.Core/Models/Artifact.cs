@@ -17,7 +17,7 @@ namespace FRF.Core.Models
 
         public virtual decimal GetPrice()
         {
-            return 100;
+            return 0;
         }
     }
 }
