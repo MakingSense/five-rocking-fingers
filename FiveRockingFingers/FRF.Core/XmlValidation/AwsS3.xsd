@@ -10,16 +10,16 @@
 				<xs:element name="writeRequestsUsed" type="xs:decimal" minOccurs="1" maxOccurs="1" />
 				<xs:element name="retrieveRequestsUsed" type="xs:decimal" minOccurs="1" maxOccurs="1" />
 				<xs:element name="storageUsed" type="xs:decimal" minOccurs="1" maxOccurs="1" />
-				<!--<xs:element name="infrequentAccessMultiplier" type="xs:decimal" minOccurs="0" maxOccurs="1"  nillable="true"/>-->
+				<xs:element name="infrequentAccessMultiplier" type="xs:decimal" minOccurs="0" maxOccurs="1"  nillable="true"/>
 				<!--This part is related to the price per storage used-->
 				<xs:element name="product0" minOccurs="1" maxOccurs="1">
 					<xs:complexType>
 						<xs:sequence>
               <xs:element name="sku" type="xs:string" minOccurs="1" maxOccurs="1" />
 							<xs:element name="term" type="xs:string" minOccurs="1" maxOccurs="1" />
-							<xs:element name="leaseContractLength" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
-							<xs:element name="offeringClass" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
-							<xs:element name="purchaseOption" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
+              <xs:element name="leaseContractLength" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
+              <xs:element name="offeringClass" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
+              <xs:element name="purchaseOption" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
 							<xs:element name="pricingDimension">
 								<xs:complexType>
 									<xs:sequence>
@@ -74,9 +74,9 @@
 						<xs:sequence>
               <xs:element name="sku" type="xs:string" minOccurs="1" maxOccurs="1" />
 							<xs:element name="term" type="xs:string" minOccurs="1" maxOccurs="1" />
-							<xs:element name="leaseContractLength" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
-							<xs:element name="offeringClass" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
-							<xs:element name="purchaseOption" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
+              <xs:element name="leaseContractLength" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
+              <xs:element name="offeringClass" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
+              <xs:element name="purchaseOption" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
 							<xs:element name="pricingDimension">
 								<xs:complexType>
 									<xs:sequence>
@@ -105,9 +105,9 @@
 						<xs:sequence>
               <xs:element name="sku" type="xs:string" minOccurs="1" maxOccurs="1" />
 							<xs:element name="term" type="xs:string" minOccurs="1" maxOccurs="1" />
-							<xs:element name="leaseContractLength" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
-							<xs:element name="offeringClass" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
-							<xs:element name="purchaseOption" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
+              <xs:element name="leaseContractLength" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
+              <xs:element name="offeringClass" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
+              <xs:element name="purchaseOption" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
 							<xs:element name="pricingDimension">
 								<xs:complexType>
 									<xs:sequence>
@@ -131,7 +131,6 @@
 					</xs:complexType>
 				</xs:element>
 				<!--This part is related to the price of storage used in Intelligent-Tiering, Infrequent Access Tier -->
-        <!--
 				<xs:element name="product3" minOccurs="0">
 					<xs:complexType>
 						<xs:sequence>
@@ -162,7 +161,6 @@
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
-        -->
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
