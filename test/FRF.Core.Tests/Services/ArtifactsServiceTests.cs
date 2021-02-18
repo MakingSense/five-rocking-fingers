@@ -940,7 +940,7 @@ namespace FRF.Core.Tests.Services
         }
 
         [Fact]
-        public async Task GetAllRelationsOfAnArtifactAsync_ReturnsRelationNotExists()
+        public async Task GetAllRelationsOfAnArtifactAsync_ReturnsArtifactNotExists()
         {
             // Arange
             var artifactId = 0;
@@ -952,7 +952,7 @@ namespace FRF.Core.Tests.Services
             Assert.False(response.Success);
             Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
             Assert.NotNull(response.Error);
-            Assert.Equal(ErrorCodes.RelationNotExists, response.Error.Code);
+            Assert.Equal(ErrorCodes.ArtifactNotExists, response.Error.Code);
         }
 
         [Fact]

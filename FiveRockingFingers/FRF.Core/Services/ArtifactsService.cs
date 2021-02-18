@@ -162,18 +162,19 @@ namespace FRF.Core.Services
                 return new ServiceResponse<Artifact>(new Error(ErrorCodes.ProjectNotExists, $"There is no project with Id = {artifact.ProjectId}"));
             }
 
-            if(! await _dataContext.ArtifactType.AnyAsync(at => at.Id == artifact.ArtifactTypeId))
+            var artifactType = await _dataContext.ArtifactType.Include(at => at.Provider).SingleOrDefaultAsync(at => at.Id == artifact.ArtifactTypeId);
+
+            if (artifactType == null)
             {
                 return new ServiceResponse<Artifact>(new Error(ErrorCodes.ArtifactTypeNotExists, $"There is no artifact type with Id = {artifact.ArtifactTypeId}"));
-            }            
+            }
 
-            //----------Uncomment after create service for artifact types--------------
-            /*
+            artifact.ArtifactType = _mapper.Map<ArtifactType>(artifactType);
+
             if (!_settingsValidator.ValidateSettings(artifact))
             {
                 return new ServiceResponse<Artifact>(new Error(ErrorCodes.InvalidArtifactSettings, $"Settings are invalid"));
             }
-            */
 
             // Maps the artifact into an EntityModel, deleting the Id if there was one, and setting the CreatedDate field
             var mappedArtifact = _mapper.Map<EntityModels.Artifact>(artifact);
@@ -204,6 +205,7 @@ namespace FRF.Core.Services
             //Gets the artifact associated to it from the database
             var result = await _dataContext.Artifacts
                 .Include(a => a.ArtifactType)
+                    .ThenInclude(at => at.Provider)
                 .Include(a => a.Project)
                 .SingleOrDefaultAsync(a => a.Id == artifact.Id);
 
@@ -221,14 +223,11 @@ namespace FRF.Core.Services
             {
                 return new ServiceResponse<Artifact>(new Error(ErrorCodes.ArtifactTypeNotExists, $"There is no artifact type with Id = {artifact.ArtifactTypeId}"));
             }
-
-            //----------Uncomment after create service for artifact types--------------
-            /*
+            
             if (!_settingsValidator.ValidateSettings(artifact))
             {
                 return new ServiceResponse<Artifact>(new Error(ErrorCodes.InvalidArtifactSettings, $"Settings are invalid"));
             }
-            */
 
             //Updates the artifact
             result.Name = artifact.Name;
@@ -292,6 +291,12 @@ namespace FRF.Core.Services
 
         public async Task<ServiceResponse<IList<ArtifactsRelation>>> GetAllRelationsOfAnArtifactAsync(int artifactId)
         {
+            var existArtifactId = await _dataContext.Artifacts.AnyAsync(a => a.Id == artifactId);
+            if (!existArtifactId)
+            {
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.ArtifactNotExists, $"There is no artifact with Id = {artifactId}"));
+            }
+
             var result = await _dataContext.ArtifactsRelation.Include(ar => ar.Artifact1)
                 .Include(ar => ar.Artifact2)
                 .Where(ar => ar.Artifact1Id == artifactId || ar.Artifact2Id == artifactId)
