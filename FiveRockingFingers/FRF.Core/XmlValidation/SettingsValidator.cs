@@ -31,7 +31,7 @@ namespace FRF.Core.XmlValidation
                             path = Path.Combine(path, "AwsS3.xsd");
                             break;
                         case AwsEc2Descriptions.ServiceValue:
-                            path = Path.Combine(path, "AwsEc2.xsd");
+                            path = Path.Combine(rootPath, "AwsEc2.xsd");
                             break;
                     }
                     break;
