@@ -468,7 +468,7 @@ namespace FRF.Core.Tests.Services
         [Fact]
         public async Task UpdateAsync_ReturnsExceptionInvalidArtifactSettings()
         {
-            /// Arange
+            // Arange
             var provider = CreateProvider();
             var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
