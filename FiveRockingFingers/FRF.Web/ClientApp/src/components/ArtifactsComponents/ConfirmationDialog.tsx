@@ -32,7 +32,7 @@ const ConfirmationDialog = (props: { open: boolean, setOpen: Function, artifactT
     };
 
     return (
-        <div>
+        <>
             <Dialog
                 open={props.open}
                 onClose={handleClose}
@@ -54,7 +54,7 @@ const ConfirmationDialog = (props: { open: boolean, setOpen: Function, artifactT
                     </Button>
                 </DialogActions>
             </Dialog>
-        </div>
+        </>
     );
 }
 

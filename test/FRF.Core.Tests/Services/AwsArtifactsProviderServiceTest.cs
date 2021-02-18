@@ -439,6 +439,108 @@ namespace FRF.Core.Tests.Services
             }
         }
 
+        [Fact]
+        public async Task GetEc2ProductsAsync_ReturnProductsList()
+        {
+            // Arange
+            var serviceCode = "[Mock] Service Code";
+            var sku = "[Mock] Sku";
+            var term = "[Mock] Term";
+            var unit = "[Mock] Unit";
+            var endRange = "Inf";
+            var description = "[Mock] Description";
+            var rateCode = "[Mock] Rate Code";
+            var beginRange = "10";
+            var currency = "[Mock] Currency";
+            var pricePerUnit = "99.99";
+            var offerTermCode = "[Mock] Offer term code";
+            var leaseContractLength = "[Mock] Lease contract length";
+            var offeringClass = "[Mock] Offering class";
+            var purchaseOption = "[Mock] Purchase option";
+            var attributeName = "[Mock] Attribute name";
+            var attributeValue = "[Mock] Attribute value";
+
+            var response = GetProductsResponse(attributeName, attributeValue, sku, serviceCode, term, rateCode, unit,
+                endRange, description, beginRange, currency, pricePerUnit, offerTermCode, leaseContractLength,
+                offeringClass, purchaseOption);
+
+            var settings = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("location", "US West (N. California)"),
+                new KeyValuePair<string,string>("operatingSystem","Windows"),
+                new KeyValuePair<string,string>("preInstalledSw","SQL Ent"),
+                new KeyValuePair<string,string>("instanceType","t3a.xlarge"),
+                new KeyValuePair<string, string>("vcpu", "4"),
+                new KeyValuePair<string, string>("memory", "16 GiB"),
+                new KeyValuePair<string, string>("networkPerformance", "Up to 5 Gigabit"),
+                new KeyValuePair<string, string>("storage", "EBS only"),
+                new KeyValuePair<string, string>("volumeApiName", "gp2"),
+                new KeyValuePair<string, string>("transferType", "IntraRegion"),
+                new KeyValuePair<string, string>("fromLocation", "US West (N. California)"),
+                new KeyValuePair<string, string>("toLocation", "US West (N. California)")
+            };
+
+            _client
+                .Setup(mock => mock.GetProductsAsync(It.IsAny<GetProductsRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(response);
+
+            // Act
+            var result = await _classUnderTest.GetProductsAsync(settings, "AmazonEC2");
+
+            // Assert
+            float.TryParse(beginRange, out float beginRangeFloat);
+            var endRangeFloat = -1f;
+
+            Assert.IsType<ServiceResponse<List<PricingTerm>>>(result);
+            var resultValue = result.Value;
+            _client.Verify(mock => mock.GetProductsAsync(It.IsAny<GetProductsRequest>(), It.IsAny<CancellationToken>()), Times.Exactly(6));
+            foreach (var pricingTerm in resultValue)
+            {
+                Assert.Equal(sku, pricingTerm.Sku);
+                Assert.Equal(term, pricingTerm.Term);
+                Assert.Equal(purchaseOption, pricingTerm.PurchaseOption);
+                Assert.Equal(offeringClass, pricingTerm.OfferingClass);
+                Assert.Equal(leaseContractLength, pricingTerm.LeaseContractLength);
+                Assert.Equal(beginRangeFloat, pricingTerm.PricingDimensions[0].BeginRange);
+                Assert.Equal(currency, pricingTerm.PricingDimensions[0].Currency);
+                Assert.Equal(description, pricingTerm.PricingDimensions[0].Description);
+                Assert.Equal(endRangeFloat, pricingTerm.PricingDimensions[0].EndRange);
+                Assert.Equal((decimal)float.Parse(pricePerUnit, CultureInfo.InvariantCulture), pricingTerm.PricingDimensions[0].PricePerUnit);
+                Assert.Equal(rateCode, pricingTerm.PricingDimensions[0].RateCode);
+                Assert.Equal(unit, pricingTerm.PricingDimensions[0].Unit);
+            }
+        }
+
+        [Fact]
+        public async Task GetEc2ProductsAsync_ReturnEmptyList()
+        {
+            // Arange
+
+            var settings = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("location", "US West (N. California)"),
+                new KeyValuePair<string,string>("operatingSystem","Windows"),
+                new KeyValuePair<string,string>("preInstalledSw","SQL Ent"),
+                new KeyValuePair<string,string>("instanceType","t3a.xlarge"),
+                new KeyValuePair<string, string>("vcpu", "4"),
+                new KeyValuePair<string, string>("memory", "16 GiB"),
+                new KeyValuePair<string, string>("networkPerformance", "Up to 5 Gigabit"),
+                new KeyValuePair<string, string>("storage", "EBS only"),
+                new KeyValuePair<string, string>("volumeApiName", "gp2"),
+                new KeyValuePair<string, string>("transferType", "IntraRegion"),
+                new KeyValuePair<string, string>("fromLocation", "US West (N. California)"),
+                new KeyValuePair<string, string>("toLocation", "US West (N. California)")
+            };
+
+            // Act
+            var result = await _classUnderTest.GetProductsAsync(settings, "AmazonEC2");
+
+            // Assert
+            Assert.IsType<ServiceResponse<List<PricingTerm>>>(result);
+            Assert.True(result.Success);
+            Assert.Empty(result.Value);
+        }
+
         private GetProductsResponse GetProductsResponse(string attributeName, string attributeValue, string sku,
             string serviceCode, string term, string rateCode, string unit, string endRange, string description,
             string beginRange, string currency, string pricePerUnit, string offerTermCode, string leaseContractLength,
