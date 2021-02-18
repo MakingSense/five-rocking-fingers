@@ -4,7 +4,6 @@ import { LinkProps as RouterLinkProps, NavLink } from 'react-router-dom';
 import HomeOutlinedIcon from '@material-ui/icons/HomeOutlined';
 import { Omit } from '@material-ui/types';
 
-
 const useStyles = makeStyles(theme => ({
     offset: theme.mixins.toolbar,
     home: {
@@ -26,12 +25,12 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const FaHome = () => (
-    <HomeOutlinedIcon fontSize="large" />
+    <HomeOutlinedIcon />
 );
 
 interface navBarProps {
     userName: string | null;
-    logOutComp: React.ReactNode | null;
+    logoutComponent: React.ReactNode | null;
 }
 
 const LinkBehavior = React.forwardRef<any, Omit<RouterLinkProps, 'to'>>((props, ref) => (
@@ -40,27 +39,25 @@ const LinkBehavior = React.forwardRef<any, Omit<RouterLinkProps, 'to'>>((props, 
 
 const Navbar: React.FC<navBarProps> = (props) => {
     const classes = useStyles();
-    const { logOutComp, userName } = props;
+    const { logoutComponent, userName } = props;
 
     return (
-        <div>
-            <AppBar position="relative" className={classes.appBar}>
-                <Toolbar variant="dense">
-                    <Typography className={classes.home} component={LinkBehavior}>
-                        {FaHome()}</Typography>
-                    <Typography variant="subtitle1" className={classes.title} >
-                        <Box
-                            display="flex"
-                            alignItems="flex-end">{userName}</Box>
-                    </Typography>
-
-                    <Box
-                        display="flex"
-                        alignItems="flex-end">{logOutComp}</Box>
-                </Toolbar>
-            </AppBar>
-        </div>
-    )
+      <AppBar position="relative" className={classes.appBar}>
+        <Toolbar variant="dense">
+          <Typography className={classes.home} component={LinkBehavior}>
+            {FaHome()}
+          </Typography>
+          <Typography variant="subtitle1" className={classes.title}>
+            <Box display="flex" alignItems="flex-end">
+              {userName}
+            </Box>
+          </Typography>
+          <Box display="flex" alignItems="flex-end">
+            {logoutComponent}
+          </Box>
+        </Toolbar>
+      </AppBar>
+    );
 }
 
 export default Navbar
