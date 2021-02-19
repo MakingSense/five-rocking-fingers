@@ -7,6 +7,7 @@ using FRF.Web.Dtos.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using FRF.Web.Dtos.Projects;
 
 namespace FRF.Web.Controllers
 {
@@ -34,9 +35,9 @@ namespace FRF.Web.Controllers
             if (!response.Success && response.Error.Code == ErrorCodes.InvalidCredentials) return Unauthorized();
             if (!response.Success && response.Error.Code == ErrorCodes.AuthenticationServerCurrentlyUnavailable) return StatusCode(500);
 
-            var userPublicProfile = await _userService.GetUserPublicProfileAsync(signInDto.Email);
-
-            return Ok(userPublicProfile.Value);
+            var userProfile = await _userService.GetUserPublicProfileAsync(signInDto.Email);
+            var userPublicProfile = _mapper.Map<UserProfileDTO>(userProfile.Value);
+            return Ok(userPublicProfile);
         }
     }
 }
