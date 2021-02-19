@@ -1,6 +1,6 @@
 export default interface UserProfile {
     userId: string;
-    fullName: string | null;
+    fullname: string | null;
     email: string;
     avatar: string | null;
 }
