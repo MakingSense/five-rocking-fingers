@@ -43,15 +43,20 @@ namespace FRF.Core.Services
                 case ArtifactTypes.Custom:
                     return _mapper.Map<CustomArtifact>(artifact);
                 case ArtifactTypes.Aws:
-                    switch (artifact.ArtifactType.Name)
-                    {
-                        case AwsS3Descriptions.Service:
-                            return _mapper.Map<AwsS3>(artifact);
-                        case AwsEc2Descriptions.ServiceValue:
-                            return _mapper.Map<AwsEc2>(artifact);
-                        default:
-                            return _mapper.Map<Artifact>(artifact);
-                    }
+                    return MapAwsArtifact(artifact);
+                default:
+                    return _mapper.Map<Artifact>(artifact);
+            }
+        }
+
+        private Artifact MapAwsArtifact(EntityModels.Artifact artifact)
+        {
+            switch (artifact.ArtifactType.Name)
+            {
+                case AwsS3Descriptions.Service:
+                    return _mapper.Map<AwsS3>(artifact);
+                case AwsEc2Descriptions.ServiceValue:
+                    return _mapper.Map<AwsEc2>(artifact);
                 default:
                     return _mapper.Map<Artifact>(artifact);
             }
