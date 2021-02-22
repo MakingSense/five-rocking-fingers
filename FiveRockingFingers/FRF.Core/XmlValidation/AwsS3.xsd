@@ -6,18 +6,20 @@
 	<xs:element name="settings">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element name="writeRequestsUsed" type="xs:int" minOccurs="1" maxOccurs="1" />
-				<xs:element name="retrieveRequestsUsed" type="xs:int" minOccurs="1" maxOccurs="1" />
-				<xs:element name="storageUsed" type="xs:int" minOccurs="1" maxOccurs="1" />
-				<xs:element name="infrequentAccessMultiplier" type="xs:int" minOccurs="0" maxOccurs="1"  nillable="true"/>
+        <xs:element name="location" type="xs:string" minOccurs="1" maxOccurs="1" />
+				<xs:element name="writeRequestsUsed" type="xs:decimal" minOccurs="1" maxOccurs="1" />
+				<xs:element name="retrieveRequestsUsed" type="xs:decimal" minOccurs="1" maxOccurs="1" />
+				<xs:element name="storageUsed" type="xs:decimal" minOccurs="1" maxOccurs="1" />
+				<xs:element name="infrequentAccessMultiplier" type="xs:decimal" minOccurs="0" maxOccurs="1"  nillable="true"/>
 				<!--This part is related to the price per storage used-->
-				<xs:element name="product0">
+				<xs:element name="product0" minOccurs="1" maxOccurs="1">
 					<xs:complexType>
 						<xs:sequence>
+              <xs:element name="sku" type="xs:string" minOccurs="1" maxOccurs="1" />
 							<xs:element name="term" type="xs:string" minOccurs="1" maxOccurs="1" />
-							<xs:element name="leaseContractLength" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
-							<xs:element name="offeringClass" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
-							<xs:element name="purchaseOption" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
+              <xs:element name="leaseContractLength" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
+              <xs:element name="offeringClass" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
+              <xs:element name="purchaseOption" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
 							<xs:element name="pricingDimension">
 								<xs:complexType>
 									<xs:sequence>
@@ -28,9 +30,9 @@
 													<xs:element name="endRange" type="xs:decimal" minOccurs="1" maxOccurs="1" />
 													<xs:element name="description" type="xs:string" minOccurs="1" maxOccurs="1" />
 													<xs:element name="rateCode" type="xs:string" minOccurs="1" maxOccurs="1" />
-													<xs:element name="beginRange" type="xs:string" minOccurs="1" maxOccurs="1" />
+													<xs:element name="beginRange" type="xs:decimal" minOccurs="1" maxOccurs="1" />
 													<xs:element name="currency" type="xs:string" minOccurs="1" maxOccurs="1" />
-													<xs:element name="pricePerUnit" type="xs:string" minOccurs="1" maxOccurs="1" />
+													<xs:element name="pricePerUnit" type="xs:decimal" minOccurs="1" maxOccurs="1" />
 												</xs:sequence>
 											</xs:complexType>
 										</xs:element>
@@ -41,9 +43,9 @@
 													<xs:element name="endRange" type="xs:decimal" minOccurs="1" maxOccurs="1" />
 													<xs:element name="description" type="xs:string" minOccurs="1" maxOccurs="1" />
 													<xs:element name="rateCode" type="xs:string" minOccurs="1" maxOccurs="1" />
-													<xs:element name="beginRange" type="xs:string" minOccurs="1" maxOccurs="1" />
+													<xs:element name="beginRange" type="xs:decimal" minOccurs="1" maxOccurs="1" />
 													<xs:element name="currency" type="xs:string" minOccurs="1" maxOccurs="1" />
-													<xs:element name="pricePerUnit" type="xs:string" minOccurs="1" maxOccurs="1" />
+													<xs:element name="pricePerUnit" type="xs:decimal" minOccurs="1" maxOccurs="1" />
 												</xs:sequence>
 											</xs:complexType>
 										</xs:element>
@@ -54,9 +56,9 @@
 													<xs:element name="endRange" type="xs:decimal" minOccurs="1" maxOccurs="1" />
 													<xs:element name="description" type="xs:string" minOccurs="1" maxOccurs="1" />
 													<xs:element name="rateCode" type="xs:string" minOccurs="1" maxOccurs="1" />
-													<xs:element name="beginRange" type="xs:string" minOccurs="1" maxOccurs="1" />
+													<xs:element name="beginRange" type="xs:decimal" minOccurs="1" maxOccurs="1" />
 													<xs:element name="currency" type="xs:string" minOccurs="1" maxOccurs="1" />
-													<xs:element name="pricePerUnit" type="xs:string" minOccurs="1" maxOccurs="1" />
+													<xs:element name="pricePerUnit" type="xs:decimal" minOccurs="1" maxOccurs="1" />
 												</xs:sequence>
 											</xs:complexType>
 										</xs:element>
@@ -67,13 +69,14 @@
 					</xs:complexType>
 				</xs:element>
 				<!--This part is related to PUT, COPY, POST, or LIST requests-->
-				<xs:element name="product1">
+				<xs:element name="product1" minOccurs="1" maxOccurs="1">
 					<xs:complexType>
 						<xs:sequence>
+              <xs:element name="sku" type="xs:string" minOccurs="1" maxOccurs="1" />
 							<xs:element name="term" type="xs:string" minOccurs="1" maxOccurs="1" />
-							<xs:element name="leaseContractLength" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
-							<xs:element name="offeringClass" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
-							<xs:element name="purchaseOption" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
+              <xs:element name="leaseContractLength" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
+              <xs:element name="offeringClass" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
+              <xs:element name="purchaseOption" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
 							<xs:element name="pricingDimension">
 								<xs:complexType>
 									<xs:sequence>
@@ -84,9 +87,9 @@
 													<xs:element name="endRange" type="xs:decimal" minOccurs="1" maxOccurs="1" />
 													<xs:element name="description" type="xs:string" minOccurs="1" maxOccurs="1" />
 													<xs:element name="rateCode" type="xs:string" minOccurs="1" maxOccurs="1" />
-													<xs:element name="beginRange" type="xs:string" minOccurs="1" maxOccurs="1" />
+													<xs:element name="beginRange" type="xs:decimal" minOccurs="1" maxOccurs="1" />
 													<xs:element name="currency" type="xs:string" minOccurs="1" maxOccurs="1" />
-													<xs:element name="pricePerUnit" type="xs:string" minOccurs="1" maxOccurs="1" />
+													<xs:element name="pricePerUnit" type="xs:decimal" minOccurs="1" maxOccurs="1" />
 												</xs:sequence>
 											</xs:complexType>
 										</xs:element>
@@ -97,13 +100,14 @@
 					</xs:complexType>
 				</xs:element>
 				<!--This part is related to GET and all other requests-->
-				<xs:element name="product2">
+				<xs:element name="product2" minOccurs="1" maxOccurs="1">
 					<xs:complexType>
 						<xs:sequence>
+              <xs:element name="sku" type="xs:string" minOccurs="1" maxOccurs="1" />
 							<xs:element name="term" type="xs:string" minOccurs="1" maxOccurs="1" />
-							<xs:element name="leaseContractLength" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
-							<xs:element name="offeringClass" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
-							<xs:element name="purchaseOption" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
+              <xs:element name="leaseContractLength" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
+              <xs:element name="offeringClass" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
+              <xs:element name="purchaseOption" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
 							<xs:element name="pricingDimension">
 								<xs:complexType>
 									<xs:sequence>
@@ -114,9 +118,9 @@
 													<xs:element name="endRange" type="xs:decimal" minOccurs="1" maxOccurs="1" />
 													<xs:element name="description" type="xs:string" minOccurs="1" maxOccurs="1" />
 													<xs:element name="rateCode" type="xs:string" minOccurs="1" maxOccurs="1" />
-													<xs:element name="beginRange" type="xs:string" minOccurs="1" maxOccurs="1" />
+													<xs:element name="beginRange" type="xs:decimal" minOccurs="1" maxOccurs="1" />
 													<xs:element name="currency" type="xs:string" minOccurs="1" maxOccurs="1" />
-													<xs:element name="pricePerUnit" type="xs:string" minOccurs="1" maxOccurs="1" />
+													<xs:element name="pricePerUnit" type="xs:decimal" minOccurs="1" maxOccurs="1" />
 												</xs:sequence>
 											</xs:complexType>
 										</xs:element>
@@ -130,6 +134,7 @@
 				<xs:element name="product3" minOccurs="0">
 					<xs:complexType>
 						<xs:sequence>
+              <xs:element name="sku" type="xs:string" minOccurs="1" maxOccurs="1" />
 							<xs:element name="term" type="xs:string" minOccurs="1" maxOccurs="1" />
 							<xs:element name="leaseContractLength" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
 							<xs:element name="offeringClass" type="xs:string" minOccurs="1" maxOccurs="1" nillable="true" />
@@ -144,9 +149,9 @@
 													<xs:element name="endRange" type="xs:decimal" minOccurs="1" maxOccurs="1" />
 													<xs:element name="description" type="xs:string" minOccurs="1" maxOccurs="1" />
 													<xs:element name="rateCode" type="xs:string" minOccurs="1" maxOccurs="1" />
-													<xs:element name="beginRange" type="xs:string" minOccurs="1" maxOccurs="1" />
+													<xs:element name="beginRange" type="xs:decimal" minOccurs="1" maxOccurs="1" />
 													<xs:element name="currency" type="xs:string" minOccurs="1" maxOccurs="1" />
-													<xs:element name="pricePerUnit" type="xs:string" minOccurs="1" maxOccurs="1" />
+													<xs:element name="pricePerUnit" type="xs:decimal" minOccurs="1" maxOccurs="1" />
 												</xs:sequence>
 											</xs:complexType>
 										</xs:element>

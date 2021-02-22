@@ -433,9 +433,7 @@ namespace FRF.Core.Tests.Services
                 ArtifactTypeId = newArtifactType.Id,
                 ArtifactType = _mapper.Map<CoreModels.ArtifactType>(newArtifactType),
                 Settings = new XElement("Settings")
-            };
-
-            
+            };            
 
             _settingsValidator.Setup(mock => mock.ValidateSettings(It.IsAny<CoreModels.Artifact>()))
                 .Returns(true);
@@ -488,7 +486,8 @@ namespace FRF.Core.Tests.Services
             var newArtifactType = new ArtifactType()
             {
                 Name = "[Mock] Artifact type name",
-                Description = "[Mock] Artifact type description"
+                Description = "[Mock] Artifact type description",
+                Provider = provider
             };
             _dataAccess.ArtifactType.Add(newArtifactType);
             _dataAccess.SaveChanges();
@@ -506,7 +505,7 @@ namespace FRF.Core.Tests.Services
             };
 
             // Act
-            var result = await _classUnderTest.Save(artifactToUpdate);
+            var result = await _classUnderTest.Update(artifactToUpdate);
 
             // Assert
             Assert.IsType<ServiceResponse<CoreModels.Artifact>>(result);
@@ -940,7 +939,7 @@ namespace FRF.Core.Tests.Services
         }
 
         [Fact]
-        public async Task GetAllRelationsOfAnArtifactAsync_ReturnsRelationNotExists()
+        public async Task GetAllRelationsOfAnArtifactAsync_ReturnsArtifactNotExists()
         {
             // Arange
             var artifactId = 0;
@@ -952,7 +951,7 @@ namespace FRF.Core.Tests.Services
             Assert.False(response.Success);
             Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
             Assert.NotNull(response.Error);
-            Assert.Equal(ErrorCodes.RelationNotExists, response.Error.Code);
+            Assert.Equal(ErrorCodes.ArtifactNotExists, response.Error.Code);
         }
 
         [Fact]

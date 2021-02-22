@@ -25,15 +25,12 @@ namespace FRF.Core.XmlValidation
                     path = Path.Combine(rootPath, "CustomArtifact.xsd");
                     break;
                 case ArtifactTypes.Aws:
-                    switch (artifact.ArtifactType.Name)
+                    var fileName = GetFileNameAwsArtifact(artifact.ArtifactType.Name);
+                    if(fileName.Equals(""))
                     {
-                        case AwsS3Descriptions.Service:
-                            path = Path.Combine(path, "AwsS3.xsd");
-                            break;
-                        case AwsEc2Descriptions.ServiceValue:
-                            path = Path.Combine(rootPath, "AwsEc2.xsd");
-                            break;
+                        return !areSettingsValid;
                     }
+                    path = Path.Combine(rootPath, fileName);
                     break;
                 default:
                     return !areSettingsValid;
@@ -60,6 +57,23 @@ namespace FRF.Core.XmlValidation
             while (xr.Read()) { }
 
             return areSettingsValid;
+        }
+
+        private string GetFileNameAwsArtifact(string artifactType)
+        {
+            var fileName = "";
+
+            switch (artifactType)
+            {
+                case AwsS3Descriptions.Service:
+                    fileName = "AwsS3.xsd";
+                    break;
+                case AwsEc2Descriptions.ServiceValue:
+                    fileName = "AwsEc2.xsd";
+                    break;
+            }
+
+            return fileName;
         }
     }
 }
