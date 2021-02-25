@@ -8,7 +8,17 @@ import EditArtifactConfirmation from './EditArtifactConfirmation';
 import Setting from '../../interfaces/Setting';
 
 
-const EditArtifactDialog = (props: { artifactToEdit: Artifact, showEditArtifactDialog: boolean, closeEditArtifactDialog: Function, setOpenSnackbar: Function, setSnackbarSettings: Function, projectId: number, artifactsRelations: ArtifactRelation[] }) => {
+const EditArtifactDialog = (props: {
+    artifactToEdit: Artifact,
+    showEditArtifactDialog: boolean,
+    closeEditArtifactDialog: Function,
+    setOpenSnackbar: Function,
+    setSnackbarSettings: Function,
+    projectId: number,
+    artifactsRelations: ArtifactRelation[],
+    updateArtifacts: Function,
+    updateRelations: Function }) => {
+
     const { showEditArtifactDialog, closeEditArtifactDialog } = props;
 
     //Hook for save the user's settings input
@@ -56,6 +66,8 @@ const EditArtifactDialog = (props: { artifactToEdit: Artifact, showEditArtifactD
                     setOpenSnackbar={props.setOpenSnackbar}
                     setSnackbarSettings={props.setSnackbarSettings}
                     artifactsRelations={artifactsRelations}
+                    updateArtifacts={props.updateArtifacts}
+                    updateRelations={props.updateRelations}
                 />
             }
         </Dialog>

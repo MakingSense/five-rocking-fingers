@@ -25,7 +25,13 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const EditArtifact = (props: { artifactToEdit: Artifact, closeEditArtifactDialog: Function, setIsArtifactEdited: Function, setArtifactEdited: Function, setNamesOfSettingsChanged: Function }) => {
+const EditArtifact = (props: {
+    artifactToEdit: Artifact,
+    closeEditArtifactDialog: Function,
+    setIsArtifactEdited: Function,
+    setArtifactEdited: Function,
+    setNamesOfSettingsChanged: Function }) => {
+
     const classes = useStyles();
     const { register, handleSubmit, errors, setError, clearErrors, control } = useForm();
     const { closeEditArtifactDialog } = props;
@@ -61,7 +67,9 @@ const EditArtifact = (props: { artifactToEdit: Artifact, closeEditArtifactDialog
     const createSettingsMapFromArtifact = () => {
         let settingsMapFromArtifact: { [key: string]: number[] } = {};
         Object.entries(props.artifactToEdit.settings).forEach(([key, value], index) => {
-            settingsMapFromArtifact[key] = [index];
+            if (key !== 'price') {
+                settingsMapFromArtifact[key] = [index];
+            }            
         });
         return settingsMapFromArtifact;
     }
@@ -186,6 +194,7 @@ const EditArtifact = (props: { artifactToEdit: Artifact, closeEditArtifactDialog
     const areNamesRepeated = (index: number) => {
         let key = searchIndexInObject(settingsMap, index);
         if (key != null && (settingsMap[key].length > 1 || key === 'price')) {
+            console.log("Hola");
             return true;
         }
         return false;
@@ -242,7 +251,7 @@ const EditArtifact = (props: { artifactToEdit: Artifact, closeEditArtifactDialog
 
     return (
         <>
-            <DialogTitle id="alert-dialog-title">Formulario de artefactos custom</DialogTitle>
+            <DialogTitle id="alert-dialog-title">Formulario de actualización de artefactos custom</DialogTitle>
             <DialogContent>
                 <Controller
                     control={control}
@@ -265,7 +274,7 @@ const EditArtifact = (props: { artifactToEdit: Artifact, closeEditArtifactDialog
                     )}
                 />
                 <Typography gutterBottom>
-                    A continuación ingrese las propiedades de su nuevo artefacto custom y el valor que tomarán esas propiedades
+                    Propiedades del artefacto
                 </Typography>
                 <form className={classes.container}>
                     <TextField

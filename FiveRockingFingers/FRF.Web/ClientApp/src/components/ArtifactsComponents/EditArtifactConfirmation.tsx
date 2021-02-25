@@ -26,7 +26,16 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 
-const EditArtifactConfirmation = (props: { artifactToEdit: Artifact, namesOfSettingsChanged: string[], closeEditArtifactDialog: Function, setOpenSnackbar: Function, setSnackbarSettings: Function, artifactsRelations: ArtifactRelation[] }) => {
+const EditArtifactConfirmation = (props: {
+    artifactToEdit: Artifact,
+    namesOfSettingsChanged: string[],
+    closeEditArtifactDialog: Function,
+    setOpenSnackbar: Function,
+    setSnackbarSettings: Function,
+    artifactsRelations: ArtifactRelation[]
+    updateArtifacts: Function,
+    updateRelations: Function }) => {
+
     const classes = useStyles();
     const { handleSubmit } = useForm();
 
@@ -81,6 +90,8 @@ const EditArtifactConfirmation = (props: { artifactToEdit: Artifact, namesOfSett
             props.setSnackbarSettings({ message: "Hubo un error al crear el artefacto", severity: "error" });
             props.setOpenSnackbar(true);
         }
+        props.updateArtifacts();
+        props.updateRelations();
         props.closeEditArtifactDialog();
     }
 

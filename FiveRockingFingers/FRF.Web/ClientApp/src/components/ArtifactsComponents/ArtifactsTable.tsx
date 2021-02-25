@@ -181,6 +181,8 @@ const ArtifactsTable = (props: { projectId: number}) => {
                     setSnackbarSettings={setSnackbarSettings}
                     artifactToEdit={artifactToEdit}
                     artifactsRelations={artifactsRelations}
+                    updateArtifacts={getArtifacts}
+                    updateRelations={getRelations}
                 /> :
                 null
             }
