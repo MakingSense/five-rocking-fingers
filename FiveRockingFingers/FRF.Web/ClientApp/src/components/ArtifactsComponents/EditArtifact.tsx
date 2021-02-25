@@ -7,9 +7,6 @@ import AddCircleIcon from '@material-ui/icons/AddCircle';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Setting from '../../interfaces/Setting';
 import Artifact from '../../interfaces/Artifact';
-import ArtifactService from '../../services/ArtifactService';
-import ArtifactRelation from '../../interfaces/ArtifactRelation';
-
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -28,13 +25,27 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-
-const EditArtifact = (props: { artifactToEdit: Artifact, settingsList: Setting[], settingMap: { [key: string]: number[] }, closeEditArtifactDialog: Function, artifactsRelations: ArtifactRelation[], setIsArtifactEdited: Function, setArtifactEdited: Function, setNamesOfSettingsChanged: Function }) => {
+const EditArtifact = (props: { artifactToEdit: Artifact, closeEditArtifactDialog: Function, setIsArtifactEdited: Function, setArtifactEdited: Function, setNamesOfSettingsChanged: Function }) => {
     const classes = useStyles();
     const { register, handleSubmit, errors, setError, clearErrors, control } = useForm();
     const { closeEditArtifactDialog } = props;
+
+
+
+    const createSettingsListFromArtifact = () => {
+        let settingsListFromArtifact: Setting[] = [];
+        if (props.artifactToEdit.id === 0) {
+            return settingsListFromArtifact;
+        }
+        Object.entries(props.artifactToEdit.settings).forEach(([key, value], index) => {
+            let settingFromArtifact: Setting = Object.assign({ name: key, value: value });
+            settingsListFromArtifact.push(settingFromArtifact);
+        });
+        return settingsListFromArtifact;
+    }
+
     //Hook for save the user's settings input
-    const [settingsList, setSettingsList] = React.useState<Setting[]>(props.settingsList);
+    const [settingsList, setSettingsList] = React.useState<Setting[]>(createSettingsListFromArtifact());
     const [price, setPrice] = React.useState(() => {
         let index = settingsList.findIndex(s => s.name === 'price');
         if (index != -1) {
@@ -45,9 +56,18 @@ const EditArtifact = (props: { artifactToEdit: Artifact, settingsList: Setting[]
         }
         return 0;
     });
-    const [artifactName, setArtifactName] = React.useState(props.artifactToEdit.name);    
+    const [artifactName, setArtifactName] = React.useState(props.artifactToEdit.name);
+
+    const createSettingsMapFromArtifact = () => {
+        let settingsMapFromArtifact: { [key: string]: number[] } = {};
+        Object.entries(props.artifactToEdit.settings).forEach(([key, value], index) => {
+            settingsMapFromArtifact[key] = [index];
+        });
+        return settingsMapFromArtifact;
+    }
+
     //Hook for saving the numbers of times a setting's name input is repeated
-    const [settingsMap, setSettingsMap] = React.useState<{ [key: string]: number[] }>(props.settingMap);
+    const [settingsMap, setSettingsMap] = React.useState<{ [key: string]: number[] }>(createSettingsMapFromArtifact());
 
     React.useEffect(() => {
         setNameSettingsErrors();
@@ -62,21 +82,8 @@ const EditArtifact = (props: { artifactToEdit: Artifact, settingsList: Setting[]
         artifactEdited.name = artifactName;
         artifactEdited.settings = createSettingsObject();
         props.setArtifactEdited(artifactEdited);
-        console.log(props.artifactToEdit);
         props.setNamesOfSettingsChanged(getNamesOfSettingsChanged());
         props.setIsArtifactEdited(true);
-    }
-
-    const createSettingsListFromArtifact = () => {
-        let settingsListFromArtifact: Setting[] = [];
-        if (props.artifactToEdit.id === 0) {
-            return settingsListFromArtifact;
-        }
-        Object.entries(props.artifactToEdit.settings).forEach(([key, value], index) => {
-            let settingFromArtifact: Setting = Object.assign({ name: key, value: value });
-            settingsListFromArtifact.push(settingFromArtifact);
-        });
-        return settingsListFromArtifact;
     }
 
     const getNamesOfSettingsChanged = () => {
@@ -86,10 +93,7 @@ const EditArtifact = (props: { artifactToEdit: Artifact, settingsList: Setting[]
         if (index != -1) {
             originalSettingsList.splice(index, 1);
         }
-        console.log(originalSettingsList);
         originalSettingsList.forEach((setting, index) => {
-            console.log(setting);
-            console.log(settingsList.find(s => s.name === setting.name));
             if (!settingsList.find(s => s.name === setting.name)) {
                 namesOfSettingsChanged.push(setting.name);
             }
@@ -357,7 +361,7 @@ const EditArtifact = (props: { artifactToEdit: Artifact, settingsList: Setting[]
                 </form>
             </DialogContent>
             <DialogActions>
-                <Button size="small" color="primary" type="submit" onClick={handleSubmit(handleConfirm)}>Finalizar</Button>
+                <Button size="small" color="primary" type="submit" onClick={handleSubmit(handleConfirm)}>Listo</Button>
                 <Button size="small" color="secondary" onClick={handleCancel}>Cancelar</Button>
             </DialogActions>
         </>

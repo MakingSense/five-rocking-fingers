@@ -18,6 +18,9 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         settingName: {
             fontStyle: 'italic'
+        },
+        listStyleNone: {
+            listStyle: 'none'
         }
     }),
 );
@@ -89,15 +92,25 @@ const EditArtifactConfirmation = (props: { artifactToEdit: Artifact, namesOfSett
         <>
             <DialogTitle id="alert-dialog-title">Confirmación</DialogTitle>
             <DialogContent>
-                {props.namesOfSettingsChanged.length > 0 ? 
-                    <Typography gutterBottom color="secondary">
-                        Tenga en cuenta que al modificar el nombre de alguna de las settings se borrará las relaciones asociadas
+                {props.namesOfSettingsChanged.length > 0 ?
+                    <Typography gutterBottom color="secondary" className={classes.title}>
+                        Tenga en cuenta que al modificar el nombre de alguna de las settings se borrará
+                        las relaciones asociadas.
+                        Las settings cuyos nombres serán modificados son:
+                        <br />
+                        <br />
+                        <li className={classes.listStyleNone}>
+                            {props.namesOfSettingsChanged.map(name => {
+                                return (<ul>{name}</ul>);
+                            })}
+                        </li>
                     </Typography> :
                     null
                 }
-                
+                <hr/>
                 <Typography gutterBottom>
-                    Revise las características de su nuevo artefacto y se está de acuerdo haga click en confirmar
+                    Revise las características con las que quedará su artefacto modificado
+                    y se está de acuerdo haga click en confirmar
                 </Typography>
                 <Typography gutterBottom>
                     <span className={classes.title}>Nombre:</span> {props.artifactToEdit.name}
@@ -109,13 +122,12 @@ const EditArtifactConfirmation = (props: { artifactToEdit: Artifact, namesOfSett
                     <span className={classes.title}>Propiedades:</span>
                 </Typography>
                 {
-                    Object.entries(props.artifactToEdit.settings).forEach(([key, value], index) => {
-                        return (
+                    Object.entries(props.artifactToEdit.settings).map(([key, value], index) =>  (
                             <Typography gutterBottom>
-                                <span className={classes.settingName}>{"Hola"}</span>: {"Hola2"}
+                                <span className={classes.settingName}>{key}</span>: {value}
                             </Typography>
-                        );
-                    })
+                        )
+                    )
                 }
             </DialogContent>
             <DialogActions>

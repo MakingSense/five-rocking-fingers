@@ -35,26 +35,6 @@ const EditArtifactDialog = (props: { artifactToEdit: Artifact, showEditArtifactD
         }
     }
 
-    const createSettingsListFromArtifact = () => {
-        let settingsListFromArtifact: Setting[] = [];
-        if (props.artifactToEdit.id === 0) {
-            return settingsListFromArtifact;
-        }
-        Object.entries(props.artifactToEdit.settings).forEach(([key, value], index) => {
-            let settingFromArtifact: Setting = Object.assign({ name: key, value: value });
-            settingsListFromArtifact.push(settingFromArtifact);
-        });
-        return settingsListFromArtifact;
-    }
-
-    const createSettingsMapFromArtifact = () => {
-        let settingsMapFromArtifact: { [key: string]: number[] } = {};
-        Object.entries(props.artifactToEdit.settings).forEach(([key, value], index) => {
-            settingsMapFromArtifact[key] = [index];
-        });
-        return settingsMapFromArtifact;
-    }
-
     React.useEffect(() => {
         getArtifactsRelations();
     }, [props.artifactToEdit]);
@@ -64,10 +44,7 @@ const EditArtifactDialog = (props: { artifactToEdit: Artifact, showEditArtifactD
             {!isArtifactEdited ?
                 <EditArtifact
                     artifactToEdit={props.artifactToEdit}
-                    settingsList={createSettingsListFromArtifact()}
-                    settingMap={createSettingsMapFromArtifact()}
                     closeEditArtifactDialog={closeEditArtifactDialog}
-                    artifactsRelations={artifactsRelations}
                     setIsArtifactEdited={setIsArtifactEdited}
                     setArtifactEdited={setArtifactEdited}
                     setNamesOfSettingsChanged={setNamesOfSettingsChanged}
