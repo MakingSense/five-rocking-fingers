@@ -144,6 +144,15 @@ namespace FRF.Web.Controllers
             return NoContent();
         }
 
+        [HttpDelete("~/api/relations")]
+        public async Task<IActionResult> DeleteRelationsAsync(IList<Guid> artifactRelationIds)
+        {
+            var result = await _artifactsService.DeleteRelationsAsync(artifactRelationIds);
+            if (!result.Success) return NotFound();
+
+            return NoContent();
+        }
+
         [HttpPut("{artifactId}/relations")]
         public async Task<IActionResult> UpdateRelationsAsync(int artifactId,
             IList<ArtifactsRelationUpdateDTO> artifactRelationUpdatedList)
