@@ -360,10 +360,10 @@ namespace FRF.Core.Services
                 {
                     return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotExists, $"There is no relation with Id={artifactRelationId}"));
                 }
-                artifactsRelations.Add(artifactsRelation);
-                _dataContext.ArtifactsRelation.Remove(artifactsRelation);
+                artifactsRelations.Add(artifactsRelation);                
             }
-            
+
+            _dataContext.ArtifactsRelation.RemoveRange(artifactsRelations);
             await _dataContext.SaveChangesAsync();
 
             return new ServiceResponse<IList<ArtifactsRelation>>(_mapper.Map<IList<ArtifactsRelation>>(artifactsRelations));
