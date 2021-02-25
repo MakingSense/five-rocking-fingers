@@ -348,6 +348,27 @@ namespace FRF.Core.Services
             return new ServiceResponse<ArtifactsRelation>(_mapper.Map<ArtifactsRelation>(artifactsRelation));
         }
 
+        public async Task<ServiceResponse<IList<ArtifactsRelation>>> DeleteRelationsAsync(IList<Guid> artifactRelationIds)
+        {
+            var artifactsRelations = new List<EntityModels.ArtifactsRelation>();
+
+            foreach (var artifactRelationId in artifactRelationIds)
+            {
+                var artifactsRelation = await _dataContext.ArtifactsRelation
+                .FirstOrDefaultAsync(ar => ar.Id.Equals(artifactRelationId));
+                if (artifactsRelation == null)
+                {
+                    return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotExists, $"There is no relation with Id={artifactRelationId}"));
+                }
+                artifactsRelations.Add(artifactsRelation);
+                _dataContext.ArtifactsRelation.Remove(artifactsRelation);
+            }
+            
+            await _dataContext.SaveChangesAsync();
+
+            return new ServiceResponse<IList<ArtifactsRelation>>(_mapper.Map<IList<ArtifactsRelation>>(artifactsRelations));
+        }
+
         public async Task<ServiceResponse<IList<ArtifactsRelation>>> UpdateRelationAsync(int artifactId,
             IList<ArtifactsRelation> artifactsRelationsNew)
         {
