@@ -8,19 +8,19 @@ const useStyles = makeStyles((theme: Theme) => ({
   inputRoot: {
     width: "90%",
     marginTop: 0,
-    color: "#eceff1",
+    color: "#fafafa",
     fontWeight: "bold",
-    background: "#546e7a",
+    background: "#545454",
     "& .MuiOutlinedInput-notchedOutline": {
-      borderColor: lime[100],
+      borderColor: "#b0bec6",
       border: `2px solid`
     },
     "&:hover .MuiOutlinedInput-notchedOutline": {
-      borderColor: lime[100],
+      borderColor: "#b0bec6",
       border: `2px solid`
     },
     "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-      borderColor: lime[100],
+      borderColor: "#b0bec6",
       border: `2px solid`
     },
   },
@@ -30,9 +30,10 @@ const theme = createMuiTheme({
   overrides: {
     MuiFormLabel: {
       root: {
-        color: lime[100],
+        color: "#fafafa",
         "&$focused": {
-          color: lime[100],
+          fontSize: 18,
+          color: "#fafafa",
         },
       },
     },
@@ -62,6 +63,7 @@ const NavMenuFilter = (props: {categories: Category[], setCategoriesFilter: Func
       size="small"
       classes={classes}
       options={categories}
+      getOptionSelected={(option, value) => option.id === value.id}
       onChange={handleChange}
       getOptionLabel={(option) => option.name}
       renderInput={(params) => (

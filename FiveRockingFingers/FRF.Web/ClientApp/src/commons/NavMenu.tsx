@@ -80,15 +80,18 @@ const NavMenu = () => {
   }
 
   const handleNavMenuItem = () => {
-    return projectsFiltered.length === 0 && categoriesFilter.length === 0
-      ? projects.map((project) => (
-          <NavMenuItem key={project.id} project={project} />
-        ))
-      :  
-      projectsFiltered.length === 0 ? 
-      <Typography align="center" variant="h6" gutterBottom>Categoría sin proyectos</Typography>
-      : 
-      projectsFiltered.map((project) => (
+    const hasFilteredProjects = projectsFiltered.length === 0;
+    const hasCategoryFilters = categoriesFilter.length === 0;
+
+    return hasFilteredProjects && hasCategoryFilters ?
+      projects.map((project) => (
+        <NavMenuItem key={project.id} project={project} />
+      ))
+      :
+      hasFilteredProjects ?
+        <Typography align="center" variant="h6" gutterBottom>Categoría sin proyectos</Typography>
+        :
+        projectsFiltered.map((project) => (
           <NavMenuItem key={project.id} project={project} />
         ));
   };
