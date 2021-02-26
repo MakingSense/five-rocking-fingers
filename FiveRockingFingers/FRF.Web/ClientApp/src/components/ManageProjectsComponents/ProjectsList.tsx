@@ -1,6 +1,6 @@
-﻿import { Badge, Button, CssBaseline, Divider, Drawer, List, Toolbar, Typography } from '@material-ui/core';
+﻿import { Badge, Button, CssBaseline, Drawer, List, Toolbar, Typography } from '@material-ui/core';
 import TuneTwoToneIcon from "@material-ui/icons/TuneTwoTone";
-import { makeStyles,Theme, withStyles, createStyles } from "@material-ui/core/styles";
+import { makeStyles,withStyles, createStyles } from "@material-ui/core/styles";
 import AddIcon from '@material-ui/icons/Add';
 import * as React from 'react';
 import { SubMenu } from 'react-pro-sidebar';
@@ -58,7 +58,7 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-const StyledBadge = withStyles((theme: Theme) =>
+const StyledBadge = withStyles(() =>
   createStyles({
     badge: {
       right: -3,
@@ -156,15 +156,15 @@ const ProjectsList = (props: { projects: Project[], categories: Category[], upda
     }
 
     const handleListElement = () => {
-        const hasFilteredProjects = projectsFiltered.length === 0;
-        const hasCategoryFilters = categoriesFilter.length === 0;
+        const hasFilteredProjects = projectsFiltered.length !== 0;
+        const hasCategoryFilters = categoriesFilter.length !== 0;
 
-        return hasFilteredProjects && hasCategoryFilters ?
+        return !hasFilteredProjects && !hasCategoryFilters ?
             projects.map((project) => (
                 <ListElement selected={selectedIndex === project.id} key={project.id} id={project.id} selectProject={selectProject} deleteProject={deleteProject} name={project.name} />
             ))
             :
-            hasFilteredProjects ?
+            !hasFilteredProjects ?
                 <Typography align="center" variant="h6" gutterBottom>Categoría sin proyectos</Typography>
                 :
                 projectsFiltered.map((project) => (

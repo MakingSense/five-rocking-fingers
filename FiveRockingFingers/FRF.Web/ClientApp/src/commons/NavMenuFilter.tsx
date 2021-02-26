@@ -1,10 +1,9 @@
 import * as React from "react";
-import { createMuiTheme, makeStyles, TextField, Theme, ThemeProvider } from "@material-ui/core";
-import { lime } from "@material-ui/core/colors";
+import { createMuiTheme, makeStyles, TextField, ThemeProvider } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
 import Category from "../interfaces/Category";
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles(() => ({
   inputRoot: {
     width: "90%",
     marginTop: 0,

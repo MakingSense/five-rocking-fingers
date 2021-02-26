@@ -80,15 +80,15 @@ const NavMenu = () => {
   }
 
   const handleNavMenuItem = () => {
-    const hasFilteredProjects = projectsFiltered.length === 0;
-    const hasCategoryFilters = categoriesFilter.length === 0;
+    const hasFilteredProjects = projectsFiltered.length !== 0;
+    const hasCategoryFilters = categoriesFilter.length !== 0;
 
-    return hasFilteredProjects && hasCategoryFilters ?
+    return !hasFilteredProjects && !hasCategoryFilters ?
       projects.map((project) => (
         <NavMenuItem key={project.id} project={project} />
       ))
       :
-      hasFilteredProjects ?
+      !hasFilteredProjects ?
         <Typography align="center" variant="h6" gutterBottom>Categoría sin proyectos</Typography>
         :
         projectsFiltered.map((project) => (

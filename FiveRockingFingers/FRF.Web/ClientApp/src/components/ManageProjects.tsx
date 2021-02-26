@@ -5,7 +5,6 @@ import Navbar from './ManageProjectsComponents/Navbar';
 import ProjectService from '../services/ProjectService';
 import CategoryService from '../services/CategoryService';
 import ProjectsList from './ManageProjectsComponents/ProjectsList';
-import NavMenuFilter from '../commons/NavMenuFilter';
 
 export default function ManageProjects() {
 
