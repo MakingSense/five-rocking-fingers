@@ -350,20 +350,10 @@ namespace FRF.Core.Services
 
         public async Task<ServiceResponse<IList<ArtifactsRelation>>> DeleteRelationsAsync(IList<Guid> artifactRelationIds)
         {
-            var artifactsRelations = new List<EntityModels.ArtifactsRelation>();
-
-            foreach (var artifactRelationId in artifactRelationIds)
-            {
-                var artifactsRelation = await _dataContext.ArtifactsRelation
-                .FirstOrDefaultAsync(ar => ar.Id.Equals(artifactRelationId));
-                if (artifactsRelation == null)
-                {
-                    return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotExists, $"There is no relation with Id={artifactRelationId}"));
-                }
-                artifactsRelations.Add(artifactsRelation);                
-            }
+            var artifactsRelations = await _dataContext.ArtifactsRelation.Where(ar => artifactRelationIds.Contains(ar.Id)).ToListAsync();
 
             _dataContext.ArtifactsRelation.RemoveRange(artifactsRelations);
+
             await _dataContext.SaveChangesAsync();
 
             return new ServiceResponse<IList<ArtifactsRelation>>(_mapper.Map<IList<ArtifactsRelation>>(artifactsRelations));
