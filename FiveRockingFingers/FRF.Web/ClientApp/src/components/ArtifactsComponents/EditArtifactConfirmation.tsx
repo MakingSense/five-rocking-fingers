@@ -1,11 +1,8 @@
-﻿import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, IconButton, ButtonGroup } from '@material-ui/core';
+﻿import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import * as React from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import Typography from '@material-ui/core/Typography';
-import AddCircleIcon from '@material-ui/icons/AddCircle';
-import DeleteIcon from '@material-ui/icons/Delete';
-import Setting from '../../interfaces/Setting';
 import Artifact from '../../interfaces/Artifact';
 import ArtifactService from '../../services/ArtifactService';
 import ArtifactRelation from '../../interfaces/ArtifactRelation';

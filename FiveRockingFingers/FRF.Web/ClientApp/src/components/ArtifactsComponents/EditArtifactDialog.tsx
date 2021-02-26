@@ -5,7 +5,6 @@ import ArtifactService from '../../services/ArtifactService';
 import ArtifactRelation from '../../interfaces/ArtifactRelation';
 import EditArtifact from './EditArtifact';
 import EditArtifactConfirmation from './EditArtifactConfirmation';
-import Setting from '../../interfaces/Setting';
 
 
 const EditArtifactDialog = (props: {
