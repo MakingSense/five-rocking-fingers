@@ -82,30 +82,18 @@ namespace FRF.Core.Services
         /// <param name="isAnUpdate">True if is to update, False if is a set</param>
         /// <returns>True if At least one of the artifact relation provided already exist </returns>
         private bool IsAnyRelationRepeated(IList<EntityModels.ArtifactsRelation> dbArtifactRelations,
-            IList<ArtifactsRelation> artifactsRelations, bool isAnUpdate)
+            IList<ArtifactsRelation> artifactsRelations)
         {
-            if (isAnUpdate)
-            {
-                return artifactsRelations.Any(ar => dbArtifactRelations.Any(dbAr =>
-                    (dbAr.Artifact1Id == ar.Artifact1Id && dbAr.Artifact2Id == ar.Artifact2Id &&
-                     dbAr.Artifact1Property.Equals(ar.Artifact1Property, StringComparison.InvariantCultureIgnoreCase) &&
-                     dbAr.Artifact2Property.Equals(ar.Artifact2Property, StringComparison.InvariantCultureIgnoreCase) &&
-                     dbAr.RelationTypeId == ar.RelationTypeId)
-                    ||
-                    (dbAr.Artifact1Id == ar.Artifact2Id && dbAr.Artifact2Id == ar.Artifact1Id &&
-                     dbAr.Artifact1Property.Equals(ar.Artifact2Property, StringComparison.InvariantCultureIgnoreCase) &&
-                     dbAr.Artifact2Property.Equals(ar.Artifact1Property, StringComparison.InvariantCultureIgnoreCase) &&
-                     dbAr.RelationTypeId == ar.RelationTypeId)));
-            }
-
-            return  artifactsRelations.Any(ar => dbArtifactRelations.Any(dbAr =>
+            return artifactsRelations.Any(ar => dbArtifactRelations.Any(dbAr =>
                 (dbAr.Artifact1Id == ar.Artifact1Id && dbAr.Artifact2Id == ar.Artifact2Id &&
                  dbAr.Artifact1Property.Equals(ar.Artifact1Property, StringComparison.InvariantCultureIgnoreCase) &&
-                 dbAr.Artifact2Property.Equals(ar.Artifact2Property, StringComparison.InvariantCultureIgnoreCase))
+                 dbAr.Artifact2Property.Equals(ar.Artifact2Property, StringComparison.InvariantCultureIgnoreCase) &&
+                 dbAr.RelationTypeId == ar.RelationTypeId)
                 ||
                 (dbAr.Artifact1Id == ar.Artifact2Id && dbAr.Artifact2Id == ar.Artifact1Id &&
                  dbAr.Artifact1Property.Equals(ar.Artifact2Property, StringComparison.InvariantCultureIgnoreCase) &&
-                 dbAr.Artifact2Property.Equals(ar.Artifact1Property, StringComparison.InvariantCultureIgnoreCase))));
+                 dbAr.Artifact2Property.Equals(ar.Artifact1Property, StringComparison.InvariantCultureIgnoreCase) &&
+                 dbAr.RelationTypeId == ar.RelationTypeId)));
         }
 
         public async Task<ServiceResponse<List<Artifact>>> GetAll()
@@ -289,7 +277,7 @@ namespace FRF.Core.Services
                     ar.Artifact1Id == artifactRelations[0].Artifact2Id)
                 .ToListAsync();
 
-            var relationsRepeated = IsAnyRelationRepeated(dbArtifactRelations, artifactRelations,isAnUpdate: false);
+            var relationsRepeated = IsAnyRelationRepeated(dbArtifactRelations, artifactRelations);
             if (relationsRepeated)
                 return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationAlreadyExisted, "At least one of the relations already existed"));
 
@@ -366,7 +354,7 @@ namespace FRF.Core.Services
                 .Include(ar => ar.Artifact2)
                 .ToListAsync();
 
-            var relationsWithOriginalRepeated = IsAnyRelationRepeated(relationsOriginal, artifactsRelationsNew,isAnUpdate: true);
+            var relationsWithOriginalRepeated = IsAnyRelationRepeated(relationsOriginal, artifactsRelationsNew);
             if (relationsWithOriginalRepeated)
                 return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid,
                     "At least one of the artifact relation provided already exist"));

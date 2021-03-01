@@ -677,6 +677,40 @@ namespace FRF.Web.Tests.Controllers
             Assert.IsNotType<List<ArtifactsRelationDTO>>(response);
             _artifactsService.Verify(mock => mock.SetRelationAsync(It.IsAny<List<ArtifactsRelation>>()), Times.Once);
         }
+        [Fact]
+        public async Task SetRelationAsync_ReturnBadRequest_WhenIsaBidirectionalRelation()
+        {
+            // Arrange
+            var artifactsRelationDtos = new List<ArtifactsRelationInsertDTO>();
+            artifactsRelationDtos.Add(new ArtifactsRelationInsertDTO()
+            {
+                Artifact1Id = 1,
+                Artifact2Id = 2,
+                Artifact1Property = "Mock 1 Property ",
+                Artifact2Property = "Mock 2 Property ",
+                RelationTypeId = 1
+            });
+            artifactsRelationDtos.Add(new ArtifactsRelationInsertDTO()
+            {
+                Artifact1Id = 2,
+                Artifact2Id = 1,
+                Artifact1Property = "Mock 1 Property ",
+                Artifact2Property = "Mock 2 Property ",
+                RelationTypeId = 0
+            });
+
+            _artifactsService
+                .Setup(mock => mock.SetRelationAsync(It.IsAny<List<ArtifactsRelation>>()))
+                .ReturnsAsync(new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid, "Error Message")));
+
+            // Act
+            var result = await _classUnderTest.SetRelationAsync(artifactsRelationDtos);
+
+            // Assert
+            var response = Assert.IsType<BadRequestResult>(result);
+            Assert.IsNotType<List<ArtifactsRelationDTO>>(response);
+            _artifactsService.Verify(mock => mock.SetRelationAsync(It.IsAny<List<ArtifactsRelation>>()), Times.Once);
+        }
 
         [Fact]
         public async Task GetRelationsAsync_ReturnOk()
