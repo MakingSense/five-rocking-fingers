@@ -176,11 +176,9 @@ const ArtifactsTable = (props: { projectId: number}) => {
                 <EditArtifactDialog
                     showEditArtifactDialog={showEditArtifactDialog}
                     closeEditArtifactDialog={closeEditArtifactDialog}
-                    projectId={projectId}
                     setOpenSnackbar={setOpenSnackbar}
                     setSnackbarSettings={setSnackbarSettings}
                     artifactToEdit={artifactToEdit}
-                    artifactsRelations={artifactsRelations}
                     updateArtifacts={getArtifacts}
                     updateRelations={getRelations}
                 /> :

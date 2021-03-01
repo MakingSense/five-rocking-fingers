@@ -194,7 +194,6 @@ const EditArtifact = (props: {
     const areNamesRepeated = (index: number) => {
         let key = searchIndexInObject(settingsMap, index);
         if (key != null && (settingsMap[key].length > 1 || key === 'price')) {
-            console.log("Hola");
             return true;
         }
         return false;

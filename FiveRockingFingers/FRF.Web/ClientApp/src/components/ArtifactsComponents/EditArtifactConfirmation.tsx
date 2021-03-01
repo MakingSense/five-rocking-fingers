@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form';
 import Typography from '@material-ui/core/Typography';
 import Artifact from '../../interfaces/Artifact';
 import ArtifactService from '../../services/ArtifactService';
-import ArtifactRelation from '../../interfaces/ArtifactRelation';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -29,7 +28,6 @@ const EditArtifactConfirmation = (props: {
     closeEditArtifactDialog: Function,
     setOpenSnackbar: Function,
     setSnackbarSettings: Function,
-    artifactsRelations: ArtifactRelation[]
     updateArtifacts: Function,
     updateRelations: Function }) => {
 
@@ -49,30 +47,6 @@ const EditArtifactConfirmation = (props: {
             }
         };
 
-        let artifactsRelationsIdsToDelete: string[] = [];
-
-        props.artifactsRelations.forEach(async relation => {
-            if (props.namesOfSettingsChanged.includes(relation.artifact1Property) || props.namesOfSettingsChanged.includes(relation.artifact2Property)) {
-                artifactsRelationsIdsToDelete.push(relation.id!);
-            }            
-        });
-
-        try {
-            const response = await ArtifactService.deleteRelations(artifactsRelationsIdsToDelete);
-            if (response.status === 204) {
-                props.setSnackbarSettings({ message: "El artefacto ha sido modificado con éxito", severity: "success" });
-                props.setOpenSnackbar(true);
-            } else {
-                props.setSnackbarSettings({ message: "Hubo un error al modificar el artefacto", severity: "error" });
-                props.setOpenSnackbar(true);
-                return;
-            }
-        }
-        catch (error) {
-            props.setSnackbarSettings({ message: "Hubo un error al crear el artefacto", severity: "error" });
-            props.setOpenSnackbar(true);
-        }
-
         try {
             const response = await ArtifactService.update(props.artifactToEdit.id, artifactEdited);
             if (response.status === 200) {
@@ -84,7 +58,7 @@ const EditArtifactConfirmation = (props: {
             }
         }
         catch (error) {
-            props.setSnackbarSettings({ message: "Hubo un error al crear el artefacto", severity: "error" });
+            props.setSnackbarSettings({ message: "Hubo un error al modificar el artefacto", severity: "error" });
             props.setOpenSnackbar(true);
         }
         props.updateArtifacts();
