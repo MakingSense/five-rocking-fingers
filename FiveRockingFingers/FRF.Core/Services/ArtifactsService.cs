@@ -241,7 +241,11 @@ namespace FRF.Core.Services
                 return new ServiceResponse<Artifact>(new Error(ErrorCodes.InvalidArtifactSettings, $"Settings are invalid"));
             }
 
-            await DeleteRelationsOfUpdatedArtifact(artifact.Id, artifact.Settings, result.Settings);
+            var artifactsRelationsIdsToDelete = await GetRelationsToDeleteOfUpdatedArtifact(artifact.Id, artifact.Settings, result.Settings);
+
+            var artifactsRelationsToDelete = await _dataContext.ArtifactsRelation.Where(ar => artifactsRelationsIdsToDelete.Contains(ar.Id)).ToListAsync();
+
+            _dataContext.ArtifactsRelation.RemoveRange(artifactsRelationsToDelete);
 
             //Updates the artifact
             result.Name = artifact.Name;
@@ -412,20 +416,20 @@ namespace FRF.Core.Services
             return new ServiceResponse<IList<ArtifactsRelation>>(artifactsRelationsNew);
         }
 
-        private async Task DeleteRelationsOfUpdatedArtifact(int artifactId, XElement updatedSettings, XElement originalSettings)
+        private async Task<List<Guid>> GetRelationsToDeleteOfUpdatedArtifact(int artifactId, XElement updatedSettings, XElement originalSettings)
         {
             var changedSettingsName = FindSettingsNamesChanged(updatedSettings, originalSettings);
-            var artifactsRelationsIdsToDelete = await GetRelationsToDeleteOfUpdatedArtifact(artifactId, changedSettingsName);
-            await DeleteRelationsAsync(artifactsRelationsIdsToDelete);
+            var artifactsRelationsIdsToDelete = await FindRelationsToDeleteOfUpdatedArtifact(artifactId, changedSettingsName);
+            return artifactsRelationsIdsToDelete;
         }
 
         private List<string> FindSettingsNamesChanged(XElement updatedSettings, XElement originalSettings)
         {
             var changedSettingsName = new List<string>();
 
-            foreach(var setting in updatedSettings.Elements())
+            foreach(var setting in originalSettings.Elements())
             {
-                if(!setting.HasElements && originalSettings.Elements(setting.Name).Any())
+                if(!setting.HasElements && !updatedSettings.Elements(setting.Name).Any())
                 {
                     changedSettingsName.Add(setting.Name.ToString());
                 }
@@ -434,7 +438,7 @@ namespace FRF.Core.Services
             return changedSettingsName;
         }
 
-        private async Task<List<Guid>> GetRelationsToDeleteOfUpdatedArtifact(int artifactId, List<string> changedSettingsName)
+        private async Task<List<Guid>> FindRelationsToDeleteOfUpdatedArtifact(int artifactId, List<string> changedSettingsName)
         {
             var relationsResponse = await GetAllRelationsOfAnArtifactAsync(artifactId);
             var relations = relationsResponse.Value;
