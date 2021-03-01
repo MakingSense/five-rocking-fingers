@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using EntityModels = FRF.DataAccess.EntityModels;
 
 namespace FRF.Core.Services
@@ -240,6 +241,8 @@ namespace FRF.Core.Services
                 return new ServiceResponse<Artifact>(new Error(ErrorCodes.InvalidArtifactSettings, $"Settings are invalid"));
             }
 
+            await DeleteRelationsOfUpdatedArtifact(artifact.Id, artifact.Settings, result.Settings);
+
             //Updates the artifact
             result.Name = artifact.Name;
             result.Settings = artifact.Settings;
@@ -407,6 +410,46 @@ namespace FRF.Core.Services
             await _dataContext.SaveChangesAsync();
 
             return new ServiceResponse<IList<ArtifactsRelation>>(artifactsRelationsNew);
-        }        
+        }
+
+        private async Task DeleteRelationsOfUpdatedArtifact(int artifactId, XElement updatedSettings, XElement originalSettings)
+        {
+            var changedSettingsName = FindSettingsNamesChanged(updatedSettings, originalSettings);
+            var artifactsRelationsIdsToDelete = await GetRelationsToDeleteOfUpdatedArtifact(artifactId, changedSettingsName);
+            await DeleteRelationsAsync(artifactsRelationsIdsToDelete);
+        }
+
+        private List<string> FindSettingsNamesChanged(XElement updatedSettings, XElement originalSettings)
+        {
+            var changedSettingsName = new List<string>();
+
+            foreach(var setting in updatedSettings.Elements())
+            {
+                if(!setting.HasElements && originalSettings.Elements(setting.Name).Any())
+                {
+                    changedSettingsName.Add(setting.Name.ToString());
+                }
+            }
+
+            return changedSettingsName;
+        }
+
+        private async Task<List<Guid>> GetRelationsToDeleteOfUpdatedArtifact(int artifactId, List<string> changedSettingsName)
+        {
+            var relationsResponse = await GetAllRelationsOfAnArtifactAsync(artifactId);
+            var relations = relationsResponse.Value;
+
+            var artifactsRelationsIdsToDelete = new List<Guid>();
+
+            foreach (var relation in relations)
+            {
+                if(changedSettingsName.Contains(relation.Artifact1Property) || changedSettingsName.Contains(relation.Artifact2Property))
+                {
+                    artifactsRelationsIdsToDelete.Add(relation.Id);
+                }
+            }
+
+            return artifactsRelationsIdsToDelete;
+        }
     }
 }
