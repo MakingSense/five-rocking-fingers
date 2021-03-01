@@ -13,6 +13,7 @@ using CoreModels = FRF.Core.Models;
 using FRF.Core.Response;
 using FRF.Core.XmlValidation;
 using System.Xml.Linq;
+using System.Linq;
 
 namespace FRF.Core.Tests.Services
 {
@@ -404,6 +405,22 @@ namespace FRF.Core.Tests.Services
             var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
             var artifact = CreateArtifact(project, artifactType);
+            artifact.Settings = new XElement("Settings", new XElement("Setting1", "Value1"));
+
+            var providerAux = CreateProvider();
+            var artifactTypeAux = CreateArtifactType(provider);
+            var projectAux = CreateProject();
+            var artifactAux = CreateArtifact(project, artifactType);
+            artifactAux.Settings = new XElement("Settings", new XElement("Setting1Aux", "Value1"));
+
+            var relation = new DataAccess.EntityModels.ArtifactsRelation
+            {
+                Artifact1Id = artifact.Id,
+                Artifact1 = artifact,
+                Artifact2Id = artifactAux.Id,
+                Artifact2 = artifactAux,
+                RelationTypeId = 0
+            };
 
             var newProject = new Project()
             {
@@ -432,7 +449,7 @@ namespace FRF.Core.Tests.Services
                 Project = _mapper.Map<CoreModels.Project>(newProject),
                 ArtifactTypeId = newArtifactType.Id,
                 ArtifactType = _mapper.Map<CoreModels.ArtifactType>(newArtifactType),
-                Settings = new XElement("Settings")
+                Settings = new XElement("Settings", new XElement("Setting1Modified", "Value1"))
             };            
 
             _settingsValidator.Setup(mock => mock.ValidateSettings(It.IsAny<CoreModels.Artifact>()))
@@ -453,6 +470,12 @@ namespace FRF.Core.Tests.Services
             Assert.NotNull(resultValue.ModifiedDate);
             Assert.Equal(artifactToUpdate.ProjectId, resultValue.ProjectId);
             Assert.Equal(artifactToUpdate.ArtifactTypeId, resultValue.ArtifactTypeId);
+            Assert.True(XNode.DeepEquals(artifactToUpdate.Settings, resultValue.Settings));
+
+            Assert.Empty(_dataAccess.ArtifactsRelation
+                .Include(ar => ar.Artifact1)
+                .Include(ar => ar.Artifact2)
+                .Where(ar => ar.Artifact1Id == artifact.Id || ar.Artifact2Id == artifact.Id).ToList());
 
             Assert.Equal(newProject.Id, resultValue.Project.Id);
             Assert.Equal(newProject.Name, resultValue.Project.Name);
