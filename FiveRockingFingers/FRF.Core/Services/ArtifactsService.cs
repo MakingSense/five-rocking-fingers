@@ -357,6 +357,14 @@ namespace FRF.Core.Services
 
         public async Task<ServiceResponse<IList<ArtifactsRelation>>> DeleteRelationsAsync(IList<Guid> artifactRelationIds)
         {
+            var relationsIdFromDb = await _dataContext.ArtifactsRelation.Select(ar => ar.Id).ToListAsync();
+            var relationsThatDoNotExist = artifactRelationIds.Except(relationsIdFromDb).ToList();
+            if (relationsThatDoNotExist.Any())
+            {
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotExists,
+                    $"There is no relation with Id={string.Join(", Id=", relationsThatDoNotExist)}"));
+            }
+
             var artifactsRelations = await _dataContext.ArtifactsRelation.Where(ar => artifactRelationIds.Contains(ar.Id)).ToListAsync();
 
             _dataContext.ArtifactsRelation.RemoveRange(artifactsRelations);
