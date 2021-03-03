@@ -1024,7 +1024,7 @@ namespace FRF.Core.Tests.Services
         }
 
         [Fact]
-        public async Task DeleteRelationsAsync_ReturnsEmptyList()
+        public async Task DeleteRelationsAsync_ExceptionRelationNotExists()
         {
             // Arange
             var artifactRelationIds = new List<Guid>
@@ -1036,9 +1036,10 @@ namespace FRF.Core.Tests.Services
             var response = await _classUnderTest.DeleteRelationsAsync(artifactRelationIds);
 
             // Assert
-            Assert.True(response.Success);
             Assert.IsType<ServiceResponse<IList<ArtifactsRelation>>>(response);
-            Assert.Empty(response.Value);
+            Assert.False(response.Success);
+            Assert.NotNull(response.Error);
+            Assert.Equal(ErrorCodes.RelationNotExists, response.Error.Code);
         }
 
         [Fact]
