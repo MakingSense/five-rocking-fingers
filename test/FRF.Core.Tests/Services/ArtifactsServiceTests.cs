@@ -789,12 +789,9 @@ namespace FRF.Core.Tests.Services
                 Artifact2Property = "Mock 1 Property",
                 RelationTypeId = 1
             };
-            artifactsRelationToSave.Add(artifactRelation1);
             artifactsRelationToSave.Add(artifactRelation2);
             await _dataAccess.ArtifactsRelation.AddAsync(
                 _mapper.Map<DataAccess.EntityModels.ArtifactsRelation>(artifactRelation1));
-            await _dataAccess.ArtifactsRelation.AddAsync(
-                _mapper.Map<DataAccess.EntityModels.ArtifactsRelation>(artifactRelation2));
 
             await _dataAccess.SaveChangesAsync();
 
@@ -836,13 +833,10 @@ namespace FRF.Core.Tests.Services
                 Artifact2Property = "Mock 2 Property",
                 RelationTypeId = 0
             };
-            artifactsRelationToSave.Add(artifactRelation1);
             artifactsRelationToSave.Add(artifactRelation2);
             await _dataAccess.ArtifactsRelation.AddAsync(
                 _mapper.Map<DataAccess.EntityModels.ArtifactsRelation>(artifactRelation1));
-            await _dataAccess.ArtifactsRelation.AddAsync(
-                _mapper.Map<DataAccess.EntityModels.ArtifactsRelation>(artifactRelation2));
-
+            
             await _dataAccess.SaveChangesAsync();
 
             // Act
@@ -916,22 +910,23 @@ namespace FRF.Core.Tests.Services
                 var artifact2Id = artifactIdToUpdate;
 
                 var artifactRelation = CreateArtifactsRelationModel(artifact1Id, artifact2Id);
-                
+
+
                 var artifactRelationDb = _mapper.Map<DataAccess.EntityModels.ArtifactsRelation>(CreateArtifactsRelationModel(artifact1Id, artifact2Id));
                 await _dataAccess.ArtifactsRelation.AddAsync(artifactRelationDb);
 
                 artifactRelation.Id = artifactRelationDb.Id;
                 artifactsRelationUpdated.Add(artifactRelation);
                 artifactsRelationInDb.Add(artifactRelationDb);
-                
+
                 i++;
             }
 
             await _dataAccess.SaveChangesAsync();
-            
+
             // Act
             var response = await _classUnderTest.UpdateRelationAsync(artifactIdToUpdate, artifactsRelationUpdated);
-            
+
             // Assert
             Assert.True(response.Success);
             Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
