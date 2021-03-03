@@ -92,7 +92,7 @@ const EditArtifactConfirmation = (props: {
                 <hr/>
                 <Typography gutterBottom>
                     Revise las características con las que quedará su artefacto modificado
-                    y se está de acuerdo haga click en confirmar
+                    y si está de acuerdo haga click en confirmar
                 </Typography>
                 <Typography gutterBottom>
                     <span className={classes.title}>Nombre:</span> {props.artifactToEdit.name}
