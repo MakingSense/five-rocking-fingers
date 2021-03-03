@@ -1,6 +1,6 @@
 ﻿import * as React from 'react';
 import { Table, Button } from 'reactstrap';
-import Artifact from '../../interfaces/Artifact'
+import Artifact from '../../interfaces/Artifact';
 import ArtifactsTableRow from './ArtifactsTableRow';
 import SnackbarMessage from '../../commons/SnackbarMessage';
 import SnackbarSettings from '../../interfaces/SnackbarSettings'
@@ -10,6 +10,8 @@ import NewArtifactsRelation from '../NewArtifactsRelation';
 import ArtifactService from '../../services/ArtifactService';
 import ProjectService from '../../services/ProjectService';
 import ArtifactsTotalPrice from './ArtifactsTotalPrice';
+import ArtifactType from '../../interfaces/ArtifactType';
+import EditArtifactDialog from './EditArtifactDialog';
 
 const ArtifactsTable = (props: { projectId: number}) => {
     const [artifacts, setArtifacts] = React.useState<Artifact[]>([]);
@@ -17,6 +19,8 @@ const ArtifactsTable = (props: { projectId: number}) => {
     const [snackbarSettings, setSnackbarSettings] = React.useState<SnackbarSettings>({ message: "", severity: undefined });
     const [showNewArtifactDialog, setShowNewArtifactDialog] = React.useState(false);
     const [showNewArtifactsRelation, setShowNewArtifactsRelation] = React.useState(false);
+    const [showEditArtifactDialog, setEditArtifactDialog] = React.useState(false);
+    const [artifactToEdit, setArtifactToEdit] = React.useState<Artifact | null>(null);
     const [artifactsRelations, setArtifactsRelations] = React.useState<ArtifactRelation[]>([]);
     const [price, setPrice] = React.useState<string>('');
     const [projectBudget, setProjectBudget] = React.useState<number>(-1);
@@ -77,6 +81,15 @@ const ArtifactsTable = (props: { projectId: number}) => {
         }
     }
 
+    const openEditArtifactDialog = () => {
+        setEditArtifactDialog(true);
+    }
+
+    const closeEditArtifactDialog = () => {
+        setArtifactToEdit(null);
+        setEditArtifactDialog(false);
+    }
+
     const closeNewArtifactDialog = () => {
         setShowNewArtifactDialog(false);
     }
@@ -127,6 +140,8 @@ const ArtifactsTable = (props: { projectId: number}) => {
                                 artifact={artifact}
                                 openSnackbar={manageOpenSnackbar}
                                 updateList={getArtifacts}
+                                setArtifactToEdit={setArtifactToEdit}
+                                openEditArtifactDialog={openEditArtifactDialog}
                             />
                             ) : null}
                         <ArtifactsTotalPrice totalPrice={price} projectBudget={projectBudget} /></>
@@ -157,6 +172,18 @@ const ArtifactsTable = (props: { projectId: number}) => {
                 artifactsRelations={artifactsRelations}
                 updateList = {{update: false}}
             />
+            { artifactToEdit ?
+                <EditArtifactDialog
+                    showEditArtifactDialog={showEditArtifactDialog}
+                    closeEditArtifactDialog={closeEditArtifactDialog}
+                    setOpenSnackbar={setOpenSnackbar}
+                    setSnackbarSettings={setSnackbarSettings}
+                    artifactToEdit={artifactToEdit}
+                    updateArtifacts={getArtifacts}
+                    updateRelations={getRelations}
+                /> :
+                null
+            }
         </React.Fragment>
     );
 };
