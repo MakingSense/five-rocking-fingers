@@ -38,6 +38,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\src\components\ArtifactsComponents\EditArtifact.tsx" />
+    <None Remove="ClientApp\src\components\ArtifactsComponents\EditArtifactConfirmation.tsx" />
+    <None Remove="ClientApp\src\components\ArtifactsComponents\EditArtifactDialog.tsx" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\FRF.Core\FRF.Core.csproj" />
     <ProjectReference Include="..\FRF.Web.Dtos\FRF.Web.Dtos.csproj" />
   </ItemGroup>
