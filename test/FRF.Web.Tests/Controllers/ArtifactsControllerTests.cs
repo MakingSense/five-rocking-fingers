@@ -677,6 +677,40 @@ namespace FRF.Web.Tests.Controllers
             Assert.IsNotType<List<ArtifactsRelationDTO>>(response);
             _artifactsService.Verify(mock => mock.SetRelationAsync(It.IsAny<List<ArtifactsRelation>>()), Times.Once);
         }
+        [Fact]
+        public async Task SetRelationAsync_ReturnBadRequest_WhenIsaBidirectionalRelation()
+        {
+            // Arrange
+            var artifactsRelationDtos = new List<ArtifactsRelationInsertDTO>();
+            artifactsRelationDtos.Add(new ArtifactsRelationInsertDTO()
+            {
+                Artifact1Id = 1,
+                Artifact2Id = 2,
+                Artifact1Property = "Mock 1 Property ",
+                Artifact2Property = "Mock 2 Property ",
+                RelationTypeId = 1
+            });
+            artifactsRelationDtos.Add(new ArtifactsRelationInsertDTO()
+            {
+                Artifact1Id = 2,
+                Artifact2Id = 1,
+                Artifact1Property = "Mock 1 Property ",
+                Artifact2Property = "Mock 2 Property ",
+                RelationTypeId = 0
+            });
+
+            _artifactsService
+                .Setup(mock => mock.SetRelationAsync(It.IsAny<List<ArtifactsRelation>>()))
+                .ReturnsAsync(new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid, "Error Message")));
+
+            // Act
+            var result = await _classUnderTest.SetRelationAsync(artifactsRelationDtos);
+
+            // Assert
+            var response = Assert.IsType<BadRequestResult>(result);
+            Assert.IsNotType<List<ArtifactsRelationDTO>>(response);
+            _artifactsService.Verify(mock => mock.SetRelationAsync(It.IsAny<List<ArtifactsRelation>>()), Times.Once);
+        }
 
         [Fact]
         public async Task GetRelationsAsync_ReturnOk()
@@ -827,6 +861,59 @@ namespace FRF.Web.Tests.Controllers
             // Assert
             Assert.IsType<NotFoundResult>(result);
             _artifactsService.Verify(mock => mock.DeleteRelationAsync(It.IsAny<Guid>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task DeleteRelationsAsync_ReturnNoContent()
+        {
+            // Arrange
+            var projectId = 1;
+            var project = CreateProject(projectId);
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
+            var artifact1 = CreateArtifact(1, project, artifactType);
+            var artifact2 = CreateArtifact(2, project, artifactType);
+            var artifactRelation = CreateArtifactsRelation(artifact1, artifact2);
+            var artifactRelationList = new List<ArtifactsRelation>
+            {
+                artifactRelation
+            };
+            var artifactRelationIdsList = new List<Guid>
+            {
+                artifactRelation.Id
+            };
+
+            _artifactsService
+                .Setup(mock => mock.DeleteRelationsAsync(It.IsAny<IList<Guid>>()))
+                .ReturnsAsync(new ServiceResponse<IList<ArtifactsRelation>>(artifactRelationList));
+
+            // Act
+            var result = await _classUnderTest.DeleteRelationsAsync(artifactRelationIdsList);
+
+            // Assert
+            Assert.IsType<NoContentResult>(result);
+            _artifactsService.Verify(mock => mock.DeleteRelationsAsync(It.IsAny<IList<Guid>>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task DeleteRelationsAsync_ReturnNotFound()
+        {
+            // Arrange
+            var artifactRelationIdsList = new List<Guid>
+            {
+                Guid.NewGuid()
+            };
+
+            _artifactsService
+                .Setup(mock => mock.DeleteRelationsAsync(It.IsAny<IList<Guid>>()))
+                .ReturnsAsync(new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.ArtifactNotExists, "[Mock] message")));
+
+            // Act
+            var result = await _classUnderTest.DeleteRelationsAsync(artifactRelationIdsList);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
+            _artifactsService.Verify(mock => mock.DeleteRelationsAsync(It.IsAny<IList<Guid>>()), Times.Once);
         }
 
         [Fact]

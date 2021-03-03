@@ -2,7 +2,6 @@ import * as React from 'react';
 import ArtifactRelation from '../../interfaces/ArtifactRelation'
 import { Button } from 'reactstrap';
 import EditArtifactRelation from './EditArtifactRelation';
-import SyncAltIcon from '@material-ui/icons/SyncAlt';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 import Artifact from '../../interfaces/Artifact';
@@ -31,8 +30,6 @@ const ArtifactRelationRow = (props: { artifactRelation: ArtifactRelation, artifa
                 return <ArrowForwardIcon />
             case 1:
                 return <ArrowBackIcon />
-            case 2:
-                return <SyncAltIcon />
             default:
                 return <ArrowForwardIcon />
         };

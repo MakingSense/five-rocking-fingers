@@ -1,7 +1,10 @@
-﻿import { Button, CssBaseline, Divider, Drawer, List, Toolbar } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+﻿import { Badge, Button, CssBaseline, Drawer, List, Toolbar, Typography } from '@material-ui/core';
+import TuneTwoToneIcon from "@material-ui/icons/TuneTwoTone";
+import { makeStyles,withStyles, createStyles } from "@material-ui/core/styles";
 import AddIcon from '@material-ui/icons/Add';
 import * as React from 'react';
+import { SubMenu } from 'react-pro-sidebar';
+import NavMenuFilter from '../../commons/NavMenuFilter';
 import SnackbarMessage from '../../commons/SnackbarMessage';
 import Category from '../../interfaces/Category';
 import Project from '../../interfaces/Project';
@@ -38,17 +41,41 @@ const useStyles = makeStyles((theme) => ({
         background: "#212121",
         color: 'white',
         borderRadius: 0,
+        alignContent: 'center',
         '&:hover': {
             backgroundColor: "#323232",
             color: '#FFF'
         }
+    },
+    subMenu: {
+        listStyleType: "none",
+        paddingLeft: "7vh",
+        paddingTop: "1vh",
+        paddingBottom: "1vh",
+        color: "#fafafa",
+        backgroundColor: "#212121",
+        "& .pro-inner-list-item":{marginLeft: '-9vh'},
     }
 }));
 
-const ProjectsList = (props: { projects: Project[], categories: Category[], updateProjects: Function, updateCategories: Function }) => {
+const StyledBadge = withStyles(() =>
+  createStyles({
+    badge: {
+      right: -3,
+      top: 0,
+      fontSize: 13,
+      border: `2px solid #f44336`,
+      padding: "0 4px",
+      color: "#ffebee",
+      backgroundColor: "#f44336"
+    },
+  })
+)(Badge);
+
+const ProjectsList = (props: { projects: Project[], categories: Category[], updateProjects: Function, updateCategories: Function, projectsFiltered: Project[],categoriesFilter: Category[],setCategoriesFilter: Function, handleFilterCleaner: Function }) => {
 
     const classes = useStyles();
-
+    const {projects, categories, updateProjects, updateCategories,projectsFiltered ,categoriesFilter, setCategoriesFilter, handleFilterCleaner} = props;
     const [edit, setEdit] = React.useState(false);
     const [create, setCreate] = React.useState(false);
     const [openDelete, setOpenDelete] = React.useState(false);
@@ -78,7 +105,7 @@ const ProjectsList = (props: { projects: Project[], categories: Category[], upda
     }
 
     const deleteProject = (id: number) => {
-        const aux = props.projects.filter(p => p.id === id);
+        const aux = projects.filter(p => p.id === id);
         if (aux.length === 0) {
             setProjectToDelete(null);
         } else {
@@ -90,7 +117,7 @@ const ProjectsList = (props: { projects: Project[], categories: Category[], upda
     const fillProjectCategories = async (selectedCategories: Category[]) => {
         let projectCategories = [] as ProjectCategory[];
         for (const category of selectedCategories) {
-            let categoryToAdd = props.categories.find(c => c.name === category.name);
+            let categoryToAdd = categories.find(c => c.name === category.name);
             if (categoryToAdd === undefined) {
                 const response = await CategoryService.save(category);
                 if (response.status === 200) {
@@ -128,6 +155,23 @@ const ProjectsList = (props: { projects: Project[], categories: Category[], upda
         setOpenSnackbar(true);
     }
 
+    const handleListElement = () => {
+        const hasFilteredProjects = projectsFiltered.length !== 0;
+        const hasCategoryFilters = categoriesFilter.length !== 0;
+
+        return !hasFilteredProjects && !hasCategoryFilters ?
+            projects.map((project) => (
+                <ListElement selected={selectedIndex === project.id} key={project.id} id={project.id} selectProject={selectProject} deleteProject={deleteProject} name={project.name} />
+            ))
+            :
+            !hasFilteredProjects ?
+                <Typography align="center" variant="h6" gutterBottom>Categoría sin proyectos</Typography>
+                :
+                projectsFiltered.map((project) => (
+                    <ListElement selected={selectedIndex === project.id} key={project.id} id={project.id} selectProject={selectProject} deleteProject={deleteProject} name={project.name} />
+                ));
+      };
+
     return (
         <div className={classes.root}>
             <CssBaseline />
@@ -140,17 +184,29 @@ const ProjectsList = (props: { projects: Project[], categories: Category[], upda
                     <NewProjectDialog
                         create={create}
                         finishCreation={finishCreation}
-                        categories={props.categories}
+                        categories={categories}
                         openSnackbar={manageOpenSnackbar}
-                        updateProjects={props.updateProjects}
-                        updateCategories={props.updateCategories}
+                        updateProjects={updateProjects}
+                        updateCategories={updateCategories}
                         fillProjectCategories={fillProjectCategories} />
-                    <Divider />
+                    <SubMenu
+                        className={classes.subMenu}
+                        title={"Filtros"}
+                        icon={
+                            <StyledBadge badgeContent={categoriesFilter.length}>
+                                <TuneTwoToneIcon />
+                            </StyledBadge>
+                        }
+                    >
+                        <NavMenuFilter
+                            categories={categories}
+                            setCategoriesFilter={setCategoriesFilter}
+                            cleaner={handleFilterCleaner}
+                        />
+                    </SubMenu>
                     <List>
-                        {props.projects.map((project: Project) =>
-                            <ListElement selected={selectedIndex === project.id} key={project.id} id={project.id} selectProject={selectProject} deleteProject={deleteProject} name={project.name} />
-                        )}
-                        <ConfirmationDialog keepMounted open={openDelete} onClose={handleClose} project={projectToDelete} resetView={resetView} openSnackbar={manageOpenSnackbar} updateProjects={props.updateProjects} />
+                        {Array.isArray(projects) ? handleListElement() : "No hay projectos"}
+                        <ConfirmationDialog keepMounted open={openDelete} onClose={handleClose} project={projectToDelete} resetView={resetView} openSnackbar={manageOpenSnackbar} updateProjects={updateProjects} />
                     </List>
                 </div>
             </Drawer>
@@ -158,17 +214,17 @@ const ProjectsList = (props: { projects: Project[], categories: Category[], upda
                 {
                     selectedIndex === -1 ?
                         (<h1>Seleccione un proyecto para ver sus detalles</h1>)
-                        : props.projects.filter(p => p.id === selectedIndex)[0] ?
+                        : projects.filter(p => p.id === selectedIndex)[0] ?
                             (edit ?
                                 (<EditProject
-                                    project={props.projects.filter(p => p.id === selectedIndex)[0]}
+                                    project={projects.filter(p => p.id === selectedIndex)[0]}
                                     cancelEdit={cancelEdit}
-                                    categories={props.categories}
+                                    categories={categories}
                                     openSnackbar={manageOpenSnackbar}
-                                    updateProjects={props.updateProjects}
-                                    updateCategories={props.updateCategories}
+                                    updateProjects={updateProjects}
+                                    updateCategories={updateCategories}
                                     fillProjectCategories={fillProjectCategories} />)
-                                : (<ViewProject project={props.projects.filter(p => p.id === selectedIndex)[0]} changeEdit={changeEdit} />))
+                                : (<ViewProject project={projects.filter(p => p.id === selectedIndex)[0]} changeEdit={changeEdit} />))
                             : setSelectedIndex(-1)
                 }
                 <SnackbarMessage

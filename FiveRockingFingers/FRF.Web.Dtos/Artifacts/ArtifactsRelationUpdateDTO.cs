@@ -18,7 +18,7 @@ namespace FRF.Web.Dtos.Artifacts
         [Required]
         public string Artifact2Property { get; set; }
         [Required]
-        [Range(0, 2)]
+        [Range(0, 1)]
         public int RelationTypeId { get; set; }
     }
 }

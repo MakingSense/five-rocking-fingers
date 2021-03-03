@@ -7,7 +7,6 @@ import Artifact from '../interfaces/Artifact';
 import KeyValueStringPair from '../interfaces/KeyValueStringPair';
 import ArtifactRelation from '../interfaces/ArtifactRelation';
 import RelationCard from './NewArtifactRelationComponents/RelationCard';
-import SyncAltIcon from '@material-ui/icons/SyncAlt';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 import ArtifactService from '../services/ArtifactService';
@@ -364,9 +363,6 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                                     </MenuItem>
                                     <MenuItem value="1">
                                         <em><ArrowBackIcon /></em>
-                                    </MenuItem>
-                                    <MenuItem value="2">
-                                        <em><SyncAltIcon /></em>
                                     </MenuItem>
                                 </Select>
                             }

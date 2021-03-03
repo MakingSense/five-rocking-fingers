@@ -68,6 +68,14 @@ class ArtifactService {
             return error.response ? error.response : error.message;
         }
     };
+
+    static deleteRelations = async (artifactRelationIds: any) => {
+        try {
+            return await axios.delete(`${BASE_URL}relations`, { data: artifactRelationIds });
+        } catch (error) {
+            return error.response ? error.response : error.message;
+        }
+    };
     
     static setRelations = async (artifactRelationsList: any) => {
         try {
