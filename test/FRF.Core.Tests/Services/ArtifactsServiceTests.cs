@@ -13,6 +13,7 @@ using CoreModels = FRF.Core.Models;
 using FRF.Core.Response;
 using FRF.Core.XmlValidation;
 using System.Xml.Linq;
+using System.Linq;
 
 namespace FRF.Core.Tests.Services
 {
@@ -404,6 +405,22 @@ namespace FRF.Core.Tests.Services
             var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
             var artifact = CreateArtifact(project, artifactType);
+            artifact.Settings = new XElement("Settings", new XElement("Setting1", "Value1"));
+
+            var providerAux = CreateProvider();
+            var artifactTypeAux = CreateArtifactType(provider);
+            var projectAux = CreateProject();
+            var artifactAux = CreateArtifact(project, artifactType);
+            artifactAux.Settings = new XElement("Settings", new XElement("Setting1Aux", "Value1"));
+
+            var relation = new DataAccess.EntityModels.ArtifactsRelation
+            {
+                Artifact1Id = artifact.Id,
+                Artifact1 = artifact,
+                Artifact2Id = artifactAux.Id,
+                Artifact2 = artifactAux,
+                RelationTypeId = 0
+            };
 
             var newProject = new Project()
             {
@@ -432,7 +449,7 @@ namespace FRF.Core.Tests.Services
                 Project = _mapper.Map<CoreModels.Project>(newProject),
                 ArtifactTypeId = newArtifactType.Id,
                 ArtifactType = _mapper.Map<CoreModels.ArtifactType>(newArtifactType),
-                Settings = new XElement("Settings")
+                Settings = new XElement("Settings", new XElement("Setting1Modified", "Value1"))
             };            
 
             _settingsValidator.Setup(mock => mock.ValidateSettings(It.IsAny<CoreModels.Artifact>()))
@@ -453,6 +470,12 @@ namespace FRF.Core.Tests.Services
             Assert.NotNull(resultValue.ModifiedDate);
             Assert.Equal(artifactToUpdate.ProjectId, resultValue.ProjectId);
             Assert.Equal(artifactToUpdate.ArtifactTypeId, resultValue.ArtifactTypeId);
+            Assert.True(XNode.DeepEquals(artifactToUpdate.Settings, resultValue.Settings));
+
+            Assert.Empty(_dataAccess.ArtifactsRelation
+                .Include(ar => ar.Artifact1)
+                .Include(ar => ar.Artifact2)
+                .Where(ar => ar.Artifact1Id == artifact.Id || ar.Artifact2Id == artifact.Id).ToList());
 
             Assert.Equal(newProject.Id, resultValue.Project.Id);
             Assert.Equal(newProject.Name, resultValue.Project.Name);
@@ -998,6 +1021,60 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(artifactRelation.RelationTypeId, resultValue.RelationTypeId);
             Assert.Equal(artifactRelation.Artifact1Property, resultValue.Artifact1Property);
             Assert.Equal(artifactRelation.Artifact2Property, resultValue.Artifact2Property);
+        }
+
+        [Fact]
+        public async Task DeleteRelationsAsync_ExceptionRelationNotExists()
+        {
+            // Arange
+            var artifactRelationIds = new List<Guid>
+            {
+                new Guid()
+            };
+
+            // Act
+            var response = await _classUnderTest.DeleteRelationsAsync(artifactRelationIds);
+
+            // Assert
+            Assert.IsType<ServiceResponse<IList<ArtifactsRelation>>>(response);
+            Assert.False(response.Success);
+            Assert.NotNull(response.Error);
+            Assert.Equal(ErrorCodes.RelationNotExists, response.Error.Code);
+        }
+
+        [Fact]
+        public async Task DeleteRelationsAsync_ReturnsRelations()
+        {
+            // Arange
+            var project = CreateProject();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
+            var artifact1 = CreateArtifact(project, artifactType);
+            var artifact2 = CreateArtifact(project, artifactType);
+            var artifactRelation = CreateArtifactsRelationModel(artifact1.Id, artifact2.Id);
+            var artifactRelationMapped = _mapper.Map<FRF.DataAccess.EntityModels.ArtifactsRelation>(artifactRelation);
+
+            await _dataAccess.ArtifactsRelation.AddAsync(artifactRelationMapped);
+            await _dataAccess.SaveChangesAsync();
+
+            var artifactRelationsIds = new List<Guid>
+            {
+                artifactRelationMapped.Id
+            };
+
+            // Act
+            var response = await _classUnderTest.DeleteRelationsAsync(artifactRelationsIds);
+
+            // Assert
+            Assert.True(response.Success);
+            Assert.IsType<ServiceResponse<IList<ArtifactsRelation>>>(response);
+            var resultValue = Assert.IsAssignableFrom<IList<ArtifactsRelation>>(response.Value);
+            Assert.Equal(artifactRelationMapped.Id, resultValue[0].Id);
+            Assert.Equal(artifactRelation.Artifact1Id, resultValue[0].Artifact1Id);
+            Assert.Equal(artifactRelation.Artifact2Id, resultValue[0].Artifact2Id);
+            Assert.Equal(artifactRelation.RelationTypeId, resultValue[0].RelationTypeId);
+            Assert.Equal(artifactRelation.Artifact1Property, resultValue[0].Artifact1Property);
+            Assert.Equal(artifactRelation.Artifact2Property, resultValue[0].Artifact2Property);
         }
     }
 }

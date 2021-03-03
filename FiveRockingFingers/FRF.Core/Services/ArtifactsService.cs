@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using EntityModels = FRF.DataAccess.EntityModels;
 
 namespace FRF.Core.Services
@@ -240,6 +241,12 @@ namespace FRF.Core.Services
                 return new ServiceResponse<Artifact>(new Error(ErrorCodes.InvalidArtifactSettings, $"Settings are invalid"));
             }
 
+            var artifactsRelationsIdsToDelete = await GetRelationsToDeleteOfUpdatedArtifact(artifact.Id, artifact.Settings, result.Settings);
+
+            var artifactsRelationsToDelete = await _dataContext.ArtifactsRelation.Where(ar => artifactsRelationsIdsToDelete.Contains(ar.Id)).ToListAsync();
+
+            _dataContext.ArtifactsRelation.RemoveRange(artifactsRelationsToDelete);
+
             //Updates the artifact
             result.Name = artifact.Name;
             result.Settings = artifact.Settings;
@@ -348,6 +355,25 @@ namespace FRF.Core.Services
             return new ServiceResponse<ArtifactsRelation>(_mapper.Map<ArtifactsRelation>(artifactsRelation));
         }
 
+        public async Task<ServiceResponse<IList<ArtifactsRelation>>> DeleteRelationsAsync(IList<Guid> artifactRelationIds)
+        {
+            var relationsIdFromDb = await _dataContext.ArtifactsRelation.Select(ar => ar.Id).ToListAsync();
+            var relationsThatDoNotExist = artifactRelationIds.Except(relationsIdFromDb).ToList();
+            if (relationsThatDoNotExist.Any())
+            {
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotExists,
+                    $"There is no relation with Id={string.Join(", Id=", relationsThatDoNotExist)}"));
+            }
+
+            var artifactsRelations = await _dataContext.ArtifactsRelation.Where(ar => artifactRelationIds.Contains(ar.Id)).ToListAsync();
+
+            _dataContext.ArtifactsRelation.RemoveRange(artifactsRelations);
+
+            await _dataContext.SaveChangesAsync();
+
+            return new ServiceResponse<IList<ArtifactsRelation>>(_mapper.Map<IList<ArtifactsRelation>>(artifactsRelations));
+        }
+
         public async Task<ServiceResponse<IList<ArtifactsRelation>>> UpdateRelationAsync(int artifactId,
             IList<ArtifactsRelation> artifactsRelationsNew)
         {
@@ -396,6 +422,46 @@ namespace FRF.Core.Services
             await _dataContext.SaveChangesAsync();
 
             return new ServiceResponse<IList<ArtifactsRelation>>(artifactsRelationsNew);
-        }        
+        }
+
+        private async Task<List<Guid>> GetRelationsToDeleteOfUpdatedArtifact(int artifactId, XElement updatedSettings, XElement originalSettings)
+        {
+            var changedSettingsName = FindSettingsNamesChanged(updatedSettings, originalSettings);
+            var artifactsRelationsIdsToDelete = await FindRelationsToDeleteOfUpdatedArtifact(artifactId, changedSettingsName);
+            return artifactsRelationsIdsToDelete;
+        }
+
+        private List<string> FindSettingsNamesChanged(XElement updatedSettings, XElement originalSettings)
+        {
+            var changedSettingsName = new List<string>();
+
+            foreach(var setting in originalSettings.Elements())
+            {
+                if(!setting.HasElements && !updatedSettings.Elements(setting.Name).Any())
+                {
+                    changedSettingsName.Add(setting.Name.ToString());
+                }
+            }
+
+            return changedSettingsName;
+        }
+
+        private async Task<List<Guid>> FindRelationsToDeleteOfUpdatedArtifact(int artifactId, List<string> changedSettingsName)
+        {
+            var relationsResponse = await GetAllRelationsOfAnArtifactAsync(artifactId);
+            var relations = relationsResponse.Value;
+
+            var artifactsRelationsIdsToDelete = new List<Guid>();
+
+            foreach (var relation in relations)
+            {
+                if(changedSettingsName.Contains(relation.Artifact1Property) || changedSettingsName.Contains(relation.Artifact2Property))
+                {
+                    artifactsRelationsIdsToDelete.Add(relation.Id);
+                }
+            }
+
+            return artifactsRelationsIdsToDelete;
+        }
     }
 }
