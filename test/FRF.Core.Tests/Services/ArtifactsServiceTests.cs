@@ -784,7 +784,94 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(artifactsRelationToSave[0].Artifact2Id, artifactsRelationInDb[0].Artifact2Id);
             Assert.Equal(artifactsRelationToSave[0].Artifact1Id, artifactsRelationInDb[0].Artifact1Id);
         }
+        
+        [Fact]
+        public async Task SetRelationAsync_ReturnsNull_WhenIsAnyBidirectionalRelationSameRelationType()
+        {
+            // Arange
+            var artifactsRelationToSave = new List<ArtifactsRelation>();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
+            var project = CreateProject();
+            var artifact1 = CreateArtifact(project, artifactType);
+            var artifact2 = CreateArtifact(project, artifactType);
 
+            var artifactRelation1 = new ArtifactsRelation()
+            {
+                Artifact1Id = artifact1.Id,
+                Artifact2Id = artifact2.Id,
+                Artifact1Property = "Mock 1 Property",
+                Artifact2Property = "Mock 2 Property",
+                RelationTypeId = 1
+            };
+            var artifactRelation2 = new ArtifactsRelation()
+            {
+                Artifact1Id = artifact2.Id,
+                Artifact2Id = artifact1.Id,
+                Artifact1Property = "Mock 2 Property",
+                Artifact2Property = "Mock 1 Property",
+                RelationTypeId = 1
+            };
+            artifactsRelationToSave.Add(artifactRelation2);
+            await _dataAccess.ArtifactsRelation.AddAsync(
+                _mapper.Map<DataAccess.EntityModels.ArtifactsRelation>(artifactRelation1));
+
+            await _dataAccess.SaveChangesAsync();
+
+            // Act
+            var response = await _classUnderTest.SetRelationAsync(artifactsRelationToSave);
+
+            // Assert
+            Assert.False(response.Success);
+            Assert.IsType<ServiceResponse<IList<ArtifactsRelation>>>(response);
+            Assert.NotNull(response.Error);
+            Assert.Equal(ErrorCodes.RelationAlreadyExisted, response.Error.Code);
+            Assert.Null(response.Value);
+        }
+
+        [Fact]
+        public async Task SetRelationAsync_ReturnsNull_WhenIsAnyBidirectionalRelationDiferentRelationType()
+        {
+            // Arange
+            var artifactsRelationToSave = new List<ArtifactsRelation>();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
+            var project = CreateProject();
+            var artifact1 = CreateArtifact(project, artifactType);
+            var artifact2 = CreateArtifact(project, artifactType);
+
+            var artifactRelation1 = new ArtifactsRelation()
+            {
+                Artifact1Id = artifact1.Id,
+                Artifact2Id = artifact2.Id,
+                Artifact1Property = "Mock 1 Property",
+                Artifact2Property = "Mock 2 Property",
+                RelationTypeId = 1
+            };
+            var artifactRelation2 = new ArtifactsRelation()
+            {
+                Artifact1Id = artifact1.Id,
+                Artifact2Id = artifact2.Id,
+                Artifact1Property = "Mock 1 Property",
+                Artifact2Property = "Mock 2 Property",
+                RelationTypeId = 0
+            };
+            artifactsRelationToSave.Add(artifactRelation2);
+            await _dataAccess.ArtifactsRelation.AddAsync(
+                _mapper.Map<DataAccess.EntityModels.ArtifactsRelation>(artifactRelation1));
+            
+            await _dataAccess.SaveChangesAsync();
+
+            // Act
+            var response = await _classUnderTest.SetRelationAsync(artifactsRelationToSave);
+
+            // Assert
+            Assert.False(response.Success);
+            Assert.IsType<ServiceResponse<IList<ArtifactsRelation>>>(response);
+            Assert.NotNull(response.Error);
+            Assert.Equal(ErrorCodes.RelationAlreadyExisted, response.Error.Code);
+            Assert.Null(response.Value);
+        }
         [Fact]
         public async Task UpdateRelationAsync_ReturnsNull_WhenIsAnyArtifactExcept()
         {
@@ -846,22 +933,23 @@ namespace FRF.Core.Tests.Services
                 var artifact2Id = artifactIdToUpdate;
 
                 var artifactRelation = CreateArtifactsRelationModel(artifact1Id, artifact2Id);
-                
+
+
                 var artifactRelationDb = _mapper.Map<DataAccess.EntityModels.ArtifactsRelation>(CreateArtifactsRelationModel(artifact1Id, artifact2Id));
                 await _dataAccess.ArtifactsRelation.AddAsync(artifactRelationDb);
 
                 artifactRelation.Id = artifactRelationDb.Id;
                 artifactsRelationUpdated.Add(artifactRelation);
                 artifactsRelationInDb.Add(artifactRelationDb);
-                
+
                 i++;
             }
 
             await _dataAccess.SaveChangesAsync();
-            
+
             // Act
             var response = await _classUnderTest.UpdateRelationAsync(artifactIdToUpdate, artifactsRelationUpdated);
-            
+
             // Assert
             Assert.True(response.Success);
             Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);

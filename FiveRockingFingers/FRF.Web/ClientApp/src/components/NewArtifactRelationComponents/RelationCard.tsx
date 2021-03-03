@@ -1,7 +1,6 @@
 ﻿import * as React from 'react';
 import Typography from '@material-ui/core/Typography';
 import ArtifactRelation from '../../interfaces/ArtifactRelation';
-import SyncAltIcon from '@material-ui/icons/SyncAlt';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 import { IconButton } from '@material-ui/core';
@@ -27,8 +26,6 @@ const RelationCard = (props: { Relation: ArtifactRelation, index: number, delete
                 return <ArrowForwardIcon />;
             case (1):
                 return <ArrowBackIcon />;
-            case (2):
-                return <SyncAltIcon />;
             default:
                 return null;
         }

@@ -6,7 +6,6 @@ import Typography from '@material-ui/core/Typography';
 import Artifact from '../../interfaces/Artifact';
 import KeyValueStringPair from '../../interfaces/KeyValueStringPair';
 import ArtifactRelation from '../../interfaces/ArtifactRelation';
-import SyncAltIcon from '@material-ui/icons/SyncAlt';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 import ArtifactService from '../../services/ArtifactService';
@@ -289,9 +288,6 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
                                     </MenuItem>
                                     <MenuItem value="1">
                                         <em><ArrowBackIcon /></em>
-                                    </MenuItem>
-                                    <MenuItem value="2">
-                                        <em><SyncAltIcon /></em>
                                     </MenuItem>
                                 </Select>
                             }
