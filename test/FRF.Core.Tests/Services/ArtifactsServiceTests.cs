@@ -850,14 +850,14 @@ namespace FRF.Core.Tests.Services
         public async Task SetRelationAsync_ReturnsNull_WhenIsAnyBidirectionalRelationSameRelationType()
         {
             // Arange
-            var artifactsRelationToSave = new List<ArtifactsRelation>();
+            var artifactsRelationToSave = new List<CoreModels.ArtifactsRelation>();
             var provider = CreateProvider();
             var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
             var artifact1 = CreateArtifact(project, artifactType);
             var artifact2 = CreateArtifact(project, artifactType);
 
-            var artifactRelation1 = new ArtifactsRelation()
+            var artifactRelation1 = new CoreModels.ArtifactsRelation()
             {
                 Artifact1Id = artifact1.Id,
                 Artifact2Id = artifact2.Id,
@@ -865,7 +865,7 @@ namespace FRF.Core.Tests.Services
                 Artifact2Property = "Mock 2 Property",
                 RelationTypeId = 1
             };
-            var artifactRelation2 = new ArtifactsRelation()
+            var artifactRelation2 = new CoreModels.ArtifactsRelation()
             {
                 Artifact1Id = artifact2.Id,
                 Artifact2Id = artifact1.Id,
@@ -875,7 +875,7 @@ namespace FRF.Core.Tests.Services
             };
             artifactsRelationToSave.Add(artifactRelation2);
             await _dataAccess.ArtifactsRelation.AddAsync(
-                _mapper.Map<DataAccess.EntityModels.ArtifactsRelation>(artifactRelation1));
+                _mapper.Map<ArtifactsRelation>(artifactRelation1));
 
             await _dataAccess.SaveChangesAsync();
 
@@ -884,7 +884,7 @@ namespace FRF.Core.Tests.Services
 
             // Assert
             Assert.False(response.Success);
-            Assert.IsType<ServiceResponse<IList<ArtifactsRelation>>>(response);
+            Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
             Assert.NotNull(response.Error);
             Assert.Equal(ErrorCodes.RelationAlreadyExisted, response.Error.Code);
             Assert.Null(response.Value);
@@ -894,14 +894,14 @@ namespace FRF.Core.Tests.Services
         public async Task SetRelationAsync_ReturnsNull_WhenIsAnyBidirectionalRelationDiferentRelationType()
         {
             // Arange
-            var artifactsRelationToSave = new List<ArtifactsRelation>();
+            var artifactsRelationToSave = new List<CoreModels.ArtifactsRelation>();
             var provider = CreateProvider();
             var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
             var artifact1 = CreateArtifact(project, artifactType);
             var artifact2 = CreateArtifact(project, artifactType);
 
-            var artifactRelation1 = new ArtifactsRelation()
+            var artifactRelation1 = new CoreModels.ArtifactsRelation()
             {
                 Artifact1Id = artifact1.Id,
                 Artifact2Id = artifact2.Id,
@@ -909,7 +909,7 @@ namespace FRF.Core.Tests.Services
                 Artifact2Property = "Mock 2 Property",
                 RelationTypeId = 1
             };
-            var artifactRelation2 = new ArtifactsRelation()
+            var artifactRelation2 = new CoreModels.ArtifactsRelation()
             {
                 Artifact1Id = artifact1.Id,
                 Artifact2Id = artifact2.Id,
@@ -919,7 +919,7 @@ namespace FRF.Core.Tests.Services
             };
             artifactsRelationToSave.Add(artifactRelation2);
             await _dataAccess.ArtifactsRelation.AddAsync(
-                _mapper.Map<DataAccess.EntityModels.ArtifactsRelation>(artifactRelation1));
+                _mapper.Map<ArtifactsRelation>(artifactRelation1));
             
             await _dataAccess.SaveChangesAsync();
 
@@ -928,7 +928,7 @@ namespace FRF.Core.Tests.Services
 
             // Assert
             Assert.False(response.Success);
-            Assert.IsType<ServiceResponse<IList<ArtifactsRelation>>>(response);
+            Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
             Assert.NotNull(response.Error);
             Assert.Equal(ErrorCodes.RelationAlreadyExisted, response.Error.Code);
             Assert.Null(response.Value);
@@ -1293,7 +1293,7 @@ namespace FRF.Core.Tests.Services
             var response = await _classUnderTest.DeleteRelationsAsync(artifactRelationIds);
 
             // Assert
-            Assert.IsType<ServiceResponse<IList<ArtifactsRelation>>>(response);
+            Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
             Assert.False(response.Success);
             Assert.NotNull(response.Error);
             Assert.Equal(ErrorCodes.RelationNotExists, response.Error.Code);
@@ -1308,7 +1308,7 @@ namespace FRF.Core.Tests.Services
             var artifactType = CreateArtifactType(provider);
             var artifact1 = CreateArtifact(project, artifactType);
             var artifact2 = CreateArtifact(project, artifactType);
-            var artifactRelation = CreateArtifactsRelationModel(artifact1.Id, artifact2.Id);
+            var artifactRelation = CreateArtifactsRelationModel(artifact1.Id, artifact2.Id, "[Mock] Property artefact 1", "[Mock] Property artefact 2");
             var artifactRelationMapped = _mapper.Map<FRF.DataAccess.EntityModels.ArtifactsRelation>(artifactRelation);
 
             await _dataAccess.ArtifactsRelation.AddAsync(artifactRelationMapped);
@@ -1324,8 +1324,8 @@ namespace FRF.Core.Tests.Services
 
             // Assert
             Assert.True(response.Success);
-            Assert.IsType<ServiceResponse<IList<ArtifactsRelation>>>(response);
-            var resultValue = Assert.IsAssignableFrom<IList<ArtifactsRelation>>(response.Value);
+            Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
+            var resultValue = Assert.IsAssignableFrom<IList<CoreModels.ArtifactsRelation>>(response.Value);
             Assert.Equal(artifactRelationMapped.Id, resultValue[0].Id);
             Assert.Equal(artifactRelation.Artifact1Id, resultValue[0].Artifact1Id);
             Assert.Equal(artifactRelation.Artifact2Id, resultValue[0].Artifact2Id);
