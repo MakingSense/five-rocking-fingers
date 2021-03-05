@@ -47,7 +47,7 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeNewArtifactsRelation: Function, projectId: number, setOpenSnackbar: Function, setSnackbarSettings: Function, artifacts: Artifact[], artifactsRelations: ArtifactRelation[], updateList: handlerUpdateList }) => {
+const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeNewArtifactsRelation: Function, projectId: number, setOpenSnackbar: Function, setSnackbarSettings: Function, artifacts: Artifact[], artifactsRelations: ArtifactRelation[], updateList: handlerUpdateList, artifactId: number }) => {
 
     const classes = useStyles();
     const { handleSubmit, errors, control } = useForm();
@@ -145,7 +145,7 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
             artifactsRelationsList.push(artifactsRelation);
         });
         try {
-            let response = await ArtifactService.setRelations(artifactsRelationsList);
+            let response = await ArtifactService.setRelations(props.artifactId, artifactsRelationsList);
             if (response.status === 200) {
                 props.setSnackbarSettings({ message: "Las relaciones han sido creadas con éxito", severity: "success" });
                 props.setOpenSnackbar(true);
