@@ -104,11 +104,11 @@ namespace FRF.Web.Controllers
             return NoContent();
         }
 
-        [HttpPost("~/api/relations")]
-        public async Task<IActionResult> SetRelationAsync(IList<ArtifactsRelationInsertDTO> artifactRelationList)
+        [HttpPost("{artifactId}/relations")]
+        public async Task<IActionResult> SetRelationAsync(int artifactId, IList<ArtifactsRelationInsertDTO> artifactRelationList)
         {
             var artifactsRelations = _mapper.Map<IList<ArtifactsRelation>>(artifactRelationList);
-            var result = await _artifactsService.SetRelationAsync(artifactsRelations);
+            var result = await _artifactsService.SetRelationAsync(artifactId, artifactsRelations);
             if (!result.Success) return BadRequest();
 
             var artifactsResult = _mapper.Map<IList<ArtifactsRelationDTO>>(result.Value);
