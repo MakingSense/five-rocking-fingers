@@ -208,7 +208,7 @@ namespace FRF.Core.Services
             return new ServiceResponse<Artifact>(MapArtifact(response));
         }
 
-        public async Task<ServiceResponse<Artifact>> Update(Artifact artifact)
+        public async Task<ServiceResponse<Artifact>> Update(Artifact artifact, bool isFirstUpdate = true, bool isFinalStep = true)
         {
             //Gets the artifact associated to it from the database
             var result = await _dataContext.Artifacts
@@ -247,7 +247,10 @@ namespace FRF.Core.Services
 
             _dataContext.ArtifactsRelation.RemoveRange(artifactsRelationsToDelete);
 
-            artifact.Settings = await SetSettingsWithValueUpdated(artifact.Id, artifact.Settings, result.Settings);
+            if(isFirstUpdate)
+            {
+                artifact.Settings = await SetSettingsWithValueUpdated(artifact.Id, artifact.Settings, result.Settings);
+            }           
 
             var settingsWithValueUpdated = GetSettingsWithValueUpdated(artifact.Settings, result.Settings);
 
@@ -257,9 +260,7 @@ namespace FRF.Core.Services
             result.ModifiedDate = DateTime.Now;
             result.ProjectId = artifact.ProjectId;
             result.ArtifactTypeId = artifact.ArtifactTypeId;
-
-            //Saves the updated aritfact in the database
-            await _dataContext.SaveChangesAsync();
+                      
 
             foreach (var settingWithValueUpdated in settingsWithValueUpdated)
             {
@@ -271,6 +272,12 @@ namespace FRF.Core.Services
                     await UpdateSettingRelated(relationToUpdate);
                 }
             }
+
+            //Saves the updated aritfact in the database
+            if(isFinalStep)
+            {
+                await _dataContext.SaveChangesAsync();
+            }  
 
             var response = await _dataContext.Artifacts
                 .Include(a => a.ArtifactType)
@@ -284,80 +291,9 @@ namespace FRF.Core.Services
             return new ServiceResponse<Artifact>(mappedArtifact);
         }
 
-        public async Task<ServiceResponse<Artifact>> Update2(Artifact artifact)
+        public async Task AuxiliarMethod(Artifact artifact)
         {
-            //Gets the artifact associated to it from the database
-            var result = await _dataContext.Artifacts
-                .Include(a => a.ArtifactType)
-                    .ThenInclude(at => at.Provider)
-                .Include(a => a.Project)
-                .SingleOrDefaultAsync(a => a.Id == artifact.Id);
 
-            if (result == null)
-            {
-                return new ServiceResponse<Artifact>(new Error(ErrorCodes.ArtifactNotExists, $"There is no artifact with Id = {artifact.Id}"));
-            }
-
-            if (!await _dataContext.Projects.AnyAsync(p => p.Id == artifact.ProjectId))
-            {
-                return new ServiceResponse<Artifact>(new Error(ErrorCodes.ProjectNotExists, $"There is no project with Id = {artifact.ProjectId}"));
-            }
-
-            var artifactType = await _dataContext.ArtifactType.Include(at => at.Provider).SingleOrDefaultAsync(at => at.Id == artifact.ArtifactTypeId);
-
-            if (artifactType == null)
-            {
-                return new ServiceResponse<Artifact>(new Error(ErrorCodes.ArtifactTypeNotExists, $"There is no artifact type with Id = {artifact.ArtifactTypeId}"));
-            }
-
-            artifact.ArtifactType = _mapper.Map<ArtifactType>(artifactType);
-
-            if (!_settingsValidator.ValidateSettings(artifact))
-            {
-                return new ServiceResponse<Artifact>(new Error(ErrorCodes.InvalidArtifactSettings, $"Settings are invalid"));
-            }
-
-            var artifactsRelationsIdsToDelete = await GetRelationsToDeleteOfUpdatedArtifact(artifact.Id, artifact.Settings, result.Settings);
-
-            var artifactsRelationsToDelete = await _dataContext.ArtifactsRelation.Where(ar => artifactsRelationsIdsToDelete.Contains(ar.Id)).ToListAsync();
-
-            _dataContext.ArtifactsRelation.RemoveRange(artifactsRelationsToDelete);
-            var relationsResponse = await GetAllRelationsOfAnArtifactAsync(artifact.Id);
-            var relations = relationsResponse.Value;
-
-            var settingsWithValueUpdated = GetSettingsWithValueUpdated(artifact.Settings, result.Settings);
-
-            //Updates the artifact
-            result.Name = artifact.Name;
-            result.Settings = artifact.Settings;
-            result.ModifiedDate = DateTime.Now;
-            result.ProjectId = artifact.ProjectId;
-            result.ArtifactTypeId = artifact.ArtifactTypeId;
-
-            //Saves the updated aritfact in the database
-            await _dataContext.SaveChangesAsync();
-
-            foreach (var settingWithValueUpdated in settingsWithValueUpdated)
-            {
-                var relationsToUpdateResponse = await GetRelationsToUpdateAsync(artifact.Id, settingWithValueUpdated);
-                var relationsToUpdate = relationsToUpdateResponse.Value;
-
-                foreach (var relationToUpdate in relationsToUpdate)
-                {
-                    await UpdateSettingRelated(relationToUpdate);
-                }
-            }
-
-            var response = await _dataContext.Artifacts
-                .Include(a => a.ArtifactType)
-                    .ThenInclude(a => a.Provider)
-                .Include(a => a.Project)
-                    .ThenInclude(p => p.ProjectCategories)
-                        .ThenInclude(pc => pc.Category)
-                .SingleOrDefaultAsync(a => a.Id == result.Id);
-
-            var mappedArtifact = MapArtifact(response);
-            return new ServiceResponse<Artifact>(mappedArtifact);
         }
 
         public async Task<ServiceResponse<Artifact>> Delete(int id)
@@ -531,6 +467,27 @@ namespace FRF.Core.Services
 
             await _dataContext.SaveChangesAsync();
 
+            foreach (var relationOriginal in relationsOriginal)
+            {
+                foreach (var relationNew in artifactsRelationsNew)
+                {
+                    if (relationOriginal.Id != relationNew.Id) continue;
+
+                    var artifactAtTheEnd = await GetArtifactAtEndOfRelationAsync(relationNew);
+
+                    var settingAtTheEnd = GetSettingAtEndOfRelationAsync(relationNew);
+
+                    var relationsResponse = await GetRelationsForUpdateAsync(artifactAtTheEnd.Id, settingAtTheEnd);
+
+                    var relations = relationsResponse.Value;
+
+                    if (relations.Count > 0)
+                    {
+                        await UpdateSettingRelated(relations[0]);
+                    }
+                }
+            }
+
             return new ServiceResponse<IList<ArtifactsRelation>>(artifactsRelationsNew);
         }
 
@@ -654,64 +611,51 @@ namespace FRF.Core.Services
         {
             if (artifactRelation.RelationTypeId == 0)
             {
-                await UpdateValueOfSettingRelated(artifactRelation.Artifact1Id, artifactRelation.Artifact2Id,
-                    artifactRelation.Artifact1Property, artifactRelation.Artifact2Property);                
+                await UpdateValueOfSettingRelated(artifactRelation.Artifact2Id, artifactRelation.Artifact2Property);                
             }
             else if (artifactRelation.RelationTypeId == 1)
             {
-                await UpdateValueOfSettingRelated(artifactRelation.Artifact2Id, artifactRelation.Artifact1Id,
-                    artifactRelation.Artifact2Property, artifactRelation.Artifact1Property);
+                await UpdateValueOfSettingRelated(artifactRelation.Artifact1Id, artifactRelation.Artifact1Property);
             }
         }
 
-        private async Task UpdateValueOfSettingRelated(int artifactInvariantId, int artifactToUpdateId, string settingInvariantName, string settingToUpdateName)
+        private async Task UpdateValueOfSettingRelated(int artifactToUpdateId, string settingToUpdateName)
         {
-            var artifactInvariantResponse = await Get(artifactInvariantId);
-            var artifactInvariant = artifactInvariantResponse.Value;
-
             var artifactToUpdateResponse = await Get(artifactToUpdateId);
             var artifactToUpdate = artifactToUpdateResponse.Value;
 
-            if(float.TryParse(artifactToUpdate.Settings.Element(settingToUpdateName).Value, out float settingToUpdateValue) &&
-                float.TryParse(artifactInvariant.Settings.Element(settingInvariantName).Value, out float settingInvariantValue))
+            var relationsForUpdateResponse = await GetRelationsForUpdateAsync(artifactToUpdateId, settingToUpdateName);
+            var relationsForUpdate = relationsForUpdateResponse.Value;
+
+            var finalValueOfSetting = 0f;
+
+            var allValuesFromSettingsAreFloat = true;
+
+            foreach (var relationForUpdate in relationsForUpdate)
             {
-                var relationsForUpdateResponse = await GetRelationsForUpdateAsync(artifactToUpdateId, settingToUpdateName);
-                var relationsForUpdate = relationsForUpdateResponse.Value;
+                var artifactAtTheBegin = await GetArtifactAtBeginOfRelationAsync(relationForUpdate);
+                var settingAtTheBegining = GetSettingAtBeginOfRelationAsync(relationForUpdate);
 
-                var finalValueOfSetting = 0f;
-
-                var allValuesFromSettingsAreFloat = true;
-
-                foreach(var relationForUpdate in relationsForUpdate)
+                if (float.TryParse(artifactAtTheBegin.Settings.Element(settingAtTheBegining).Value, out float valueToUpdate))
                 {
-                    var artifactAtTheBegin = await GetArtifactAtBeginOfRelationAsync(relationForUpdate);
-                    var settingAtTheBegining = GetSettingAtBeginOfRelationAsync(relationForUpdate);
-
-                    if(float.TryParse(artifactAtTheBegin.Settings.Element(settingAtTheBegining).Value, out float valueToUpdate))
-                    {
-                        finalValueOfSetting += valueToUpdate;
-                    }
-                    else
-                    {
-                        allValuesFromSettingsAreFloat = false;
-                    }
-                }
-
-                if(allValuesFromSettingsAreFloat)
-                {
-                    artifactToUpdate.Settings.Element(settingToUpdateName).Value = finalValueOfSetting.ToString();
+                    finalValueOfSetting += valueToUpdate;
                 }
                 else
                 {
-                    artifactToUpdate.Settings.Element(settingToUpdateName).Value = artifactInvariant.Settings.Element(settingInvariantName).Value;
+                    allValuesFromSettingsAreFloat = false;
                 }
+            }
+
+            if (allValuesFromSettingsAreFloat)
+            {
+                artifactToUpdate.Settings.Element(settingToUpdateName).Value = finalValueOfSetting.ToString();
             }
             else
             {
-                artifactToUpdate.Settings.Element(settingToUpdateName).Value = artifactInvariant.Settings.Element(settingInvariantName).Value;
-            }            
+                //artifactToUpdate.Settings.Element(settingToUpdateName).Value = artifactInvariant.Settings.Element(settingInvariantName).Value;
+            }
 
-            var artifactUpdatedResponse = await Update2(artifactToUpdate);
+            var artifactUpdatedResponse = await Update(artifactToUpdate, false);
             var artifactUpdated = artifactUpdatedResponse.Value;
 
             var relationsWithSettingsToUpdatedResponse = await GetRelationsToUpdateAsync(artifactUpdated.Id, settingToUpdateName);
@@ -823,6 +767,25 @@ namespace FRF.Core.Services
             }
 
             return updatedSettings;
+        }
+
+        public async Task<bool> CheckIfSettingIsAtEndOfRelation(int artifactId, string settingName)
+        {
+            var relationsResponse = await GetRelationsByArtifactAndSetting(artifactId, settingName);
+            var relations = relationsResponse.Value;
+
+            var flag = false;
+            var i = 0;
+
+            while(i < relations.Count && !flag)
+            {
+                if(IsASettingAtEndOfRelation(settingName, relations[i]))
+                {
+                    flag = true;
+                }
+            }
+
+            return flag;
         }
     }
 }
