@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using Microsoft.EntityFrameworkCore.Internal;
 using EntityModels = FRF.DataAccess.EntityModels;
 
 namespace FRF.Core.Services
@@ -20,15 +19,13 @@ namespace FRF.Core.Services
         private readonly DataAccessContext _dataContext;
         private readonly IMapper _mapper;
         private readonly ISettingsValidator _settingsValidator;
-        private readonly IUserService _userService;
 
 
-        public ArtifactsService(DataAccessContext dataContext, IMapper mapper, ISettingsValidator settingsValidator, IUserService userService)
+        public ArtifactsService(DataAccessContext dataContext, IMapper mapper, ISettingsValidator settingsValidator)
         {
             _dataContext = dataContext;
             _mapper = mapper;
             _settingsValidator = settingsValidator;
-            _userService = userService;
         }
 
         private async Task<bool> DoArtifactsExist (IList<ArtifactsRelation> artifactsRelations)
@@ -129,28 +126,6 @@ namespace FRF.Core.Services
                 .Where(groupAr => groupAr.Skip(1).Any())
                 .Select(ar => ar.Key)
                 .Any();
-        }
-
-        private async Task<bool> IsArtifactOfCurrentUser(int artifactId)
-        {
-            var userId = await _userService.GetCurrentUserIdAsync();
-            return _dataContext.Artifacts.Include(artifact => artifact.Project).Any(ap =>
-                ap.Project.UsersByProject.Any(ubp => ubp.UserId.Equals(userId.Value)) && ap.Id == artifactId);
-        }
-
-        private async Task<bool> IsAnyArtifactsRelationOfCurrentUser(IList<ArtifactsRelation> artifactRelations)
-        {
-            var userId = await _userService.GetCurrentUserIdAsync();
-            var artifactsIds = artifactRelations
-                .Select(ar => ar.Artifact1Id)
-                .Concat(artifactRelations.Select(ar => ar.Artifact2Id));
-
-            var artifactsByUser =await _dataContext.Artifacts
-                .Include(artifact =>
-                    artifact.Project).Where(artifact => artifact.Project.UsersByProject
-                    .Any(ubp => ubp.UserId == userId.Value)).ToListAsync();
-            return artifactsIds.All(aid =>
-                artifactsByUser.Any(abu => abu.Id == aid));
         }
 
         public async Task<ServiceResponse<List<Artifact>>> GetAll()
@@ -333,16 +308,6 @@ namespace FRF.Core.Services
             var existArtifactId = await _dataContext.Artifacts.AnyAsync(a => a.Id == artifactId);
             if (!existArtifactId)
                 return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.ArtifactNotExists, $"There is no artifact with Id = {artifactId}"));
-           
-            var isArtifactOfCurrentUser = await IsArtifactOfCurrentUser(artifactId);
-            if (!isArtifactOfCurrentUser)
-                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.UserNotAuthorized,
-                    $"The current user is not authorized to invoke artifact with Id = {artifactId}"));
-
-            var isAnyArtifactsRelationOfCurrentUser = await IsAnyArtifactsRelationOfCurrentUser(artifactRelations);
-            if(!isAnyArtifactsRelationOfCurrentUser)
-                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.UserNotAuthorized,
-                    "The current user is not authorized to invoke at least one of the artifacts"));
 
             var isAnyNewRelationRepeated = IsAnyRelationRepeated(artifactRelations);
             if (isAnyNewRelationRepeated)

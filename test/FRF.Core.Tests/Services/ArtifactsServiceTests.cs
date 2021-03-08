@@ -25,47 +25,19 @@ namespace FRF.Core.Tests.Services
         private readonly ArtifactsService _classUnderTest;
         private readonly DbContextOptions<DataAccessContextForTest> ContextOptions;
         private readonly Mock<ISettingsValidator> _settingsValidator;
-        private readonly Mock<IUserService> _userService;
-
 
         public ArtifactsServiceTests()
         {
             _configuration = new Mock<IConfiguration>();
 
             _dataAccess = new DataAccessContextForTest(Guid.NewGuid(), _configuration.Object);
-            _userService = new Mock<IUserService>();
 
             _dataAccess.Database.EnsureDeleted();
             _dataAccess.Database.EnsureCreated();
 
             _settingsValidator = new Mock<ISettingsValidator>();
 
-            _classUnderTest = new ArtifactsService(_dataAccess, _mapper, _settingsValidator.Object, _userService.Object);
-        }
-        private UsersByProject CreateUserByProject(DataAccess.EntityModels.Project project)
-        {
-            var userByProject = new UsersByProject
-            {
-                ProjectId = project.Id,
-                Project = project,
-                UserId = new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba")
-            };
-
-            _dataAccess.UsersByProject.Add(userByProject);
-            _dataAccess.SaveChanges();
-
-            return userByProject;
-        }
-
-        private CoreModels.UsersProfile CreateUsersProfile()
-        {
-            return new CoreModels.UsersProfile()
-            {
-                Avatar = null,
-                UserId = new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba"),
-                Email = "email@mock.moq",
-                Fullname = "Mock User"
-            };
+            _classUnderTest = new ArtifactsService(_dataAccess, _mapper, _settingsValidator.Object);
         }
 
         private Provider CreateProvider()
@@ -729,7 +701,6 @@ namespace FRF.Core.Tests.Services
             var provider = CreateProvider();
             var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
-            var userByProject = CreateUserByProject(project);
             var baseArtifact =_mapper.Map<Core.Models.Artifact>(CreateArtifact(project, artifactType));
             var i = 0;
             while (i < 3)
@@ -740,10 +711,7 @@ namespace FRF.Core.Tests.Services
 
                 i++;
             }
-            _userService
-                .Setup(mock => mock.GetCurrentUserIdAsync())
-                .ReturnsAsync(new ServiceResponse<Guid>(userByProject.UserId));
-
+            
             // Act
             var response = await _classUnderTest.SetRelationAsync(baseArtifact.Id, artifactsRelationToSave);
 
@@ -782,68 +750,6 @@ namespace FRF.Core.Tests.Services
         }
 
         [Fact]
-        public async Task SetRelationAsync_ReturnsNull_WhenBaseArtifactIsNotOfCurrentUser()
-        {
-            // Arange
-            var artifactsRelationToSave = new List<ArtifactsRelation>();
-            var provider = CreateProvider();
-            var artifactType = CreateArtifactType(provider);
-            var project = CreateProject();
-            var userByProject = CreateUserByProject(project);
-            var baseArtifact = _mapper.Map<Core.Models.Artifact>(CreateArtifact(project, artifactType));
-
-            var artifact = CreateArtifact();
-            var artifactRelation = CreateArtifactsRelationModel(artifact.Id, baseArtifact.Id);
-            artifactsRelationToSave.Add(artifactRelation);
-
-            _userService
-                .Setup(mock => mock.GetCurrentUserIdAsync())
-                .ReturnsAsync(new ServiceResponse<Guid>(Guid.NewGuid()));
-
-            // Act
-            var response = await _classUnderTest.SetRelationAsync(baseArtifact.Id, artifactsRelationToSave);
-
-            // Assert
-            Assert.False(response.Success);
-            Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
-            Assert.NotNull(response.Error);
-            Assert.Equal(ErrorCodes.UserNotAuthorized, response.Error.Code);
-        }
-
-        [Fact]
-        public async Task SetRelationAsync_ReturnsNull_WhenAnyArtifactInArtifactsRelationIsNotOfCurrentUser()
-        {
-            // Arange
-            var artifactsRelationToSave = new List<ArtifactsRelation>();
-            var provider = CreateProvider();
-            var artifactType = CreateArtifactType(provider);
-            var project = CreateProject();
-            var userByProject = CreateUserByProject(project);
-            var baseArtifact = _mapper.Map<Core.Models.Artifact>(CreateArtifact(project, artifactType));
-            var i = 0;
-            while (i < 2)
-            {
-                var projectFromAnotherUser = CreateProject();
-                var artifactFromAnotherUser = _mapper.Map<Core.Models.Artifact>(CreateArtifact(projectFromAnotherUser, artifactType));
-                var artifactRelation = CreateArtifactsRelationModel(artifactFromAnotherUser.Id, baseArtifact.Id);
-                artifactsRelationToSave.Add(artifactRelation);
-                i++;
-            }
-            _userService
-                .Setup(mock => mock.GetCurrentUserIdAsync())
-                .ReturnsAsync(new ServiceResponse<Guid>(userByProject.UserId));
-
-            // Act
-            var response = await _classUnderTest.SetRelationAsync(baseArtifact.Id, artifactsRelationToSave);
-
-            // Assert
-            Assert.False(response.Success);
-            Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
-            Assert.NotNull(response.Error);
-            Assert.Equal(ErrorCodes.UserNotAuthorized, response.Error.Code);
-        }
-
-        [Fact]
         public async Task SetRelationAsync_ReturnsNull_WhenIsAnyArtifactRepeated()
         {
             // Arange
@@ -851,7 +757,6 @@ namespace FRF.Core.Tests.Services
             var provider = CreateProvider();
             var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
-            var userByProject = CreateUserByProject(project);
             var baseArtifact = _mapper.Map<Core.Models.Artifact>(CreateArtifact(project, artifactType));
             var i = 0;
             while (i < 3)
@@ -862,10 +767,7 @@ namespace FRF.Core.Tests.Services
                 i++;
             }
             artifactsRelationToSave.Add(artifactsRelationToSave[0]);
-            _userService
-                .Setup(mock => mock.GetCurrentUserIdAsync())
-                .ReturnsAsync(new ServiceResponse<Guid>(userByProject.UserId));
-
+           
             // Act
             var response = await _classUnderTest.SetRelationAsync(baseArtifact.Id, artifactsRelationToSave);
 
@@ -885,7 +787,6 @@ namespace FRF.Core.Tests.Services
             var provider = CreateProvider();
             var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
-            var userByProject = CreateUserByProject(project);
             var baseArtifact = CreateArtifact(project, artifactType);
             var artifact2 = CreateArtifact(project, artifactType);
 
@@ -910,9 +811,6 @@ namespace FRF.Core.Tests.Services
                 _mapper.Map<DataAccess.EntityModels.ArtifactsRelation>(artifactRelation1));
 
             await _dataAccess.SaveChangesAsync();
-            _userService
-                .Setup(mock => mock.GetCurrentUserIdAsync())
-                .ReturnsAsync(new ServiceResponse<Guid>(userByProject.UserId));
 
             // Act
             var response = await _classUnderTest.SetRelationAsync(baseArtifact.Id, artifactsRelationToSave);
@@ -933,7 +831,6 @@ namespace FRF.Core.Tests.Services
             var provider = CreateProvider();
             var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
-            var userByProject = CreateUserByProject(project);
             var baseArtifact = CreateArtifact(project, artifactType);
             var artifact2 = CreateArtifact(project, artifactType);
 
@@ -958,9 +855,6 @@ namespace FRF.Core.Tests.Services
                 _mapper.Map<DataAccess.EntityModels.ArtifactsRelation>(artifactRelation1));
             
             await _dataAccess.SaveChangesAsync();
-            _userService
-                .Setup(mock => mock.GetCurrentUserIdAsync())
-                .ReturnsAsync(new ServiceResponse<Guid>(userByProject.UserId));
 
             // Act
             var response = await _classUnderTest.SetRelationAsync(baseArtifact.Id, artifactsRelationToSave);
