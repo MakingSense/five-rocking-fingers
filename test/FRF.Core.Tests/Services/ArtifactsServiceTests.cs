@@ -785,52 +785,6 @@ namespace FRF.Core.Tests.Services
             Assert.NotNull(result.Error);
             Assert.Equal(ErrorCodes.ArtifactNotExists, result.Error.Code);
         }
-        
-        [Fact]
-        public async Task SetRelationAsync_ReturnsListOfRelations()
-        {
-            // Arange
-            var artifactsRelationToSave = new List<ArtifactsRelation>();
-            var artifactsRelationInDb = new List<DataAccess.EntityModels.ArtifactsRelation>();
-            var i = 0;
-            while (i < 3)
-            {
-                var provider = CreateProvider();
-                var artifactType = CreateArtifactType(provider);
-                var project = CreateProject();
-                var artifact = CreateArtifact(project, artifactType);
-                var artifact1Id = artifact.Id;
-                var artifact2Id = artifact1Id++;
-
-                var artifactRelation = CreateArtifactsRelationModel(artifact1Id, artifact2Id);
-                artifactsRelationToSave.Add(artifactRelation);
-
-                var artifactRelationDb =
-                    _mapper.Map<DataAccess.EntityModels.ArtifactsRelation>(
-                        CreateArtifactsRelationModel(artifact1Id, artifact2Id));
-                await _dataAccess.ArtifactsRelation.AddAsync(artifactRelationDb);
-                artifactsRelationInDb.Add(artifactRelationDb);
-                var art = CreateArtifact(project, artifactType);
-                i++;
-            }
-
-            await _dataAccess.SaveChangesAsync();
-
-            // Act
-            var response = await _classUnderTest.SetRelationAsync(artifactsRelationToSave);
-
-            // Assert
-            Assert.True(response.Success);
-            Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
-            var resultValue = Assert.IsAssignableFrom<IList<ArtifactsRelation>>(response.Value);
-            for (var j = 0; j < resultValue.Count; j++)
-            {
-                Assert.Equal(artifactsRelationToSave[j].Artifact1Id, resultValue[j].Artifact1Id);
-                Assert.Equal(artifactsRelationToSave[j].Artifact2Id, resultValue[j].Artifact2Id);
-                Assert.Equal(artifactsRelationToSave[j].Artifact1Property, resultValue[j].Artifact1Property);
-                Assert.Equal(artifactsRelationToSave[j].Artifact2Property, resultValue[j].Artifact2Property);
-            }
-        }
 
         [Fact]
         public async Task SetRelationAsync_ChainRelation_ReturnsListOfRelations()
@@ -1076,48 +1030,56 @@ namespace FRF.Core.Tests.Services
         public async Task UpdateRelationAsync_ReturnsListOfRelations()
         {
             // Arange
-            var artifactsRelationUpdated = new List<ArtifactsRelation>();
-            var artifactsRelationInDb = new List<DataAccess.EntityModels.ArtifactsRelation>();
+            var project = CreateProject();
             var provider = CreateProvider();
             var artifactType = CreateArtifactType(provider);
-            var project = CreateProject();
-            var artifactBase = CreateArtifact(project, artifactType);
-            var artifactIdToUpdate = artifactBase.Id;
-            var i = 0;
-            while (i < 3)
+
+            var setting1Name = "Setting1";
+            var setting1Value = 100;
+
+            var setting2Name = "Setting2";
+            var setting2Value = 200;
+
+            var setting3Name = "Setting3";
+            var setting3Value = 300;
+
+            var artifact1 = CreateArtifactWithSetting(project, artifactType, setting1Name, setting1Value);
+            var artifact2 = CreateArtifactWithSetting(project, artifactType, setting2Name, setting2Value);
+            var artifact3 = CreateArtifactWithSetting(project, artifactType, setting3Name, setting3Value);
+
+            var artifactRelation12 = CreateArtifactRelation(artifact1.Id, artifact2.Id, setting1Name, setting2Name, 1);
+            var artifactRelation23 = CreateArtifactRelation(artifact2.Id, artifact3.Id, setting2Name, setting3Name, 1);
+
+            var artifactRelation23Updated13 = new ArtifactsRelation()
             {
-                var artifact = CreateArtifact(project, artifactType);
-                var artifact1Id = artifact.Id;
-                var artifact2Id = artifactIdToUpdate;
+                Id = artifactRelation23.Id,
+                Artifact1Id = artifact1.Id,
+                Artifact2Id = artifact3.Id,
+                Artifact1Property = setting1Name,
+                Artifact2Property = setting3Name,
+                RelationTypeId = 1
+            };
 
-                var artifactRelation = CreateArtifactsRelationModel(artifact1Id, artifact2Id);
-                
-                var artifactRelationDb = _mapper.Map<DataAccess.EntityModels.ArtifactsRelation>(CreateArtifactsRelationModel(artifact1Id, artifact2Id));
-                await _dataAccess.ArtifactsRelation.AddAsync(artifactRelationDb);
+            var artifactsRelationUpdated = new List<ArtifactsRelation>
+            {
+                artifactRelation23Updated13
+            };
 
-                artifactRelation.Id = artifactRelationDb.Id;
-                artifactsRelationUpdated.Add(artifactRelation);
-                artifactsRelationInDb.Add(artifactRelationDb);
-                
-                i++;
-            }
-
-            await _dataAccess.SaveChangesAsync();
-            
             // Act
-            var response = await _classUnderTest.UpdateRelationAsync(artifactIdToUpdate, artifactsRelationUpdated);
-            
+            var response = await _classUnderTest.UpdateRelationAsync(artifact2.Id, artifactsRelationUpdated);
+            var artifact1Response = await _classUnderTest.Get(artifact1.Id);
+
             // Assert
+            var resultValueArtifact1 = Assert.IsAssignableFrom<CoreModels.Artifact>(artifact1Response.Value);
+            Assert.Equal(setting2Value + setting3Value, int.Parse(resultValueArtifact1.Settings.Element(setting1Name).Value));
+
             Assert.True(response.Success);
             Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
             var resultValue = Assert.IsAssignableFrom<IList<ArtifactsRelation>>(response.Value);
-            for (var j = 0; j < resultValue.Count; j++)
-            {
-                Assert.Equal(artifactsRelationUpdated[j].Artifact1Id, resultValue[j].Artifact1Id);
-                Assert.Equal(artifactsRelationUpdated[j].Artifact2Id, resultValue[j].Artifact2Id);
-                Assert.Equal(artifactsRelationUpdated[j].Artifact1Property, resultValue[j].Artifact1Property);
-                Assert.Equal(artifactsRelationUpdated[j].Artifact2Property, resultValue[j].Artifact2Property);
-            }
+            Assert.Equal(artifactsRelationUpdated[0].Artifact1Id, resultValue[0].Artifact1Id);
+            Assert.Equal(artifactsRelationUpdated[0].Artifact2Id, resultValue[0].Artifact2Id);
+            Assert.Equal(artifactsRelationUpdated[0].Artifact1Property, resultValue[0].Artifact1Property);
+            Assert.Equal(artifactsRelationUpdated[0].Artifact2Property, resultValue[0].Artifact2Property);
         }
 
         [Fact]
@@ -1245,27 +1207,39 @@ namespace FRF.Core.Tests.Services
             var project = CreateProject();
             var provider = CreateProvider();
             var artifactType = CreateArtifactType(provider);
-            var artifact1 = CreateArtifact(project, artifactType);
-            var artifact2 = CreateArtifact(project, artifactType);
-            var artifactRelation = CreateArtifactsRelationModel(artifact1.Id, artifact2.Id);
-            var artifactRelationMapped = _mapper.Map<FRF.DataAccess.EntityModels.ArtifactsRelation>(artifactRelation);
 
-            await _dataAccess.ArtifactsRelation.AddAsync(artifactRelationMapped);
-            await _dataAccess.SaveChangesAsync();
+            var setting1Name = "Setting1";
+            var setting1Value = 100;
+            var artifact1 = CreateArtifactWithSetting(project, artifactType, setting1Name, setting1Value);
+
+            var setting2Name = "Setting2";
+            var setting2Value = 200;
+            var artifact2 = CreateArtifactWithSetting(project, artifactType, setting2Name, setting2Value);
+
+            var setting3Name = "Setting2";
+            var setting3Value = 300;
+            var artifact3 = CreateArtifactWithSetting(project, artifactType, setting3Name, setting3Value);
+
+            var artifactRelation12 = CreateArtifactRelation(artifact1.Id, artifact2.Id, setting1Name, setting2Name, 1);
+            var artifactRelation13 = CreateArtifactRelation(artifact1.Id, artifact3.Id, setting1Name, setting3Name, 1);
 
             // Act
-            var response = await _classUnderTest.DeleteRelationAsync(artifactRelationMapped.Id);
+            var response = await _classUnderTest.DeleteRelationAsync(artifactRelation13.Id);
+            var artifact1Response = await _classUnderTest.Get(artifact1.Id);
 
             // Assert
+            var resultValueArtifact1 = Assert.IsAssignableFrom<CoreModels.Artifact>(artifact1Response.Value);
+
             Assert.True(response.Success);
             Assert.IsType<ServiceResponse<ArtifactsRelation>>(response);
             var resultValue = Assert.IsAssignableFrom<ArtifactsRelation>(response.Value);
-            Assert.Equal(artifactRelationMapped.Id, resultValue.Id);
-            Assert.Equal(artifactRelation.Artifact1Id, resultValue.Artifact1Id);
-            Assert.Equal(artifactRelation.Artifact2Id, resultValue.Artifact2Id);
-            Assert.Equal(artifactRelation.RelationTypeId, resultValue.RelationTypeId);
-            Assert.Equal(artifactRelation.Artifact1Property, resultValue.Artifact1Property);
-            Assert.Equal(artifactRelation.Artifact2Property, resultValue.Artifact2Property);
+            Assert.Equal(artifactRelation13.Id, resultValue.Id);
+            Assert.Equal(artifactRelation13.Artifact1Id, resultValue.Artifact1Id);
+            Assert.Equal(artifactRelation13.Artifact2Id, resultValue.Artifact2Id);
+            Assert.Equal(artifactRelation13.RelationTypeId, resultValue.RelationTypeId);
+            Assert.Equal(artifactRelation13.Artifact1Property, resultValue.Artifact1Property);
+            Assert.Equal(artifactRelation13.Artifact2Property, resultValue.Artifact2Property);
+            Assert.Equal(setting2Value, int.Parse(resultValueArtifact1.Settings.Element(setting1Name).Value));
         }
 
         [Fact]
