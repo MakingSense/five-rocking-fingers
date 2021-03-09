@@ -85,28 +85,55 @@ namespace FRF.Core.Services
         private bool IsAnyRelationRepeated(IList<EntityModels.ArtifactsRelation> dbArtifactRelations,
             IList<ArtifactsRelation> artifactsRelations, bool isAnUpdate)
         {
-            if (isAnUpdate)
+            var relations = new List<ArtifactsRelation>(artifactsRelations);
+            var relation = new ArtifactsRelation();
+
+            var oldRelations = _mapper.Map<IEnumerable<ArtifactsRelation>>(dbArtifactRelations);
+
+            if (isAnUpdate) oldRelations = oldRelations.Where(rel => artifactsRelations.All(newRelation => newRelation.Id != rel.Id));
+
+            relations.AddRange(oldRelations);
+
+            while (relations.Skip(1).Any())
             {
-                return artifactsRelations.Any(ar => dbArtifactRelations.Any(dbAr =>
-                    (dbAr.Artifact1Id == ar.Artifact1Id && dbAr.Artifact2Id == ar.Artifact2Id &&
-                     dbAr.Artifact1Property.Equals(ar.Artifact1Property, StringComparison.InvariantCultureIgnoreCase) &&
-                     dbAr.Artifact2Property.Equals(ar.Artifact2Property, StringComparison.InvariantCultureIgnoreCase) &&
-                     dbAr.RelationTypeId == ar.RelationTypeId)
-                    ||
-                    (dbAr.Artifact1Id == ar.Artifact2Id && dbAr.Artifact2Id == ar.Artifact1Id &&
-                     dbAr.Artifact1Property.Equals(ar.Artifact2Property, StringComparison.InvariantCultureIgnoreCase) &&
-                     dbAr.Artifact2Property.Equals(ar.Artifact1Property, StringComparison.InvariantCultureIgnoreCase) &&
-                     dbAr.RelationTypeId == ar.RelationTypeId)));
+                relation = relations[0];
+                relations.RemoveAt(0);
+                if (relations.FindAll(rel =>
+                        rel.Artifact1Id == relation.Artifact1Id &&
+                        rel.Artifact2Id == relation.Artifact2Id &&
+                        rel.Artifact1Property.Equals(relation.Artifact1Property, StringComparison.InvariantCultureIgnoreCase) &&
+                        rel.Artifact2Property.Equals(relation.Artifact2Property, StringComparison.InvariantCultureIgnoreCase) 
+                        ||
+                        rel.Artifact1Id == relation.Artifact2Id &&
+                        rel.Artifact2Id == relation.Artifact1Id &&
+                        rel.Artifact1Property.Equals(relation.Artifact2Property, StringComparison.InvariantCultureIgnoreCase) &&
+                        rel.Artifact2Property.Equals(relation.Artifact1Property, StringComparison.InvariantCultureIgnoreCase)
+                        ).Any())
+                    return true;
             }
 
-            return  artifactsRelations.Any(ar => dbArtifactRelations.Any(dbAr =>
-                (dbAr.Artifact1Id == ar.Artifact1Id && dbAr.Artifact2Id == ar.Artifact2Id &&
-                 dbAr.Artifact1Property.Equals(ar.Artifact1Property, StringComparison.InvariantCultureIgnoreCase) &&
-                 dbAr.Artifact2Property.Equals(ar.Artifact2Property, StringComparison.InvariantCultureIgnoreCase))
-                ||
-                (dbAr.Artifact1Id == ar.Artifact2Id && dbAr.Artifact2Id == ar.Artifact1Id &&
-                 dbAr.Artifact1Property.Equals(ar.Artifact2Property, StringComparison.InvariantCultureIgnoreCase) &&
-                 dbAr.Artifact2Property.Equals(ar.Artifact1Property, StringComparison.InvariantCultureIgnoreCase))));
+            return false;
+        }
+        /// <summary>
+        /// Check if any relation is duplicate in the submitted list.
+        /// </summary>
+        /// <param name="artifactsRelations"></param>
+        /// <returns>True if At least one of the artifact relation is duplicate </returns>
+        private bool IsAnyRelationRepeated(IList<ArtifactsRelation> artifactsRelations)
+        {
+            return artifactsRelations.GroupBy(ar => new { ar.Artifact1Id, ar.Artifact2Id, ar.Artifact1Property, ar.Artifact2Property })
+                .Where(groupAr => groupAr.Skip(1).Any())
+                .Select(ar => ar.Key)
+                .Any();
+        }
+
+        private IList<ArtifactsRelation> ExcludeDuplicates(IList<ArtifactsRelation> artifactsRelations)
+        {
+            IList<ArtifactsRelation> nonDuplicatesArtifactsRelations = new List<ArtifactsRelation>();
+
+            nonDuplicatesArtifactsRelations = artifactsRelations.Distinct().ToList();
+
+            return nonDuplicatesArtifactsRelations;
         }
 
         public async Task<ServiceResponse<List<Artifact>>> GetAll()
@@ -456,18 +483,15 @@ namespace FRF.Core.Services
                 .Include(ar => ar.Artifact2)
                 .ToListAsync();
 
-            var relationsWithOriginalRepeated = IsAnyRelationRepeated(relationsOriginal, artifactsRelationsNew,isAnUpdate: true);
+            var relationInNewListRepeated = IsAnyRelationRepeated(artifactsRelationsNew);
+            if (relationInNewListRepeated)
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid,
+                    "At least one of the artifact relation provided is repeat"));
+
+            var relationsWithOriginalRepeated = IsAnyRelationRepeated(relationsOriginal, artifactsRelationsNew, isAnUpdate: true);
             if (relationsWithOriginalRepeated)
                 return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid,
                     "At least one of the artifact relation provided already exist"));
-
-            var relationInNewListRepeated = artifactsRelationsNew.GroupBy(ar => ar)
-                .Where(groupAr => groupAr.Count() > 1)
-                .Select(ar => ar.Key)
-                .Any();
-            if (relationInNewListRepeated)
-                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid,
-                    "At least one of the artifact relation provided is repeated"));
 
             foreach (var relationOriginal in relationsOriginal)
             {
