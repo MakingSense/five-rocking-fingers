@@ -170,7 +170,9 @@ const ArtifactsTable = (props: { projectId: number}) => {
                 setSnackbarSettings={setSnackbarSettings}
                 artifacts={artifacts}
                 artifactsRelations={artifactsRelations}
-                updateList = {{update: false}}
+                updateList={{ update: false }}
+                updateArtifacts={getArtifacts}
+                updateRelations={getRelations}
             />
             { artifactToEdit ?
                 <EditArtifactDialog

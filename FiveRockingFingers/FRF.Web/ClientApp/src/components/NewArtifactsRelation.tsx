@@ -47,7 +47,18 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeNewArtifactsRelation: Function, projectId: number, setOpenSnackbar: Function, setSnackbarSettings: Function, artifacts: Artifact[], artifactsRelations: ArtifactRelation[], updateList: handlerUpdateList }) => {
+const NewArtifactsRelation = (props: {
+    showNewArtifactsRelation: boolean,
+    closeNewArtifactsRelation: Function,
+    projectId: number,
+    setOpenSnackbar: Function,
+    setSnackbarSettings: Function,
+    artifacts: Artifact[],
+    artifactsRelations: ArtifactRelation[],
+    updateList: handlerUpdateList,
+    updateArtifacts: Function,
+    updateRelations: Function
+}) => {
 
     const classes = useStyles();
     const { handleSubmit, errors, control } = useForm();
@@ -159,6 +170,8 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
             props.setSnackbarSettings({ message: "Hubo un error al crear las relaciones", severity: "error" });
             props.setOpenSnackbar(true);
         }
+        props.updateArtifacts();
+        props.updateRelations();
         handleClose();       
     }
 

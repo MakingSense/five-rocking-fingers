@@ -122,7 +122,9 @@ const ArtifactsRelationTable = (props: { artifactId: number, projectId: number }
                 setSnackbarSettings={setSnackbarSettings}
                 artifacts={artifacts}
                 artifactsRelations={artifactsRelations}
-                updateList={{update: true, setUpdate: handleUpdateList}}
+                updateList={{ update: true, setUpdate: handleUpdateList }}
+                updateArtifacts={() => void 0}
+                updateRelations={() => void 0}
             />
         </React.Fragment>
     );
