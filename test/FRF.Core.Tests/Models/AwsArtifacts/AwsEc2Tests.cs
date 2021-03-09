@@ -64,8 +64,11 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
         private XElement CreateArtifactSettingsGp2()
         {
             XElement settings = new XElement("settings",
-                    new XElement("product0",
-                        new XElement("hoursUsedPerMonth", 730),                        
+                    new XElement("hoursUsedPerMonth", 730),
+                    new XElement("numberOfGbStorageInEbs", 30),
+                    new XElement("numberOfSnapshotsPerMonth", 59.83),
+                    new XElement("numberOfGbChangedPerSnapshot", 3),
+                    new XElement("product0",                                                
                         new XElement("leaseContractLength", "3 yr"),
                         new XElement("purchaseOption", "Partial Upfront"),
                         new XElement("pricingDimensions", 
@@ -77,8 +80,7 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
                             )
                         )
                     ),
-                    new XElement("product1",
-                        new XElement("numberOfGbStorageInEbs", 30),
+                    new XElement("product1",                        
                         new XElement("volumeApiName", "gp2"),
                         new XElement("pricingDimensions",
                             new XElement("range0",
@@ -86,9 +88,7 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
                             )
                         )
                     ),
-                    new XElement("product2",
-                        new XElement("numberOfSnapshotsPerMonth", 59.83),
-                        new XElement("numberOfGbChangedPerSnapshot", 3),
+                    new XElement("product2",                        
                         new XElement("pricingDimensions",
                             new XElement("range0",
                                 new XElement("pricePerUnit", 0.0550000000)
@@ -122,8 +122,13 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
         private XElement CreateArtifactSettingsGp3()
         {
             XElement settings = new XElement("settings",
-                    new XElement("product0",
-                        new XElement("hoursUsedPerMonth", 730),
+                    new XElement("hoursUsedPerMonth", 730),
+                    new XElement("numberOfGbStorageInEbs", 30),
+                    new XElement("numberOfSnapshotsPerMonth", 59.83),
+                    new XElement("numberOfGbChangedPerSnapshot", 3),
+                    new XElement("numberOfIopsPerMonth", 4000),
+                    new XElement("numberOfMbpsThroughput", 225),
+                    new XElement("product0",                        
                         new XElement("leaseContractLength", "3 yr"),
                         new XElement("purchaseOption", "Partial Upfront"),
                         new XElement("pricingDimensions",
@@ -135,8 +140,7 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
                             )
                         )
                     ),
-                    new XElement("product1",
-                        new XElement("numberOfGbStorageInEbs", 30),
+                    new XElement("product1",                        
                         new XElement("volumeApiName", "gp3"),
                         new XElement("pricingDimensions",
                             new XElement("range0",
@@ -144,25 +148,21 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
                             )
                         )
                     ),
-                    new XElement("product2",
-                        new XElement("numberOfSnapshotsPerMonth", 59.83),
-                        new XElement("numberOfGbChangedPerSnapshot", 3),
+                    new XElement("product2",                        
                         new XElement("pricingDimensions",
                             new XElement("range0",
                                 new XElement("pricePerUnit", 0.0550000000)
                             )
                         )
                     ),
-                    new XElement("product3",
-                        new XElement("numberOfIopsPerMonth", 4000),
+                    new XElement("product3",                        
                         new XElement("pricingDimensions",
                             new XElement("range0",
                                 new XElement("pricePerUnit", 0.006)
                             )
                         )
                     ),
-                    new XElement("product4",
-                        new XElement("numberOfMbpsThroughput", 225),
+                    new XElement("product4",                        
                         new XElement("pricingDimensions",
                             new XElement("range0",
                                 new XElement("pricePerUnit", 49.1520000000)
@@ -196,8 +196,12 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
         private XElement CreateArtifactSettingsIo1()
         {
             XElement settings = new XElement("settings",
-                    new XElement("product0",
-                        new XElement("hoursUsedPerMonth", 730),
+                    new XElement("hoursUsedPerMonth", 730),
+                    new XElement("numberOfGbStorageInEbs", 30),
+                    new XElement("numberOfSnapshotsPerMonth", 59.83),
+                    new XElement("numberOfGbChangedPerSnapshot", 3),
+                    new XElement("numberOfIopsPerMonth", 4000),
+                    new XElement("product0",                        
                         new XElement("leaseContractLength", "3 yr"),
                         new XElement("purchaseOption", "Partial Upfront"),
                         new XElement("pricingDimensions",
@@ -209,8 +213,7 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
                             )
                         )
                     ),
-                    new XElement("product1",
-                        new XElement("numberOfGbStorageInEbs", 30),
+                    new XElement("product1",                        
                         new XElement("volumeApiName", "io1"),
                         new XElement("pricingDimensions",
                             new XElement("range0",
@@ -218,17 +221,14 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
                             )
                         )
                     ),
-                    new XElement("product2",
-                        new XElement("numberOfSnapshotsPerMonth", 59.83),
-                        new XElement("numberOfGbChangedPerSnapshot", 3),
+                    new XElement("product2",                        
                         new XElement("pricingDimensions",
                             new XElement("range0",
                                 new XElement("pricePerUnit", 0.0550000000)
                             )
                         )
                     ),
-                    new XElement("product3",
-                        new XElement("numberOfIopsPerMonth", 4000),
+                    new XElement("product3",                        
                         new XElement("pricingDimensions",
                             new XElement("range0",
                                 new XElement("pricePerUnit", 0.0720000000)

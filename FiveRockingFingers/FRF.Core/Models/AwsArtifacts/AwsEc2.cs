@@ -217,7 +217,7 @@ namespace FRF.Core.Models.AwsArtifacts
 
         private int GetHoursUsedPerMonth()
         {
-            var hoursUsedPerMonth = int.Parse(Settings.Element("product0").Element("hoursUsedPerMonth").Value);
+            var hoursUsedPerMonth = int.Parse(Settings.Element("hoursUsedPerMonth").Value);
 
             return hoursUsedPerMonth;
         }
@@ -266,8 +266,7 @@ namespace FRF.Core.Models.AwsArtifacts
 
         private int GetNumberOfGbStorageInEbs()
         {
-            var numberOfGbStorageInEbs = int.Parse(Settings.Element("product1")
-                .Element("numberOfGbStorageInEbs").Value);
+            var numberOfGbStorageInEbs = int.Parse(Settings.Element("numberOfGbStorageInEbs").Value);
 
             return numberOfGbStorageInEbs;
         }
@@ -283,16 +282,14 @@ namespace FRF.Core.Models.AwsArtifacts
 
         private decimal GetNumberOfSnapshotsPerMonth()
         {
-            var numberOfSnapshotsPerMonth = GetDecimalPrice(Settings.Element("product2").
-                Element("numberOfSnapshotsPerMonth").Value);
+            var numberOfSnapshotsPerMonth = GetDecimalPrice(Settings.Element("numberOfSnapshotsPerMonth").Value);
 
             return numberOfSnapshotsPerMonth;
         }
 
         private int GetNumberOfGbChangedPerSnapshot()
         {
-            var numberOfGbChangedPerSnapshot = int.Parse(Settings.Element("product2").
-                Element("numberOfGbChangedPerSnapshot").Value);
+            var numberOfGbChangedPerSnapshot = int.Parse(Settings.Element("numberOfGbChangedPerSnapshot").Value);
 
             return numberOfGbChangedPerSnapshot;
         }
@@ -311,12 +308,9 @@ namespace FRF.Core.Models.AwsArtifacts
         {
             var numberOfIops = 0;
 
-            if (Settings.Element("product3") != null &&
-                Settings.Element("product3")
-                .Element("numberOfIopsPerMonth") != null)
+            if (Settings.Element("numberOfIopsPerMonth") != null)
             {
-                if (int.TryParse(Settings.Element("product3")
-                    .Element("numberOfIopsPerMonth").Value, out int numberOfIopsParse))
+                if (int.TryParse(Settings.Element("numberOfIopsPerMonth").Value, out int numberOfIopsParse))
                 {
                     numberOfIops = numberOfIopsParse;
                 }
@@ -348,11 +342,9 @@ namespace FRF.Core.Models.AwsArtifacts
         {
             var numberOfMbpsThroughput = 0;
 
-            if (Settings.Element("product4") != null &&
-                Settings.Element("product4")
-                .Element("numberOfMbpsThroughput") != null)
+            if (Settings.Element("numberOfMbpsThroughput") != null)
             {
-                if (int.TryParse(Settings.Element("product4").Element("numberOfMbpsThroughput").Value, out int numberOfMbpsThroughputParse))
+                if (int.TryParse(Settings.Element("numberOfMbpsThroughput").Value, out int numberOfMbpsThroughputParse))
                 {
                     numberOfMbpsThroughput = numberOfMbpsThroughputParse;
                 }
