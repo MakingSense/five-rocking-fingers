@@ -117,6 +117,18 @@ const ArtifactsTable = (props: { projectId: number}) => {
         setOpenSnackbar(true);
     }
 
+    const getRelationsOfAnArtifact = (artifactId: number) => {
+        const relations: ArtifactRelation[] = [];
+
+        artifactsRelations.forEach(artifactRelation => {
+            if (artifactRelation.artifact1.id === artifactId || artifactRelation.artifact2.id === artifactId) {
+                relations.push(artifactRelation);
+            }
+        });
+
+        return relations;
+    }
+
     return (
         <React.Fragment>
             <Table striped bordered hover responsive>
@@ -183,6 +195,7 @@ const ArtifactsTable = (props: { projectId: number}) => {
                     artifactToEdit={artifactToEdit}
                     updateArtifacts={getArtifacts}
                     updateRelations={getRelations}
+                    artifactsRelations={getRelationsOfAnArtifact(artifactToEdit.id)}
                 /> :
                 null
             }

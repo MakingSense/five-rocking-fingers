@@ -14,7 +14,8 @@ const EditArtifactDialog = (props: {
     setOpenSnackbar: Function,
     setSnackbarSettings: Function,
     updateArtifacts: Function,
-    updateRelations: Function }) => {
+    updateRelations: Function,
+    artifactsRelations: ArtifactRelation[]}) => {
 
     const { showEditArtifactDialog, closeEditArtifactDialog } = props;
 
@@ -31,6 +32,7 @@ const EditArtifactDialog = (props: {
                     setIsArtifactEdited={setIsArtifactEdited}
                     setArtifactEdited={setArtifactEdited}
                     setNamesOfSettingsChanged={setNamesOfSettingsChanged}
+                    artifactsRelations={props.artifactsRelations}
                 /> :
                 <EditArtifactConfirmation
                     artifactToEdit={artifactEdited}
