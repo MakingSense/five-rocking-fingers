@@ -372,7 +372,6 @@ namespace FRF.Core.Services
             await _dataContext.ArtifactsRelation.AddRangeAsync(resultArtifactRelations);
             await _dataContext.SaveChangesAsync();
 
-            //Aca se deben actualizar los valores de las settings
             foreach (var artifactRelation in artifactRelations)
             {
                 var success = await UpdateArtifactOfRelation(artifactRelation);
