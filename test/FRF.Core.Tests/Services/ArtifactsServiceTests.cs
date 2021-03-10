@@ -780,6 +780,40 @@ namespace FRF.Core.Tests.Services
         }
 
         [Fact]
+        public async Task SetRelationAsync_ReturnsNull_WhenIsAnyRelationRepeated()
+        {
+            // Arange
+            var artifactsRelationToSave = new List<ArtifactsRelation>();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
+            var project = CreateProject();
+            var baseArtifact = _mapper.Map<Core.Models.Artifact>(CreateArtifact(project, artifactType));
+            var artifact2 = CreateArtifact(project, artifactType);
+            var artifactRelation = CreateArtifactsRelationModel(baseArtifact.Id, artifact2.Id);
+            artifactsRelationToSave.Add(artifactRelation);
+            
+            var artifactRelationRepeated = new CoreModels.ArtifactsRelation()
+            {
+                Artifact1Id = artifact2.Id,
+                Artifact2Id = baseArtifact.Id,
+                Artifact1Property = artifactRelation.Artifact2Property,
+                Artifact2Property = artifactRelation.Artifact1Property,
+                RelationTypeId = 0
+            };
+            artifactsRelationToSave.Add(artifactRelationRepeated);
+
+            // Act
+            var response = await _classUnderTest.SetRelationAsync(baseArtifact.Id, artifactsRelationToSave);
+
+            // Assert
+            Assert.False(response.Success);
+            Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
+            Assert.NotNull(response.Error);
+            Assert.Equal(ErrorCodes.RelationNotValid, response.Error.Code);
+            Assert.Null(response.Value);
+        }
+
+        [Fact]
         public async Task SetRelationAsync_ReturnsNull_WhenHasAnyRelationWithoutBaseArtifact()
         {
             // Arange
@@ -796,10 +830,11 @@ namespace FRF.Core.Tests.Services
                 artifactsRelationToSave.Add(artifactRelation);
                 i++;
             }
-            var artifactRelationWithoutBaseArtifact = CreateArtifactsRelationModel(int.MaxValue, int.MaxValue-1);
+            var artifactRelationWithoutBaseArtifact = CreateArtifactsRelationModel(artifactsRelationToSave[0].Artifact2Id, artifactsRelationToSave[1].Artifact2Id);
             artifactsRelationToSave.Add(artifactRelationWithoutBaseArtifact);
 
             // Act
+
             var response = await _classUnderTest.SetRelationAsync(baseArtifact.Id, artifactsRelationToSave);
 
             // Assert
@@ -810,6 +845,40 @@ namespace FRF.Core.Tests.Services
             Assert.Null(response.Value);
         }
 
+        [Fact]
+        public async Task SetRelationAsync_ReturnsNull_WhenHasAnyArtifactFromAnotherProject()
+        {
+            // Arange
+            var artifactsRelationToSave = new List<ArtifactsRelation>();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
+            var project = CreateProject();
+            var baseArtifact = _mapper.Map<Core.Models.Artifact>(CreateArtifact(project, artifactType));
+            var i = 0;
+            while (i < 3)
+            {
+                var artifact2 = CreateArtifact(project, artifactType);
+                var artifactRelation = CreateArtifactsRelationModel(baseArtifact.Id, artifact2.Id);
+                artifactsRelationToSave.Add(artifactRelation);
+                i++;
+            }
+            var notBaseProject = CreateProject();
+            var artifactFromAnotherProject = CreateArtifact(notBaseProject, artifactType);
+            var artifact2FromAnotherProject = CreateArtifact(notBaseProject, artifactType);
+            var artifactRelationWithArtifactsFromAnotherProject = CreateArtifactsRelationModel(artifactFromAnotherProject.Id, artifact2FromAnotherProject.Id);
+            artifactsRelationToSave.Add(artifactRelationWithArtifactsFromAnotherProject);
+
+            // Act
+
+            var response = await _classUnderTest.SetRelationAsync(baseArtifact.Id, artifactsRelationToSave);
+
+            // Assert
+            Assert.False(response.Success);
+            Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
+            Assert.NotNull(response.Error);
+            Assert.Equal(ErrorCodes.ArtifactFromAnotherProject, response.Error.Code);
+            Assert.Null(response.Value);
+        }
         [Fact]
         public async Task SetRelationAsync_ReturnsNull_WhenIsAnyBidirectionalRelationSameRelationType()
         {
