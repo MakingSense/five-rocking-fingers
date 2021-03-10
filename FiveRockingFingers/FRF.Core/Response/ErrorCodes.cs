@@ -8,6 +8,7 @@
         public const int CategoryNotExists = 3;
         public const int ProjectNotExists = 4;
         public const int ProviderNotExists = 5;
+        public const int ArtifactFromAnotherProject= 6;
 
         // Relation errors
         public const int RelationAlreadyExisted = 10;
@@ -18,7 +19,6 @@
         public const int InvalidCredentials = 20;
         public const int AuthenticationServerCurrentlyUnavailable = 21;
         public const int UserNotExists = 22;
-        public const int UserNotAuthorized = 23;
 
         // External errors
         public const int AmazonApiError = 30;
