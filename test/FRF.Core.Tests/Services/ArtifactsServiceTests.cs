@@ -778,7 +778,38 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(ErrorCodes.RelationNotValid, response.Error.Code);
             Assert.Null(response.Value);
         }
-        
+
+        [Fact]
+        public async Task SetRelationAsync_ReturnsNull_WhenHasAnyRelationWithoutBaseArtifact()
+        {
+            // Arange
+            var artifactsRelationToSave = new List<ArtifactsRelation>();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
+            var project = CreateProject();
+            var baseArtifact = _mapper.Map<Core.Models.Artifact>(CreateArtifact(project, artifactType));
+            var i = 0;
+            while (i < 3)
+            {
+                var artifact2 = CreateArtifact(project, artifactType);
+                var artifactRelation = CreateArtifactsRelationModel(baseArtifact.Id, artifact2.Id);
+                artifactsRelationToSave.Add(artifactRelation);
+                i++;
+            }
+            var artifactRelationWithoutBaseArtifact = CreateArtifactsRelationModel(int.MaxValue, int.MaxValue-1);
+            artifactsRelationToSave.Add(artifactRelationWithoutBaseArtifact);
+
+            // Act
+            var response = await _classUnderTest.SetRelationAsync(baseArtifact.Id, artifactsRelationToSave);
+
+            // Assert
+            Assert.False(response.Success);
+            Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
+            Assert.NotNull(response.Error);
+            Assert.Equal(ErrorCodes.RelationNotValid, response.Error.Code);
+            Assert.Null(response.Value);
+        }
+
         [Fact]
         public async Task SetRelationAsync_ReturnsNull_WhenIsAnyBidirectionalRelationSameRelationType()
         {
