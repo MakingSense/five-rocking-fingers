@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Xml.Linq;
 
 namespace FRF.Core.Models.AwsArtifacts
@@ -377,13 +378,19 @@ namespace FRF.Core.Models.AwsArtifacts
         {
             var dataTransferItems = new List<DataTransferEc2>();
 
-            var dataTransferNodes = Settings.Elements("product5");
-
-            foreach(var dataTransferNode in dataTransferNodes)
+            for(var i = 0; i < 3; i++)
             {
-                var transferType = dataTransferNode.Element("transferType").Value;
-                var numberOfGbTransfer = int.Parse(dataTransferNode.Element("numberOfGbTransfer").Value);
-                var dataTransferPricePerUnit = GetDecimalPrice(dataTransferNode
+                var dataTransferNumberOfGbNode = Settings.Element("numberOfGbTransfer" + i);
+                var dataTransferPricingNode = Settings.Element("product5-" + i);
+
+                if(dataTransferNumberOfGbNode == null || dataTransferPricingNode == null)
+                {
+                    continue;
+                }
+
+                var transferType = dataTransferPricingNode.Element("transferType").Value;
+                var numberOfGbTransfer = int.Parse(dataTransferNumberOfGbNode.Value);
+                var dataTransferPricePerUnit = GetDecimalPrice(dataTransferPricingNode
                 .Element("pricingDimensions")
                 .Element("range0")
                 .Element("pricePerUnit")

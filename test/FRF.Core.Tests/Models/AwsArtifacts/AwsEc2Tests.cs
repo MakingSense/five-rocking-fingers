@@ -68,6 +68,8 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
                     new XElement("numberOfGbStorageInEbs", 30),
                     new XElement("numberOfSnapshotsPerMonth", 59.83),
                     new XElement("numberOfGbChangedPerSnapshot", 3),
+                    new XElement("numberOfGbTransfer1", 1024),
+                    new XElement("numberOfGbTransfer2", 1024),
                     new XElement("product0",                                                
                         new XElement("leaseContractLength", "3 yr"),
                         new XElement("purchaseOption", "Partial Upfront"),
@@ -95,7 +97,7 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
                             )
                         )
                     ),
-                    new XElement("product5",
+                    new XElement("product5-1",
                         new XElement("numberOfGbTransfer", 1024),
                         new XElement("transferType", AwsEc2Descriptions.IntraRegionDataTransfer),
                         new XElement("pricingDimensions",
@@ -104,8 +106,7 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
                             )
                         )
                     ),
-                    new XElement("product5",
-                        new XElement("numberOfGbTransfer", 1024),
+                    new XElement("product5-2",                        
                         new XElement("transferType", "Data Transfer Type"),
                         new XElement("pricingDimensions",
                             new XElement("range0",
@@ -128,6 +129,8 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
                     new XElement("numberOfGbChangedPerSnapshot", 3),
                     new XElement("numberOfIopsPerMonth", 4000),
                     new XElement("numberOfMbpsThroughput", 225),
+                    new XElement("numberOfGbTransfer1", 1024),
+                    new XElement("numberOfGbTransfer2", 1024),
                     new XElement("product0",                        
                         new XElement("leaseContractLength", "3 yr"),
                         new XElement("purchaseOption", "Partial Upfront"),
@@ -169,7 +172,7 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
                             )
                         )
                     ),
-                    new XElement("product5",
+                    new XElement("product5-1",
                         new XElement("numberOfGbTransfer", 1024),
                         new XElement("transferType", AwsEc2Descriptions.IntraRegionDataTransfer),
                         new XElement("pricingDimensions",
@@ -178,7 +181,7 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
                             )
                         )
                     ),
-                    new XElement("product5",
+                    new XElement("product5-2",
                         new XElement("numberOfGbTransfer", 1024),
                         new XElement("transferType", "Data Transfer Type"),
                         new XElement("pricingDimensions",
@@ -201,6 +204,8 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
                     new XElement("numberOfSnapshotsPerMonth", 59.83),
                     new XElement("numberOfGbChangedPerSnapshot", 3),
                     new XElement("numberOfIopsPerMonth", 4000),
+                    new XElement("numberOfGbTransfer1", 1024),
+                    new XElement("numberOfGbTransfer2", 1024),
                     new XElement("product0",                        
                         new XElement("leaseContractLength", "3 yr"),
                         new XElement("purchaseOption", "Partial Upfront"),
@@ -235,7 +240,7 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
                             )
                         )
                     ),
-                    new XElement("product5",
+                    new XElement("product5-1",
                         new XElement("numberOfGbTransfer", 1024),
                         new XElement("transferType", AwsEc2Descriptions.IntraRegionDataTransfer),
                         new XElement("pricingDimensions",
@@ -244,7 +249,7 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
                             )
                         )
                     ),
-                    new XElement("product5",
+                    new XElement("product5-2",
                         new XElement("numberOfGbTransfer", 1024),
                         new XElement("transferType", "Data Transfer Type"),
                         new XElement("pricingDimensions",
