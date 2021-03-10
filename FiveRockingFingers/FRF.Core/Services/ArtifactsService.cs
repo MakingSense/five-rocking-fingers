@@ -128,6 +128,13 @@ namespace FRF.Core.Services
                 .Any();
         }
 
+        private bool HasAnyRelationWithoutBaseArtifact(int baseArtifactId,
+            IList<ArtifactsRelation> artifactsRelations)
+        {
+            return artifactsRelations
+                .Any(a => a.Artifact1Id != baseArtifactId && a.Artifact2Id != baseArtifactId);
+        }
+        
         public async Task<ServiceResponse<List<Artifact>>> GetAll()
         {
             var artifacts = await _dataContext.Artifacts
@@ -307,7 +314,13 @@ namespace FRF.Core.Services
         {
             var existArtifactId = await _dataContext.Artifacts.AnyAsync(a => a.Id == artifactId);
             if (!existArtifactId)
-                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.ArtifactNotExists, $"There is no artifact with Id = {artifactId}"));
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.ArtifactNotExists,
+                    $"There is no artifact with Id = {artifactId}"));
+
+            var hasAnyRelationWithoutBaseArtifact = HasAnyRelationWithoutBaseArtifact(artifactId, artifactRelations);
+            if (hasAnyRelationWithoutBaseArtifact)
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid,
+                    "At least one of the artifact relation provided does not involve the base artifact. "));
 
             var isAnyNewRelationRepeated = IsAnyRelationRepeated(artifactRelations);
             if (isAnyNewRelationRepeated)
@@ -321,7 +334,8 @@ namespace FRF.Core.Services
 
             var relationsAlreadyExist = IsAnyRelationRepeated(dbArtifactRelations, artifactRelations,isAnUpdate: false);
             if (relationsAlreadyExist)
-                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationAlreadyExisted, "At least one of the relations already existed"));
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationAlreadyExisted,
+                    "At least one of the relations already existed"));
 
             var resultArtifactRelations = _mapper.Map<IList<EntityModels.ArtifactsRelation>>(artifactRelations);
             await _dataContext.ArtifactsRelation.AddRangeAsync(resultArtifactRelations);
