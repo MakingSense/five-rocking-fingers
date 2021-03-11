@@ -110,6 +110,7 @@ namespace FRF.Web.Controllers
 
         [HttpPost("{artifactId}/relations")]
         [Authorize(ArtifactAuthorization.Ownership)]
+        [Authorize(ArtifactAuthorization.RelationsListOwnership)]
         public async Task<IActionResult> SetRelationAsync(int artifactId, IList<ArtifactsRelationInsertDTO> artifactRelationList)
         {
             var artifactsRelations = _mapper.Map<IList<ArtifactsRelation>>(artifactRelationList);
@@ -151,6 +152,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpDelete("~/api/relations")]
+        [Authorize(ArtifactAuthorization.RelationsListOwnership)]
         public async Task<IActionResult> DeleteRelationsAsync(IList<Guid> artifactRelationIds)
         {
             var result = await _artifactsService.DeleteRelationsAsync(artifactRelationIds);
@@ -161,6 +163,7 @@ namespace FRF.Web.Controllers
 
         [HttpPut("{artifactId}/relations")]
         [Authorize(ArtifactAuthorization.Ownership)]
+        [Authorize(ArtifactAuthorization.RelationsListOwnership)]
         public async Task<IActionResult> UpdateRelationsAsync(int artifactId,
             IList<ArtifactsRelationUpdateDTO> artifactRelationUpdatedList)
         {
