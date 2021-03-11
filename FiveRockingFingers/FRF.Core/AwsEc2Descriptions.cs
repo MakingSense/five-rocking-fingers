@@ -25,6 +25,26 @@ namespace FRF.Core
         public const string FromLocationType = "fromLocationType";
         public const string ProductFamily = "productFamily";
 
+        public const string TransferType1 = "transferType1";
+        public const string FromLocation1 = "fromLocation1";
+        public const string ToLocation1 = "toLocation1";
+
+        public const string TransferType2 = "transferType2";
+        public const string FromLocation2 = "fromLocation2";
+        public const string ToLocation2 = "toLocation2";
+
+        public const string TransferType3 = "transferType3";
+        public const string FromLocation3 = "fromLocation3";
+        public const string ToLocation3 = "toLocation3";
+
+        public const string PurchaseOption = "PurchaseOption";
+        public const string TermType = "termType";
+        public const string OfferingClass = "OfferingClass";
+        public const string LeaseContractLength = "LeaseContractLength";
+
+        public const string OnDemandTermType = "OnDemand";
+
+
         //General
         public const string ServiceValue = "AmazonEC2";
         public const string LocationTypeValue = "AWS Region";
