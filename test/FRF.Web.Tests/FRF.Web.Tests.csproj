@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\FiveRockingFingers\FRF.Web\FRF.Web.csproj" />
+    <ProjectReference Include="..\FRF.Core.Tests\FRF.Core.Tests.csproj" />
   </ItemGroup>
 
 </Project>

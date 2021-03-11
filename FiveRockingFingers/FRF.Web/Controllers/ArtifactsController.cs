@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FRF.Core.Response;
+using FRF.Web.Authorization;
 
 namespace FRF.Web.Controllers
 {
@@ -45,10 +46,11 @@ namespace FRF.Web.Controllers
             return Ok(artifactsDto);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetAsync(int id)
+        [HttpGet("{artifactId}")]
+        [Authorize(ArtifactAuthorization.Ownership)]
+        public async Task<IActionResult> GetAsync(int artifactId)
         {
-            var artifact = await _artifactsService.Get(id);
+            var artifact = await _artifactsService.Get(artifactId);
 
             if (!artifact.Success)
             {
@@ -71,10 +73,11 @@ namespace FRF.Web.Controllers
             return Ok(artifactCreated);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAsync(int id, ArtifactUpsertDTO artifactDto)
+        [HttpPut("{artifactId}")]
+        [Authorize(ArtifactAuthorization.Ownership)]
+        public async Task<IActionResult> UpdateAsync(int artifactId, ArtifactUpsertDTO artifactDto)
         {
-            var artifact = await _artifactsService.Get(id);
+            var artifact = await _artifactsService.Get(artifactId);
 
             if (!artifact.Success)
             {
@@ -89,22 +92,24 @@ namespace FRF.Web.Controllers
             return Ok(updatedArtifact);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync(int id)
+        [HttpDelete("{artifactId}")]
+        [Authorize(ArtifactAuthorization.Ownership)]
+        public async Task<IActionResult> DeleteAsync(int artifactId)
         {
-            var artifact = await _artifactsService.Get(id);
+            var artifact = await _artifactsService.Get(artifactId);
 
             if (!artifact.Success)
             {
                 return NotFound();
             }
 
-            await _artifactsService.Delete(id);
+            await _artifactsService.Delete(artifactId);
 
             return NoContent();
         }
 
         [HttpPost("{artifactId}/relations")]
+        [Authorize(ArtifactAuthorization.Ownership)]
         public async Task<IActionResult> SetRelationAsync(int artifactId, IList<ArtifactsRelationInsertDTO> artifactRelationList)
         {
             var artifactsRelations = _mapper.Map<IList<ArtifactsRelation>>(artifactRelationList);
@@ -116,6 +121,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpGet("{artifactId}/relations")]
+        [Authorize(ArtifactAuthorization.Ownership)]
         public async Task<IActionResult> GetRelationsAsync(int artifactId)
         {
             var result = await _artifactsService.GetAllRelationsOfAnArtifactAsync(artifactId);
@@ -154,6 +160,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpPut("{artifactId}/relations")]
+        [Authorize(ArtifactAuthorization.Ownership)]
         public async Task<IActionResult> UpdateRelationsAsync(int artifactId,
             IList<ArtifactsRelationUpdateDTO> artifactRelationUpdatedList)
         {
