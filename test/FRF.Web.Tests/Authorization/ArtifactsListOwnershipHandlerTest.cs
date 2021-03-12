@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using FRF.Core.Tests;
 using FRF.DataAccess;
 using FRF.DataAccess.EntityModels;
 using FRF.Web.Authorization;
