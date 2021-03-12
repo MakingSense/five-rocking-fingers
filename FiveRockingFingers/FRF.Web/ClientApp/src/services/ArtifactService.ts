@@ -77,9 +77,9 @@ class ArtifactService {
         }
     };
     
-    static setRelations = async (artifactRelationsList: any) => {
+    static setRelations = async (artifactId: number, artifactRelationsList: any) => {
         try {
-            return await axios.post(`${BASE_URL}relations`, artifactRelationsList);
+            return await axios.post(`${ARTIFACTS_URL}/${artifactId}/relations`, artifactRelationsList);
         } catch (error) {
             return error.response ? error.response : error.message;
         }

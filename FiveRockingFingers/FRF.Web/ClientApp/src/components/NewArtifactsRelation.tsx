@@ -47,7 +47,7 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeNewArtifactsRelation: Function, projectId: number, setOpenSnackbar: Function, setSnackbarSettings: Function, artifacts: Artifact[], artifactsRelations: ArtifactRelation[], updateList: handlerUpdateList }) => {
+const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeNewArtifactsRelation: Function, projectId: number, setOpenSnackbar: Function, setSnackbarSettings: Function, artifacts: Artifact[], artifactsRelations: ArtifactRelation[], updateList: handlerUpdateList, artifactId: number }) => {
 
     const classes = useStyles();
     const { handleSubmit, errors, control } = useForm();
@@ -145,7 +145,7 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
             artifactsRelationsList.push(artifactsRelation);
         });
         try {
-            let response = await ArtifactService.setRelations(artifactsRelationsList);
+            let response = await ArtifactService.setRelations(props.artifactId, artifactsRelationsList);
             if (response.status === 200) {
                 props.setSnackbarSettings({ message: "Las relaciones han sido creadas con éxito", severity: "success" });
                 props.setOpenSnackbar(true);
@@ -185,9 +185,15 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
 
     const handleChange = (event: React.ChangeEvent<{ name?: string | undefined; value: unknown }>) => {
         if (event.target.name === 'artifact1') {
+            event.target.value === '' ?
+            setArtifact1(null)
+            :
             setArtifact1(props.artifacts.find(a => a.id === event.target.value) as Artifact);
         }
         else if (event.target.name === 'artifact2') {
+            event.target.value === '' ?
+            setArtifact2(null)
+            :
             setArtifact2(props.artifacts.find(a => a.id === event.target.value) as Artifact);
         }              
     }
@@ -245,6 +251,28 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
         resetState();
     }
 
+    const menuItemBaseArtifact = (artifact: Artifact) => {
+        let baseArtifact = props.artifacts.find(a => a.id === props.artifactId);
+        return baseArtifact === undefined ?
+            <MenuItem value=""><em>None</em></MenuItem>
+            : artifact.id === baseArtifact.id ?
+                (props.artifacts.filter(a => a.id !== artifact.id)
+                    .map(a => <MenuItem key={a.id} value={a.id}>{a.name}</MenuItem>))
+                :
+                (<MenuItem key={baseArtifact!.id} value={baseArtifact!.id}>{baseArtifact!.name}</MenuItem>);
+    }
+
+    const menuItemRender = (artifact: Artifact) => {
+        return artifact === null ?
+            (props.artifacts.map(a => <MenuItem key={a.id} value={a.id}>{a.name}</MenuItem>))
+            :
+            artifact.id === props.artifactId ?
+                (props.artifacts.filter(a => a.id !== artifact.id)
+                    .map(a => <MenuItem key={a.id} value={a.id}>{a.name}</MenuItem>))
+                :
+                (props.artifacts.map(a => <MenuItem key={a.id} value={a.id}>{a.name}</MenuItem>));
+    }
+
     return (
         <Dialog open={props.showNewArtifactsRelation}>
             <DialogTitle id="alert-dialog-title">Formulario de para crear relación entre artefactos</DialogTitle>
@@ -279,7 +307,11 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                                     <MenuItem value="">
                                         <em>None</em>
                                     </MenuItem>
-                                    {props.artifacts.map(a => <MenuItem key={a.id} value={a.id}>{a.name}</MenuItem>)}
+                                    {artifact2===null ? 
+                                    menuItemRender(artifact2!)
+                                    :
+                                    menuItemBaseArtifact(artifact2!)
+                                    }
                                 </Select>
                             }
                             name='artifact1'
@@ -304,7 +336,11 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                                     <MenuItem value="">
                                         <em>None</em>
                                     </MenuItem>
-                                    {props.artifacts.map(a => <MenuItem key={a.id} value={a.id}>{a.name}</MenuItem>)}
+                                    {artifact1===null ? 
+                                    menuItemRender(artifact1!)
+                                    :
+                                    menuItemBaseArtifact(artifact1!)
+                                    }
                                 </Select>
                             }
                             name='artifact2'
