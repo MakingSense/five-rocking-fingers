@@ -21,9 +21,9 @@ class ArtifactService {
         }
     };
 
-    static get = async (id: number) => {
+    static get = async (artifactId: number) => {
         try {
-            return await axios.get(`${ARTIFACTS_URL}/${id}`);
+            return await axios.get(`${ARTIFACTS_URL}/${artifactId}`);
         } catch (error) {
             return error.response ? error.response : error.message;
         }
@@ -37,17 +37,17 @@ class ArtifactService {
         }
     };
 
-    static update = async (id: number, artifact: any) => {
+    static update = async (artifactId: number, artifact: any) => {
         try {
-            return await axios.put(`${ARTIFACTS_URL}/${id}`, artifact);
+            return await axios.put(`${ARTIFACTS_URL}/${artifactId}`, artifact);
         } catch (error) {
             return error.response ? error.response : error.message;
         }
     };
 
-    static delete = async (id: number) => {
+    static delete = async (artifactId: number) => {
         try {
-            return await axios.delete(`${ARTIFACTS_URL}/${id}`);
+            return await axios.delete(`${ARTIFACTS_URL}/${artifactId}`);
         } catch (error) {
             return error.response ? error.response : error.message;
         }
@@ -61,9 +61,9 @@ class ArtifactService {
         }
     };
 
-    static deleteRelation = async (id: string) => {
+    static deleteRelation = async (artifactId: string) => {
         try {
-            return await axios.delete(`${BASE_URL}relations/${id}`);
+            return await axios.delete(`${BASE_URL}relations/${artifactId}`);
         } catch (error) {
             return error.response ? error.response : error.message;
         }
