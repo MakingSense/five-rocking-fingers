@@ -138,6 +138,7 @@ namespace FRF.Web
 			services.AddAutoMapper(autoMapperProfileTypes);
 			services.AddTransient<IAuthorizationPolicyProvider, ArtifactOwnershipPolicyProvider>();
 			services.AddSingleton<IAuthorizationHandler, ArtifactOwnershipHandler>();
+			services.AddSingleton<IAuthorizationHandler, ArtifactsListOwnershipHandler>();
 			services.AddAuthorization();
 		}
 
