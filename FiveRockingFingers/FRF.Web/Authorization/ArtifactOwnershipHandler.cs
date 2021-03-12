@@ -59,7 +59,7 @@ namespace FRF.Web.Authorization
             var dataContext = scope.ServiceProvider.GetRequiredService<DataAccessContext>();
             if (dataContext.Artifacts.Any(a => a.Id == artifactId))
             {
-                isArtifactOfCurrentUser = dataContext.Artifacts.Include(artifact => artifact.Project).Any(ap =>
+                isArtifactOfCurrentUser = dataContext.Artifacts.Any(ap =>
                     ap.Project.UsersByProject.Any(ubp => ubp.UserId.Equals(Guid.Parse(userId))) &&
                     ap.Id == artifactId);
             }
