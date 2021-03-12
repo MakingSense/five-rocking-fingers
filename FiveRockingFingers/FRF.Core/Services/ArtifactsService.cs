@@ -78,8 +78,8 @@ namespace FRF.Core.Services
         /// <summary>
         /// Check if a relation already exists in the database.
         /// </summary>
-        /// <param name="dbArtifactRelations"></param>
-        /// <param name="artifactsRelations"></param>
+        /// <param name="dbArtifactRelations">List of Artifacts Relations from database</param>
+        /// <param name="artifactsRelations">List of Artifacts Relations</param>
         /// <param name="isAnUpdate">True if is to update, False if is a set</param>
         /// <returns>True if At least one of the artifact relation provided already exist </returns>
         private bool IsAnyRelationRepeated(IList<EntityModels.ArtifactsRelation> dbArtifactRelations,
@@ -117,23 +117,52 @@ namespace FRF.Core.Services
         /// <summary>
         /// Check if any relation is duplicate in the submitted list.
         /// </summary>
-        /// <param name="artifactsRelations"></param>
+        /// <param name="artifactsRelations">List of Artifacts Relations</param>
         /// <returns>True if At least one of the artifact relation is duplicate </returns>
         private bool IsAnyRelationRepeated(IList<ArtifactsRelation> artifactsRelations)
         {
-            return artifactsRelations.GroupBy(ar => new { ar.Artifact1Id, ar.Artifact2Id, ar.Artifact1Property, ar.Artifact2Property })
-                .Where(groupAr => groupAr.Skip(1).Any())
-                .Select(ar => ar.Key)
-                .Any();
+            var relations = new List<ArtifactsRelation>(artifactsRelations);
+
+            while (relations.Skip(1).Any())
+            {
+                var relation = relations[0];
+                relations.RemoveAt(0);
+                var isRepeated = relations.Any(rel =>
+                    rel.Artifact1Id == relation.Artifact1Id &&
+                    rel.Artifact2Id == relation.Artifact2Id &&
+                    rel.Artifact1Property.Equals(relation.Artifact1Property, StringComparison.InvariantCultureIgnoreCase) &&
+                    rel.Artifact2Property.Equals(relation.Artifact2Property, StringComparison.InvariantCultureIgnoreCase)
+                    ||
+                    rel.Artifact1Id == relation.Artifact2Id &&
+                    rel.Artifact2Id == relation.Artifact1Id &&
+                    rel.Artifact1Property.Equals(relation.Artifact2Property, StringComparison.InvariantCultureIgnoreCase) &&
+                    rel.Artifact2Property.Equals(relation.Artifact1Property, StringComparison.InvariantCultureIgnoreCase));
+                if (isRepeated)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
-        private IList<ArtifactsRelation> ExcludeDuplicates(IList<ArtifactsRelation> artifactsRelations)
+        private bool HasAnyRelationWithoutBaseArtifact(int baseArtifactId,
+            IList<ArtifactsRelation> artifactsRelations)
         {
-            IList<ArtifactsRelation> nonDuplicatesArtifactsRelations = new List<ArtifactsRelation>();
+            return artifactsRelations
+                .Any(a => a.Artifact1Id != baseArtifactId && a.Artifact2Id != baseArtifactId);
+        }
 
-            nonDuplicatesArtifactsRelations = artifactsRelations.Distinct().ToList();
+        private async Task<bool> IsAnyArtifactFromAnotherProject(int baseArtifactId, IList<ArtifactsRelation> artifactsRelations)
+        {
+            var baseProjectId = _dataContext.Artifacts.First(a => a.Id == baseArtifactId).ProjectId;
+            var artifactsIdsFromBaseProject =await _dataContext.Artifacts
+                .Where(a => a.ProjectId == baseProjectId).Select(a => a.Id).ToListAsync();
+            
+            var artifactsRelationIds = artifactsRelations
+                .Select(ar => ar.Artifact1Id)
+                .Concat(artifactsRelations.Select(ar => ar.Artifact2Id));
 
-            return nonDuplicatesArtifactsRelations;
+            return artifactsRelationIds.Except(artifactsIdsFromBaseProject).Any();
         }
 
         public async Task<ServiceResponse<List<Artifact>>> GetAll()
@@ -311,21 +340,37 @@ namespace FRF.Core.Services
             return new ServiceResponse<Artifact>(mappedArtifact);
         }
 
-        public async Task<ServiceResponse<IList<ArtifactsRelation>>> SetRelationAsync(IList<ArtifactsRelation> artifactRelations)
+        public async Task<ServiceResponse<IList<ArtifactsRelation>>> SetRelationAsync(int artifactId, IList<ArtifactsRelation> artifactRelations)
         {
-            var artifactsExist = await DoArtifactsExist(artifactRelations);
-            if (artifactsExist) return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid, "At least one of the artifact Ids provided doesn't exist"));
+            var existArtifactId = await _dataContext.Artifacts.AnyAsync(a => a.Id == artifactId);
+            if (!existArtifactId)
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.ArtifactNotExists,
+                    $"There is no artifact with Id = {artifactId}"));
+
+            var isAnyArtifactFromAnotherProject =await IsAnyArtifactFromAnotherProject(artifactId, artifactRelations);
+            if (isAnyArtifactFromAnotherProject)
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.ArtifactFromAnotherProject,
+                    "At least one of the artifact provided is from another project. "));
+
+            var hasAnyRelationWithoutBaseArtifact = HasAnyRelationWithoutBaseArtifact(artifactId, artifactRelations);
+            if (hasAnyRelationWithoutBaseArtifact)
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid,
+                    "At least one of the artifact relation provided does not involve the base artifact. "));
+
+            var isAnyNewRelationRepeated = IsAnyRelationRepeated(artifactRelations);
+            if (isAnyNewRelationRepeated)
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid,
+                    "At least one of the artifact relation provided is repeat"));
 
             var dbArtifactRelations = await _dataContext.ArtifactsRelation.Where(ar =>
-                    ar.Artifact1Id == artifactRelations[0].Artifact1Id ||
-                    ar.Artifact2Id == artifactRelations[0].Artifact2Id ||
-                    ar.Artifact2Id == artifactRelations[0].Artifact1Id ||
-                    ar.Artifact1Id == artifactRelations[0].Artifact2Id)
+                    ar.Artifact1Id == artifactId ||
+                    ar.Artifact2Id == artifactId)
                 .ToListAsync();
 
-            var relationsRepeated = IsAnyRelationRepeated(dbArtifactRelations, artifactRelations,isAnUpdate: false);
-            if (relationsRepeated)
-                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationAlreadyExisted, "At least one of the relations already existed"));
+            var relationsAlreadyExist = IsAnyRelationRepeated(dbArtifactRelations, artifactRelations,isAnUpdate: false);
+            if (relationsAlreadyExist)
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationAlreadyExisted,
+                    "At least one of the relations already existed"));
 
             var resultArtifactRelations = _mapper.Map<IList<EntityModels.ArtifactsRelation>>(artifactRelations);
             await _dataContext.ArtifactsRelation.AddRangeAsync(resultArtifactRelations);

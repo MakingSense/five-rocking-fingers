@@ -29,7 +29,7 @@ const EditArtifactConfirmation = (props: {
     setOpenSnackbar: Function,
     setSnackbarSettings: Function,
     updateArtifacts: Function,
-    updateRelations: Function }) => {
+     }) => {
 
     const classes = useStyles();
     const { handleSubmit } = useForm();
@@ -62,7 +62,6 @@ const EditArtifactConfirmation = (props: {
             props.setOpenSnackbar(true);
         }
         props.updateArtifacts();
-        props.updateRelations();
         props.closeEditArtifactDialog();
     }
 
