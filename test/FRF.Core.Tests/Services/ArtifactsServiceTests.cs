@@ -23,7 +23,6 @@ namespace FRF.Core.Tests.Services
         private readonly IMapper _mapper = MapperBuilder.Build();
         private readonly DataAccessContextForTest _dataAccess;
         private readonly ArtifactsService _classUnderTest;
-        private readonly DbContextOptions<DataAccessContextForTest> ContextOptions;
         private readonly Mock<ISettingsValidator> _settingsValidator;
 
         public ArtifactsServiceTests()

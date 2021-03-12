@@ -20,7 +20,6 @@ namespace FRF.Core.Services
         private readonly IMapper _mapper;
         private readonly ISettingsValidator _settingsValidator;
 
-
         public ArtifactsService(DataAccessContext dataContext, IMapper mapper, ISettingsValidator settingsValidator)
         {
             _dataContext = dataContext;
@@ -155,9 +154,9 @@ namespace FRF.Core.Services
 
         private async Task<bool> IsAnyArtifactFromAnotherProject(int baseArtifactId, IList<ArtifactsRelation> artifactsRelations)
         {
-            var baseProjectId = _dataContext.Artifacts.Include(a => a.Project).First(a => a.Id == baseArtifactId).ProjectId;
-            var artifactsIdsFromBaseProject =await _dataContext.Artifacts.Include(a => a.Project)
-                .Where(a => a.Project.Id == baseArtifactId).Select(a => a.Id).ToListAsync();
+            var baseProjectId = _dataContext.Artifacts.First(a => a.Id == baseArtifactId).ProjectId;
+            var artifactsIdsFromBaseProject =await _dataContext.Artifacts
+                .Where(a => a.ProjectId == baseProjectId).Select(a => a.Id).ToListAsync();
             
             var artifactsRelationIds = artifactsRelations
                 .Select(ar => ar.Artifact1Id)
