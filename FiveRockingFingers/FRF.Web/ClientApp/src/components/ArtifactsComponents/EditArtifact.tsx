@@ -251,15 +251,11 @@ const EditArtifact = (props: {
     }
 
     const isSettingAtTheEndOfAnyRelation = (settingName: string) => {
-        let flag = false;
+        const flag: ArtifactRelation | undefined = props.artifactsRelations
+            .find((relation) =>
+                isSettingAtTheEndOfRelation(settingName, relation));
 
-        props.artifactsRelations.forEach(relation => {
-            if (isSettingAtTheEndOfRelation(settingName, relation)) {
-                flag = true;
-            }
-        });
-
-        return flag;
+        return flag === undefined ? false : true;
     }
 
     const isSettingAtTheEndOfRelation = (settingName: string, relation: ArtifactRelation) => {

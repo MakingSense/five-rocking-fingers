@@ -24,6 +24,7 @@ const ArtifactsTable = (props: { projectId: number}) => {
     const [artifactsRelations, setArtifactsRelations] = React.useState<ArtifactRelation[]>([]);
     const [price, setPrice] = React.useState<string>('');
     const [projectBudget, setProjectBudget] = React.useState<number>(-1);
+    const [updateList, setUpdateList] = React.useState(true);
     const loading = projectBudget=== -1 || artifacts.length === 0;
     const {projectId} = props;
 
@@ -112,21 +113,28 @@ const ArtifactsTable = (props: { projectId: number}) => {
         getRelations();
     }, [projectId]);
 
+    React.useEffect(() => {
+        getProjectBudget();
+        if (updateList) {
+            getRelations();
+            getArtifacts();
+            setUpdateList(false);
+        }
+    }, [updateList]);
+
     const manageOpenSnackbar = (settings: SnackbarSettings) => {
         setSnackbarSettings(settings);
         setOpenSnackbar(true);
     }
 
     const getRelationsOfAnArtifact = (artifactId: number) => {
-        const relations: ArtifactRelation[] = [];
-
-        artifactsRelations.forEach(artifactRelation => {
-            if (artifactRelation.artifact1.id === artifactId || artifactRelation.artifact2.id === artifactId) {
-                relations.push(artifactRelation);
-            }
-        });
+        const relations: ArtifactRelation[] = artifactsRelations.filter(relation => relation.artifact1.id === artifactId || relation.artifact2.id === artifactId);
 
         return relations;
+    }
+
+    const handleUpdateList = () => {
+        setUpdateList(true);
     }
 
     return (
@@ -182,9 +190,7 @@ const ArtifactsTable = (props: { projectId: number}) => {
                 setSnackbarSettings={setSnackbarSettings}
                 artifacts={artifacts}
                 artifactsRelations={artifactsRelations}
-                updateList={{ update: false }}
-                updateArtifacts={getArtifacts}
-                updateRelations={getRelations}
+                updateList={{ update: true, setUpdate: handleUpdateList }}
             />
             { artifactToEdit ?
                 <EditArtifactDialog

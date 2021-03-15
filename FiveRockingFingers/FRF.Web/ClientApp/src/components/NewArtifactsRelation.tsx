@@ -55,9 +55,7 @@ const NewArtifactsRelation = (props: {
     setSnackbarSettings: Function,
     artifacts: Artifact[],
     artifactsRelations: ArtifactRelation[],
-    updateList: handlerUpdateList,
-    updateArtifacts: Function,
-    updateRelations: Function
+    updateList: handlerUpdateList
 }) => {
 
     const classes = useStyles();
@@ -170,8 +168,6 @@ const NewArtifactsRelation = (props: {
             props.setSnackbarSettings({ message: "Hubo un error al crear las relaciones", severity: "error" });
             props.setOpenSnackbar(true);
         }
-        props.updateArtifacts();
-        props.updateRelations();
         handleClose();       
     }
 
