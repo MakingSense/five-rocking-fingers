@@ -278,7 +278,7 @@ namespace FRF.Core.Services
             {
                 if(await IsSettingAtEndOfAnyRelation(artifact.Id, setting))
                 {
-                    return new ServiceResponse<Artifact>(new Error(ErrorCodes.InvalidArtifactSettings, $"You are trying to modify a setting at the of a relation"));
+                    return new ServiceResponse<Artifact>(new Error(ErrorCodes.InvalidArtifactSettings, $"You are trying to modify a setting at the end of a relation"));
                 }
             }
 
@@ -594,7 +594,7 @@ namespace FRF.Core.Services
 
             foreach(var relation in resultModel)
             {
-                if(IsASettingAtBeginningOfRelation(propertyName, relation))
+                if(!IsASettingAtEndOfRelation(propertyName, relation))
                 {
                     relationsToUpdate.Add(relation);
                 }
@@ -661,11 +661,7 @@ namespace FRF.Core.Services
 
             var finalValueOfSetting = 0f;
 
-            var allValuesFromSettingsAreFloat = true;
-
-            var i = 0;
-
-            while (allValuesFromSettingsAreFloat && i<relationsForUpdate.Count)
+            for (var i = 0; i < relationsForUpdate.Count; i++)
             {
                 var relationForUpdate = relationsForUpdate[i];
 
@@ -679,20 +675,11 @@ namespace FRF.Core.Services
                 }
                 else
                 {
-                    allValuesFromSettingsAreFloat = false;
+                    return false;
                 }
-
-                i++;
             }
 
-            if (allValuesFromSettingsAreFloat)
-            {
-                artifactToUpdate.Settings.Element(settingToUpdateName).Value = finalValueOfSetting.ToString();
-            }
-            else
-            {
-                return false;
-            }
+            artifactToUpdate.Settings.Element(settingToUpdateName).Value = finalValueOfSetting.ToString();
 
             var artifactUpdatedResponse = await AuxiliarUpdateArtifact(artifactToUpdate);
             var artifactUpdated = artifactUpdatedResponse.Value;
@@ -723,11 +710,6 @@ namespace FRF.Core.Services
             var success = await UpdateValueOfSettingRelated(artifactAtTheEnd.Id, settingAtTheEnd);
 
             return success;
-        }
-
-        public bool IsASettingAtBeginningOfRelation(string propertyName, ArtifactsRelation relation)
-        {
-            return (relation.RelationTypeId == 0 && relation.Artifact1Property == propertyName) || (relation.RelationTypeId == 1 && relation.Artifact2Property == propertyName);
         }
 
         public bool IsASettingAtEndOfRelation(string propertyName, ArtifactsRelation relation)
