@@ -4,13 +4,10 @@ import Artifact from '../../interfaces/Artifact';
 import ArtifactsTableRow from './ArtifactsTableRow';
 import SnackbarMessage from '../../commons/SnackbarMessage';
 import SnackbarSettings from '../../interfaces/SnackbarSettings'
-import ArtifactRelation from '../../interfaces/ArtifactRelation'
 import NewArtifactDialog from '../NewArtifactDialog';
-import NewArtifactsRelation from '../NewArtifactsRelation';
 import ArtifactService from '../../services/ArtifactService';
 import ProjectService from '../../services/ProjectService';
 import ArtifactsTotalPrice from './ArtifactsTotalPrice';
-import ArtifactType from '../../interfaces/ArtifactType';
 import EditArtifactDialog from './EditArtifactDialog';
 
 const ArtifactsTable = (props: { projectId: number}) => {
@@ -18,13 +15,10 @@ const ArtifactsTable = (props: { projectId: number}) => {
     const [openSnackbar, setOpenSnackbar] = React.useState(false);
     const [snackbarSettings, setSnackbarSettings] = React.useState<SnackbarSettings>({ message: "", severity: undefined });
     const [showNewArtifactDialog, setShowNewArtifactDialog] = React.useState(false);
-    const [showNewArtifactsRelation, setShowNewArtifactsRelation] = React.useState(false);
     const [showEditArtifactDialog, setEditArtifactDialog] = React.useState(false);
     const [artifactToEdit, setArtifactToEdit] = React.useState<Artifact | null>(null);
-    const [artifactsRelations, setArtifactsRelations] = React.useState<ArtifactRelation[]>([]);
     const [price, setPrice] = React.useState<string>('');
     const [projectBudget, setProjectBudget] = React.useState<number>(-1);
-    const [updateList, setUpdateList] = React.useState(true);
     const loading = projectBudget=== -1 || artifacts.length === 0;
     const {projectId} = props;
 
@@ -67,21 +61,6 @@ const ArtifactsTable = (props: { projectId: number}) => {
         }
     }
 
-    const getRelations = async () => {
-        try {
-            const response = await ArtifactService.getAllRelationsByProjectId(projectId);
-            if (response.status == 200) {
-                setArtifactsRelations(response.data);
-            }
-            else {
-                manageOpenSnackbar({ message: "Hubo un error al cargar las relaciones entre artefactos", severity: "error" });
-            }
-        }
-        catch {
-            manageOpenSnackbar({ message: "Hubo un error al cargar las relaciones entre artefactos", severity: "error" });
-        }
-    }
-
     const openEditArtifactDialog = () => {
         setEditArtifactDialog(true);
     }
@@ -99,42 +78,14 @@ const ArtifactsTable = (props: { projectId: number}) => {
         setShowNewArtifactDialog(true);
     }
 
-    const openNewArtifactsRelation = () => {
-        setShowNewArtifactsRelation(true);
-    }
-
-    const closeNewArtifactsRelation = () => {
-        setShowNewArtifactsRelation(false);
-    }
-
     React.useEffect(() => {
         getProjectBudget();
         getArtifacts();
-        getRelations();
     }, [projectId]);
-
-    React.useEffect(() => {
-        getProjectBudget();
-        if (updateList) {
-            getRelations();
-            getArtifacts();
-            setUpdateList(false);
-        }
-    }, [updateList]);
 
     const manageOpenSnackbar = (settings: SnackbarSettings) => {
         setSnackbarSettings(settings);
         setOpenSnackbar(true);
-    }
-
-    const getRelationsOfAnArtifact = (artifactId: number) => {
-        const relations: ArtifactRelation[] = artifactsRelations.filter(relation => relation.artifact1.id === artifactId || relation.artifact2.id === artifactId);
-
-        return relations;
-    }
-
-    const handleUpdateList = () => {
-        setUpdateList(true);
     }
 
     return (
@@ -147,8 +98,7 @@ const ArtifactsTable = (props: { projectId: number}) => {
                         <th>Tipo</th>
                         <th>Precio</th>
                         <th >
-                            <Button className="mx-3" style={{ minHeight: "32px", width: "21%" }} color="success" onClick={openNewArtifactDialog}>Nuevo artefacto</Button>
-                            <Button style={{ minHeight: "32px", width: "20%" }} color="success" onClick={openNewArtifactsRelation}>Nueva relación</Button>
+                            <Button className="mx-3" style={{ minHeight: "32px", width: "19vh" }} color="success" onClick={openNewArtifactDialog}>Nuevo artefacto</Button>
                         </th>
                     </tr>
                 </thead>
@@ -182,16 +132,6 @@ const ArtifactsTable = (props: { projectId: number}) => {
                 setOpenSnackbar={setOpenSnackbar}
                 setSnackbarSettings={setSnackbarSettings}
             />
-            <NewArtifactsRelation
-                showNewArtifactsRelation={showNewArtifactsRelation}
-                closeNewArtifactsRelation={closeNewArtifactsRelation}
-                projectId={projectId}
-                setOpenSnackbar={setOpenSnackbar}
-                setSnackbarSettings={setSnackbarSettings}
-                artifacts={artifacts}
-                artifactsRelations={artifactsRelations}
-                updateList={{ update: true, setUpdate: handleUpdateList }}
-            />
             { artifactToEdit ?
                 <EditArtifactDialog
                     showEditArtifactDialog={showEditArtifactDialog}
@@ -200,8 +140,6 @@ const ArtifactsTable = (props: { projectId: number}) => {
                     setSnackbarSettings={setSnackbarSettings}
                     artifactToEdit={artifactToEdit}
                     updateArtifacts={getArtifacts}
-                    updateRelations={getRelations}
-                    artifactsRelations={getRelationsOfAnArtifact(artifactToEdit.id)}
                 /> :
                 null
             }

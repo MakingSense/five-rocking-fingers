@@ -12,7 +12,9 @@ using FRF.Core.Base;
 using FRF.Core.Services;
 using FRF.Core.XmlValidation;
 using FRF.DataAccess;
+using FRF.Web.Authorization;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
@@ -134,6 +136,10 @@ namespace FRF.Web
 
 			var autoMapperProfileTypes = AutoMapperProfiles.Select(p => p.GetType()).ToArray();
 			services.AddAutoMapper(autoMapperProfileTypes);
+			services.AddTransient<IAuthorizationPolicyProvider, ArtifactOwnershipPolicyProvider>();
+			services.AddSingleton<IAuthorizationHandler, ArtifactOwnershipHandler>();
+			services.AddSingleton<IAuthorizationHandler, ArtifactsListOwnershipHandler>();
+			services.AddAuthorization();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

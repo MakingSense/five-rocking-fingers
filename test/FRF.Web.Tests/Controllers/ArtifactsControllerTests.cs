@@ -645,15 +645,15 @@ namespace FRF.Web.Tests.Controllers
                 artifactsRelationDtos.Add(artifactRelation);
             }
             _artifactsService
-                .Setup(mock => mock.SetRelationAsync(It.IsAny<List<ArtifactsRelation>>()))
+                .Setup(mock => mock.SetRelationAsync(It.IsAny<int>(),It.IsAny<List<ArtifactsRelation>>()))
                 .ReturnsAsync(new ServiceResponse<IList<ArtifactsRelation>>(_mapper.Map<IList<ArtifactsRelation>>(artifactsRelationDtos)));
             // Act
-            var result = await _classUnderTest.SetRelationAsync(artifactsRelationDtos);
+            var result = await _classUnderTest.SetRelationAsync(artifactsRelationDtos[0].Artifact1Id,artifactsRelationDtos);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
             Assert.IsType<List<ArtifactsRelationDTO>>(okResult.Value);
-            _artifactsService.Verify(mock=>mock.SetRelationAsync(It.IsAny<List<ArtifactsRelation>>()),Times.Once);
+            _artifactsService.Verify(mock=>mock.SetRelationAsync(It.IsAny<int>(),It.IsAny<List<ArtifactsRelation>>()),Times.Once);
 
         }
 
@@ -666,16 +666,16 @@ namespace FRF.Web.Tests.Controllers
             artifactsRelationDtos.Add(artifactRelation);
 
             _artifactsService
-                .Setup(mock => mock.SetRelationAsync(It.IsAny<List<ArtifactsRelation>>()))
+                .Setup(mock => mock.SetRelationAsync(It.IsAny<int>(), It.IsAny<List<ArtifactsRelation>>()))
                 .ReturnsAsync(new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid, "Error Message")));
 
             // Act
-            var result = await _classUnderTest.SetRelationAsync(artifactsRelationDtos);
+            var result = await _classUnderTest.SetRelationAsync(artifactsRelationDtos[0].Artifact1Id, artifactsRelationDtos);
 
             // Assert
             var response = Assert.IsType<BadRequestResult>(result);
             Assert.IsNotType<List<ArtifactsRelationDTO>>(response);
-            _artifactsService.Verify(mock => mock.SetRelationAsync(It.IsAny<List<ArtifactsRelation>>()), Times.Once);
+            _artifactsService.Verify(mock => mock.SetRelationAsync(It.IsAny<int>(), It.IsAny<List<ArtifactsRelation>>()), Times.Once);
         }
         [Fact]
         public async Task SetRelationAsync_ReturnBadRequest_WhenIsaBidirectionalRelation()
@@ -700,16 +700,16 @@ namespace FRF.Web.Tests.Controllers
             });
 
             _artifactsService
-                .Setup(mock => mock.SetRelationAsync(It.IsAny<List<ArtifactsRelation>>()))
+                .Setup(mock => mock.SetRelationAsync(It.IsAny<int>(), It.IsAny<List<ArtifactsRelation>>()))
                 .ReturnsAsync(new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid, "Error Message")));
 
             // Act
-            var result = await _classUnderTest.SetRelationAsync(artifactsRelationDtos);
+            var result = await _classUnderTest.SetRelationAsync(artifactsRelationDtos[0].Artifact1Id, artifactsRelationDtos);
 
             // Assert
             var response = Assert.IsType<BadRequestResult>(result);
             Assert.IsNotType<List<ArtifactsRelationDTO>>(response);
-            _artifactsService.Verify(mock => mock.SetRelationAsync(It.IsAny<List<ArtifactsRelation>>()), Times.Once);
+            _artifactsService.Verify(mock => mock.SetRelationAsync(It.IsAny<int>(), It.IsAny<List<ArtifactsRelation>>()), Times.Once);
         }
 
         [Fact]
