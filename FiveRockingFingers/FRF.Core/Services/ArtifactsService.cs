@@ -342,21 +342,12 @@ namespace FRF.Core.Services
 
         public async Task<ServiceResponse<IList<ArtifactsRelation>>> SetRelationAsync(int artifactId, IList<ArtifactsRelation> artifactRelations)
         {
+            var artifactResponse = await Get(artifactId);
+            if (!artifactResponse.Success)
+                return new ServiceResponse<IList<ArtifactsRelation>>(artifactResponse.Error);
+
             var artifactsExist = await DoArtifactsExist(artifactRelations);
             if (artifactsExist) return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.ArtifactNotExists, "At least one of the artifact Ids provided doesn't exist"));
-
-            var artifactResponse = await Get(artifactRelations[0].Artifact1Id);
-            var projectRelationsResponse = await GetAllRelationsByProjectIdAsync(artifactResponse.Value.ProjectId);
-
-            var dbArtifactRelations = projectRelationsResponse.Value.Where(ar =>
-                    ar.Artifact1Id == artifactRelations[0].Artifact1Id ||
-                    ar.Artifact2Id == artifactRelations[0].Artifact2Id ||
-                    ar.Artifact2Id == artifactRelations[0].Artifact1Id ||
-                    ar.Artifact1Id == artifactRelations[0].Artifact2Id).ToList();
-
-            var relationsRepeated = IsAnyRelationRepeated(dbArtifactRelations, artifactRelations, isAnUpdate: false);
-            if (relationsRepeated)
-                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationAlreadyExisted, "At least one of the relations already existed"));
                 
             var isAnyArtifactFromAnotherProject =await IsAnyArtifactFromAnotherProject(artifactId, artifactRelations);
             if (isAnyArtifactFromAnotherProject)
@@ -373,17 +364,25 @@ namespace FRF.Core.Services
                 return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid,
                     "At least one of the artifact relation provided is repeat"));
 
-            var dbArtifactRelations = await _dataContext.ArtifactsRelation.Where(ar =>
+            var projectRelationsResponse = await GetAllRelationsByProjectIdAsync(artifactResponse.Value.ProjectId);
+
+            var dbProjectRelations = projectRelationsResponse.Value.Where(ar =>
+                    ar.Artifact1Id == artifactRelations[0].Artifact1Id ||
+                    ar.Artifact2Id == artifactRelations[0].Artifact2Id ||
+                    ar.Artifact2Id == artifactRelations[0].Artifact1Id ||
+                    ar.Artifact1Id == artifactRelations[0].Artifact2Id).ToList();
+
+            var dbArtifactRelations = dbProjectRelations.Where(ar =>
                     ar.Artifact1Id == artifactId ||
                     ar.Artifact2Id == artifactId)
-                .ToListAsync();
+                .ToList();
 
             var relationsAlreadyExist = IsAnyRelationRepeated(dbArtifactRelations, artifactRelations,isAnUpdate: false);
             if (relationsAlreadyExist)
                 return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationAlreadyExisted,
                     "At least one of the relations already existed"));
 
-            var cycleDetected = IsCircularReference(dbArtifactRelations, artifactRelations, false);
+            var cycleDetected = IsCircularReference(dbProjectRelations, artifactRelations, false);
             if (cycleDetected)
                 return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationCycleDetected, "These relations would generate at least one cycle"));
 

@@ -113,12 +113,28 @@ namespace FRF.Core.Tests.Services
         private CoreModels.ArtifactsRelation CreateArtifactsRelationModel(int artifact1Id,int artifact2Id)
         {
             var random = new Random();
+            var propertyId = random.Next(1000);
             var artifactRelation = new CoreModels.ArtifactsRelation()
             {
                 Artifact1Id = artifact1Id,
                 Artifact2Id = artifact2Id,
                 Artifact1Property = "Mock 1 Property "+propertyId,
                 Artifact2Property = "Mock 2 Property "+propertyId,
+                RelationTypeId = 1
+            };
+
+            return artifactRelation;
+        }
+
+        private CoreModels.ArtifactsRelation CreateArtifactsRelationModel(int artifact1Id, int artifact2Id, string setting1, string setting2)
+        {
+            var random = new Random();
+            var artifactRelation = new CoreModels.ArtifactsRelation()
+            {
+                Artifact1Id = artifact1Id,
+                Artifact2Id = artifact2Id,
+                Artifact1Property = setting1,
+                Artifact2Property = setting2,
                 RelationTypeId = 1
             };
 
@@ -708,7 +724,7 @@ namespace FRF.Core.Tests.Services
         public async Task SetRelationAsync_ReturnsListOfRelations()
         {
             // Arange
-            var artifactsRelationToSave = new List<ArtifactsRelation>();
+            var artifactsRelationToSave = new List<CoreModels.ArtifactsRelation>();
             var artifactsRelationInDb = new List<DataAccess.EntityModels.ArtifactsRelation>();
             var provider = CreateProvider();
             var artifactType = CreateArtifactType(provider);
@@ -744,7 +760,7 @@ namespace FRF.Core.Tests.Services
         public async Task SetRelationAsync_ReturnsNull_WhenBaseArtifactNoExist()
         {
             // Arange
-            var artifactsRelationToSave = new List<ArtifactsRelation>();
+            var artifactsRelationToSave = new List<CoreModels.ArtifactsRelation>();
             var baseArtifactId = int.MaxValue;
 
             var artifact = CreateArtifact();
@@ -765,7 +781,7 @@ namespace FRF.Core.Tests.Services
         public async Task SetRelationAsync_ReturnsNull_WhenIsAnyArtifactRepeated()
         {
             // Arange
-            var artifactsRelationToSave = new List<ArtifactsRelation>();
+            var artifactsRelationToSave = new List<CoreModels.ArtifactsRelation>();
             var provider = CreateProvider();
             var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
@@ -795,7 +811,7 @@ namespace FRF.Core.Tests.Services
         public async Task SetRelationAsync_ReturnsNull_WhenIsAnyRelationRepeated()
         {
             // Arange
-            var artifactsRelationToSave = new List<ArtifactsRelation>();
+            var artifactsRelationToSave = new List<CoreModels.ArtifactsRelation>();
             var provider = CreateProvider();
             var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
@@ -829,7 +845,7 @@ namespace FRF.Core.Tests.Services
         public async Task SetRelationAsync_ReturnsNull_WhenHasAnyRelationWithoutBaseArtifact()
         {
             // Arange
-            var artifactsRelationToSave = new List<ArtifactsRelation>();
+            var artifactsRelationToSave = new List<CoreModels.ArtifactsRelation>();
             var provider = CreateProvider();
             var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
@@ -861,7 +877,7 @@ namespace FRF.Core.Tests.Services
         public async Task SetRelationAsync_ReturnsNull_WhenHasAnyArtifactFromAnotherProject()
         {
             // Arange
-            var artifactsRelationToSave = new List<ArtifactsRelation>();
+            var artifactsRelationToSave = new List<CoreModels.ArtifactsRelation>();
             var provider = CreateProvider();
             var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
@@ -879,8 +895,6 @@ namespace FRF.Core.Tests.Services
             var artifact2FromAnotherProject = CreateArtifact(notBaseProject, artifactType);
             var artifactRelationWithArtifactsFromAnotherProject = CreateArtifactsRelationModel(artifactFromAnotherProject.Id, artifact2FromAnotherProject.Id);
             artifactsRelationToSave.Add(artifactRelationWithArtifactsFromAnotherProject);
-
-            artifactsRelationToSave.Add(CreateArtifactsRelationModel(artifact1.Id, artifact2.Id, "[Mock] Property artefact 1", "[Mock] Property artefact 2"));
 
             // Act
 
@@ -916,7 +930,7 @@ namespace FRF.Core.Tests.Services
             newArtifactRelationList.Add(CreateArtifactsRelationModel(artifact3.Id, artifact1.Id, "[Mock] Property artefact 3", "[Mock] Property artefact 1"));
 
             // Act
-            var response = await _classUnderTest.SetRelationAsync(newArtifactRelationList);
+            var response = await _classUnderTest.SetRelationAsync(artifact1.Id, newArtifactRelationList);
 
             // Assert
             Assert.False(response.Success);
@@ -947,7 +961,7 @@ namespace FRF.Core.Tests.Services
             newArtifactRelationList.Add(CreateArtifactsRelationModel(artifact2.Id, artifact1.Id, "[Mock] Property artefact 22", "[Mock] Property artefact 11"));
 
             // Act
-            var response = await _classUnderTest.SetRelationAsync(newArtifactRelationList);
+            var response = await _classUnderTest.SetRelationAsync(artifact1.Id, newArtifactRelationList);
 
             // Assert
             Assert.False(response.Success);
