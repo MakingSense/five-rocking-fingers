@@ -494,12 +494,22 @@ namespace FRF.Core.Services
 
             await _dataContext.SaveChangesAsync();
 
-            var success = await UpdateArtifactOfRelation(_mapper.Map<ArtifactsRelation>(artifactsRelation));
+            var artifactAtEndOfRelation = await GetArtifactAtEndOfRelationAsync(_mapper.Map<ArtifactsRelation>(artifactsRelation));
 
-            if(!success)
+            var settingAtEndOfRelation = GetSettingAtEndOfRelationAsync(_mapper.Map<ArtifactsRelation>(artifactsRelation));
+
+            var relationsResponse = await GetRelationsForUpdateAsync(artifactAtEndOfRelation.Id, settingAtEndOfRelation);
+            var relations = relationsResponse.Value;
+
+            if(relations.Count > 0)
             {
-                return new ServiceResponse<ArtifactsRelation>(new Error(ErrorCodes.InvalidArtifactSettings, "At least one setting is a string"));
-            }
+                var success = await UpdateArtifactOfRelation(relations[0]);
+
+                if (!success)
+                {
+                    return new ServiceResponse<ArtifactsRelation>(new Error(ErrorCodes.InvalidArtifactSettings, "At least one setting is a string"));
+                }
+            }            
 
             await _dataContext.SaveChangesAsync();
 
