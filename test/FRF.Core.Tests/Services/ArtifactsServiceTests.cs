@@ -569,16 +569,14 @@ namespace FRF.Core.Tests.Services
 
             // Act
             var result = await _classUnderTest.Update(artifactToUpdate);
-            var artifact2Response = await _classUnderTest.Get(artifact2.Id);
-            var artifact3Response = await _classUnderTest.Get(artifact3.Id);
 
             // Assert
             Assert.IsType<ServiceResponse<CoreModels.Artifact>>(result);
             Assert.True(result.Success);
             var resultValue = Assert.IsType<CoreModels.Artifact>(result.Value);
 
-            var resultValueArtifact2 = Assert.IsAssignableFrom<CoreModels.Artifact>(artifact2Response.Value);
-            var resultValueArtifact3 = Assert.IsAssignableFrom<CoreModels.Artifact>(artifact3Response.Value);
+            var resultValueArtifact2 = await _dataAccess.Artifacts.SingleOrDefaultAsync(a => a.Id == artifact2.Id);
+            var resultValueArtifact3 = await _dataAccess.Artifacts.SingleOrDefaultAsync(a => a.Id == artifact3.Id);
             Assert.Equal(updatedSetting1Value, int.Parse(resultValueArtifact2.Settings.Element(setting2Name).Value));
             Assert.Equal(updatedSetting1Value, int.Parse(resultValueArtifact3.Settings.Element(setting3Name).Value));
 
@@ -844,8 +842,8 @@ namespace FRF.Core.Tests.Services
             Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
             var resultValue = Assert.IsAssignableFrom<IList<ArtifactsRelation>>(response.Value);
 
-            var resultValueArtifact2 = Assert.IsAssignableFrom<CoreModels.Artifact>(artifact2Response.Value);
-            var resultValueArtifact3 = Assert.IsAssignableFrom<CoreModels.Artifact>(artifact3Response.Value);
+            var resultValueArtifact2 = await _dataAccess.Artifacts.SingleOrDefaultAsync(a => a.Id == artifact2.Id);
+            var resultValueArtifact3 = await _dataAccess.Artifacts.SingleOrDefaultAsync(a => a.Id == artifact3.Id);
 
             AssertCompareArtifactRelation(relations[0], resultValue[0]);
             AssertCompareArtifactRelation(relations[1], resultValue[1]);
@@ -903,14 +901,14 @@ namespace FRF.Core.Tests.Services
 
             // Act
             var response = await _classUnderTest.SetRelationAsync(relations);
-            var artifact3Response = await _classUnderTest.Get(artifact3.Id);
 
             // Assert
             Assert.True(response.Success);
             Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
             var resultValue = Assert.IsAssignableFrom<IList<ArtifactsRelation>>(response.Value);
 
-            var resultValueArtifact3 = Assert.IsAssignableFrom<CoreModels.Artifact>(artifact3Response.Value);
+            var resultValueArtifact3 = await _dataAccess.Artifacts.SingleOrDefaultAsync(a => a.Id == artifact3.Id);
+
 
             AssertCompareArtifactRelation(relations[0], resultValue[0]);
             AssertCompareArtifactRelation(relations[1], resultValue[1]);
@@ -1154,10 +1152,10 @@ namespace FRF.Core.Tests.Services
 
             // Act
             var response = await _classUnderTest.UpdateRelationAsync(artifact2.Id, artifactsRelationUpdated);
-            var artifact1Response = await _classUnderTest.Get(artifact1.Id);
 
             // Assert
-            var resultValueArtifact1 = Assert.IsAssignableFrom<CoreModels.Artifact>(artifact1Response.Value);
+            var resultValueArtifact1 = await _dataAccess.Artifacts.SingleOrDefaultAsync(a => a.Id == artifact1.Id);
+
             Assert.Equal(setting2Value + setting3Value, int.Parse(resultValueArtifact1.Settings.Element(setting1Name).Value));
 
             Assert.True(response.Success);
@@ -1312,10 +1310,9 @@ namespace FRF.Core.Tests.Services
 
             // Act
             var response = await _classUnderTest.DeleteRelationAsync(artifactRelation13.Id);
-            var artifact1Response = await _classUnderTest.Get(artifact1.Id);
 
             // Assert
-            var resultValueArtifact1 = Assert.IsAssignableFrom<CoreModels.Artifact>(artifact1Response.Value);
+            var resultValueArtifact1 = await _dataAccess.Artifacts.SingleOrDefaultAsync(a => a.Id == artifact1.Id);
 
             Assert.True(response.Success);
             Assert.IsType<ServiceResponse<ArtifactsRelation>>(response);
