@@ -38,8 +38,6 @@ const EditArtifact = (props: {
     const { register, handleSubmit, errors, setError, clearErrors, control } = useForm();
     const { closeEditArtifactDialog } = props;
 
-
-
     const createSettingsListFromArtifact = () => {
         let settingsListFromArtifact: Setting[] = [];
         if (props.artifactToEdit.id === 0) {
