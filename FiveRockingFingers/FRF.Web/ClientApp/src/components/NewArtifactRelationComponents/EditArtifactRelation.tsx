@@ -214,13 +214,14 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
     }
 
     const toRegularSentence = (value: string) => {
-        // Value will be null only when you select a Custom artifact setting, since their type selection hasn't been implemented
-        // REMOVE ONCE IT'S DONE
-        if (!value) return "";
+        if (!value || value.length === 0) return "";
 
         const result = value.replace(/([A-Z])/g, ' $1');
-        const final = result.charAt(0).toUpperCase() + result.slice(1);
-        return final;
+        if (/[a-z]/.test(result.charAt(0))) {
+            return `${result.charAt(0).toUpperCase()}${result.slice(1)}`;
+        } else {
+            return result;
+        }
     }
 
     return (
