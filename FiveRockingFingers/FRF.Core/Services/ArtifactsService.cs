@@ -549,9 +549,19 @@ namespace FRF.Core.Services
                 return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.ArtifactNotExists,
                     "At least one of the artifact Ids provided doesn't exist"));
 
-            var projectRelationsResponse = await GetAllRelationsByProjectIdAsync(artifactResponse.Value.ProjectId);
+            var existProjectId = await _dataContext.Projects.AnyAsync(p => p.Id == artifactResponse.Value.ProjectId);
+            if (!existProjectId)
+            {
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.ProjectNotExists, $"There is no project with Id = {artifactResponse.Value.ProjectId}"));
+            }
 
-            var relationsOriginal = projectRelationsResponse.Value
+            var artifactsRelations = await _dataContext.ArtifactsRelation
+                .Where(ar => ar.Artifact1.ProjectId == artifactResponse.Value.ProjectId || ar.Artifact2.ProjectId == artifactResponse.Value.ProjectId)
+                .Include(ar => ar.Artifact1)
+                .Include(ar => ar.Artifact2)
+                .ToListAsync();
+
+            var relationsOriginal = artifactsRelations
                 .Where(ar => ar.Artifact1Id == artifactId || ar.Artifact2Id == artifactId)
                 .ToList();
 
@@ -561,14 +571,16 @@ namespace FRF.Core.Services
                 return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid,
                     "At least one of the artifact relation provided is repeat"));
 
-            var relationsWithOriginalRepeated = IsAnyRelationRepeated(relationsOriginal, artifactsRelationsNew, isAnUpdate: true);
+            var relationsWithOriginalRepeated = IsAnyRelationRepeated(_mapper.Map<List<ArtifactsRelation>>(artifactsRelations), artifactsRelationsNew, isAnUpdate: true);
             if (relationsWithOriginalRepeated)
                 return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid,
                     "At least one of the artifact relation provided already exist"));
 
-            var cycleDetected = IsCircularReference(projectRelationsResponse.Value, artifactsRelationsNew, true);
+            var cycleDetected = IsCircularReference(_mapper.Map<List<ArtifactsRelation>>(artifactsRelations), artifactsRelationsNew, true);
             if (cycleDetected)
                 return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationCycleDetected, "These relations would generate at least one cycle"));
+
+            var transaction = _dataContext.Database.BeginTransaction();
 
             foreach (var relationOriginal in relationsOriginal)
             {
@@ -582,9 +594,7 @@ namespace FRF.Core.Services
                     relationOriginal.Artifact2Property = relationNew.Artifact2Property;
                     relationOriginal.RelationTypeId = relationNew.RelationTypeId;
                 }
-            }
-
-            var transaction = _dataContext.Database.BeginTransaction();
+            }            
 
             await _dataContext.SaveChangesAsync();
 
