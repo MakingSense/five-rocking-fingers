@@ -198,12 +198,14 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
 
     const handleChange = (event: React.ChangeEvent<{ name?: string | undefined; value: unknown }>) => {
         if (event.target.name === 'artifact1') {
+            setSetting1(null);
             event.target.value === '' ?
             setArtifact1(null)
             :
             setArtifact1(props.artifacts.find(a => a.id === event.target.value) as Artifact);
         }
         else if (event.target.name === 'artifact2') {
+            setSetting2(null);
             event.target.value === '' ?
             setArtifact2(null)
             :
