@@ -41,6 +41,14 @@ namespace FRF.Core.Models.AwsArtifacts
         public AwsEc2(XElement settings)
         {
             Settings = settings;
+            RelationalFields = new Dictionary<string, string>();
+            RelationalFields.Add("hoursUsedPerMonth", SettingTypes.Decimal);
+            RelationalFields.Add("numberOfGbStorageInEbs", SettingTypes.Decimal);
+            RelationalFields.Add("numberOfSnapshotsPerMonth", SettingTypes.Decimal);
+            RelationalFields.Add("numberOfGbChangedPerSnapshot", SettingTypes.Decimal);
+            RelationalFields.Add("numberOfIopsPerMonth", SettingTypes.Decimal);
+            RelationalFields.Add("numberOfMbpsThroughput", SettingTypes.Decimal);
+            RelationalFields.Add("numberOfGbTransfer1", SettingTypes.Decimal);
         }
 
         override public decimal GetPrice()

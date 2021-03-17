@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Xml.Linq;
 
 namespace FRF.Core.Models
@@ -14,6 +15,7 @@ namespace FRF.Core.Models
         public Project Project { get; set; }
         public int ArtifactTypeId { get; set; }
         public ArtifactType ArtifactType { get; set; }
+        public Dictionary<string, string> RelationalFields { get; set; }
 
         public virtual decimal GetPrice()
         {
