@@ -8,7 +8,6 @@ using Xunit;
 using System.Threading.Tasks;
 using FRF.DataAccess.EntityModels;
 using Microsoft.Extensions.Configuration;
-using ArtifactsRelation = FRF.Core.Models.ArtifactsRelation;
 using CoreModels = FRF.Core.Models;
 using FRF.Core.Response;
 using FRF.Core.XmlValidation;
@@ -23,7 +22,6 @@ namespace FRF.Core.Tests.Services
         private readonly IMapper _mapper = MapperBuilder.Build();
         private readonly DataAccessContextForTest _dataAccess;
         private readonly ArtifactsService _classUnderTest;
-        private readonly DbContextOptions<DataAccessContextForTest> ContextOptions;
         private readonly Mock<ISettingsValidator> _settingsValidator;
 
         public ArtifactsServiceTests()
@@ -92,6 +90,26 @@ namespace FRF.Core.Tests.Services
             return artifact;
         }
 
+        private Artifact CreateArtifact()
+        {
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
+            var project = CreateProject();
+            var name = DateTime.Now.Millisecond;
+            var artifact = new Artifact()
+            {
+                Name = $"[Mock] Artifact name {name}",
+                CreatedDate = DateTime.Now,
+                Project = project,
+                ProjectId = project.Id,
+                ArtifactType = artifactType,
+                ArtifactTypeId = artifactType.Id
+            };
+            _dataAccess.Artifacts.Add(artifact);
+            _dataAccess.SaveChanges();
+
+            return artifact;
+        }
         private CoreModels.ArtifactsRelation CreateArtifactsRelationModel(int artifact1Id,int artifact2Id)
         {
             var random = new Random();
@@ -102,6 +120,36 @@ namespace FRF.Core.Tests.Services
                 Artifact2Id = artifact2Id,
                 Artifact1Property = "Mock 1 Property "+propertyId,
                 Artifact2Property = "Mock 2 Property "+propertyId,
+                RelationTypeId = 1
+            };
+
+            return artifactRelation;
+        }
+
+        private CoreModels.ArtifactsRelation CreateArtifactsRelationModel(int artifact1Id, int artifact2Id, string setting1, string setting2)
+        {
+            var random = new Random();
+            var artifactRelation = new CoreModels.ArtifactsRelation()
+            {
+                Artifact1Id = artifact1Id,
+                Artifact2Id = artifact2Id,
+                Artifact1Property = setting1,
+                Artifact2Property = setting2,
+                RelationTypeId = 1
+            };
+
+            return artifactRelation;
+        }
+
+        private ArtifactsRelation CreateArtifactsRelationEntityModel(int artifact1Id, int artifact2Id, string property1, string property2)
+        {
+            var random = new Random();
+            var artifactRelation = new ArtifactsRelation()
+            {
+                Artifact1Id = artifact1Id,
+                Artifact2Id = artifact2Id,
+                Artifact1Property = property1,
+                Artifact2Property = property2,
                 RelationTypeId = 1
             };
 
@@ -676,39 +724,29 @@ namespace FRF.Core.Tests.Services
         public async Task SetRelationAsync_ReturnsListOfRelations()
         {
             // Arange
-            var artifactsRelationToSave = new List<ArtifactsRelation>();
+            var artifactsRelationToSave = new List<CoreModels.ArtifactsRelation>();
             var artifactsRelationInDb = new List<DataAccess.EntityModels.ArtifactsRelation>();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
+            var project = CreateProject();
+            var baseArtifact =_mapper.Map<Core.Models.Artifact>(CreateArtifact(project, artifactType));
             var i = 0;
             while (i < 3)
             {
-                var provider = CreateProvider();
-                var artifactType = CreateArtifactType(provider);
-                var project = CreateProject();
-                var artifact = CreateArtifact(project, artifactType);
-                var artifact1Id = artifact.Id;
-                var artifact2Id = artifact1Id++;
-
-                var artifactRelation = CreateArtifactsRelationModel(artifact1Id, artifact2Id);
+                var artifact2 = _mapper.Map<Core.Models.Artifact>(CreateArtifact(project, artifactType));
+                var artifactRelation = CreateArtifactsRelationModel(artifact2.Id, baseArtifact.Id);
                 artifactsRelationToSave.Add(artifactRelation);
 
-                var artifactRelationDb =
-                    _mapper.Map<DataAccess.EntityModels.ArtifactsRelation>(
-                        CreateArtifactsRelationModel(artifact1Id, artifact2Id));
-                await _dataAccess.ArtifactsRelation.AddAsync(artifactRelationDb);
-                artifactsRelationInDb.Add(artifactRelationDb);
-                var art = CreateArtifact(project, artifactType);
                 i++;
             }
 
-            await _dataAccess.SaveChangesAsync();
-
             // Act
-            var response = await _classUnderTest.SetRelationAsync(artifactsRelationToSave);
+            var response = await _classUnderTest.SetRelationAsync(baseArtifact.Id, artifactsRelationToSave);
 
             // Assert
             Assert.True(response.Success);
             Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
-            var resultValue = Assert.IsAssignableFrom<IList<ArtifactsRelation>>(response.Value);
+            var resultValue = Assert.IsAssignableFrom<IList<CoreModels.ArtifactsRelation>>(response.Value);
             for (var j = 0; j < resultValue.Count; j++)
             {
                 Assert.Equal(artifactsRelationToSave[j].Artifact1Id, resultValue[j].Artifact1Id);
@@ -719,59 +757,253 @@ namespace FRF.Core.Tests.Services
         }
 
         [Fact]
-        public async Task SetRelationAsync_ReturnsNull_WhenIsAnyArtifactExcept()
+        public async Task SetRelationAsync_ReturnsNull_WhenBaseArtifactNoExist()
         {
             // Arange
-            var artifactsRelationToSave = new List<ArtifactsRelation>();
-            var i = 0;
-            while (i < 3)
-            {
-                var artifactRelation = CreateArtifactsRelationModel(i, ++i);
-                artifactsRelationToSave.Add(artifactRelation);
-            }
+            var artifactsRelationToSave = new List<CoreModels.ArtifactsRelation>();
+            var baseArtifactId = int.MaxValue;
 
-            await _dataAccess.SaveChangesAsync();
+            var artifact = CreateArtifact();
+            var artifactRelation = CreateArtifactsRelationModel(artifact.Id, baseArtifactId);
+            artifactsRelationToSave.Add(artifactRelation);
 
             // Act
-            var response = await _classUnderTest.SetRelationAsync(artifactsRelationToSave);
+            var response = await _classUnderTest.SetRelationAsync(baseArtifactId, artifactsRelationToSave);
 
             // Assert
             Assert.False(response.Success);
             Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
             Assert.NotNull(response.Error);
-            Assert.Equal(ErrorCodes.RelationNotValid, response.Error.Code);
+            Assert.Equal(ErrorCodes.ArtifactNotExists, response.Error.Code);
         }
 
         [Fact]
         public async Task SetRelationAsync_ReturnsNull_WhenIsAnyArtifactRepeated()
         {
             // Arange
-            var artifactsRelationToSave = new List<ArtifactsRelation>();
-            var artifactsRelationInDb = new List<DataAccess.EntityModels.ArtifactsRelation>();
+            var artifactsRelationToSave = new List<CoreModels.ArtifactsRelation>();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
+            var project = CreateProject();
+            var baseArtifact = _mapper.Map<Core.Models.Artifact>(CreateArtifact(project, artifactType));
             var i = 0;
             while (i < 3)
             {
-                var provider = CreateProvider();
-                var artifactType = CreateArtifactType(provider);
-                var project = CreateProject();
-                var artifact1 = CreateArtifact(project, artifactType);
-                var artifact2 = CreateArtifact(project, artifactType);
-                var artifact1Id = artifact1.Id;
-                var artifact2Id = artifact2.Id;
-
-                var artifactRelation = CreateArtifactsRelationModel(artifact1Id, artifact2Id);
+                var artifact2 = CreateArtifact(project,artifactType);
+                var artifactRelation = CreateArtifactsRelationModel(baseArtifact.Id, artifact2.Id);
                 artifactsRelationToSave.Add(artifactRelation);
-
-                var artifactRelationDb = _mapper.Map<DataAccess.EntityModels.ArtifactsRelation>(artifactRelation);
-                await _dataAccess.ArtifactsRelation.AddAsync(artifactRelationDb);
-                artifactsRelationInDb.Add(artifactRelationDb);
                 i++;
             }
+            artifactsRelationToSave.Add(artifactsRelationToSave[0]);
+           
+            // Act
+            var response = await _classUnderTest.SetRelationAsync(baseArtifact.Id, artifactsRelationToSave);
+
+            // Assert
+            Assert.False(response.Success);
+            Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
+            Assert.NotNull(response.Error);
+            Assert.Equal(ErrorCodes.RelationNotValid, response.Error.Code);
+            Assert.Null(response.Value);
+        }
+
+        [Fact]
+        public async Task SetRelationAsync_ReturnsNull_WhenIsAnyRelationRepeated()
+        {
+            // Arange
+            var artifactsRelationToSave = new List<CoreModels.ArtifactsRelation>();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
+            var project = CreateProject();
+            var baseArtifact = _mapper.Map<Core.Models.Artifact>(CreateArtifact(project, artifactType));
+            var artifact2 = CreateArtifact(project, artifactType);
+            var artifactRelation = CreateArtifactsRelationModel(baseArtifact.Id, artifact2.Id);
+            artifactsRelationToSave.Add(artifactRelation);
+            
+            var artifactRelationRepeated = new CoreModels.ArtifactsRelation()
+            {
+                Artifact1Id = artifact2.Id,
+                Artifact2Id = baseArtifact.Id,
+                Artifact1Property = artifactRelation.Artifact2Property,
+                Artifact2Property = artifactRelation.Artifact1Property,
+                RelationTypeId = 0
+            };
+            artifactsRelationToSave.Add(artifactRelationRepeated);
+
+            // Act
+            var response = await _classUnderTest.SetRelationAsync(baseArtifact.Id, artifactsRelationToSave);
+
+            // Assert
+            Assert.False(response.Success);
+            Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
+            Assert.NotNull(response.Error);
+            Assert.Equal(ErrorCodes.RelationNotValid, response.Error.Code);
+            Assert.Null(response.Value);
+        }
+
+        [Fact]
+        public async Task SetRelationAsync_ReturnsNull_WhenHasAnyRelationWithoutBaseArtifact()
+        {
+            // Arange
+            var artifactsRelationToSave = new List<CoreModels.ArtifactsRelation>();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
+            var project = CreateProject();
+            var baseArtifact = _mapper.Map<Core.Models.Artifact>(CreateArtifact(project, artifactType));
+            var i = 0;
+            while (i < 3)
+            {
+                var artifact2 = CreateArtifact(project, artifactType);
+                var artifactRelation = CreateArtifactsRelationModel(baseArtifact.Id, artifact2.Id);
+                artifactsRelationToSave.Add(artifactRelation);
+                i++;
+            }
+            var artifactRelationWithoutBaseArtifact = CreateArtifactsRelationModel(artifactsRelationToSave[0].Artifact2Id, artifactsRelationToSave[1].Artifact2Id);
+            artifactsRelationToSave.Add(artifactRelationWithoutBaseArtifact);
+
+            // Act
+
+            var response = await _classUnderTest.SetRelationAsync(baseArtifact.Id, artifactsRelationToSave);
+
+            // Assert
+            Assert.False(response.Success);
+            Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
+            Assert.NotNull(response.Error);
+            Assert.Equal(ErrorCodes.RelationNotValid, response.Error.Code);
+            Assert.Null(response.Value);
+        }
+
+        [Fact]
+        public async Task SetRelationAsync_ReturnsNull_WhenHasAnyArtifactFromAnotherProject()
+        {
+            // Arange
+            var artifactsRelationToSave = new List<CoreModels.ArtifactsRelation>();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
+            var project = CreateProject();
+            var baseArtifact = _mapper.Map<Core.Models.Artifact>(CreateArtifact(project, artifactType));
+            var i = 0;
+            while (i < 3)
+            {
+                var artifact2 = CreateArtifact(project, artifactType);
+                var artifactRelation = CreateArtifactsRelationModel(baseArtifact.Id, artifact2.Id);
+                artifactsRelationToSave.Add(artifactRelation);
+                i++;
+            }
+            var notBaseProject = CreateProject();
+            var artifactFromAnotherProject = CreateArtifact(notBaseProject, artifactType);
+            var artifact2FromAnotherProject = CreateArtifact(notBaseProject, artifactType);
+            var artifactRelationWithArtifactsFromAnotherProject = CreateArtifactsRelationModel(artifactFromAnotherProject.Id, artifact2FromAnotherProject.Id);
+            artifactsRelationToSave.Add(artifactRelationWithArtifactsFromAnotherProject);
+
+            // Act
+
+            var response = await _classUnderTest.SetRelationAsync(baseArtifact.Id, artifactsRelationToSave);
+
+            // Assert
+            Assert.False(response.Success);
+            Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
+            Assert.NotNull(response.Error);
+            Assert.Equal(ErrorCodes.ArtifactFromAnotherProject, response.Error.Code);
+            Assert.Null(response.Value);
+        }
+
+        [Fact]
+        public async Task SetRelationAsync_ReturnsErrorCycleDetected1()
+        {
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
+            var project = CreateProject();
+            var artifact1 = CreateArtifact(project, artifactType);
+            var artifact2 = CreateArtifact(project, artifactType);
+            var artifact3 = CreateArtifact(project, artifactType);
+
+            var artifactRelation1 = CreateArtifactsRelationModel(artifact1.Id, artifact2.Id, "[Mock] Property artefact 1", "[Mock] Property artefact 2");
+            var artifactRelation2 = CreateArtifactsRelationModel(artifact2.Id, artifact3.Id, "[Mock] Property artefact 2", "[Mock] Property artefact 3");
+
+            await _dataAccess.ArtifactsRelation.AddAsync(_mapper.Map<ArtifactsRelation>(artifactRelation1));
+            await _dataAccess.ArtifactsRelation.AddAsync(_mapper.Map<ArtifactsRelation>(artifactRelation2));
+            await _dataAccess.SaveChangesAsync();
+
+            var newArtifactRelationList = new List<CoreModels.ArtifactsRelation>();
+
+            newArtifactRelationList.Add(CreateArtifactsRelationModel(artifact3.Id, artifact1.Id, "[Mock] Property artefact 3", "[Mock] Property artefact 1"));
+
+            // Act
+            var response = await _classUnderTest.SetRelationAsync(artifact1.Id, newArtifactRelationList);
+
+            // Assert
+            Assert.False(response.Success);
+            Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
+            Assert.Equal(ErrorCodes.RelationCycleDetected, response.Error.Code);
+        }
+
+        [Fact]
+        public async Task SetRelationAsync_ReturnsErrorCycleDetected2()
+        {
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
+            var project = CreateProject();
+            var artifact1 = CreateArtifact(project, artifactType);
+            var artifact2 = CreateArtifact(project, artifactType);
+
+            var artifactRelation1 = CreateArtifactsRelationModel(artifact1.Id, artifact2.Id, "[Mock] Property artefact 11", "[Mock] Property artefact 21");
+            var artifactRelation2 = CreateArtifactsRelationModel(artifact2.Id, artifact1.Id, "[Mock] Property artefact 21", "[Mock] Property artefact 12");
+            var artifactRelation3 = CreateArtifactsRelationModel(artifact1.Id, artifact2.Id, "[Mock] Property artefact 12", "[Mock] Property artefact 22");
+
+            await _dataAccess.ArtifactsRelation.AddAsync(_mapper.Map<ArtifactsRelation>(artifactRelation1));
+            await _dataAccess.ArtifactsRelation.AddAsync(_mapper.Map<ArtifactsRelation>(artifactRelation2));
+            await _dataAccess.ArtifactsRelation.AddAsync(_mapper.Map<ArtifactsRelation>(artifactRelation3));
+            await _dataAccess.SaveChangesAsync();
+
+            var newArtifactRelationList = new List<CoreModels.ArtifactsRelation>();
+
+            newArtifactRelationList.Add(CreateArtifactsRelationModel(artifact2.Id, artifact1.Id, "[Mock] Property artefact 22", "[Mock] Property artefact 11"));
+
+            // Act
+            var response = await _classUnderTest.SetRelationAsync(artifact1.Id, newArtifactRelationList);
+
+            // Assert
+            Assert.False(response.Success);
+            Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
+            Assert.Equal(ErrorCodes.RelationCycleDetected, response.Error.Code);
+        }
+      
+        [Fact]
+        public async Task SetRelationAsync_ReturnsNull_WhenIsAnyBidirectionalRelationSameRelationType()
+        {
+            // Arange
+            var artifactsRelationToSave = new List<CoreModels.ArtifactsRelation>();
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
+            var project = CreateProject();
+            var baseArtifact = CreateArtifact(project, artifactType);
+            var artifact2 = CreateArtifact(project, artifactType);
+
+            var artifactRelation1 = new CoreModels.ArtifactsRelation()
+            {
+                Artifact1Id = baseArtifact.Id,
+                Artifact2Id = artifact2.Id,
+                Artifact1Property = "Mock 1 Property",
+                Artifact2Property = "Mock 2 Property",
+                RelationTypeId = 1
+            };
+            var artifactRelation2 = new CoreModels.ArtifactsRelation()
+            {
+                Artifact1Id = artifact2.Id,
+                Artifact2Id = baseArtifact.Id,
+                Artifact1Property = "Mock 2 Property",
+                Artifact2Property = "Mock 1 Property",
+                RelationTypeId = 1
+            };
+            artifactsRelationToSave.Add(artifactRelation2);
+            await _dataAccess.ArtifactsRelation.AddAsync(
+                _mapper.Map<ArtifactsRelation>(artifactRelation1));
 
             await _dataAccess.SaveChangesAsync();
 
             // Act
-            var response = await _classUnderTest.SetRelationAsync(artifactsRelationToSave);
+            var response = await _classUnderTest.SetRelationAsync(baseArtifact.Id, artifactsRelationToSave);
 
             // Assert
             Assert.False(response.Success);
@@ -779,78 +1011,30 @@ namespace FRF.Core.Tests.Services
             Assert.NotNull(response.Error);
             Assert.Equal(ErrorCodes.RelationAlreadyExisted, response.Error.Code);
             Assert.Null(response.Value);
-            Assert.Equal(artifactsRelationToSave[0].Artifact1Property, artifactsRelationInDb[0].Artifact1Property);
-            Assert.Equal(artifactsRelationToSave[0].Artifact2Property, artifactsRelationInDb[0].Artifact2Property);
-            Assert.Equal(artifactsRelationToSave[0].Artifact2Id, artifactsRelationInDb[0].Artifact2Id);
-            Assert.Equal(artifactsRelationToSave[0].Artifact1Id, artifactsRelationInDb[0].Artifact1Id);
         }
-        
+
         [Fact]
-        public async Task SetRelationAsync_ReturnsNull_WhenIsAnyBidirectionalRelationSameRelationType()
+        public async Task SetRelationAsync_ReturnsNull_WhenIsAnyBidirectionalRelationDifferentRelationType()
         {
             // Arange
-            var artifactsRelationToSave = new List<ArtifactsRelation>();
+            var artifactsRelationToSave = new List<CoreModels.ArtifactsRelation>();
             var provider = CreateProvider();
             var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
-            var artifact1 = CreateArtifact(project, artifactType);
+            var baseArtifact = CreateArtifact(project, artifactType);
             var artifact2 = CreateArtifact(project, artifactType);
 
-            var artifactRelation1 = new ArtifactsRelation()
+            var artifactRelation1 = new CoreModels.ArtifactsRelation()
             {
-                Artifact1Id = artifact1.Id,
+                Artifact1Id = baseArtifact.Id,
                 Artifact2Id = artifact2.Id,
                 Artifact1Property = "Mock 1 Property",
                 Artifact2Property = "Mock 2 Property",
                 RelationTypeId = 1
             };
-            var artifactRelation2 = new ArtifactsRelation()
+            var artifactRelation2 = new CoreModels.ArtifactsRelation()
             {
-                Artifact1Id = artifact2.Id,
-                Artifact2Id = artifact1.Id,
-                Artifact1Property = "Mock 2 Property",
-                Artifact2Property = "Mock 1 Property",
-                RelationTypeId = 1
-            };
-            artifactsRelationToSave.Add(artifactRelation2);
-            await _dataAccess.ArtifactsRelation.AddAsync(
-                _mapper.Map<DataAccess.EntityModels.ArtifactsRelation>(artifactRelation1));
-
-            await _dataAccess.SaveChangesAsync();
-
-            // Act
-            var response = await _classUnderTest.SetRelationAsync(artifactsRelationToSave);
-
-            // Assert
-            Assert.False(response.Success);
-            Assert.IsType<ServiceResponse<IList<ArtifactsRelation>>>(response);
-            Assert.NotNull(response.Error);
-            Assert.Equal(ErrorCodes.RelationAlreadyExisted, response.Error.Code);
-            Assert.Null(response.Value);
-        }
-
-        [Fact]
-        public async Task SetRelationAsync_ReturnsNull_WhenIsAnyBidirectionalRelationDiferentRelationType()
-        {
-            // Arange
-            var artifactsRelationToSave = new List<ArtifactsRelation>();
-            var provider = CreateProvider();
-            var artifactType = CreateArtifactType(provider);
-            var project = CreateProject();
-            var artifact1 = CreateArtifact(project, artifactType);
-            var artifact2 = CreateArtifact(project, artifactType);
-
-            var artifactRelation1 = new ArtifactsRelation()
-            {
-                Artifact1Id = artifact1.Id,
-                Artifact2Id = artifact2.Id,
-                Artifact1Property = "Mock 1 Property",
-                Artifact2Property = "Mock 2 Property",
-                RelationTypeId = 1
-            };
-            var artifactRelation2 = new ArtifactsRelation()
-            {
-                Artifact1Id = artifact1.Id,
+                Artifact1Id = baseArtifact.Id,
                 Artifact2Id = artifact2.Id,
                 Artifact1Property = "Mock 1 Property",
                 Artifact2Property = "Mock 2 Property",
@@ -858,16 +1042,16 @@ namespace FRF.Core.Tests.Services
             };
             artifactsRelationToSave.Add(artifactRelation2);
             await _dataAccess.ArtifactsRelation.AddAsync(
-                _mapper.Map<DataAccess.EntityModels.ArtifactsRelation>(artifactRelation1));
+                _mapper.Map<ArtifactsRelation>(artifactRelation1));
             
             await _dataAccess.SaveChangesAsync();
 
             // Act
-            var response = await _classUnderTest.SetRelationAsync(artifactsRelationToSave);
+            var response = await _classUnderTest.SetRelationAsync(baseArtifact.Id, artifactsRelationToSave);
 
             // Assert
             Assert.False(response.Success);
-            Assert.IsType<ServiceResponse<IList<ArtifactsRelation>>>(response);
+            Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
             Assert.NotNull(response.Error);
             Assert.Equal(ErrorCodes.RelationAlreadyExisted, response.Error.Code);
             Assert.Null(response.Value);
@@ -876,8 +1060,8 @@ namespace FRF.Core.Tests.Services
         public async Task UpdateRelationAsync_ReturnsNull_WhenIsAnyArtifactExcept()
         {
             // Arange
-            var artifactsRelationUpdated = new List<ArtifactsRelation>();
-            var artifactsRelationInDb = new List<DataAccess.EntityModels.ArtifactsRelation>();
+            var artifactsRelationUpdated = new List<CoreModels.ArtifactsRelation>();
+            var artifactsRelationInDb = new List<ArtifactsRelation>();
             var i = 0;
             while (i < 3)
             {
@@ -888,10 +1072,10 @@ namespace FRF.Core.Tests.Services
                 var artifact1Id = artifact.Id;
                 var artifact2Id = artifact1Id++;
 
-                var artifactRelation = CreateArtifactsRelationModel(artifact1Id, artifact2Id);
+                var artifactRelation = CreateArtifactsRelationModel(artifact1Id, artifact2Id, "[Mock] Property artefact 1", "[Mock] Property artefact 2");
                 artifactsRelationUpdated.Add(artifactRelation);
 
-                var artifactRelationDb = _mapper.Map<DataAccess.EntityModels.ArtifactsRelation>(artifactRelation);
+                var artifactRelationDb = _mapper.Map<ArtifactsRelation>(artifactRelation);
                 await _dataAccess.ArtifactsRelation.AddAsync(artifactRelationDb);
                 artifactsRelationInDb.Add(artifactRelationDb);
                 i++;
@@ -918,42 +1102,35 @@ namespace FRF.Core.Tests.Services
         public async Task UpdateRelationAsync_ReturnsListOfRelations()
         {
             // Arange
-            var artifactsRelationUpdated = new List<ArtifactsRelation>();
-            var artifactsRelationInDb = new List<DataAccess.EntityModels.ArtifactsRelation>();
+            var artifactsRelationUpdated = new List<CoreModels.ArtifactsRelation>();
+
             var provider = CreateProvider();
             var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
-            var artifactBase = CreateArtifact(project, artifactType);
-            var artifactIdToUpdate = artifactBase.Id;
-            var i = 0;
-            while (i < 3)
-            {
-                var artifact = CreateArtifact(project, artifactType);
-                var artifact1Id = artifact.Id;
-                var artifact2Id = artifactIdToUpdate;
 
-                var artifactRelation = CreateArtifactsRelationModel(artifact1Id, artifact2Id);
+            var artifact1 = CreateArtifact(project, artifactType);
+            var artifact2 = CreateArtifact(project, artifactType);
+            var artifact3 = CreateArtifact(project, artifactType);
 
-
-                var artifactRelationDb = _mapper.Map<DataAccess.EntityModels.ArtifactsRelation>(CreateArtifactsRelationModel(artifact1Id, artifact2Id));
-                await _dataAccess.ArtifactsRelation.AddAsync(artifactRelationDb);
-
-                artifactRelation.Id = artifactRelationDb.Id;
-                artifactsRelationUpdated.Add(artifactRelation);
-                artifactsRelationInDb.Add(artifactRelationDb);
-
-                i++;
-            }
-
+            var artifactRelation1 = CreateArtifactsRelationEntityModel(artifact1.Id, artifact2.Id, "[Mock] Property artefact 1", "[Mock] Property artefact 2");
+            await _dataAccess.ArtifactsRelation.AddAsync(artifactRelation1);
             await _dataAccess.SaveChangesAsync();
 
-            // Act
-            var response = await _classUnderTest.UpdateRelationAsync(artifactIdToUpdate, artifactsRelationUpdated);
+            var artifactRelation2 = CreateArtifactsRelationEntityModel(artifact2.Id, artifact3.Id, "[Mock] Property artefact 2", "[Mock] Property artefact 3");
+            await _dataAccess.ArtifactsRelation.AddAsync(artifactRelation2);
+            await _dataAccess.SaveChangesAsync();
 
+            var updatedRelation = CreateArtifactsRelationModel(artifact1.Id, artifact2.Id, "[Mock] Property artefact 1", "[Mock] Another property");
+            updatedRelation.Id = artifactRelation1.Id;
+            artifactsRelationUpdated.Add(updatedRelation);
+            
+            // Act
+            var response = await _classUnderTest.UpdateRelationAsync(artifact1.Id, artifactsRelationUpdated);
+            
             // Assert
             Assert.True(response.Success);
             Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
-            var resultValue = Assert.IsAssignableFrom<IList<ArtifactsRelation>>(response.Value);
+            var resultValue = Assert.IsAssignableFrom<IList<CoreModels.ArtifactsRelation>>(response.Value);
             for (var j = 0; j < resultValue.Count; j++)
             {
                 Assert.Equal(artifactsRelationUpdated[j].Artifact1Id, resultValue[j].Artifact1Id);
@@ -964,11 +1141,126 @@ namespace FRF.Core.Tests.Services
         }
 
         [Fact]
+        public async Task UpdateRelationAsync_ReturnsErrorRepeatedRelation()
+        {
+            // Arange
+            var artifactsRelationUpdated = new List<CoreModels.ArtifactsRelation>();
+
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
+            var project = CreateProject();
+
+            var artifact1 = CreateArtifact(project, artifactType);
+            var artifact2 = CreateArtifact(project, artifactType);
+
+            var artifactRelation1 = CreateArtifactsRelationEntityModel(artifact1.Id, artifact2.Id, "[Mock] Property artefact 1", "[Mock] Property artefact 2");
+            await _dataAccess.ArtifactsRelation.AddAsync(artifactRelation1);
+            await _dataAccess.SaveChangesAsync();
+
+            var artifactRelation2 = CreateArtifactsRelationEntityModel(artifact1.Id, artifact2.Id, "[Mock] Property artefact 1", "[Mock] Property artefact 3");
+            await _dataAccess.ArtifactsRelation.AddAsync(artifactRelation2);
+            await _dataAccess.SaveChangesAsync();
+
+            var updatedRelation = CreateArtifactsRelationModel(artifact1.Id, artifact2.Id, "[Mock] Property artefact 1", "[Mock] Property artefact 2");
+            updatedRelation.Id = artifactRelation2.Id;
+            artifactsRelationUpdated.Add(updatedRelation);
+
+            // Act
+            var response = await _classUnderTest.UpdateRelationAsync(artifact1.Id, artifactsRelationUpdated);
+
+            // Assert
+            Assert.False(response.Success);
+            Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
+            Assert.Equal(ErrorCodes.RelationNotValid, response.Error.Code);
+        }
+
+        [Fact]
+        public async Task UpdateRelationAsync_ReturnsErrorCycleDetected1()
+        {
+            // Arange
+            var artifactsRelationUpdated = new List<CoreModels.ArtifactsRelation>();
+
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
+            var project = CreateProject();
+
+            var artifact1 = CreateArtifact(project, artifactType);
+            var artifact2 = CreateArtifact(project, artifactType);
+            var artifact3 = CreateArtifact(project, artifactType);
+
+            var artifactRelation1 = CreateArtifactsRelationEntityModel(artifact1.Id, artifact2.Id, "[Mock] Property artefact 1", "[Mock] Property artefact 2");
+            await _dataAccess.ArtifactsRelation.AddAsync(artifactRelation1);
+            await _dataAccess.SaveChangesAsync();
+
+            var artifactRelation2 = CreateArtifactsRelationEntityModel(artifact2.Id, artifact3.Id, "[Mock] Property artefact 2", "[Mock] Property artefact 3");
+            await _dataAccess.ArtifactsRelation.AddAsync(artifactRelation2);
+            await _dataAccess.SaveChangesAsync();
+
+            var artifactRelation3 = CreateArtifactsRelationEntityModel(artifact3.Id, artifact1.Id, "[Mock] Property artefact 3", "[Mock] Another property");
+            await _dataAccess.ArtifactsRelation.AddAsync(artifactRelation3);
+            await _dataAccess.SaveChangesAsync();
+
+            var updatedRelation = CreateArtifactsRelationModel(artifact3.Id, artifact1.Id, "[Mock] Property artefact 3", "[Mock] Property artefact 1");
+            updatedRelation.Id = artifactRelation3.Id;
+            artifactsRelationUpdated.Add(updatedRelation);
+
+            // Act
+            var response = await _classUnderTest.UpdateRelationAsync(artifact1.Id, artifactsRelationUpdated);
+
+            // Assert
+            Assert.False(response.Success);
+            Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
+            Assert.Equal(ErrorCodes.RelationCycleDetected, response.Error.Code);
+        }
+
+        [Fact]
+        public async Task UpdateRelationAsync_ReturnsErrorCycleDetected2()
+        {
+            // Arange
+            var artifactsRelationUpdated = new List<CoreModels.ArtifactsRelation>();
+
+            var provider = CreateProvider();
+            var artifactType = CreateArtifactType(provider);
+            var project = CreateProject();
+
+            var artifact1 = CreateArtifact(project, artifactType);
+            var artifact2 = CreateArtifact(project, artifactType);
+
+            var artifactRelation1 = CreateArtifactsRelationEntityModel(artifact1.Id, artifact2.Id, "[Mock] Property artefact 11", "[Mock] Property artefact 21");
+            await _dataAccess.ArtifactsRelation.AddAsync(artifactRelation1);
+            await _dataAccess.SaveChangesAsync();
+
+            var artifactRelation2 = CreateArtifactsRelationEntityModel(artifact2.Id, artifact1.Id, "[Mock] Property artefact 21", "[Mock] Property artefact 12");
+            await _dataAccess.ArtifactsRelation.AddAsync(artifactRelation2);
+            await _dataAccess.SaveChangesAsync();
+
+            var artifactRelation3 = CreateArtifactsRelationEntityModel(artifact1.Id, artifact2.Id, "[Mock] Property artefact 12", "[Mock] Property artefact 22");
+            await _dataAccess.ArtifactsRelation.AddAsync(artifactRelation3);
+            await _dataAccess.SaveChangesAsync();
+
+            var artifactRelation4 = CreateArtifactsRelationEntityModel(artifact2.Id, artifact1.Id, "[Mock] Property artefact 22", "[Mock] Another Property");
+            await _dataAccess.ArtifactsRelation.AddAsync(artifactRelation4);
+            await _dataAccess.SaveChangesAsync();
+
+            var updatedRelation = CreateArtifactsRelationModel(artifact2.Id, artifact1.Id, "[Mock] Property artefact 22", "[Mock] Property artefact 11");
+            updatedRelation.Id = artifactRelation4.Id;
+            artifactsRelationUpdated.Add(updatedRelation);
+
+            // Act
+            var response = await _classUnderTest.UpdateRelationAsync(artifact1.Id, artifactsRelationUpdated);
+
+            // Assert
+            Assert.False(response.Success);
+            Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
+            Assert.Equal(ErrorCodes.RelationCycleDetected, response.Error.Code);
+        }
+
+        [Fact]
         public async Task GetAllRelationsByProjectIdAsync_ReturnsListOfRelations()
         {
             // Arange
             var project = CreateProject();
-            var artifactsRelationInDb = new List<DataAccess.EntityModels.ArtifactsRelation>();
+            var artifactsRelationInDb = new List<ArtifactsRelation>();
             var i = 0;
             while (i < 3)
             {
@@ -979,8 +1271,8 @@ namespace FRF.Core.Tests.Services
                 var artifact2Id = artifact1Id++;
 
                 var artifactRelationDb =
-                    _mapper.Map<DataAccess.EntityModels.ArtifactsRelation>(
-                        CreateArtifactsRelationModel(artifact1Id, artifact2Id));
+                    _mapper.Map<ArtifactsRelation>(
+                        CreateArtifactsRelationModel(artifact1Id, artifact2Id, "[Mock] Property artefact 1", "[Mock] Property artefact 2"));
                 await _dataAccess.ArtifactsRelation.AddAsync(artifactRelationDb);
                 artifactsRelationInDb.Add(artifactRelationDb);
                 i++;
@@ -994,7 +1286,7 @@ namespace FRF.Core.Tests.Services
             // Assert
             Assert.True(response.Success);
             Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
-            var resultValue = Assert.IsAssignableFrom<IList<ArtifactsRelation>>(response.Value);
+            var resultValue = Assert.IsAssignableFrom<IList<CoreModels.ArtifactsRelation>>(response.Value);
             for (var j = 0; j < resultValue.Count; j++)
             {
                 Assert.Equal(artifactsRelationInDb[j].Artifact1.ProjectId, resultValue[j].Artifact1.ProjectId);
@@ -1028,8 +1320,8 @@ namespace FRF.Core.Tests.Services
             var artifactType = CreateArtifactType(provider);
             var artifact1 = CreateArtifact(project, artifactType);
             var artifact2 = CreateArtifact(project, artifactType);
-            var artifactRelation = CreateArtifactsRelationModel(artifact1.Id, artifact2.Id);
-            var artifactRelationMapped = _mapper.Map<FRF.DataAccess.EntityModels.ArtifactsRelation>(artifactRelation);
+            var artifactRelation = CreateArtifactsRelationModel(artifact1.Id, artifact2.Id, "[Mock] Property artefact 1", "[Mock] Property artefact 2");
+            var artifactRelationMapped = _mapper.Map<ArtifactsRelation>(artifactRelation);
 
             await _dataAccess.ArtifactsRelation.AddAsync(artifactRelationMapped);
             await _dataAccess.SaveChangesAsync();
@@ -1039,8 +1331,8 @@ namespace FRF.Core.Tests.Services
 
             // Assert
             Assert.True(response.Success);
-            Assert.IsType<ServiceResponse<IList<ArtifactsRelation>>>(response);
-            var resultValue = Assert.IsAssignableFrom<IList<ArtifactsRelation>>(response.Value);
+            Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
+            var resultValue = Assert.IsAssignableFrom<IList<CoreModels.ArtifactsRelation>>(response.Value);
             Assert.Equal(artifactRelationMapped.Id, resultValue[0].Id);
             Assert.Equal(artifactRelation.Artifact1Id, resultValue[0].Artifact1Id);
             Assert.Equal(artifactRelation.Artifact2Id, resultValue[0].Artifact2Id);
@@ -1076,7 +1368,7 @@ namespace FRF.Core.Tests.Services
 
             // Assert
             Assert.False(response.Success);
-            Assert.IsType<ServiceResponse<ArtifactsRelation>>(response);
+            Assert.IsType<ServiceResponse<CoreModels.ArtifactsRelation>>(response);
             Assert.NotNull(response.Error);
             Assert.Equal(ErrorCodes.RelationNotExists, response.Error.Code);
         }
@@ -1090,8 +1382,8 @@ namespace FRF.Core.Tests.Services
             var artifactType = CreateArtifactType(provider);
             var artifact1 = CreateArtifact(project, artifactType);
             var artifact2 = CreateArtifact(project, artifactType);
-            var artifactRelation = CreateArtifactsRelationModel(artifact1.Id, artifact2.Id);
-            var artifactRelationMapped = _mapper.Map<FRF.DataAccess.EntityModels.ArtifactsRelation>(artifactRelation);
+            var artifactRelation = CreateArtifactsRelationModel(artifact1.Id, artifact2.Id, "[Mock] Property artefact 1", "[Mock] Property artefact 2");
+            var artifactRelationMapped = _mapper.Map<ArtifactsRelation>(artifactRelation);
 
             await _dataAccess.ArtifactsRelation.AddAsync(artifactRelationMapped);
             await _dataAccess.SaveChangesAsync();
@@ -1101,8 +1393,8 @@ namespace FRF.Core.Tests.Services
 
             // Assert
             Assert.True(response.Success);
-            Assert.IsType<ServiceResponse<ArtifactsRelation>>(response);
-            var resultValue = Assert.IsAssignableFrom<ArtifactsRelation>(response.Value);
+            Assert.IsType<ServiceResponse<CoreModels.ArtifactsRelation>>(response);
+            var resultValue = Assert.IsAssignableFrom<CoreModels.ArtifactsRelation>(response.Value);
             Assert.Equal(artifactRelationMapped.Id, resultValue.Id);
             Assert.Equal(artifactRelation.Artifact1Id, resultValue.Artifact1Id);
             Assert.Equal(artifactRelation.Artifact2Id, resultValue.Artifact2Id);
@@ -1124,7 +1416,7 @@ namespace FRF.Core.Tests.Services
             var response = await _classUnderTest.DeleteRelationsAsync(artifactRelationIds);
 
             // Assert
-            Assert.IsType<ServiceResponse<IList<ArtifactsRelation>>>(response);
+            Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
             Assert.False(response.Success);
             Assert.NotNull(response.Error);
             Assert.Equal(ErrorCodes.RelationNotExists, response.Error.Code);
@@ -1139,7 +1431,7 @@ namespace FRF.Core.Tests.Services
             var artifactType = CreateArtifactType(provider);
             var artifact1 = CreateArtifact(project, artifactType);
             var artifact2 = CreateArtifact(project, artifactType);
-            var artifactRelation = CreateArtifactsRelationModel(artifact1.Id, artifact2.Id);
+            var artifactRelation = CreateArtifactsRelationModel(artifact1.Id, artifact2.Id, "[Mock] Property artefact 1", "[Mock] Property artefact 2");
             var artifactRelationMapped = _mapper.Map<FRF.DataAccess.EntityModels.ArtifactsRelation>(artifactRelation);
 
             await _dataAccess.ArtifactsRelation.AddAsync(artifactRelationMapped);
@@ -1155,8 +1447,8 @@ namespace FRF.Core.Tests.Services
 
             // Assert
             Assert.True(response.Success);
-            Assert.IsType<ServiceResponse<IList<ArtifactsRelation>>>(response);
-            var resultValue = Assert.IsAssignableFrom<IList<ArtifactsRelation>>(response.Value);
+            Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
+            var resultValue = Assert.IsAssignableFrom<IList<CoreModels.ArtifactsRelation>>(response.Value);
             Assert.Equal(artifactRelationMapped.Id, resultValue[0].Id);
             Assert.Equal(artifactRelation.Artifact1Id, resultValue[0].Artifact1Id);
             Assert.Equal(artifactRelation.Artifact2Id, resultValue[0].Artifact2Id);

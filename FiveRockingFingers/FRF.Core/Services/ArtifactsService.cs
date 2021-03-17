@@ -78,11 +78,11 @@ namespace FRF.Core.Services
         /// <summary>
         /// Check if a relation already exists in the database.
         /// </summary>
-        /// <param name="dbArtifactRelations"></param>
-        /// <param name="artifactsRelations"></param>
+        /// <param name="dbArtifactRelations">List of Artifacts Relations from database</param>
+        /// <param name="artifactsRelations">List of Artifacts Relations</param>
         /// <param name="isAnUpdate">True if is to update, False if is a set</param>
         /// <returns>True if At least one of the artifact relation provided already exist </returns>
-        private bool IsAnyRelationRepeated(IList<EntityModels.ArtifactsRelation> dbArtifactRelations,
+        private bool IsAnyRelationRepeated(IList<ArtifactsRelation> dbArtifactRelations,
             IList<ArtifactsRelation> artifactsRelations, bool isAnUpdate)
         {
             var relations = new List<ArtifactsRelation>(artifactsRelations);
@@ -117,23 +117,52 @@ namespace FRF.Core.Services
         /// <summary>
         /// Check if any relation is duplicate in the submitted list.
         /// </summary>
-        /// <param name="artifactsRelations"></param>
+        /// <param name="artifactsRelations">List of Artifacts Relations</param>
         /// <returns>True if At least one of the artifact relation is duplicate </returns>
         private bool IsAnyRelationRepeated(IList<ArtifactsRelation> artifactsRelations)
         {
-            return artifactsRelations.GroupBy(ar => new { ar.Artifact1Id, ar.Artifact2Id, ar.Artifact1Property, ar.Artifact2Property })
-                .Where(groupAr => groupAr.Skip(1).Any())
-                .Select(ar => ar.Key)
-                .Any();
+            var relations = new List<ArtifactsRelation>(artifactsRelations);
+
+            while (relations.Skip(1).Any())
+            {
+                var relation = relations[0];
+                relations.RemoveAt(0);
+                var isRepeated = relations.Any(rel =>
+                    rel.Artifact1Id == relation.Artifact1Id &&
+                    rel.Artifact2Id == relation.Artifact2Id &&
+                    rel.Artifact1Property.Equals(relation.Artifact1Property, StringComparison.InvariantCultureIgnoreCase) &&
+                    rel.Artifact2Property.Equals(relation.Artifact2Property, StringComparison.InvariantCultureIgnoreCase)
+                    ||
+                    rel.Artifact1Id == relation.Artifact2Id &&
+                    rel.Artifact2Id == relation.Artifact1Id &&
+                    rel.Artifact1Property.Equals(relation.Artifact2Property, StringComparison.InvariantCultureIgnoreCase) &&
+                    rel.Artifact2Property.Equals(relation.Artifact1Property, StringComparison.InvariantCultureIgnoreCase));
+                if (isRepeated)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
-        private IList<ArtifactsRelation> ExcludeDuplicates(IList<ArtifactsRelation> artifactsRelations)
+        private bool HasAnyRelationWithoutBaseArtifact(int baseArtifactId,
+            IList<ArtifactsRelation> artifactsRelations)
         {
-            IList<ArtifactsRelation> nonDuplicatesArtifactsRelations = new List<ArtifactsRelation>();
+            return artifactsRelations
+                .Any(a => a.Artifact1Id != baseArtifactId && a.Artifact2Id != baseArtifactId);
+        }
 
-            nonDuplicatesArtifactsRelations = artifactsRelations.Distinct().ToList();
+        private async Task<bool> IsAnyArtifactFromAnotherProject(int baseArtifactId, IList<ArtifactsRelation> artifactsRelations)
+        {
+            var baseProjectId = _dataContext.Artifacts.First(a => a.Id == baseArtifactId).ProjectId;
+            var artifactsIdsFromBaseProject =await _dataContext.Artifacts
+                .Where(a => a.ProjectId == baseProjectId).Select(a => a.Id).ToListAsync();
+            
+            var artifactsRelationIds = artifactsRelations
+                .Select(ar => ar.Artifact1Id)
+                .Concat(artifactsRelations.Select(ar => ar.Artifact2Id));
 
-            return nonDuplicatesArtifactsRelations;
+            return artifactsRelationIds.Except(artifactsIdsFromBaseProject).Any();
         }
 
         public async Task<ServiceResponse<List<Artifact>>> GetAll()
@@ -311,21 +340,51 @@ namespace FRF.Core.Services
             return new ServiceResponse<Artifact>(mappedArtifact);
         }
 
-        public async Task<ServiceResponse<IList<ArtifactsRelation>>> SetRelationAsync(IList<ArtifactsRelation> artifactRelations)
+        public async Task<ServiceResponse<IList<ArtifactsRelation>>> SetRelationAsync(int artifactId, IList<ArtifactsRelation> artifactRelations)
         {
-            var artifactsExist = await DoArtifactsExist(artifactRelations);
-            if (artifactsExist) return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid, "At least one of the artifact Ids provided doesn't exist"));
+            var artifactResponse = await Get(artifactId);
+            if (!artifactResponse.Success)
+                return new ServiceResponse<IList<ArtifactsRelation>>(artifactResponse.Error);
 
-            var dbArtifactRelations = await _dataContext.ArtifactsRelation.Where(ar =>
+            var artifactsExist = await DoArtifactsExist(artifactRelations);
+            if (artifactsExist) return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.ArtifactNotExists, "At least one of the artifact Ids provided doesn't exist"));
+                
+            var isAnyArtifactFromAnotherProject =await IsAnyArtifactFromAnotherProject(artifactId, artifactRelations);
+            if (isAnyArtifactFromAnotherProject)
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.ArtifactFromAnotherProject,
+                    "At least one of the artifact provided is from another project. "));
+
+            var hasAnyRelationWithoutBaseArtifact = HasAnyRelationWithoutBaseArtifact(artifactId, artifactRelations);
+            if (hasAnyRelationWithoutBaseArtifact)
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid,
+                    "At least one of the artifact relation provided does not involve the base artifact. "));
+
+            var isAnyNewRelationRepeated = IsAnyRelationRepeated(artifactRelations);
+            if (isAnyNewRelationRepeated)
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid,
+                    "At least one of the artifact relation provided is repeat"));
+
+            var projectRelationsResponse = await GetAllRelationsByProjectIdAsync(artifactResponse.Value.ProjectId);
+
+            var dbProjectRelations = projectRelationsResponse.Value.Where(ar =>
                     ar.Artifact1Id == artifactRelations[0].Artifact1Id ||
                     ar.Artifact2Id == artifactRelations[0].Artifact2Id ||
                     ar.Artifact2Id == artifactRelations[0].Artifact1Id ||
-                    ar.Artifact1Id == artifactRelations[0].Artifact2Id)
-                .ToListAsync();
+                    ar.Artifact1Id == artifactRelations[0].Artifact2Id).ToList();
 
-            var relationsRepeated = IsAnyRelationRepeated(dbArtifactRelations, artifactRelations,isAnUpdate: false);
-            if (relationsRepeated)
-                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationAlreadyExisted, "At least one of the relations already existed"));
+            var dbArtifactRelations = dbProjectRelations.Where(ar =>
+                    ar.Artifact1Id == artifactId ||
+                    ar.Artifact2Id == artifactId)
+                .ToList();
+
+            var relationsAlreadyExist = IsAnyRelationRepeated(dbArtifactRelations, artifactRelations,isAnUpdate: false);
+            if (relationsAlreadyExist)
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationAlreadyExisted,
+                    "At least one of the relations already existed"));
+
+            var cycleDetected = IsCircularReference(dbProjectRelations, artifactRelations, false);
+            if (cycleDetected)
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationCycleDetected, "These relations would generate at least one cycle"));
 
             var resultArtifactRelations = _mapper.Map<IList<EntityModels.ArtifactsRelation>>(artifactRelations);
             await _dataContext.ArtifactsRelation.AddRangeAsync(resultArtifactRelations);
@@ -404,23 +463,24 @@ namespace FRF.Core.Services
         public async Task<ServiceResponse<IList<ArtifactsRelation>>> UpdateRelationAsync(int artifactId,
             IList<ArtifactsRelation> artifactsRelationsNew)
         {
-            var existArtifactId = await _dataContext.Artifacts.AnyAsync(a => a.Id == artifactId);
-            if (!existArtifactId)
-                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.ArtifactNotExists, $"There is no artifact with Id = {artifactId}"));
+            var artifactResponse = await Get(artifactId);
+            if (!artifactResponse.Success)
+                return new ServiceResponse<IList<ArtifactsRelation>>(artifactResponse.Error);
 
             var artifactsExist = await DoArtifactsExist(artifactsRelationsNew);
             if (artifactsExist)
                 return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.ArtifactNotExists,
                     "At least one of the artifact Ids provided doesn't exist"));
 
-            var relationsOriginal = await _dataContext.ArtifactsRelation
+            var projectRelationsResponse = await GetAllRelationsByProjectIdAsync(artifactResponse.Value.ProjectId);
+
+            var relationsOriginal = projectRelationsResponse.Value
                 .Where(ar => ar.Artifact1Id == artifactId || ar.Artifact2Id == artifactId)
-                .Include(ar => ar.Artifact1)
-                .Include(ar => ar.Artifact2)
-                .ToListAsync();
+                .ToList();
 
             var relationInNewListRepeated = IsAnyRelationRepeated(artifactsRelationsNew);
             if (relationInNewListRepeated)
+
                 return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid,
                     "At least one of the artifact relation provided is repeat"));
 
@@ -428,6 +488,10 @@ namespace FRF.Core.Services
             if (relationsWithOriginalRepeated)
                 return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid,
                     "At least one of the artifact relation provided already exist"));
+
+            var cycleDetected = IsCircularReference(projectRelationsResponse.Value, artifactsRelationsNew, true);
+            if (cycleDetected)
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationCycleDetected, "These relations would generate at least one cycle"));
 
             foreach (var relationOriginal in relationsOriginal)
             {
@@ -448,6 +512,110 @@ namespace FRF.Core.Services
             return new ServiceResponse<IList<ArtifactsRelation>>(artifactsRelationsNew);
         }
 
+        private bool IsCircularReference(IList<ArtifactsRelation> dbRelations, IList<ArtifactsRelation> newRelations, bool isUpdate)
+        {
+            // Detecting cycles between relations of a project, using the pair "artifactId - setting name" as the vertices of a graph,
+            // and the relations as the links. To search for the cycle, we're using depth first search (DFS)
+
+            // If there are no new relations there can't new cycles introduced
+            if (newRelations.Count == 0)
+            {
+                return false;
+            }
+
+            var oldRelations = new List<ArtifactsRelation>(dbRelations);
+
+            // If it's an update, the old relations (the modified ones) are removed from the list
+            // so that there are no dupplicates once we add the new ones.
+            if (isUpdate)
+            {
+                oldRelations = oldRelations.Where(rel => !newRelations.Where(updatedRelation => updatedRelation.Id == rel.Id).Any()).ToList();
+            }
+
+            // Creating one list with all the relations
+            var relations = new List<ArtifactsRelation>(oldRelations);
+            relations.AddRange(newRelations);
+
+            var vertices = new List<Tuple<int, string, int>>(); // ArtifactId, setting name, index
+            var visited = new List<bool>(); // Using the index from the tuple, each position tells if the vertex has been visited
+            var exploring = new List<bool>(); // Using the index from the tuple, each position tells if the vertex is currently being explored
+
+            // Creating every vertex from the ones in the relation list. We need every pair "artifactId - setting name" from the relations.
+            foreach (var relation in relations)
+            {
+                if (!vertices.Any(s => s.Item1 == relation.Artifact1Id && s.Item2 == relation.Artifact1Property))
+                {
+                    vertices.Add(new Tuple<int, string, int>(relation.Artifact1Id, relation.Artifact1Property, vertices.Count));
+                    visited.Add(false);
+                    exploring.Add(false);
+                }
+                if (!vertices.Any(s => s.Item1 == relation.Artifact2Id && s.Item2 == relation.Artifact2Property))
+                {
+                    vertices.Add(new Tuple<int, string, int>(relation.Artifact2Id, relation.Artifact2Property, vertices.Count));
+                    visited.Add(false);
+                    exploring.Add(false);
+                }
+            }
+
+            // Cycle through the vertices until they are all visited.
+            foreach (var vertex in vertices)
+            {
+                if (!visited[vertex.Item3])
+                {
+                    var cicleDetected = CycleDetect(vertices, vertex, visited, exploring, relations);
+                    if (cicleDetected) return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool CycleDetect(IList<Tuple<int, string, int>> vertices, Tuple<int, string, int> vertex, IList<bool> visited, IList<bool> exploring, IList<ArtifactsRelation> relations)
+        {
+            // If the the vertex was already visited, and all the paths from it were completed without cycles, return false, there's no need to check them again.
+            if (visited[vertex.Item3]) return false;
+            // If the current vertex is already being explored, that means we're in a cycle.
+            if (exploring[vertex.Item3]) return true;
+
+            // Set current vertex as being explored.
+            exploring[vertex.Item3] = true;
+
+            // Create a list of the next vertices (the ones that this vertex can reach).
+            // If it's a RelationTypeId == 0 and this vertex is in the first position, it can reach the second one.
+            // If it's a RelationTypeId == 2 and this vertex is in the second position, it can reach the first one.
+            var selectedRelations = relations.Where(rel => (rel.Artifact1Id == vertices[vertex.Item3].Item1 && rel.Artifact1Property == vertices[vertex.Item3].Item2 && rel.RelationTypeId == 0) ||
+                                                           (rel.Artifact2Id == vertices[vertex.Item3].Item1 && rel.Artifact2Property == vertices[vertex.Item3].Item2 && rel.RelationTypeId == 1));
+
+            var nextVertices = new List<Tuple<int, string, int>>();
+            foreach (var relation in selectedRelations)
+            {
+                if (relation.RelationTypeId == 0)
+                {
+                    nextVertices.Add(vertices.First(v => v.Item1 == relation.Artifact2Id && v.Item2 == relation.Artifact2Property));
+                }
+                else
+                {
+                    nextVertices.Add(vertices.First(v => v.Item1 == relation.Artifact1Id && v.Item2 == relation.Artifact1Property));
+                }
+            }
+
+            // Cycle through the next vertices (the ones that this current vertex can reach)
+            foreach (var nextVertex in nextVertices)
+            {
+                if (!visited[nextVertex.Item3])
+                {
+                    var cicleDetected = CycleDetect(vertices, nextVertex, visited, exploring, relations);
+                    if (cicleDetected) return true;
+                }
+            }
+
+            // Once every path starting in this node is completed, the current vertex can be set as visited, and finish it's exploration.
+            visited[vertex.Item3] = true;
+            exploring[vertex.Item3] = false;
+
+            return false;
+        }
+            
         private async Task<List<Guid>> GetRelationsToDeleteOfUpdatedArtifact(int artifactId, XElement updatedSettings, XElement originalSettings)
         {
             var changedSettingsName = FindSettingsNamesChanged(updatedSettings, originalSettings);
