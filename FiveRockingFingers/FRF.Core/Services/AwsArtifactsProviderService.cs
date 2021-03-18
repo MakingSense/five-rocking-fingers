@@ -520,7 +520,9 @@ namespace FRF.Core.Services
         public async Task<bool> AddProductsToPricingList(string serviceCode, List<Filter> filters, List<PricingTerm> pricingDetailsList,
             string product, TermAttributes termAttributes = null)
         {
-            if (AreAllFiltersValid(filters))
+            var isAnyFilterInvalid = filters.Any(f => string.IsNullOrEmpty(f.Value));
+
+            if (!isAnyFilterInvalid)
             {
                 if(product.Equals(AwsEc2Descriptions.ProductFamilyComputeInstanceValue))
                 {
@@ -535,21 +537,6 @@ namespace FRF.Core.Services
             }
 
             return false;
-        }
-
-        public bool AreAllFiltersValid(List<Filter> filters)
-        {
-            var flag = true;
-
-            foreach(var filter in filters)
-            {
-                if(filter.Value.Equals(""))
-                {
-                    flag = false;
-                }
-            }
-
-            return flag;
         }
 
         private async Task SearchProductsAsync(string serviceCode, List<Filter> filters,

@@ -43,11 +43,6 @@ namespace FRF.Core
         public const string FromLocation3 = "fromLocation3";
         public const string ToLocation3 = "toLocation3";
 
-        public const string PurchaseOption = "PurchaseOption";
-        public const string TermType = "termType";
-        public const string OfferingClass = "OfferingClass";
-        public const string LeaseContractLength = "LeaseContractLength";
-
         public const string OnDemandTermType = "OnDemand";
 
 
@@ -94,6 +89,8 @@ namespace FRF.Core
         public const string ThreeYears = "3yr";
         public const string PurchaseOption = "purchaseOption";
         public const string LeaseContractLength = "leaseContractLength";
+        public const string TermType = "termType";
+        public const string OfferingClass = "OfferingClass";
 
 
         //XML nodes names
