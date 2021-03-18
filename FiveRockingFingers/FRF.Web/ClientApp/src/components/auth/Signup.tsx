@@ -10,7 +10,7 @@ import { LoadingButton } from '../../commons/LoadingButton';
 import SnackbarMessage from '../../commons/SnackbarMessage';
 import SnackbarSettings from '../../interfaces/SnackbarSettings';
 import "./authStyle.css";
-import { useUserContext } from "./contextLib";
+import { useUser } from '../../commons/useUser'
 import { BASE_URL } from '../../Constants';
 
 interface userSignUp {
@@ -43,12 +43,11 @@ const UserSignupSchema = yup.object().shape({
         .oneOf([yup.ref('password'), ''], 'El password no coincide.')
 });
 
-const Signup: React.FC<userSignUp> = ({ }) => {
+const Signup = ({ }) => {
     const history = useHistory();
-    const { setCurrentUser } = useUserContext();
+    const { storageUser, cleanUserStorage } = useUser();
     const { register, handleSubmit, errors, reset } = useForm<userSignUp>({ resolver: yupResolver(UserSignupSchema) });
     const [loading, setLoading] = React.useState(false);
-    const [errorLogin, setErrorLogin] = React.useState<string>("");
     const [snackbarSettings, setSnackbarSettings] = React.useState<SnackbarSettings>({ message: "", severity: undefined });
     const [openSnackbar, setOpenSnackbar] = React.useState(false);
 
@@ -69,17 +68,19 @@ const Signup: React.FC<userSignUp> = ({ }) => {
             })
             .then(response => {
                 if (response.status === 200) {
-                    setCurrentUser(response.data);
+                    storageUser(JSON.stringify(response.data), false);
                     history.push("/Home");
                 }
             })
             .catch(function (error) {
-                if (error.response.status === 400) {
+                if (error.response.status === 401) {
+                    cleanUserStorage();
                     manageOpenSnackbar({ message: "Error al registrarse! Verifique que los datos sean correctos.", severity: "error" });
                     setLoading(false);
                     reset();
                 }
                 else {
+                    cleanUserStorage();
                     manageOpenSnackbar({ message: "Error al registrarse! Intente nuevamente más tarde.", severity: "error" });
                     setLoading(false);
                     reset();
