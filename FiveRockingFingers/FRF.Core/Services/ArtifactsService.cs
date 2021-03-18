@@ -498,7 +498,7 @@ namespace FRF.Core.Services
 
             var settingAtEndOfRelation = GetSettingAtEndOfRelationAsync(_mapper.Map<ArtifactsRelation>(artifactsRelation));
 
-            var relationsResponse = await GetRelationsForUpdateAsync(artifactAtEndOfRelation.Id, settingAtEndOfRelation);
+            var relationsResponse = await GetRelationsToPerformUpdateAsync(artifactAtEndOfRelation.Id, settingAtEndOfRelation);
             var relations = relationsResponse.Value;
 
             if(relations.Count > 0)
@@ -763,6 +763,7 @@ namespace FRF.Core.Services
 
             return artifactsRelationsIdsToDelete;
         }
+
         private async Task<ServiceResponse<IList<ArtifactsRelation>>> GetRelationsToUpdateAsync(int artifactId, string propertyName)
         {
             var existArtifactId = await _dataContext.Artifacts.AnyAsync(a => a.Id == artifactId);
@@ -791,7 +792,7 @@ namespace FRF.Core.Services
             return new ServiceResponse<IList<ArtifactsRelation>>(relationsToUpdate);
         }
 
-        private async Task<ServiceResponse<IList<ArtifactsRelation>>> GetRelationsForUpdateAsync(int artifactId, string propertyName)
+        private async Task<ServiceResponse<IList<ArtifactsRelation>>> GetRelationsToPerformUpdateAsync(int artifactId, string propertyName)
         {
             var existArtifactId = await _dataContext.Artifacts.AnyAsync(a => a.Id == artifactId);
             if (!existArtifactId)
@@ -844,18 +845,18 @@ namespace FRF.Core.Services
             var artifactToUpdateResponse = await Get(artifactToUpdateId);
             var artifactToUpdate = artifactToUpdateResponse.Value;
 
-            var relationsForUpdateResponse = await GetRelationsForUpdateAsync(artifactToUpdateId, settingToUpdateName);
-            var relationsForUpdate = relationsForUpdateResponse.Value;
+            var relationsToPerformUpdateResponse = await GetRelationsToPerformUpdateAsync(artifactToUpdateId, settingToUpdateName);
+            var relationsToPerformUpdate = relationsToPerformUpdateResponse.Value;
 
             var finalValueOfSetting = 0f;
 
-            for (var i = 0; i < relationsForUpdate.Count; i++)
+            for (var i = 0; i < relationsToPerformUpdate.Count; i++)
             {
-                var relationForUpdate = relationsForUpdate[i];
+                var relationToPerformUpdate = relationsToPerformUpdate[i];
 
-                var artifactAtTheBegin = await GetArtifactAtBeginOfRelationAsync(relationForUpdate);
+                var artifactAtTheBegin = await GetArtifactAtBeginOfRelationAsync(relationToPerformUpdate);
 
-                var settingAtTheBegining = GetSettingAtBeginOfRelationAsync(relationForUpdate);
+                var settingAtTheBegining = GetSettingAtBeginOfRelationAsync(relationToPerformUpdate);
 
                 if (float.TryParse(artifactAtTheBegin.Settings.Element(settingAtTheBegining).Value, out float valueToUpdate))
                 {
