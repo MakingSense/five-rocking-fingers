@@ -9,7 +9,7 @@ namespace FRF.Core.Models.AwsArtifacts
     public class AwsEc2 : Artifact
     {
         public const decimal PartialStorageDiscount = 0.5m;
-        public const int PriceError = -1;
+        public const int PriceError = -1;        
 
         //Compute instance properties
         public int HoursUsedPerMonth => GetHoursUsedPerMonth();
@@ -150,40 +150,31 @@ namespace FRF.Core.Models.AwsArtifacts
         {
             var price = 0m;
 
-            if ((PurchaseOption.Equals("All Upfront", StringComparison.InvariantCultureIgnoreCase) ||
-                PurchaseOption.Equals("AllUpfront", StringComparison.InvariantCultureIgnoreCase)) &&
-                (LeaseContractLength.Equals("1yr", StringComparison.InvariantCultureIgnoreCase) ||
-                LeaseContractLength.Equals("1 yr", StringComparison.InvariantCultureIgnoreCase)))
+            if (PurchaseOption.Equals(AwsEc2Descriptions.AllUpfront, StringComparison.InvariantCultureIgnoreCase) &&
+                LeaseContractLength.Equals(AwsEc2Descriptions.OneYear, StringComparison.InvariantCultureIgnoreCase))
             {
                 price = GetPriceAllUpfront1Year();
             }
 
-            if ((PurchaseOption.Equals("All Upfront", StringComparison.InvariantCultureIgnoreCase) ||
-                PurchaseOption.Equals("AllUpfront", StringComparison.InvariantCultureIgnoreCase)) &&
-                (LeaseContractLength.Equals("3yr", StringComparison.InvariantCultureIgnoreCase) ||
-                LeaseContractLength.Equals("3 yr", StringComparison.InvariantCultureIgnoreCase)))
+            if (PurchaseOption.Equals(AwsEc2Descriptions.AllUpfront, StringComparison.InvariantCultureIgnoreCase) &&
+                LeaseContractLength.Equals(AwsEc2Descriptions.ThreeYears, StringComparison.InvariantCultureIgnoreCase))
             {
                 price = GetPriceAllUpfront3Year();
             }
 
-            if ((PurchaseOption.Equals("Partial Upfront", StringComparison.InvariantCultureIgnoreCase) ||
-                PurchaseOption.Equals("PartialUpfront", StringComparison.InvariantCultureIgnoreCase)) &&
-                (LeaseContractLength.Equals("1yr", StringComparison.InvariantCultureIgnoreCase) ||
-                LeaseContractLength.Equals("1 yr", StringComparison.InvariantCultureIgnoreCase)))
+            if (PurchaseOption.Equals(AwsEc2Descriptions.PartialUpfront, StringComparison.InvariantCultureIgnoreCase) &&
+                LeaseContractLength.Equals(AwsEc2Descriptions.OneYear, StringComparison.InvariantCultureIgnoreCase))
             {
                 price = GetPricePartialUpfront1Year();
             }
 
-            if ((PurchaseOption.Equals("Partial Upfront", StringComparison.InvariantCultureIgnoreCase) ||
-                PurchaseOption.Equals("PartialUpfront", StringComparison.InvariantCultureIgnoreCase)) &&
-                (LeaseContractLength.Equals("3yr", StringComparison.InvariantCultureIgnoreCase) ||
-                LeaseContractLength.Equals("3 yr", StringComparison.InvariantCultureIgnoreCase)))
+            if (PurchaseOption.Equals(AwsEc2Descriptions.PartialUpfront, StringComparison.InvariantCultureIgnoreCase) &&
+                LeaseContractLength.Equals(AwsEc2Descriptions.ThreeYears, StringComparison.InvariantCultureIgnoreCase))
             {
                 price = GetPricePartialUpfront3Year();
             }
 
-            if (PurchaseOption.Equals("No Upfront", StringComparison.InvariantCultureIgnoreCase) ||
-                PurchaseOption.Equals("NoUpfront", StringComparison.InvariantCultureIgnoreCase))
+            if (PurchaseOption.Equals(AwsEc2Descriptions.NoUpfront, StringComparison.InvariantCultureIgnoreCase))
             {
                 price = GetPriceNoUpfront();
             }
@@ -218,17 +209,17 @@ namespace FRF.Core.Models.AwsArtifacts
 
         private int GetHoursUsedPerMonth()
         {
-            var hoursUsedPerMonth = int.Parse(Settings.Element("hoursUsedPerMonth").Value);
+            var hoursUsedPerMonth = int.Parse(Settings.Element(AwsEc2Descriptions.HoursUsedPerMonth).Value);
 
             return hoursUsedPerMonth;
         }
 
         private decimal GetInstancePricePerUnit0()
         {
-            var instancePricePerUnit0 = GetDecimalPrice(Settings.Element("product0")
-                .Element("pricingDimensions")
-                .Element("range0")
-                .Element("pricePerUnit")
+            var instancePricePerUnit0 = GetDecimalPrice(Settings.Element(AwsEc2Descriptions.Product0)
+                .Element(AwsEc2Descriptions.PricingDimensions)
+                .Element(AwsEc2Descriptions.Range0)
+                .Element(AwsEc2Descriptions.PricePerUnit)
                 .Value);
 
             return instancePricePerUnit0;
@@ -236,9 +227,9 @@ namespace FRF.Core.Models.AwsArtifacts
 
         private decimal GetInstancePricePerUnit1()
         {
-            var instancePricePerUnit1 = GetDecimalPrice(Settings.Element("product0")
-                .Element("pricingDimensions").Element("range1")
-                .Element("pricePerUnit")
+            var instancePricePerUnit1 = GetDecimalPrice(Settings.Element(AwsEc2Descriptions.Product0)
+                .Element(AwsEc2Descriptions.PricingDimensions).Element(AwsEc2Descriptions.Range1)
+                .Element(AwsEc2Descriptions.PricePerUnit)
                 .Value);
 
             return instancePricePerUnit1;
@@ -246,61 +237,65 @@ namespace FRF.Core.Models.AwsArtifacts
 
         private string GetPurchaseOption()
         {
-            var purchaseOption = Settings.Element("product0").Element("purchaseOption").Value;
+            var purchaseOption = Settings.Element(AwsEc2Descriptions.Product0).Element(AwsEc2Descriptions.PurchaseOption).Value;
+
+            purchaseOption = purchaseOption.Replace(" ", "");
 
             return purchaseOption;
         }
 
         private string GetLeaseContractLength()
         {
-            var leaseContractLength = Settings.Element("product0").Element("leaseContractLength").Value;
+            var leaseContractLength = Settings.Element(AwsEc2Descriptions.Product0).Element(AwsEc2Descriptions.LeaseContractLength).Value;
+
+            leaseContractLength = leaseContractLength.Replace(" ", "");
 
             return leaseContractLength;
         }
 
         private string GetVolumenApiName()
         {
-            var volumenApiName = Settings.Element("product1").Element("volumeApiName").Value;
+            var volumenApiName = Settings.Element(AwsEc2Descriptions.Product1).Element(AwsEc2Descriptions.VolumeApiName).Value;
 
             return volumenApiName;
         }
 
         private int GetNumberOfGbStorageInEbs()
         {
-            var numberOfGbStorageInEbs = int.Parse(Settings.Element("numberOfGbStorageInEbs").Value);
+            var numberOfGbStorageInEbs = int.Parse(Settings.Element(AwsEc2Descriptions.NumberOfGbStorageInEbs).Value);
 
             return numberOfGbStorageInEbs;
         }
 
         private decimal GetEbsPricePerUnit()
         {
-            var ebsPricePerUnit = GetDecimalPrice(Settings.Element("product1")
-                .Element("pricingDimensions").Element("range0")
-                .Element("pricePerUnit").Value);
+            var ebsPricePerUnit = GetDecimalPrice(Settings.Element(AwsEc2Descriptions.Product1)
+                .Element(AwsEc2Descriptions.PricingDimensions).Element(AwsEc2Descriptions.Range0)
+                .Element(AwsEc2Descriptions.PricePerUnit).Value);
 
             return ebsPricePerUnit;
         }
 
         private decimal GetNumberOfSnapshotsPerMonth()
         {
-            var numberOfSnapshotsPerMonth = GetDecimalPrice(Settings.Element("numberOfSnapshotsPerMonth").Value);
+            var numberOfSnapshotsPerMonth = GetDecimalPrice(Settings.Element(AwsEc2Descriptions.NumberOfSnapshotsPerMonth).Value);
 
             return numberOfSnapshotsPerMonth;
         }
 
         private int GetNumberOfGbChangedPerSnapshot()
         {
-            var numberOfGbChangedPerSnapshot = int.Parse(Settings.Element("numberOfGbChangedPerSnapshot").Value);
+            var numberOfGbChangedPerSnapshot = int.Parse(Settings.Element(AwsEc2Descriptions.NumberOfGbChangedPerSnapshot).Value);
 
             return numberOfGbChangedPerSnapshot;
         }
 
         private decimal GetSnapshotPricePerUnit()
         {
-            var snapshotPricePerUnit = GetDecimalPrice(Settings.Element("product2")
-                .Element("pricingDimensions")
-                .Element("range0")
-                .Element("pricePerUnit").Value);
+            var snapshotPricePerUnit = GetDecimalPrice(Settings.Element(AwsEc2Descriptions.Product2)
+                .Element(AwsEc2Descriptions.PricingDimensions)
+                .Element(AwsEc2Descriptions.Range0)
+                .Element(AwsEc2Descriptions.PricePerUnit).Value);
 
             return snapshotPricePerUnit;
         }
@@ -309,9 +304,9 @@ namespace FRF.Core.Models.AwsArtifacts
         {
             var numberOfIops = 0;
 
-            if (Settings.Element("numberOfIopsPerMonth") != null)
+            if (Settings.Element(AwsEc2Descriptions.NumberOfIopsPerMonth) != null)
             {
-                if (int.TryParse(Settings.Element("numberOfIopsPerMonth").Value, out int numberOfIopsParse))
+                if (int.TryParse(Settings.Element(AwsEc2Descriptions.NumberOfIopsPerMonth).Value, out int numberOfIopsParse))
                 {
                     numberOfIops = numberOfIopsParse;
                 }
@@ -324,16 +319,16 @@ namespace FRF.Core.Models.AwsArtifacts
         {
             var iopsPricePerUnit = 0m;
 
-            if (Settings.Element("product3") != null &&
-                Settings.Element("product3")
-                .Element("pricingDimensions")
-                .Element("range0")
-                .Element("pricePerUnit") != null)
+            if (Settings.Element(AwsEc2Descriptions.Product3) != null &&
+                Settings.Element(AwsEc2Descriptions.Product3)
+                .Element(AwsEc2Descriptions.PricingDimensions)
+                .Element(AwsEc2Descriptions.Range0)
+                .Element(AwsEc2Descriptions.PricePerUnit) != null)
             {
-                iopsPricePerUnit = GetDecimalPrice(Settings.Element("product3")
-                    .Element("pricingDimensions")
-                    .Element("range0")
-                    .Element("pricePerUnit").Value);
+                iopsPricePerUnit = GetDecimalPrice(Settings.Element(AwsEc2Descriptions.Product3)
+                    .Element(AwsEc2Descriptions.PricingDimensions)
+                    .Element(AwsEc2Descriptions.Range0)
+                    .Element(AwsEc2Descriptions.PricePerUnit).Value);
             }
 
             return iopsPricePerUnit;
@@ -343,9 +338,9 @@ namespace FRF.Core.Models.AwsArtifacts
         {
             var numberOfMbpsThroughput = 0;
 
-            if (Settings.Element("numberOfMbpsThroughput") != null)
+            if (Settings.Element(AwsEc2Descriptions.NumberOfMbpsThroughput) != null)
             {
-                if (int.TryParse(Settings.Element("numberOfMbpsThroughput").Value, out int numberOfMbpsThroughputParse))
+                if (int.TryParse(Settings.Element(AwsEc2Descriptions.NumberOfMbpsThroughput).Value, out int numberOfMbpsThroughputParse))
                 {
                     numberOfMbpsThroughput = numberOfMbpsThroughputParse;
                 }
@@ -358,16 +353,16 @@ namespace FRF.Core.Models.AwsArtifacts
         {
             var throughputPricePerUnit = 0m;
 
-            if (Settings.Element("product4") != null &&
-                Settings.Element("product4")
-                .Element("pricingDimensions")
-                .Element("range0")
-                .Element("pricePerUnit") != null)
+            if (Settings.Element(AwsEc2Descriptions.Product4) != null &&
+                Settings.Element(AwsEc2Descriptions.Product4)
+                .Element(AwsEc2Descriptions.PricingDimensions)
+                .Element(AwsEc2Descriptions.Range0)
+                .Element(AwsEc2Descriptions.PricePerUnit) != null)
             {
-                throughputPricePerUnit = GetDecimalPrice(Settings.Element("product4")
-                    .Element("pricingDimensions")
-                    .Element("range0")
-                    .Element("pricePerUnit")
+                throughputPricePerUnit = GetDecimalPrice(Settings.Element(AwsEc2Descriptions.Product4)
+                    .Element(AwsEc2Descriptions.PricingDimensions)
+                    .Element(AwsEc2Descriptions.Range0)
+                    .Element(AwsEc2Descriptions.PricePerUnit)
                     .Value);
             }
 
@@ -388,12 +383,12 @@ namespace FRF.Core.Models.AwsArtifacts
                     continue;
                 }
 
-                var transferType = dataTransferPricingNode.Element("transferType").Value;
+                var transferType = dataTransferPricingNode.Element(AwsEc2Descriptions.TransferType).Value;
                 var numberOfGbTransfer = int.Parse(dataTransferNumberOfGbNode.Value);
                 var dataTransferPricePerUnit = GetDecimalPrice(dataTransferPricingNode
-                .Element("pricingDimensions")
-                .Element("range0")
-                .Element("pricePerUnit")
+                .Element(AwsEc2Descriptions.PricingDimensions)
+                .Element(AwsEc2Descriptions.Range0)
+                .Element(AwsEc2Descriptions.PricePerUnit)
                 .Value);
 
                 var dataTransferItem = new DataTransferEc2
