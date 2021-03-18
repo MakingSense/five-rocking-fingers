@@ -9,6 +9,7 @@ import ArtifactService from '../../services/ArtifactService';
 import ProjectService from '../../services/ProjectService';
 import ArtifactsTotalPrice from './ArtifactsTotalPrice';
 import EditArtifactDialog from './EditArtifactDialog';
+import ArtifactRelation from '../../interfaces/ArtifactRelation';
 
 const ArtifactsTable = (props: { projectId: number}) => {
     const [artifacts, setArtifacts] = React.useState<Artifact[]>([]);
@@ -19,6 +20,7 @@ const ArtifactsTable = (props: { projectId: number}) => {
     const [artifactToEdit, setArtifactToEdit] = React.useState<Artifact | null>(null);
     const [price, setPrice] = React.useState<string>('');
     const [projectBudget, setProjectBudget] = React.useState<number>(-1);
+    const [updateList, setUpdateList] = React.useState(true);
     const loading = projectBudget=== -1 || artifacts.length === 0;
     const {projectId} = props;
 
@@ -83,6 +85,14 @@ const ArtifactsTable = (props: { projectId: number}) => {
         getArtifacts();
     }, [projectId]);
 
+    React.useEffect(() => {
+        getProjectBudget();
+        if (updateList) {
+            getArtifacts();
+            setUpdateList(false);
+        }
+    }, [updateList]);
+
     const manageOpenSnackbar = (settings: SnackbarSettings) => {
         setSnackbarSettings(settings);
         setOpenSnackbar(true);
@@ -140,6 +150,7 @@ const ArtifactsTable = (props: { projectId: number}) => {
                     setSnackbarSettings={setSnackbarSettings}
                     artifactToEdit={artifactToEdit}
                     updateArtifacts={getArtifacts}
+                    manageOpenSnackbar={manageOpenSnackbar}
                 /> :
                 null
             }
