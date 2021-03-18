@@ -13,20 +13,20 @@ export const useUser = () => {
 	};
 
 	const parseUser = (userJson: string | null): UserProfile | null => {
-    if (userJson !== null) {
-      try {
-        const currentUser: UserProfile = JSON.parse(userJson);
-        return {
-          userId: currentUser["userId"],
-          fullname: currentUser["fullname"],
-          email: currentUser["email"],
-          avatar: currentUser["avatar"],
-        };
-      } catch {
-        return null;
-      }
-    } else return null;
-  };
+		if (userJson !== null) {
+			try {
+				const currentUser: UserProfile = JSON.parse(userJson);
+				return {
+					userId: currentUser["userId"],
+					fullname: currentUser["fullname"],
+					email: currentUser["email"],
+					avatar: currentUser["avatar"],
+				};
+			} catch {
+				return null;
+			}
+		} else return null;
+	};
 
 	const getUser = (): UserProfile | null => {
 		const userJson = findUser();
