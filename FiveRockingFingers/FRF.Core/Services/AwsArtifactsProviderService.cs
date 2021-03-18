@@ -11,6 +11,7 @@ using Amazon.Pricing.Model;
 using FRF.Core.Models;
 using FRF.Core.Response;
 using System;
+using FRF.DataAccess;
 
 namespace FRF.Core.Services
 {
@@ -20,13 +21,15 @@ namespace FRF.Core.Services
         private readonly AwsPricing _awsPricingOptions;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IAmazonPricing _pricingClient;
+        private readonly DataAccessContext _dataContext;
 
         public AwsArtifactsProviderService(IOptions<AwsPricing> awsApiString,
-            IHttpClientFactory httpClientFactory, IAmazonPricing pricingClient)
+            IHttpClientFactory httpClientFactory, IAmazonPricing pricingClient, DataAccessContext dataContext)
         {
             _httpClientFactory = httpClientFactory;
             _awsPricingOptions = awsApiString.Value;
             _pricingClient = pricingClient;
+            _dataContext = dataContext;
         }
 
         /// <summary>
@@ -58,6 +61,28 @@ namespace FRF.Core.Services
             }
 
             return new ServiceResponse<List<KeyValuePair<string, string>>>(artifactsNames.ToList());
+        }
+
+        public async Task<ServiceResponse<JObject>> GetRequireFildsAsync(string serviceCode)
+        {
+            var artifactType = _dataContext.ArtifactType.Where(at => at.Name.Equals(serviceCode)).SingleOrDefault();
+            var jsonFormString = artifactType.RequiredFields;
+            var jsonForm = JObject.Parse(jsonFormString);
+            var properties = (JObject)jsonForm["properties"];
+            foreach (var propertie in properties)
+            {
+                var properties2 = (JObject)propertie.Value["properties"];
+                foreach (var propertie2 in properties2)
+                {
+                    var attributeValues = await GetAttributeValue(propertie2.Key, serviceCode);
+                    var enums = (JArray)propertie2.Value["enum"];
+                    foreach(var attributeValue in attributeValues)
+                    {
+                        enums.Add(attributeValue);
+                    }
+                }
+            }
+            return new ServiceResponse<JObject>(jsonForm);
         }
 
         public async Task<ServiceResponse<List<ProviderArtifactSetting>>> GetAttributesAsync(string serviceCode)
