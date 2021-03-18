@@ -380,8 +380,8 @@ namespace FRF.Core.Models.AwsArtifacts
 
             for(var i = 0; i < 3; i++)
             {
-                var dataTransferNumberOfGbNode = Settings.Element("numberOfGbTransfer" + i);
-                var dataTransferPricingNode = Settings.Element("product5-" + i);
+                var dataTransferNumberOfGbNode = Settings.Element($"numberOfGbTransfer{i}");
+                var dataTransferPricingNode = Settings.Element($"product5-{i}");
 
                 if(dataTransferNumberOfGbNode == null || dataTransferPricingNode == null)
                 {
