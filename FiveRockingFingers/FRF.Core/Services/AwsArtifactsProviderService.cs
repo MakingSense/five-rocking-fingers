@@ -76,10 +76,13 @@ namespace FRF.Core.Services
                 {
                     var attributeValues = await GetAttributeValue(propertie2.Key, serviceCode);
                     var enums = (JArray)propertie2.Value["enum"];
-                    foreach(var attributeValue in attributeValues)
+                    if(enums != null && attributeValues.Count > 0)
                     {
-                        enums.Add(attributeValue);
-                    }
+                        foreach (var attributeValue in attributeValues)
+                        {
+                            enums.Add(attributeValue);
+                        }
+                    }                    
                 }
             }
             return new ServiceResponse<JObject>(jsonForm);
