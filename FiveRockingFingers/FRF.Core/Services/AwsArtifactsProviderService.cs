@@ -617,18 +617,9 @@ namespace FRF.Core.Services
                     pricingDetailsList.Add(pricingTerm);
                 }
 
-                var termOptionProperties = termOption.Value;
-                var purchaseOption = (string)termOptionProperties.SelectToken("termAttributes.PurchaseOption");
-                var leaseContractLength = (string)termOptionProperties.SelectToken("termAttributes.LeaseContractLength");
-                var offeringClass = (string)termOptionProperties.SelectToken("termAttributes.OfferingClass");
+                var termAttributesFromJson = ExtractTermAttributes(termName, termOption);
 
-                if (purchaseOption != null &&
-                    leaseContractLength != null &&
-                    offeringClass != null &&
-                    termName.Equals(termAttributes.TermType) &&
-                    purchaseOption.Equals(termAttributes.PurchaseOption) &&
-                    leaseContractLength.Equals(termAttributes.LeaseContractLength) &&
-                    offeringClass.Equals(termAttributes.OfferingClass))
+                if (termAttributes.Equals(termAttributesFromJson))
                 {
                     var pricingTerm = CreatePricingTerm(sku, termName, termOption, product);
                     pricingDetailsList.Add(pricingTerm);
@@ -668,6 +659,23 @@ namespace FRF.Core.Services
             };
 
             return pricingTerm;
+        }
+
+        private TermAttributes ExtractTermAttributes(string termName, KeyValuePair<string, JToken> termOption)
+        {
+            var termOptionProperties = termOption.Value;
+            var purchaseOption = (string)termOptionProperties.SelectToken("termAttributes.PurchaseOption");
+            var leaseContractLength = (string)termOptionProperties.SelectToken("termAttributes.LeaseContractLength");
+            var offeringClass = (string)termOptionProperties.SelectToken("termAttributes.OfferingClass");
+            var termAttribute = new TermAttributes
+            {
+                TermType = termName,
+                LeaseContractLength = leaseContractLength,
+                OfferingClass = offeringClass,
+                PurchaseOption = purchaseOption
+            };
+
+            return termAttribute;
         }
 
         private PricingDimension ExtractPricingDimension(JProperty termPriceDimension)
