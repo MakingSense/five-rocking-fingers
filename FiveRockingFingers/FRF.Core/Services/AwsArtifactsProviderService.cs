@@ -394,13 +394,13 @@ namespace FRF.Core.Services
                     case AwsEc2Descriptions.TermType:
                         termAttributes.TermType = value;
                         break;
-                    case AwsEc2Descriptions.PurchaseOption:
+                    case AwsEc2Descriptions.PurchaseOptionUpper:
                         termAttributes.PurchaseOption = value;
                         break;
-                    case AwsEc2Descriptions.OfferingClass:
+                    case AwsEc2Descriptions.OfferingClassUpper:
                         termAttributes.OfferingClass = value;
                         break;
-                    case AwsEc2Descriptions.LeaseContractLength:
+                    case AwsEc2Descriptions.LeaseContractLengthUpper:
                         termAttributes.LeaseContractLength = value;
                         break;
                 }
@@ -619,7 +619,7 @@ namespace FRF.Core.Services
 
                 var termAttributesFromJson = ExtractTermAttributes(termName, termOption);
 
-                if (termAttributes.Equals(termAttributesFromJson))
+                if (AreTermAttributesEqual(termAttributesFromJson, termAttributes))
                 {
                     var pricingTerm = CreatePricingTerm(sku, termName, termOption, product);
                     pricingDetailsList.Add(pricingTerm);
@@ -659,6 +659,17 @@ namespace FRF.Core.Services
             };
 
             return pricingTerm;
+        }
+
+        private bool AreTermAttributesEqual(TermAttributes termAttributes1, TermAttributes termAttributes2)
+        {
+            return termAttributes1.PurchaseOption != null &&
+                    termAttributes1.LeaseContractLength != null &&
+                    termAttributes1.OfferingClass != null &&
+                    termAttributes1.TermType.Equals(termAttributes2.TermType, StringComparison.InvariantCultureIgnoreCase) &&
+                    termAttributes1.PurchaseOption.Equals(termAttributes2.PurchaseOption, StringComparison.InvariantCultureIgnoreCase) &&
+                    termAttributes1.LeaseContractLength.Equals(termAttributes2.LeaseContractLength, StringComparison.InvariantCultureIgnoreCase) &&
+                    termAttributes1.OfferingClass.Equals(termAttributes2.OfferingClass, StringComparison.InvariantCultureIgnoreCase);
         }
 
         private TermAttributes ExtractTermAttributes(string termName, KeyValuePair<string, JToken> termOption)

@@ -90,7 +90,10 @@ namespace FRF.Core
         public const string PurchaseOption = "purchaseOption";
         public const string LeaseContractLength = "leaseContractLength";
         public const string TermType = "termType";
-        public const string OfferingClass = "OfferingClass";
+        public const string OfferingClass = "offeringClass";
+        public const string PurchaseOptionUpper = "PurchaseOption";
+        public const string LeaseContractLengthUpper = "LeaseContractLength";
+        public const string OfferingClassUpper = "OfferingClass";
 
 
         //XML nodes names
