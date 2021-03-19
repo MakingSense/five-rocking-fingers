@@ -35,7 +35,7 @@ const UserLoginSchema = yup.object().shape({
 
 const Login = () => {
     const history = useHistory();
-    const { storageUser, cleanUserStorage } = useUser();
+    const { storeUser, cleanUserStorage } = useUser();
     const { register, handleSubmit, errors, reset } = useForm<userLogin>({ resolver: yupResolver(UserLoginSchema) });
     const [loading, setLoading] = React.useState(false);
     const [snackbarSettings, setSnackbarSettings] = React.useState<SnackbarSettings>({ message: "", severity: undefined });
@@ -57,7 +57,7 @@ const Login = () => {
             .then(response => {
                 if (response.status === 200) {
                     const currentUser = JSON.stringify(response.data);
-                    storageUser(currentUser,e.rememberMe);
+                    storeUser(currentUser,e.rememberMe);
                     history.push("/home");
                 }
             })

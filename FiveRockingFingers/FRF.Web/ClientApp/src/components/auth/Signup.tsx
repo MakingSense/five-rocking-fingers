@@ -73,7 +73,7 @@ const Signup = ({ }) => {
                 }
             })
             .catch(function (error) {
-                if (error.response.status === 401) {
+                if (error.response.status === 400) {
                     cleanUserStorage();
                     manageOpenSnackbar({ message: "Error al registrarse! Verifique que los datos sean correctos.", severity: "error" });
                     setLoading(false);
