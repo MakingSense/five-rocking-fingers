@@ -74,7 +74,8 @@ namespace FRF.Core.Services
                 var properties2 = (JObject)propertie.Value["properties"];
                 foreach (var propertie2 in properties2)
                 {
-                    var attributeValues = await GetAttributeValue(propertie2.Key, serviceCode);
+                    var attributeName = Regex.Replace(propertie2.Key, @"[\d-]", string.Empty);
+                    var attributeValues = await GetAttributeValue(attributeName, serviceCode);
                     var enums = (JArray)propertie2.Value["enum"];
                     if(enums != null && attributeValues.Count > 0)
                     {
