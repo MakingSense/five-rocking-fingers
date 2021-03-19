@@ -92,6 +92,14 @@ class ArtifactService {
             return error.response ? error.response : error.message;
         }
     };
+
+    static getRelationsAsync = async (artifactId: number) => {
+        try {
+            return await axios.get(`${BASE_URL}artifacts/${artifactId}/relations`);
+        } catch (error) {
+            return error.response ? error.response : error.message;
+        }
+    };
     
     static updateArtifactsRelations = async (artifactId: number, artifactRelationsList: any) => {
         try {

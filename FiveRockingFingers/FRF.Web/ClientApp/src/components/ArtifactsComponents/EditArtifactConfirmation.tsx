@@ -28,8 +28,7 @@ const EditArtifactConfirmation = (props: {
     closeEditArtifactDialog: Function,
     setOpenSnackbar: Function,
     setSnackbarSettings: Function,
-    updateArtifacts: Function,
-     }) => {
+    updateArtifacts: Function }) => {
 
     const classes = useStyles();
     const { handleSubmit } = useForm();

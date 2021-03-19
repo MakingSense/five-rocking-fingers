@@ -10,6 +10,7 @@ import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 import ArtifactService from '../../services/ArtifactService';
 import { Select } from '@material-ui/core';
+import { PROVIDERS } from '../../Constants';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -46,8 +47,8 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
 
     const classes = useStyles();
     const {handleSubmit, errors, control } = useForm();
-    const [artifact1, setArtifact1] = React.useState<Artifact | null>(props.artifactRelations.artifact1);
-    const [artifact2, setArtifact2] = React.useState<Artifact | null>(props.artifactRelations.artifact2);
+    const [artifact1, setArtifact1] = React.useState<Artifact | null>(null);
+    const [artifact2, setArtifact2] = React.useState<Artifact | null>(null);
     const [artifact1Settings, setArtifact1Settings] = React.useState<{ [key: string]: string }>({});
     const [artifact2Settings, setArtifact2Settings] = React.useState<{ [key: string]: string }>({});
     const [setting1, setSetting1] = React.useState<KeyValueStringPair | null>(null);
@@ -58,10 +59,37 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
     const [isErrorEmptyField, setIsErrorEmptyField] = React.useState<boolean>(false);
 
     const updateArtifactsSettings = () => {
-            props.updateList(true);
-            setArtifact1Settings(artifact1!.settings);
-            setArtifact2Settings(artifact2!.settings);
+        props.updateList(true);
+        if (artifact1 !== null && artifact1 !== undefined) {
+            if (artifact1.artifactType?.name != PROVIDERS[1]) {
+                var relationalSettings: { [key: string]: string } = {};
+                Object.entries(artifact1.relationalFields).map(([key, value]) => relationalSettings[key] = artifact1.settings[key]);
+                setArtifact1Settings(relationalSettings);
+            } else {
+                setArtifact1Settings(artifact1.settings);
+            }
+        }
+        else {
+            setArtifact1Settings({});
+        }
+        if (artifact2 !== null && artifact2 !== undefined) {
+            if (artifact2.artifactType?.name != PROVIDERS[1]) {
+                var relationalSettings: { [key: string]: string } = {};
+                Object.entries(artifact2.relationalFields).map(([key, value]) => relationalSettings[key] = artifact2.settings[key]);
+                setArtifact2Settings(relationalSettings);
+            } else {
+                setArtifact2Settings(artifact2.settings);
+            }
+        }
+        else {
+            setArtifact2Settings({});
+        }
     }
+
+    React.useEffect(() => {
+        setArtifact1(props.artifacts.find(a => a.id === props.artifactRelations.artifact1.id) as Artifact);
+        setArtifact2(props.artifacts.find(a => a.id === props.artifactRelations.artifact2.id) as Artifact);
+    }, [props.open])
 
     React.useEffect(() => {
         updateArtifactsSettings();
@@ -100,8 +128,8 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
 
     const resetState = () => {
         updateArtifactsSettings();
-        setArtifact1(props.artifactRelations.artifact1);
-        setArtifact2(props.artifactRelations.artifact2);
+        setArtifact1(props.artifacts.find(a => a.id === props.artifactRelations.artifact1.id) as Artifact);
+        setArtifact2(props.artifacts.find(a => a.id === props.artifactRelations.artifact2.id) as Artifact);
         setSetting1(null);
         setSetting2(null);
         setRelationTypeId(props.artifactRelations.relationTypeId);
@@ -161,9 +189,11 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
 
     const handleChange = (event: React.ChangeEvent<{ name?: string | undefined; value: unknown }>) => {
         if (event.target.name === 'artifact1') {
+            setSetting1(null)
             setArtifact1(props.artifacts.find(a => a.id === event.target.value) as Artifact);
         }
         else if (event.target.name === 'artifact2') {
+            setSetting2(null)
             setArtifact2(props.artifacts.find(a => a.id === event.target.value) as Artifact);
         }
     }
@@ -174,13 +204,24 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
             setSetting1(setting);
         }
         else if (event.target.name === 'setting2') {
-            let setting: KeyValueStringPair = { key: event.target.value as string, value: artifact1Settings[event.target.value as string] };
+            let setting: KeyValueStringPair = { key: event.target.value as string, value: artifact2Settings[event.target.value as string] };
             setSetting2(setting);
         }
     }
 
     const handleRelationTypeChange = (event: React.ChangeEvent<{ name?: string | undefined; value: unknown }>) => {
         setRelationTypeId(event.target.value as number);
+    }
+
+    const toRegularSentence = (value: string) => {
+        if (!value || value.length === 0) return "";
+
+        const result = value.replace(/([A-Z])/g, ' $1');
+        if (/[a-z]/.test(result.charAt(0))) {
+            return `${result.charAt(0).toUpperCase()}${result.slice(1)}`;
+        } else {
+            return result;
+        }
     }
 
     return (
@@ -259,14 +300,14 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
                                     <MenuItem value="">
                                         <em>None</em>
                                     </MenuItem>
-                                    {Object.entries(artifact1Settings).map(([key, value], index) => <MenuItem key={key} value={key}>{key}</MenuItem>)}
+                                    {Object.entries(artifact1Settings).map(([key, value], index) => <MenuItem key={key} value={key}>{toRegularSentence(key)}</MenuItem>)}
                                 </Select>
                             }
                             name="setting1"
                             control={control}
                             defaultValue={''}
                         />
-                        <FormHelperText>{setting1 ? setting1?.value : null}</FormHelperText>
+                        <FormHelperText>{setting1 && `${setting1.value} (${artifact1 && toRegularSentence(artifact1.relationalFields[setting1.key])})`}</FormHelperText>
                     </FormControl>
                     <FormControl className={classes.selectDirection} error={Boolean(errors.artifactType)}>
                         <InputLabel htmlFor="type-select">Dirección</InputLabel>
@@ -313,14 +354,14 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
                                     <MenuItem value="">
                                         <em>None</em>
                                     </MenuItem>
-                                    {Object.entries(artifact2Settings).map(([key, value], index) => <MenuItem key={key} value={key}>{key}</MenuItem>)}
+                                    {Object.entries(artifact2Settings).map(([key, value], index) => <MenuItem key={key} value={key}>{toRegularSentence(key)}</MenuItem>)}
                                 </Select>
                             }
                             name="setting2"
                             control={control}
                             defaultValue={''}
                         />
-                        <FormHelperText>{setting2 ? setting2?.value : null}</FormHelperText>
+                        <FormHelperText>{setting2 && `${setting2.value} (${artifact2 && toRegularSentence(artifact2?.relationalFields[setting2.key])})`}</FormHelperText>
                     </FormControl>
                     {errors.settings ?
                         <Typography gutterBottom className={classes.error}>

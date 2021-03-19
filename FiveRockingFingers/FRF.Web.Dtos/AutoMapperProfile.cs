@@ -29,6 +29,7 @@ namespace FRF.Web.Dtos
             CreateMap<Categories.CategoryUpsertDTO, Category>();
             CreateMap<Artifact, ArtifactDTO>()
                 .ForMember(dest => dest.Settings, opt => opt.MapFrom<XmlResolver>())
+                .ForMember(dest => dest.RelationalFields, opt => opt.MapFrom<DictionaryResolver>())
                 .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.GetPrice()));
             CreateMap<ArtifactUpsertDTO, Artifact>();
             CreateMap<ArtifactType, ArtifactTypeDTO>()

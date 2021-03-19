@@ -16,7 +16,16 @@ namespace FRF.Core.Models.AwsArtifacts
         public int RetrieveRequestsUsed { get; set; }
         public int? InfrequentAccessMultiplier { get; set; }
         public decimal InfrequentAccessStoragePrice { get; set; }
-        public Dictionary<string,PricingDimension> PricingDimensions { get; private set; }
+        public Dictionary<string, PricingDimension> PricingDimensions { get; private set; }
+
+        public AwsS3()
+        {
+            RelationalFields = new Dictionary<string, string>();
+            RelationalFields.Add("writeRequestsUsed", SettingTypes.NaturalNumber);
+            RelationalFields.Add("retrieveRequestsUsed", SettingTypes.NaturalNumber);
+            RelationalFields.Add("storageUsed", SettingTypes.Decimal);
+            RelationalFields.Add("infrequentAccessMultiplier", SettingTypes.Decimal);
+        }
 
         public override decimal GetPrice()
         {

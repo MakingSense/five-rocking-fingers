@@ -122,8 +122,12 @@ namespace FRF.Core.Tests.XmlValidation
                 ArtifactTypeId = artifactType.Id,
                 ArtifactType = artifactType,
                 Settings = new XElement("settings",
-                    new XElement("product0",
-                        new XElement("hoursUsedPerMonth", 730),
+                    new XElement("hoursUsedPerMonth", 730),
+                    new XElement("numberOfGbStorageInEbs", 30),
+                    new XElement("numberOfSnapshotsPerMonth", 59.83),
+                    new XElement("numberOfGbChangedPerSnapshot", 3),
+                    new XElement("numberOfGbTransfer1", 1024),
+                    new XElement("product0",                        
                         new XElement("sku", "WY6M7B237ABTJB8K"),
                         new XElement("productFamily", "Compute Instance"),
                         new XElement("term", "Reserved"),
@@ -160,8 +164,7 @@ namespace FRF.Core.Tests.XmlValidation
                             )
                         )
                     ),
-                    new XElement("product1",
-                        new XElement("numberOfGbStorageInEbs", 30),
+                    new XElement("product1",                        
                         new XElement("sku", "WY6M7B237ABTJB8K"),
                         new XElement("productFamily", "Storage"),
                         new XElement("term", "OnDemand"),
@@ -181,8 +184,6 @@ namespace FRF.Core.Tests.XmlValidation
                         )
                     ),
                     new XElement("product2",
-                        new XElement("numberOfSnapshotsPerMonth", 59.83),
-                        new XElement("numberOfGbChangedPerSnapshot", 3),
                         new XElement("sku", "3F2BXQPS4TRZ6SR6"),
                         new XElement("productFamily", "Storage Snapshot"),
                         new XElement("term", "OnDemand"),
@@ -201,8 +202,7 @@ namespace FRF.Core.Tests.XmlValidation
                             )
                         )
                     ),
-                    new XElement("product5",
-                        new XElement("numberOfGbTransfer", 1024),
+                    new XElement("product5-1",
                         new XElement("sku", "3F2BXQPS4TRZ6SR6"),
                         new XElement("productFamily", "Data Transfer"),
                         new XElement("term", "OnDemand"),
@@ -251,8 +251,14 @@ namespace FRF.Core.Tests.XmlValidation
                 ArtifactTypeId = artifactType.Id,
                 ArtifactType = artifactType,
                 Settings = new XElement("settings",
-                    new XElement("product0",
-                        new XElement("hoursUsedPerMonth", 730),
+                    new XElement("hoursUsedPerMonth", 730),
+                    new XElement("numberOfGbStorageInEbs", 30),
+                    new XElement("numberOfSnapshotsPerMonth", 59.83),
+                    new XElement("numberOfGbChangedPerSnapshot", 3),
+                    new XElement("numberOfIopsPerMonth", 4000),
+                    new XElement("numberOfMbpsThroughput", 225),
+                    new XElement("numberOfGbTransfer1", 1024),
+                    new XElement("product0",                        
                         new XElement("sku", "WY6M7B237ABTJB8K"),
                         new XElement("productFamily", "Compute Instance"),
                         new XElement("term", "Reserved"),
@@ -289,8 +295,7 @@ namespace FRF.Core.Tests.XmlValidation
                             )
                         )
                     ),
-                    new XElement("product1",
-                        new XElement("numberOfGbStorageInEbs", 30),
+                    new XElement("product1",                        
                         new XElement("sku", "WY6M7B237ABTJB8K"),
                         new XElement("productFamily", "Storage"),
                         new XElement("term", "OnDemand"),
@@ -309,9 +314,7 @@ namespace FRF.Core.Tests.XmlValidation
                             )
                         )
                     ),
-                    new XElement("product2",
-                        new XElement("numberOfSnapshotsPerMonth", 59.83),
-                        new XElement("numberOfGbChangedPerSnapshot", 3),
+                    new XElement("product2",                        
                         new XElement("sku", "3F2BXQPS4TRZ6SR6"),
                         new XElement("productFamily", "Storage Snapshot"),
                         new XElement("term", "OnDemand"),
@@ -330,8 +333,7 @@ namespace FRF.Core.Tests.XmlValidation
                             )
                         )
                     ),
-                    new XElement("product3",
-                        new XElement("numberOfIopsPerMonth", 4000),
+                    new XElement("product3",                        
                         new XElement("sku", "AW6X9CDG3FS9XTDS"),
                         new XElement("productFamily", "System Operation"),
                         new XElement("term", "OnDemand"),
@@ -350,8 +352,7 @@ namespace FRF.Core.Tests.XmlValidation
                             )
                         )
                     ),
-                    new XElement("product4",
-                        new XElement("numberOfMbpsThroughput", 225),
+                    new XElement("product4",                        
                         new XElement("sku", "AW6X9CDG3FS9XTDS"),
                         new XElement("productFamily", "Provisioned Throughput"),
                         new XElement("term", "OnDemand"),
@@ -370,8 +371,7 @@ namespace FRF.Core.Tests.XmlValidation
                             )
                         )
                     ),
-                    new XElement("product5",
-                        new XElement("numberOfGbTransfer", 1024),
+                    new XElement("product5-1",
                         new XElement("sku", "3F2BXQPS4TRZ6SR6"),
                         new XElement("productFamily", "Data Transfer"),
                         new XElement("term", "OnDemand"),
@@ -420,8 +420,13 @@ namespace FRF.Core.Tests.XmlValidation
                 ArtifactTypeId = artifactType.Id,
                 ArtifactType = artifactType,
                 Settings = new XElement("settings",
-                    new XElement("product0",
-                        new XElement("hoursUsedPerMonth", 730),
+                    new XElement("hoursUsedPerMonth", 730),
+                    new XElement("numberOfGbStorageInEbs", 30),
+                    new XElement("numberOfSnapshotsPerMonth", 59.83),
+                    new XElement("numberOfGbChangedPerSnapshot", 3),
+                    new XElement("numberOfIopsPerMonth", 4000),
+                    new XElement("numberOfGbTransfer1", 1024),
+                    new XElement("product0",                        
                         new XElement("sku", "WY6M7B237ABTJB8K"),
                         new XElement("productFamily", "Compute Instance"),
                         new XElement("term", "Reserved"),
@@ -458,8 +463,7 @@ namespace FRF.Core.Tests.XmlValidation
                             )
                         )
                     ),
-                    new XElement("product1",
-                        new XElement("numberOfGbStorageInEbs", 30),
+                    new XElement("product1",                        
                         new XElement("sku", "WY6M7B237ABTJB8K"),
                         new XElement("productFamily", "Storage"),
                         new XElement("term", "OnDemand"),
@@ -478,9 +482,7 @@ namespace FRF.Core.Tests.XmlValidation
                             )
                         )
                     ),
-                    new XElement("product2",
-                        new XElement("numberOfSnapshotsPerMonth", 59.83),
-                        new XElement("numberOfGbChangedPerSnapshot", 3),
+                    new XElement("product2",                        
                         new XElement("sku", "3F2BXQPS4TRZ6SR6"),
                         new XElement("productFamily", "Storage Snapshot"),
                         new XElement("term", "OnDemand"),
@@ -499,8 +501,7 @@ namespace FRF.Core.Tests.XmlValidation
                             )
                         )
                     ),
-                    new XElement("product3",
-                        new XElement("numberOfIopsPerMonth", 4000),
+                    new XElement("product3",                        
                         new XElement("sku", "AW6X9CDG3FS9XTDS"),
                         new XElement("productFamily", "System Operation"),
                         new XElement("term", "OnDemand"),
@@ -519,8 +520,7 @@ namespace FRF.Core.Tests.XmlValidation
                             )
                         )
                     ),
-                    new XElement("product5",
-                        new XElement("numberOfGbTransfer", 1024),
+                    new XElement("product5-1",                       
                         new XElement("sku", "3F2BXQPS4TRZ6SR6"),
                         new XElement("productFamily", "Data Transfer"),
                         new XElement("term", "OnDemand"),
