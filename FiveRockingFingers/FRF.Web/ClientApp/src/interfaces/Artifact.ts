@@ -1,5 +1,4 @@
-﻿import Project from './Project';
-import ArtifactType from './ArtifactType';
+﻿import ArtifactType from './ArtifactType';
 
 export default interface Artifact {
     id: number;
@@ -9,4 +8,5 @@ export default interface Artifact {
     projectId: number;
     artifactType: ArtifactType;
     price: number;
+    relationalFields: { [key: string]: string };
 }

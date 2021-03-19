@@ -58,8 +58,8 @@
     "test": "cross-env CI=true react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "lint": "eslint ./src/**/*.ts ./src/**/*.tsx",
-    "build:dev": "env-cmd .env.dev npm run build",
-    "build:prd": "env-cmd -f .env.prod react-scripts build"
+    "build:dev": "env-cmd .env.development npm run build",
+    "build:prd": "env-cmd -f .env.production react-scripts build"
   },
   "eslintConfig": {
     "extends": "react-app"

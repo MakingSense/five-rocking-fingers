@@ -14,13 +14,35 @@ const EditArtifactDialog = (props: {
     setOpenSnackbar: Function,
     setSnackbarSettings: Function,
     updateArtifacts: Function,
-    updateRelations: Function }) => {
+    manageOpenSnackbar: Function}) => {
 
     const { showEditArtifactDialog, closeEditArtifactDialog } = props;
 
     const [isArtifactEdited, setIsArtifactEdited] = React.useState<boolean>(false);
     const [artifactEdited, setArtifactEdited] = React.useState<Artifact>(props.artifactToEdit);
     const [namesOfSettingsChanged, setNamesOfSettingsChanged] = React.useState<string[]>([]);
+    const [artifactsRelations, setArtifactsRelations] = React.useState<ArtifactRelation[]>([]);
+
+    const getRelations = async () => {
+        try {
+            const response = await ArtifactService.getRelationsAsync(props.artifactToEdit.id);
+            if (response.status == 200) {
+                setArtifactsRelations(response.data);
+            }
+            else {
+                props.manageOpenSnackbar({ message: "Hubo un error al cargar las relaciones entre artefactos", severity: "error" });
+                closeEditArtifactDialog();
+            }
+        }
+        catch {
+            props.manageOpenSnackbar({ message: "Hubo un error al cargar las relaciones entre artefactos", severity: "error" });
+            closeEditArtifactDialog();
+        }
+    }
+
+    React.useEffect(() => {
+        getRelations();
+    }, [artifactEdited]);
 
     return (
         <Dialog open={showEditArtifactDialog}>
@@ -31,6 +53,7 @@ const EditArtifactDialog = (props: {
                     setIsArtifactEdited={setIsArtifactEdited}
                     setArtifactEdited={setArtifactEdited}
                     setNamesOfSettingsChanged={setNamesOfSettingsChanged}
+                    artifactsRelations={artifactsRelations}
                 /> :
                 <EditArtifactConfirmation
                     artifactToEdit={artifactEdited}
@@ -39,7 +62,6 @@ const EditArtifactDialog = (props: {
                     setOpenSnackbar={props.setOpenSnackbar}
                     setSnackbarSettings={props.setSnackbarSettings}
                     updateArtifacts={props.updateArtifacts}
-                    updateRelations={props.updateRelations}
                 />
             }
         </Dialog>

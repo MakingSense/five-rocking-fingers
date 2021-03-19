@@ -12,5 +12,6 @@ namespace FRF.Web.Dtos.Artifacts
         public int ProjectId { get; set; }
         public ArtifactTypeDTO ArtifactType { get; set; }
         public decimal Price { get; set; }
+        public Dictionary<string, string> RelationalFields { get; set; }
     }
 }

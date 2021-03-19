@@ -123,6 +123,7 @@ const ArtifactsRelationTable = (props: { artifactId: number, projectId: number }
                 artifacts={artifacts}
                 artifactsRelations={artifactsRelations}
                 updateList={{update: true, setUpdate: handleUpdateList}}
+                artifactId={props.artifactId}
             />
         </React.Fragment>
     );

@@ -3,7 +3,7 @@ import { BASE_URL } from '../Constants';
 
 const USER_URL = `${BASE_URL}User`;
 
-export default class ProjectService {
+export default class UserService {
 
     static searchUser = async (email: string) => {
         try {
