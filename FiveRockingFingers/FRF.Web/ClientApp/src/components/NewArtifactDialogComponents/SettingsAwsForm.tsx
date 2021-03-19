@@ -79,6 +79,23 @@ const SettingsAwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifa
         props.setAwsSettingsList(awsSettingsListFiltered);
         props.handleNextStep();*/
         console.log(data.formData);
+        let formData: Object = data.formData;
+        let awsSettingsListAux: KeyValueStringPair[] = [];
+
+        Object.entries(formData).forEach(([key, value]) => {
+            let sectionData: Object = value;
+            console.log(sectionData);
+            Object.entries(sectionData).forEach(([key, value], index) => {
+                let newSetting = { key: key, value: value };
+                awsSettingsListAux.push(newSetting);                
+            });
+        });
+        setAwsSettingsList(awsSettingsListAux);
+        let awsSettingsListFiltered = awsSettingsList.filter(awsSetting => awsSetting !== undefined && awsSetting !== null && awsSetting.value !== "");
+        console.log(awsSettingsListFiltered);
+        props.setSettingsList(awsSettingsListToSettingsList(awsSettingsListFiltered));
+        props.setAwsSettingsList(awsSettingsListFiltered);
+        //props.handleNextStep();
     }
 
     //Handle changes in the inputs fields
