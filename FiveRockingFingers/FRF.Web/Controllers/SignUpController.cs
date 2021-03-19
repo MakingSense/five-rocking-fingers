@@ -29,7 +29,7 @@ namespace FRF.Web.Controllers
         {
             var userSignUp = _mapper.Map<User>(signUpDto);
             var response = await _signUpService.SignUpAsync(userSignUp);
-            if (!response.Success && response.Error.Code == ErrorCodes.InvalidCredentials) return Unauthorized();
+            if (!response.Success && response.Error.Code == ErrorCodes.InvalidCredentials) return BadRequest();
             if (!response.Success && response.Error.Code == ErrorCodes.AuthenticationServerCurrentlyUnavailable) return StatusCode(500);
             return Ok(response.Value);
         }
