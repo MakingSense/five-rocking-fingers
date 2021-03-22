@@ -28,7 +28,6 @@ const UserLoginSchema = yup.object().shape({
     password: yup.string()
         .trim()
         .min(8, 'Debe tener al menos 8 caracteres.')
-        .max(20, 'No puede ser mayor a 20 caracteres.')
         .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[@#$%^&+=.\-_*])(?=.*[A-Z]).{8,}$/, 'Debe incluir al menos un numero, un caracter en mayuscula y un simbolo.')
         .required('Requerido.'),
 });
