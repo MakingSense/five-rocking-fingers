@@ -35,9 +35,7 @@ namespace FRF.Web.Controllers
             if (!response.Success && response.Error.Code == ErrorCodes.InvalidCredentials) return Unauthorized();
             if (!response.Success && response.Error.Code == ErrorCodes.AuthenticationServerCurrentlyUnavailable) return StatusCode(500);
 
-            var userProfile = await _userService.GetUserPublicProfileAsync(signInDto.Email);
-            var userPublicProfile = _mapper.Map<UserProfileDTO>(userProfile.Value);
-            return Ok(userPublicProfile);
+            return Ok(response.Value);
         }
     }
 }

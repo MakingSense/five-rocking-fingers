@@ -65,7 +65,7 @@ namespace FRF.Core.Services
                 var result =
                     await _signInManager.PasswordSignInAsync(token, newUser.Password, false, false);
                 return result.Succeeded
-                    ? new ServiceResponse<string>(token.UserID)
+                    ? new ServiceResponse<string>(token.SessionTokens.IdToken)
                     : new ServiceResponse<string>(new Error(ErrorCodes.AuthenticationServerCurrentlyUnavailable, "There was an error with the Authentication service"));
             }
             catch
