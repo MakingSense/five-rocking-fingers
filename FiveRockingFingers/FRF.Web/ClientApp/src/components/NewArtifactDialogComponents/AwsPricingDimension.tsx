@@ -29,9 +29,6 @@ const useStyles = makeStyles((theme: Theme) =>
         setting: {
             display: 'block',
             width: '100%'
-        },
-        hr: {
-            margin: 0
         }
     }),
 );
@@ -115,10 +112,13 @@ const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewAr
                             { createPropertieLabel("Description", pricingDimension.description)}
                             { createPropertieLabel("Currency", pricingDimension.currency)}
                             { createPropertieLabel("Price per unit", pricingDimension.pricePerUnit.toFixed(10))}
+                            <hr />
                         </>
                         );                    
                 })}               
-                <hr/>
+                <hr style={{
+                    borderWidth: "7px",
+                }} />
             </React.Fragment>
         );
     }
