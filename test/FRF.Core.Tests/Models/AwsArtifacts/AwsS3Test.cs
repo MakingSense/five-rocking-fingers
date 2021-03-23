@@ -152,7 +152,7 @@ namespace FRF.Core.Tests.Models
                 "\"product0\":{" +
                 "\"leaseContractLength\":[]," +
                 "\"offeringClass\":[]," +
-                "\"pricingDimension\":{" +
+                "\"pricingDimensions\":{" +
                 "\"range0\":{" +
                 "\"beginRange\":\"0\"," +
                 "\"currency\":\"USD\"," +
@@ -183,7 +183,7 @@ namespace FRF.Core.Tests.Models
                 "\"product1\":{" +
                 "\"leaseContractLength\":[]," +
                 "\"offeringClass\":[]," +
-                "\"pricingDimension\":{" +
+                "\"pricingDimensions\":{" +
                 "\"range0\":{" +
                 "\"beginRange\":\"0\"," +
                 "\"currency\":\"USD\"," +
@@ -197,7 +197,7 @@ namespace FRF.Core.Tests.Models
                 "\"term\":\"OnDemand\"}," +
                 "\"product2\":{\"leaseContractLength\":[]," +
                 "\"offeringClass\":[]," +
-                "\"pricingDimension\":{" +
+                "\"pricingDimensions\":{" +
                 "\"range0\":{" +
                 "\"beginRange\":\"0\"," +
                 "\"currency\":\"USD\"," +
@@ -212,7 +212,7 @@ namespace FRF.Core.Tests.Models
                 "\"product3\":{" +
                 "\"leaseContractLength\":[]," +
                 "\"offeringClass\":[]," +
-                "\"pricingDimension\":{" +
+                "\"pricingDimensions\":{" +
                 "\"range0\":{" +
                 "\"beginRange\":\"0\"," +
                 "\"currency\":\"USD\"," +
@@ -253,7 +253,7 @@ namespace FRF.Core.Tests.Models
                 "\"leaseContractLength\":[]," +
                 "\"offeringClass\":[]," +
                 "\"purchaseOption\":[]," +
-                "\"pricingDimension\":{" +
+                "\"pricingDimensions\":{" +
                 "\"range0\":{" +
                 "\"unit\":\"GB-Mo\"," +
                 "\"endRange\":\""+ endRange1 + "\"," +
@@ -281,7 +281,7 @@ namespace FRF.Core.Tests.Models
                 "\"leaseContractLength\":[]," +
                 "\"offeringClass\":[]," +
                 "\"purchaseOption\":[]," +
-                "\"pricingDimension\":{" +
+                "\"pricingDimensions\":{" +
                 "\"range0\":{" +
                 "\"unit\":\"Requests\"," +
                 "\"endRange\":\"-1\"," +
@@ -296,7 +296,7 @@ namespace FRF.Core.Tests.Models
                 "\"leaseContractLength\":[]," +
                 "\"offeringClass\":[]," +
                 "\"purchaseOption\":[]," +
-                "\"pricingDimension\":{" +
+                "\"pricingDimensions\":{" +
                 "\"range0\":{" +
                 "\"unit\":\"Requests\"," +
                 "\"endRange\":\"-1\"," +
