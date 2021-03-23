@@ -68,15 +68,15 @@ namespace FRF.Core.Services
             var artifactType = _dataContext.ArtifactType.Where(at => at.Name.Equals(serviceCode)).SingleOrDefault();
             var jsonFormString = artifactType.RequiredFields;
             var jsonForm = JObject.Parse(jsonFormString);
-            var properties = (JObject)jsonForm["properties"];
-            foreach (var propertie in properties)
+            var titles = (JObject)jsonForm["properties"];
+            foreach (var title in titles)
             {
-                var properties2 = (JObject)propertie.Value["properties"];
-                foreach (var propertie2 in properties2)
+                var properties = (JObject)title.Value["properties"];
+                foreach (var propertie in properties)
                 {
-                    var attributeName = Regex.Replace(propertie2.Key, @"[\d-]", string.Empty);
+                    var attributeName = Regex.Replace(propertie.Key, @"[\d-]", string.Empty);
                     var attributeValues = await GetAttributeValue(attributeName, serviceCode);
-                    var enums = (JArray)propertie2.Value["enum"];
+                    var enums = (JArray)propertie.Value["enum"];
                     if(enums != null && attributeValues.Count > 0)
                     {
                         foreach (var attributeValue in attributeValues)

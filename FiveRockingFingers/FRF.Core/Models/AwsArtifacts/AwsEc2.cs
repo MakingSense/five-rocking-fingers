@@ -17,6 +17,7 @@ namespace FRF.Core.Models.AwsArtifacts
         public decimal InstancePricePerUnit0 => GetInstancePricePerUnit0();
         public decimal InstancePricePerUnit1 => GetInstancePricePerUnit1();
         public string LeaseContractLength => GetLeaseContractLength();
+        public string TermType => GetTermType();
 
         //EBS Storage properties
         public string VolumenApiName => GetVolumenApiName();
@@ -157,6 +158,12 @@ namespace FRF.Core.Models.AwsArtifacts
         private decimal GetInstancePrice()
         {
             var price = 0m;
+            
+            if(TermType.Equals(AwsEc2Descriptions.OnDemandTermType))
+            {
+                price = GetPriceNoUpfrontOrOnDemand();
+                return price;
+            }
 
             if (PurchaseOption.Equals(AwsEc2Descriptions.AllUpfront, StringComparison.InvariantCultureIgnoreCase) &&
                 LeaseContractLength.Equals(AwsEc2Descriptions.OneYear, StringComparison.InvariantCultureIgnoreCase))
@@ -184,7 +191,7 @@ namespace FRF.Core.Models.AwsArtifacts
 
             if (PurchaseOption.Equals(AwsEc2Descriptions.NoUpfront, StringComparison.InvariantCultureIgnoreCase))
             {
-                price = GetPriceNoUpfront();
+                price = GetPriceNoUpfrontOrOnDemand();
             }
 
             return price;
@@ -210,7 +217,7 @@ namespace FRF.Core.Models.AwsArtifacts
             return InstancePricePerUnit0 * HoursUsedPerMonth + InstancePricePerUnit1 / 36;
         }
 
-        private decimal GetPriceNoUpfront()
+        private decimal GetPriceNoUpfrontOrOnDemand()
         {
             return InstancePricePerUnit0 * HoursUsedPerMonth;
         }
@@ -235,10 +242,17 @@ namespace FRF.Core.Models.AwsArtifacts
 
         private decimal GetInstancePricePerUnit1()
         {
-            var instancePricePerUnit1 = GetDecimalPrice(Settings.Element(AwsEc2Descriptions.Product0)
+            var instancePricePerUnit1 = 0m;
+
+            if(Settings.Element(AwsEc2Descriptions.Product0)
+                .Element(AwsEc2Descriptions.PricingDimensions)
+                .Element(AwsEc2Descriptions.Range1) != null)
+            {
+                instancePricePerUnit1 = GetDecimalPrice(Settings.Element(AwsEc2Descriptions.Product0)
                 .Element(AwsEc2Descriptions.PricingDimensions).Element(AwsEc2Descriptions.Range1)
                 .Element(AwsEc2Descriptions.PricePerUnit)
                 .Value);
+            }            
 
             return instancePricePerUnit1;
         }
@@ -261,9 +275,18 @@ namespace FRF.Core.Models.AwsArtifacts
             return leaseContractLength;
         }
 
+        private string GetTermType()
+        {
+            var leaseContractLength = Settings.Element(AwsEc2Descriptions.TermType).Value;
+
+            leaseContractLength = leaseContractLength.Replace(" ", "");
+
+            return leaseContractLength;
+        }
+
         private string GetVolumenApiName()
         {
-            var volumenApiName = Settings.Element(AwsEc2Descriptions.Product1).Element(AwsEc2Descriptions.VolumeApiName).Value;
+            var volumenApiName = Settings.Element(AwsEc2Descriptions.VolumeApiName).Value;
 
             return volumenApiName;
         }

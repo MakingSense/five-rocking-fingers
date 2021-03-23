@@ -5,9 +5,11 @@ using FRF.Core.Base;
 using FRF.Core.Models;
 using FRF.Core.Response;
 using FRF.Core.Services;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Moq;
 using Moq.Protected;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
@@ -25,6 +27,8 @@ namespace FRF.Core.Tests.Services
         private readonly AwsArtifactsProviderService _classUnderTest;
         private readonly Mock<IHttpClientFactory> _httpClientFactory;
         private readonly Mock<AmazonPricingClient> _client;
+        private readonly DataAccessContextForTest _dataAccess;
+        private readonly Mock<IConfiguration> _configuration;
 
         public AwsArtifactsProviderServiceTest()
         {
@@ -34,7 +38,12 @@ namespace FRF.Core.Tests.Services
             _httpClientFactory = new Mock<IHttpClientFactory>();
             _client = new Mock<AmazonPricingClient>("[Mock] Key 1", "[Mock] Key 2", RegionEndpoint.USEast1);
             var httpClientFactory = _httpClientFactory.Object;
-            _classUnderTest = new AwsArtifactsProviderService(_awsApi, httpClientFactory, _client.Object);
+            _configuration = new Mock<IConfiguration>();
+            _dataAccess = new DataAccessContextForTest(Guid.NewGuid(), _configuration.Object);
+
+            _dataAccess.Database.EnsureDeleted();
+            _dataAccess.Database.EnsureCreated();
+            _classUnderTest = new AwsArtifactsProviderService(_awsApi, httpClientFactory, _client.Object, _dataAccess);
         }
 
         [Fact]
