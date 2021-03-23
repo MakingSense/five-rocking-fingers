@@ -1,5 +1,4 @@
 import * as React from 'react';
-import NavMenu from '../../commons/NavMenu';
 import ArtifactsRelationTable from './ArtifactsRelationTable';
 import { RouteComponentProps } from 'react-router';
 
@@ -14,10 +13,7 @@ const ArtifactsDetails = ({ match }: RouteComponentProps<TParams>) => {
     let artifactId = parseInt(match.params.artifactId, 10);
 
     return (
-        <div className='content'>
-            <NavMenu />
-            <ArtifactsRelationTable artifactId={artifactId} projectId={projectId} />
-        </div>
+      <ArtifactsRelationTable artifactId={artifactId} projectId={projectId} />
     );
 }
 

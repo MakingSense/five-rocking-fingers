@@ -37,43 +37,24 @@ namespace FRF.Web.Tests.Controllers
             };
         }
 
-        private UsersProfile CreateUserProfile(Guid userId)
-        {
-            return new UsersProfile
-            {
-                Email = "mock@email.moq",
-                Fullname = "John Doe",
-                UserId = userId,
-                Avatar = null
-            };
-        }
-
         [Fact]
-        public async Task SignIn_WhenAreValidCredentials_ReturnUserProfile()
+        public async Task SignIn_WhenAreValidCredentials_ReturnUserToken()
         {
             // Arrange
             var signInDto = CreateSignInDto();
-            var userId = Guid.NewGuid();
-            var userProfile = CreateUserProfile(userId);
+            var userSessionToken = "mock.session.token";
 
             _signInService
                 .Setup(mock => mock.SignInAsync(It.IsAny<UserSignIn>()))
-                .ReturnsAsync(new ServiceResponse<string>(userId.ToString()));
-            _userService
-                .Setup(mock => mock.GetUserPublicProfileAsync(signInDto.Email))
-                .ReturnsAsync(new ServiceResponse<UsersProfile>(userProfile));
+                .ReturnsAsync(new ServiceResponse<string>(userSessionToken));
 
             // Act
             var response = await _classUnderTest.SignIn(signInDto);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(response);
-            var resultValue = Assert.IsType<UserProfileDTO>(okResult.Value);
-            Assert.Equal(signInDto.Email, resultValue.Email);
-            Assert.Equal(userProfile.Fullname, resultValue.Fullname);
-            Assert.Equal(userId, resultValue.UserId);
+            Assert.Equal(userSessionToken, okResult.Value);
             _signInService.Verify(mock => mock.SignInAsync(It.IsAny<UserSignIn>()), Times.Once);
-            _userService.Verify(mock => mock.GetUserPublicProfileAsync(It.IsAny<string>()), Times.Once);
         }
 
         [Fact]

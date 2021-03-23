@@ -12,7 +12,6 @@ import ArtiactsRelation from '../components/NewArtifactRelationComponents/Artifa
 const Routes = () => (
     <Switch>
         <Redirect exact from="/" to="/home" />
-        <Route exact path='/' component={Home} />
         <Route exact path="/login" component={Login} />
         <Route exact path="/signup" component={Signup} />
         <PrivateRoute exact path="/home" component={Home} />

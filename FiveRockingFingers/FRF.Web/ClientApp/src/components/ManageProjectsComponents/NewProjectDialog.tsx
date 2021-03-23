@@ -12,9 +12,9 @@ import UserProfile from '../../interfaces/UserProfile';
 import ProjectService from '../../services/ProjectService';
 import UserService from '../../services/UserService';
 import { HelperAddUser } from "./HelperAddUser";
-import { useUserContext } from "../auth/contextLib";
 import ManageCategories from "./ManageCategories";
 import { ValidateEmail } from "./ValidateEmail";
+import { useUser } from '../../commons/useUser';
 
 const useStyles = makeStyles({
     inputF: {
@@ -39,7 +39,7 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
     const [fieldEmail, setFieldEmail] = React.useState<string | null>("")
     const [selectedCategories, setSelectedCategories] = React.useState([] as Category[]);
     const classes = useStyles();
-    const { currentUser } = useUserContext();
+    const { user }  = useUser();
 
     const { register, handleSubmit, errors } = useForm();
 
@@ -89,7 +89,7 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
             switch (response.status) {
                 case 200:
                     let newUserList: UserProfile[] | null;
-                    newUserList = HelperAddUser(response.data, state.users, emailField, props.openSnackbar,currentUser);
+                    newUserList = HelperAddUser(response.data, state.users, emailField, props.openSnackbar,user!.userId);
                     if (newUserList != null) setState({ ...state, users: newUserList });
                     break;
                 case 404:

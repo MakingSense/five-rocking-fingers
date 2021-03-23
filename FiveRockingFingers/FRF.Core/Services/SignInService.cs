@@ -3,6 +3,8 @@ using FRF.Core.Models;
 using FRF.Core.Response;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace FRF.Core.Services
 {
@@ -35,7 +37,7 @@ namespace FRF.Core.Services
                 var result = await _signInManager.PasswordSignInAsync(token, userPassword,
                     userSignIn.RememberMe, lockoutOnFailure: false);
                 return result.Succeeded
-                    ? new ServiceResponse<string>(token.UserID)
+                    ? new ServiceResponse<string>(token.SessionTokens.IdToken)
                     : new ServiceResponse<string>(new Error(ErrorCodes.InvalidCredentials, "There was an error with your email and/or password"));
             }
             catch

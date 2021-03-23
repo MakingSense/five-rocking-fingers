@@ -10,8 +10,8 @@ import { LoadingButton } from '../../commons/LoadingButton';
 import SnackbarMessage from '../../commons/SnackbarMessage';
 import SnackbarSettings from '../../interfaces/SnackbarSettings';
 import "./authStyle.css";
-import { useUserContext } from "./contextLib";
 import { BASE_URL } from '../../Constants';
+import { useUser } from '../../commons/useUser'
 
 interface userLogin {
     email: string;
@@ -28,14 +28,13 @@ const UserLoginSchema = yup.object().shape({
     password: yup.string()
         .trim()
         .min(8, 'Debe tener al menos 8 caracteres.')
-        .max(20, 'No puede ser mayor a 20 caracteres.')
         .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[@#$%^&+=.\-_*])(?=.*[A-Z]).{8,}$/, 'Debe incluir al menos un numero, un caracter en mayuscula y un simbolo.')
         .required('Requerido.'),
 });
 
-const Login: React.FC<userLogin> = () => {
+const Login = () => {
     const history = useHistory();
-    const { setCurrentUser } = useUserContext();
+    const { storeUser, cleanUserStorage } = useUser();
     const { register, handleSubmit, errors, reset } = useForm<userLogin>({ resolver: yupResolver(UserLoginSchema) });
     const [loading, setLoading] = React.useState(false);
     const [snackbarSettings, setSnackbarSettings] = React.useState<SnackbarSettings>({ message: "", severity: undefined });
@@ -56,17 +55,20 @@ const Login: React.FC<userLogin> = () => {
             })
             .then(response => {
                 if (response.status === 200) {
-                    setCurrentUser(response.data);
+                    const currentUser = JSON.stringify(response.data);
+                    storeUser(currentUser,e.rememberMe);
                     history.push("/home");
                 }
             })
             .catch(error => {
-                if (error.response.status === 400) {
+                if (error.response.status === 401) {
+                    cleanUserStorage();
                     manageOpenSnackbar({ message: "Error al iniciar sesion! Correo electrónico o contraseña no válidos.", severity: "error" });
                     setLoading(false);
                     reset();
                 }
                 else {
+                    cleanUserStorage();
                     manageOpenSnackbar({ message: "Error al iniciar sesion!", severity: "error" });
                     setLoading(false);
                     reset();
