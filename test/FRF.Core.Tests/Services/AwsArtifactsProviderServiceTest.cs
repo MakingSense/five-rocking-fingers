@@ -486,7 +486,8 @@ namespace FRF.Core.Tests.Services
                 new KeyValuePair<string, string>("volumeApiName", "gp2"),
                 new KeyValuePair<string, string>("transferType1", "IntraRegion"),
                 new KeyValuePair<string, string>("fromLocation1", "US West (N. California)"),
-                new KeyValuePair<string, string>("toLocation1", "US West (N. California)")
+                new KeyValuePair<string, string>("toLocation1", "US West (N. California)"),
+                new KeyValuePair<string, string>("termType", "OnDemand")
             };
 
             _client

@@ -77,7 +77,7 @@ namespace FRF.Core.Services
                     var attributeName = Regex.Replace(propertie.Key, @"[\d-]", string.Empty);
                     var attributeValues = await GetAttributeValue(attributeName, serviceCode);
                     var enums = (JArray)propertie.Value["enum"];
-                    if(enums != null && attributeValues.Count > 0)
+                    if(enums != null && enums.Count == 0 && attributeValues.Count > 0)
                     {
                         foreach (var attributeValue in attributeValues)
                         {
@@ -204,18 +204,20 @@ namespace FRF.Core.Services
             foreach (var (key, value) in settings)
             {
                 var storageFilter = new Filter {Field = key, Type = "TERM_MATCH", Value = value};
-
-                storageFilters.Add(storageFilter);
+                
                 switch (key)
                 {
                     case AwsS3Descriptions.Location:
                         locationFilter.Value = value;
+                        storageFilters.Add(storageFilter);
                         break;
                     case AwsS3Descriptions.StorageClass:
                         storageClassFilter.Value = value;
+                        storageFilters.Add(storageFilter);
                         break;
                     case AwsS3Descriptions.VolumeType:
                         volumeTypeFilter.Value = value;
+                        storageFilters.Add(storageFilter);
                         break;
                 }
             }

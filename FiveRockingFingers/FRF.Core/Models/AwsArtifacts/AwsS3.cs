@@ -33,9 +33,9 @@ namespace FRF.Core.Models.AwsArtifacts
             var doc = new XmlDocument();
             if (Settings.Element("product0") == null) return 0;
 
-            doc.LoadXml(Settings.Element("product0").Element("pricingDimension").ToString());
+            doc.LoadXml(Settings.Element("product0").Element("pricingDimensions").ToString());
             var priceDimensionsJson = JsonConvert.SerializeXmlNode(doc);
-            var pricingDimensionsJToken = JObject.Parse(priceDimensionsJson).SelectToken("pricingDimension").ToObject<JObject>().Properties().ToList(); ;
+            var pricingDimensionsJToken = JObject.Parse(priceDimensionsJson).SelectToken("pricingDimensions").ToObject<JObject>().Properties().ToList(); ;
             foreach (var jtoken in pricingDimensionsJToken)
             {
                 var name = jtoken.Name;
@@ -67,7 +67,7 @@ namespace FRF.Core.Models.AwsArtifacts
         {
             if (product == null) return -1;
 
-            var pricePerUnit = Settings.Element($"{product}").Element("pricingDimension").Element("range0")
+            var pricePerUnit = Settings.Element($"{product}").Element("pricingDimensions").Element("range0")
                 .Element("pricePerUnit")
                 .Value;
             if (decimal.TryParse(pricePerUnit, NumberStyles.AllowExponent, CultureInfo.InvariantCulture,
