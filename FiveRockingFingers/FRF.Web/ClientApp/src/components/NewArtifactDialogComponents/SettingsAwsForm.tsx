@@ -1,9 +1,6 @@
-﻿import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormHelperText, InputLabel, MenuItem, Select } from '@material-ui/core';
+﻿import { Button, CircularProgress, Dialog, DialogContent } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import Typography from '@material-ui/core/Typography';
 import * as React from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import ProviderArtifactSetting from '../../interfaces/ProviderArtifactSetting';
 import Setting from '../../interfaces/Setting';
 import KeyValueStringPair from '../../interfaces/KeyValueStringPair';
 import AwsArtifactService from '../../services/AwsArtifactService';
@@ -39,12 +36,10 @@ const SettingsAwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifa
 
     const classes = useStyles();
     const Form = withTheme(MaterialUITheme);
-    const { handleSubmit, errors, setError, clearErrors, control } = useForm();
     const { showNewArtifactDialog, closeNewArtifactDialog, name } = props;
 
     //Hook for save the user's settings input
     const [loading, setLoading] = React.useState<Boolean>(true);
-    const [awsSettingsList, setAwsSettingsList] = React.useState<KeyValueStringPair[]>([]);
 
     const [schema, setSchema] = React.useState<object>({});
 
@@ -73,36 +68,19 @@ const SettingsAwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifa
 
     //Create the artifact after submit
     const handleConfirm = async (data: any) => {
-        /*let awsSettingsListFiltered = awsSettingsList.filter(awsSetting => awsSetting !== undefined && awsSetting !== null && awsSetting.value !== "");
-        console.log(awsSettingsListFiltered);
-        props.setSettingsList(awsSettingsListToSettingsList(awsSettingsListFiltered));
-        props.setAwsSettingsList(awsSettingsListFiltered);
-        props.handleNextStep();*/
-        console.log(data.formData);
         let formData: Object = data.formData;
         let awsSettingsListAux: KeyValueStringPair[] = [];
 
         Object.entries(formData).forEach(([key, value]) => {
             let sectionData: Object = value;
-            console.log(sectionData);
             Object.entries(sectionData).forEach(([key, value], index) => {
                 let newSetting = { key: key, value: value };
                 awsSettingsListAux.push(newSetting);                
             });
         });
-        setAwsSettingsList(awsSettingsListAux);
-        //let awsSettingsListFiltered = awsSettingsList.filter(awsSetting => awsSetting !== undefined && awsSetting !== null && awsSetting.value !== "");
-        console.log(awsSettingsListAux);
         props.setSettingsList(awsSettingsListToSettingsList(awsSettingsListAux));
         props.setAwsSettingsList(awsSettingsListAux);
         props.handleNextStep();
-    }
-
-    //Handle changes in the inputs fields
-    const handleInputChange = (artifactSettingKey: string, artifactSettingValue: string, index: number) => {
-        let awsSettingListCopy = [...awsSettingsList];
-        awsSettingListCopy[index] = { key: artifactSettingKey, value: artifactSettingValue };
-        setAwsSettingsList(awsSettingListCopy);
     }
 
     const awsSettingsListToSettingsList = (awsSettingsListFiltered: KeyValueStringPair[]) => {
@@ -112,14 +90,6 @@ const SettingsAwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifa
             settingsList.push(setting);
         });
         return settingsList;
-    }
-
-    const isOneValueCompleted = () => {
-        let awsSettingsListFiltered = awsSettingsList.filter(awsSetting => awsSetting !== undefined && awsSetting !== null && awsSetting.value !== "");
-        if (awsSettingsListFiltered.length !== 0) {
-            return true;
-        }
-        return false;
     }
 
     const handleCancel = () => {

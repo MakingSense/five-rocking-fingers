@@ -1,23 +1,18 @@
-﻿import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormHelperText, InputLabel, MenuItem, Radio, RadioGroup, Select } from '@material-ui/core';
+﻿import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import * as React from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import ProviderArtifactSetting from '../../interfaces/ProviderArtifactSetting';
+import { useForm } from 'react-hook-form';
 import Setting from '../../interfaces/Setting';
 import KeyValueStringPair from '../../interfaces/KeyValueStringPair';
 import PricingTerm from '../../interfaces/PricingTerm';
-import ArtifactService from '../../services/ArtifactService';
 import AwsArtifactService from '../../services/AwsArtifactService';
-import PricingDimension from '../../interfaces/PricingDimension';
 import { useSettingsCreator } from './useSettingsCreator';
 
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         container: {
-            display: 'flex',
-            flexWrap: 'wrap',
         },
         formControl: {
             margin: theme.spacing(1),
@@ -30,6 +25,13 @@ const useStyles = makeStyles((theme: Theme) =>
         circularProgress: {
             width: '30%',
             margin: 'auto'
+        },
+        setting: {
+            display: 'block',
+            width: '100%'
+        },
+        hr: {
+            margin: 0
         }
     }),
 );
@@ -37,7 +39,7 @@ const useStyles = makeStyles((theme: Theme) =>
 const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, name: string | null, handleNextStep: Function, handlePreviousStep: Function, settingsList: Setting[], setSettingsList: Function, settingsMap: { [key: string]: number[] }, setSettingsMap: Function, awsSettingsList: KeyValueStringPair[], settings: object, setSettings: Function, setAwsPricingTerm: Function, setSnackbarSettings: Function, setOpenSnackbar: Function }) => {
 
     const classes = useStyles();
-    const { handleSubmit, control } = useForm();
+    const { handleSubmit } = useForm();
     const { showNewArtifactDialog, closeNewArtifactDialog, name, awsSettingsList } = props;
 
     const { createPricingTermSettings } = useSettingsCreator();
@@ -56,7 +58,6 @@ const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewAr
                 setLoading(true);
                 const response = await AwsArtifactService.GetProductsAsync(name, awsSettingsList);
                 if (response.status === statusOk) {
-                    console.log(response.data);
                     setPricingDimensionList(response.data);
                     setLoading(false);
                 }
@@ -91,9 +92,12 @@ const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewAr
     const createPropertieLabel = (propertie: string, value: string | null) => {
         if (value === null) return null;
         return (
-            <Typography gutterBottom>
-                {propertie}: {value}
-            </Typography>
+            <>
+                <Typography gutterBottom className={classes.setting}>
+                    {propertie}: {value}
+                </Typography>
+            </>
+            
         );
     }
 
@@ -101,13 +105,19 @@ const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewAr
         return (
             <React.Fragment>
                 {createPropertieLabel("Product", pricingTerm.product)}
-                {createPropertieLabel("Unit", pricingTerm.pricingDimensions[0].unit)}
-                {createPropertieLabel("Lease Contract Length", pricingTerm.leaseContractLength)}
-                {createPropertieLabel("Purchase Option", pricingTerm.purchaseOption)}
-                {createPropertieLabel("Description", pricingTerm.pricingDimensions[0].description)}
-                {createPropertieLabel("Currency", pricingTerm.pricingDimensions[0].currency)}
-                {createPropertieLabel("Price per unit", pricingTerm.pricingDimensions[0].pricePerUnit.toFixed(10))}
                 {createPropertieLabel("Term", pricingTerm.term)}
+                {createPropertieLabel("Purchase Option", pricingTerm.purchaseOption)}
+                {createPropertieLabel("Lease Contract Length", pricingTerm.leaseContractLength)}
+                {pricingTerm.pricingDimensions.map(pricingDimension => {
+                    return (
+                        <>
+                            { createPropertieLabel("Unit", pricingDimension.unit)}
+                            { createPropertieLabel("Description", pricingDimension.description)}
+                            { createPropertieLabel("Currency", pricingDimension.currency)}
+                            { createPropertieLabel("Price per unit", pricingDimension.pricePerUnit.toFixed(10))}
+                        </>
+                        );                    
+                })}               
                 <hr/>
             </React.Fragment>
         );
@@ -126,7 +136,7 @@ const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewAr
             <DialogTitle id="alert-dialog-title">Formulario de artefactos AWS</DialogTitle>
             <DialogContent>
                 <Typography gutterBottom>
-                    A continuación ingrese alguna de las opciones para adquirir su artefacto AWS
+                    A continuación se muestra la opción que provee AWS, según sus especificaciones
                 </Typography>
                 <form className={classes.container}>
                     {loading ?
