@@ -24,6 +24,27 @@ namespace FRF.Core
         public const string ToLocationType = "toLocationType";
         public const string FromLocationType = "fromLocationType";
         public const string ProductFamily = "productFamily";
+        public const string HoursUsedPerMonth = "hoursUsedPerMonth";
+        public const string NumberOfGbStorageInEbs = "numberOfGbStorageInEbs";
+        public const string NumberOfSnapshotsPerMonth = "numberOfSnapshotsPerMonth";
+        public const string NumberOfGbChangedPerSnapshot = "numberOfGbChangedPerSnapshot";
+        public const string NumberOfIopsPerMonth = "numberOfIopsPerMonth";
+        public const string NumberOfMbpsThroughput = "numberOfMbpsThroughput";
+
+        public const string TransferType1 = "transferType1";
+        public const string FromLocation1 = "fromLocation1";
+        public const string ToLocation1 = "toLocation1";
+
+        public const string TransferType2 = "transferType2";
+        public const string FromLocation2 = "fromLocation2";
+        public const string ToLocation2 = "toLocation2";
+
+        public const string TransferType3 = "transferType3";
+        public const string FromLocation3 = "fromLocation3";
+        public const string ToLocation3 = "toLocation3";
+
+        public const string OnDemandTermType = "OnDemand";
+
 
         //General
         public const string ServiceValue = "AmazonEC2";
@@ -59,5 +80,31 @@ namespace FRF.Core
         //Free tier
         public const decimal FreeTierGp3Iops = 3000m;
         public const decimal FreeTierGp3Throughput = 125m;
+
+        //Term attributes constants
+        public const string AllUpfront = "AllUpfront";
+        public const string PartialUpfront = "PartialUpfront";
+        public const string NoUpfront = "NoUpfront";
+        public const string OneYear = "1yr";
+        public const string ThreeYears = "3yr";
+        public const string PurchaseOption = "purchaseOption";
+        public const string LeaseContractLength = "leaseContractLength";
+        public const string TermType = "termType";
+        public const string OfferingClass = "offeringClass";
+        public const string PurchaseOptionUpper = "PurchaseOption";
+        public const string LeaseContractLengthUpper = "LeaseContractLength";
+        public const string OfferingClassUpper = "OfferingClass";
+
+
+        //XML nodes names
+        public const string Product0 = "product0";
+        public const string Product1 = "product1";
+        public const string Product2 = "product2";
+        public const string Product3 = "product3";
+        public const string Product4 = "product4";
+        public const string Range0 = "range0";
+        public const string Range1 = "range1";
+        public const string PricePerUnit = "pricePerUnit";
+        public const string PricingDimensions = "pricingDimensions";
     }
 }

@@ -7,6 +7,7 @@ import AddCircleIcon from '@material-ui/icons/AddCircle';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Setting from '../../interfaces/Setting';
 import Artifact from '../../interfaces/Artifact';
+import ArtifactRelation from '../../interfaces/ArtifactRelation';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -30,13 +31,12 @@ const EditArtifact = (props: {
     closeEditArtifactDialog: Function,
     setIsArtifactEdited: Function,
     setArtifactEdited: Function,
-    setNamesOfSettingsChanged: Function }) => {
+    setNamesOfSettingsChanged: Function,
+    artifactsRelations: ArtifactRelation[]}) => {
 
     const classes = useStyles();
     const { register, handleSubmit, errors, setError, clearErrors, control } = useForm();
     const { closeEditArtifactDialog } = props;
-
-
 
     const createSettingsListFromArtifact = () => {
         let settingsListFromArtifact: Setting[] = [];
@@ -248,6 +248,23 @@ const EditArtifact = (props: {
         return settingsObject;
     }
 
+    const isSettingAtTheEndOfAnyRelation = (settingName: string) => {
+        const flag: ArtifactRelation | undefined = props.artifactsRelations
+            .find((relation) =>
+                isSettingAtTheEndOfRelation(settingName, relation));
+
+        return flag === undefined ? false : true;
+    }
+
+    const isSettingAtTheEndOfRelation = (settingName: string, relation: ArtifactRelation) => {
+        if (relation.relationTypeId === 0) {
+            return relation.artifact2Property === settingName;
+        }
+        else {
+            return relation.artifact1Property === settingName;
+        }
+    }
+
     return (
         <>
             <DialogTitle id="alert-dialog-title">Formulario de actualización de artefactos custom</DialogTitle>
@@ -345,6 +362,7 @@ const EditArtifact = (props: {
                                             className={classes.inputF}
                                             onChange={event => { handleInputChange(event, index); onChange(event); }}
                                             autoComplete='off'
+                                            disabled={isSettingAtTheEndOfAnyRelation(setting.name)}
                                         />
                                     )}
                                 />
