@@ -70,6 +70,7 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
                     new XElement("numberOfGbChangedPerSnapshot", 3),
                     new XElement("numberOfGbTransfer1", 1024),
                     new XElement("numberOfGbTransfer2", 1024),
+                    new XElement("volumeApiName", "gp2"),
                     new XElement("product0",                                                
                         new XElement("leaseContractLength", "3 yr"),
                         new XElement("purchaseOption", "Partial Upfront"),
@@ -82,8 +83,7 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
                             )
                         )
                     ),
-                    new XElement("product1",                        
-                        new XElement("volumeApiName", "gp2"),
+                    new XElement("product1",                       
                         new XElement("pricingDimensions",
                             new XElement("range0",
                                 new XElement("pricePerUnit", 0.1200000000)
@@ -131,6 +131,7 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
                     new XElement("numberOfMbpsThroughput", 225),
                     new XElement("numberOfGbTransfer1", 1024),
                     new XElement("numberOfGbTransfer2", 1024),
+                    new XElement("volumeApiName", "gp3"),
                     new XElement("product0",                        
                         new XElement("leaseContractLength", "3 yr"),
                         new XElement("purchaseOption", "Partial Upfront"),
@@ -143,8 +144,7 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
                             )
                         )
                     ),
-                    new XElement("product1",                        
-                        new XElement("volumeApiName", "gp3"),
+                    new XElement("product1",
                         new XElement("pricingDimensions",
                             new XElement("range0",
                                 new XElement("pricePerUnit", 0.096)
@@ -206,6 +206,7 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
                     new XElement("numberOfIopsPerMonth", 4000),
                     new XElement("numberOfGbTransfer1", 1024),
                     new XElement("numberOfGbTransfer2", 1024),
+                    new XElement("volumeApiName", "io1"),
                     new XElement("product0",                        
                         new XElement("leaseContractLength", "3 yr"),
                         new XElement("purchaseOption", "Partial Upfront"),
@@ -219,7 +220,6 @@ namespace FRF.Core.Tests.Models.AwsArtifacts
                         )
                     ),
                     new XElement("product1",                        
-                        new XElement("volumeApiName", "io1"),
                         new XElement("pricingDimensions",
                             new XElement("range0",
                                 new XElement("pricePerUnit", 0.138)
