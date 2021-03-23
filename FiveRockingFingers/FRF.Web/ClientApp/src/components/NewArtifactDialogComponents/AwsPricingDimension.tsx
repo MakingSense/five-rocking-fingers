@@ -10,6 +10,7 @@ import PricingTerm from '../../interfaces/PricingTerm';
 import ArtifactService from '../../services/ArtifactService';
 import AwsArtifactService from '../../services/AwsArtifactService';
 import PricingDimension from '../../interfaces/PricingDimension';
+import { useSettingsCreator } from './useSettingsCreator';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -39,6 +40,8 @@ const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewAr
     const { handleSubmit, control } = useForm();
     const { showNewArtifactDialog, closeNewArtifactDialog, name, awsSettingsList } = props;
 
+    const { createPricingTermSettings } = useSettingsCreator();
+
     const [loading, setLoading] = React.useState<Boolean>(true);
     const [awsPricingDimensionList, setPricingDimensionList] = React.useState<PricingTerm[]>([]);
 
@@ -53,6 +56,7 @@ const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewAr
                 setLoading(true);
                 const response = await AwsArtifactService.GetProductsAsync(name, awsSettingsList);
                 if (response.status === statusOk) {
+                    console.log(response.data);
                     setPricingDimensionList(response.data);
                     setLoading(false);
                 }
@@ -66,44 +70,22 @@ const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewAr
     }
 
     //Create the artifact after submit
-    const handleConfirm = async (data: { term: number }) => {
-        if (data.term === null || data.term === undefined) return;
-        props.setAwsPricingTerm(awsPricingDimensionList[data.term]);
-        props.setSettings({ settings: createSettingsObject(data.term) });
+    const handleConfirm = async () => {
+        if (!props.name) return;
+        props.setSettings({ settings: createSettings(props.name) });
         props.handleNextStep();
     }
 
-    const createSettingsObject = (index: number) => {
+    const createSettings = (serviceCode: string) => {
         let settingFinalObject: object = {};
         let settingsObject: { [key: string]: string } = {};
 
         for (let i = 0; i < props.settingsList.length; i++) {
             settingsObject[props.settingsList[i].name] = props.settingsList[i].value;
         }
-        Object.assign(settingFinalObject, settingsObject, createPricingTermObject(index));
+        Object.assign(settingFinalObject, settingsObject, createPricingTermSettings(serviceCode, awsPricingDimensionList));
 
         return settingFinalObject;
-    }
-
-    const createPricingTermObject = (index: number) => {
-        let awsPricingDimension = awsPricingDimensionList[index];
-        let pricingTermObject: { sku: string, term: string, leaseContractLength: string, offeringClass: string, purchaseOption: string, pricingDimension: { [key: string]: PricingDimension }} = {
-            sku: awsPricingDimension.sku,
-            term: awsPricingDimension.term,
-            leaseContractLength: awsPricingDimension.leaseContractLength,
-            offeringClass: awsPricingDimension.offeringClass,
-            purchaseOption: awsPricingDimension.purchaseOption,
-            pricingDimension: {}
-        };
-        let pricingDimensionObject: { [key: string]: PricingDimension } = {};
-
-        awsPricingDimension.pricingDimensions.forEach((pricingDimension, i) => {
-            pricingDimensionObject[`range${i}`] = pricingDimension;
-        });
-
-        pricingTermObject.pricingDimension = pricingDimensionObject;
-
-        return pricingTermObject;
     }
 
     const createPropertieLabel = (propertie: string, value: string | null) => {
@@ -118,6 +100,7 @@ const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewAr
     const pricingTermToString = (pricingTerm: PricingTerm) => {
         return (
             <React.Fragment>
+                {createPropertieLabel("Product", pricingTerm.product)}
                 {createPropertieLabel("Unit", pricingTerm.pricingDimensions[0].unit)}
                 {createPropertieLabel("Lease Contract Length", pricingTerm.leaseContractLength)}
                 {createPropertieLabel("Purchase Option", pricingTerm.purchaseOption)}
@@ -154,22 +137,11 @@ const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewAr
                             <Typography gutterBottom>
                                 Lo sentimos, no hay productos según las especificaciones seleccionadas
                             </Typography> :
-                            <Controller
-                                as={
-
-                                    <RadioGroup aria-label="term" name="term">
-                                        {awsPricingDimensionList.map((awsPricingTerm: PricingTerm, index: number) => {
-                                            return (
-                                                <FormControlLabel key={index} value={String(index)} control={<Radio />} label={pricingTermToString(awsPricingTerm)} />
-                                            );
-                                        })}
-                                    </RadioGroup>
-                                }
-                                name="term"
-                                rules={{ required: true }}
-                                control={control}
-                                defaultValue={''}
-                            />                   
+                            awsPricingDimensionList.map((awsPricingTerm: PricingTerm, index: number) => {
+                                return (
+                                    pricingTermToString(awsPricingTerm)
+                                    );
+                            })                
                     }
                 </form>
 
