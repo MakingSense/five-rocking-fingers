@@ -37,6 +37,19 @@ export const useSettingsCreator = () => {
 		return amazonEc2Settings;
 	};
 
+	const createAmazonS3Settings = (awsPricingDimensionList: PricingTerm[]): object => {
+		let amazonS3Settings = {};
+
+		awsPricingDimensionList.forEach((awsPricingDimension, index) => {
+
+			let settings = createPricingTermObject(`product${index}`, awsPricingDimension);			
+
+			Object.assign(amazonS3Settings, amazonS3Settings, settings);
+		});
+
+		return amazonS3Settings;
+	};
+
 	const createPricingTermObject = (productName: string, awsPricingDimension: PricingTerm): { [product: string]: { sku: string, term: string, leaseContractLength: string, offeringClass: string, purchaseOption: string, pricingDimensions: { [key: string]: PricingDimension } } } => {
 		let pricingTermObject: { [product: string]: { sku: string, term: string, leaseContractLength: string, offeringClass: string, purchaseOption: string, pricingDimensions: { [key: string]: PricingDimension } } } = {};
 
@@ -66,6 +79,9 @@ export const useSettingsCreator = () => {
 		switch (serviceCode) {
 			case 'AmazonEC2':
 				pricingTermSetting = createAmazonEc2Settings(awsPricingDimensionList);
+				break;
+			case 'AmazonS3':
+				pricingTermSetting = createAmazonS3Settings(awsPricingDimensionList);
 				break;
 		}
 
