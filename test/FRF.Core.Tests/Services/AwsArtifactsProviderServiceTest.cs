@@ -145,6 +145,11 @@ namespace FRF.Core.Tests.Services
 
             await _dataAccess.Providers.AddAsync(provider);
 
+            var principalPropertie = "principalPropertie";
+            var propertiesJsonElement = "properties";
+            var propertieName = "propertie1";
+            var enumJsonElement = "enum";
+
             var artifactType = new DataAccess.EntityModels.ArtifactType
             {
                 Name = serviceCode,
@@ -155,15 +160,15 @@ namespace FRF.Core.Tests.Services
                 "\"description\":\"Description\"," +
                 "\"type\":\"object\"," +
                 "\"properties\":{" +
-                "\"principalPropertie\":{" +
+                "\"" + principalPropertie + "\":{" +
                 "\"title\":\"principalPropertieTitle\"," +
                 "\"description\":\"Description\"," +
                 "\"type\":\"object\"," +
-                "\"properties\":{" +
-                "\"propertie1\":{" +
+                "\"" + propertiesJsonElement + "\":{" +
+                "\"" + propertieName + "\":{" +
                 "\"title\":\"propertie1Title\"," +
                 "\"type\":\"string\"," +
-                "\"enum\":[]}}}}}"
+                "\"" + enumJsonElement + "\":[]}}}}}"
             };
 
             await _dataAccess.ArtifactType.AddAsync(artifactType);
@@ -184,8 +189,8 @@ namespace FRF.Core.Tests.Services
             Assert.IsType<ServiceResponse<JObject>>(result);
             Assert.True(result.Success);
             var resultValue = result.Value;
-            var propertie1 = (JObject)resultValue.SelectToken("properties.principalPropertie.properties.propertie1");
-            var enums = (JArray)propertie1["enum"];
+            var propertie1 = (JObject)resultValue.SelectToken($"{propertiesJsonElement}.{principalPropertie}.{propertiesJsonElement}.{propertieName}");
+            var enums = (JArray)propertie1[enumJsonElement];
             Assert.Equal(enums[0].ToString(), attributeValue.Value);
         }
 
