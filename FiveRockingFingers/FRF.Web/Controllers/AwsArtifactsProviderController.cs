@@ -55,10 +55,10 @@ namespace FRF.Web.Controllers
             return Ok(products);
         }
 
-        [HttpGet("require-fields")]
-        public async Task<IActionResult> GetRequireFildsAsync(string serviceCode)
+        [HttpGet("required-fields")]
+        public async Task<IActionResult> GetRequiredFieldsAsync(string serviceCode)
         {
-            var response = await _artifactsProviderService.GetRequireFildsAsync(serviceCode);
+            var response = await _artifactsProviderService.GetRequiredFieldsAsync(serviceCode);
             return Ok(response.Value);
         }
     }
