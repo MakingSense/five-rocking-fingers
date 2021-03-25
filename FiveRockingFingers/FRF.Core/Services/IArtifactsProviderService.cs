@@ -14,6 +14,6 @@ namespace FRF.Core.Services
         Task<ServiceResponse<List<KeyValuePair<string, string>>>> GetNamesAsync();
         Task<ServiceResponse<List<ProviderArtifactSetting>>> GetAttributesAsync(string serviceCode);
         Task<ServiceResponse<List<PricingTerm>>> GetProductsAsync(List<KeyValuePair<string, string>> settings, string serviceCode);
-        Task<ServiceResponse<JObject>> GetRequireFildsAsync(string serviceCode);
+        Task<ServiceResponse<JObject>> GetRequiredFieldsAsync(string serviceCode);
     }
 }

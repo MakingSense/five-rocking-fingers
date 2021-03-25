@@ -63,7 +63,7 @@ namespace FRF.Core.Services
             return new ServiceResponse<List<KeyValuePair<string, string>>>(artifactsNames.ToList());
         }
 
-        public async Task<ServiceResponse<JObject>> GetRequireFildsAsync(string serviceCode)
+        public async Task<ServiceResponse<JObject>> GetRequiredFieldsAsync(string serviceCode)
         {
             var artifactType = _dataContext.ArtifactType.Where(at => at.Name.Equals(serviceCode)).SingleOrDefault();
             var jsonFormString = artifactType.RequiredFields;
