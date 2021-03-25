@@ -20,7 +20,7 @@ export default class AwsArtifactsService {
     }
 
     static GetRequiredFieldsAsync = async (serviceCode: string) => {
-        const response = await axios.get(`${AWS_ARTIFACTS_PROVIDER_URL}/require-fields?serviceCode=${serviceCode}`);
+        const response = await axios.get(`${AWS_ARTIFACTS_PROVIDER_URL}/required-fields?serviceCode=${serviceCode}`);
         return response;
     }
 
