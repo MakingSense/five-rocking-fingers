@@ -183,7 +183,7 @@ namespace FRF.Core.Tests.Services
                 .ReturnsAsync(responseGetAttributeValue);
 
             // Act
-            var result = await _classUnderTest.GetRequireFildsAsync(serviceCode);
+            var result = await _classUnderTest.GetRequiredFieldsAsync(serviceCode);
 
             // Assert
             Assert.IsType<ServiceResponse<JObject>>(result);
