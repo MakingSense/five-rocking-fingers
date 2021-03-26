@@ -5,7 +5,7 @@ import ConfirmationDialog from './ConfirmationDialog';
 import { Link } from 'react-router-dom';
 import { PROVIDERS } from '../../Constants';
 
-const ArtifactsTableRow = (props: { artifact: Artifact, openSnackbar: Function, updateList: Function, setArtifactToEdit: Function, openEditArtifactDialog: Function }) => {
+const ArtifactsTableRow = (props: { artifact: Artifact, openSnackbar: Function, updateList: Function, setArtifactToEdit: Function, openEditArtifactDialog: Function, settingTypes: { [key: string]: string }, setSettingTypes: Function   }) => {
     const [openConfirmDialog, setOpenConfirmDialog] = React.useState(false);
 
     const deleteButtonClick = () => {
@@ -14,6 +14,7 @@ const ArtifactsTableRow = (props: { artifact: Artifact, openSnackbar: Function, 
 
     const handleModifyArtifactClick = () => {
         props.setArtifactToEdit(props.artifact);
+        props.setSettingTypes(props.artifact.relationalFields);
         props.openEditArtifactDialog();
     }
 
@@ -62,6 +63,7 @@ const ArtifactsTableRow = (props: { artifact: Artifact, openSnackbar: Function, 
           artifactToDelete={props.artifact}
           openSnackbar={props.openSnackbar}
           updateList={props.updateList}
+          settingTypes={props.settingTypes}
         />
       </>
     );

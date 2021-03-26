@@ -1,5 +1,5 @@
-﻿import { Button, DialogActions, DialogContent, DialogTitle, TextField, IconButton, ButtonGroup } from '@material-ui/core';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+﻿import { Button, DialogActions, DialogContent, DialogTitle, TextField, IconButton, ButtonGroup, FormControl, FormHelperText, InputLabel, MenuItem, Select, FormGroup, Grid } from '@material-ui/core';
+import { createMuiTheme, createStyles, makeStyles, Theme, ThemeProvider } from '@material-ui/core/styles';
 import * as React from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import Typography from '@material-ui/core/Typography';
@@ -8,6 +8,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import Setting from '../../interfaces/Setting';
 import Artifact from '../../interfaces/Artifact';
 import ArtifactRelation from '../../interfaces/ArtifactRelation';
+import { SETTINGTYPES } from '../../Constants';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -22,9 +23,32 @@ const useStyles = makeStyles((theme: Theme) =>
         inputF: {
             padding: 2,
             marginTop: 10
+        },
+        select: {
+            marginBottom: 24,
+            marginRight: 0,
+            marginLeft: 0,
+            marginTop: 12,
+            "& .MuiSelect-outlined": {
+                paddingBottom: 13
+              }
+    },
+        dialog: {
+        "& .MuiDialogContent":{
+            padding:0
         }
+    }
     }),
 );
+const theme = createMuiTheme({
+    overrides: {
+        MuiDialogContent: {
+        root: {
+            padding:"0px 5px 0px 5px"
+        },
+      },
+    },
+  });
 
 const EditArtifact = (props: {
     artifactToEdit: Artifact,
@@ -32,7 +56,9 @@ const EditArtifact = (props: {
     setIsArtifactEdited: Function,
     setArtifactEdited: Function,
     setNamesOfSettingsChanged: Function,
-    artifactsRelations: ArtifactRelation[]}) => {
+    artifactsRelations: ArtifactRelation[], 
+    settingTypes: { [key: string]: string }, 
+    setSettingTypes: Function  }) => {
 
     const classes = useStyles();
     const { register, handleSubmit, errors, setError, clearErrors, control } = useForm();
@@ -50,6 +76,18 @@ const EditArtifact = (props: {
         return settingsListFromArtifact;
     }
 
+    const createSettingsTypesListFromArtifact = () => {
+        let settingsTypesListFromArtifact: { [key: string]: string }[] = [];
+        if (props.artifactToEdit.id === 0) {
+            return settingsTypesListFromArtifact;
+        }
+        Object.entries(props.artifactToEdit.relationalFields).forEach(([key, value], index) => {
+            let settingFromArtifact: { [key: string]: string } = Object.assign({ name: key, value: value });
+            settingsTypesListFromArtifact.push(settingFromArtifact);
+        });
+        return settingsTypesListFromArtifact;
+    }
+
     //Hook for save the user's settings input
     const [settingsList, setSettingsList] = React.useState<Setting[]>(createSettingsListFromArtifact());
     const [price, setPrice] = React.useState(() => {
@@ -63,6 +101,8 @@ const EditArtifact = (props: {
         return 0;
     });
     const [artifactName, setArtifactName] = React.useState(props.artifactToEdit.name);
+    const [settingTypes, setSettingTypes] = React.useState<{ [key: string]: string }[]>(createSettingsTypesListFromArtifact());
+    const [isValid, setIsValid] = React.useState<boolean>(true);
 
     const createSettingsMapFromArtifact = () => {
         let settingsMapFromArtifact: { [key: string]: number[] } = {};
@@ -81,17 +121,34 @@ const EditArtifact = (props: {
         setNameSettingsErrors();
     }, [settingsMap, props.artifactToEdit]);
 
+    const createSettingTypesList = () => {
+        let settingsObject: { [key: string]: string } = {};
+        settingsObject['price'] = 'decimal';
+        for (let i = 1; i < settingsList.length; i++) {
+            settingsObject[settingsList[i].name] = settingTypes[i].value;
+        }
+        return settingsObject;
+    }
+
     //Create the artifact after submit
     const handleConfirm = async () => {
         if (!settingsList.find(s => s.name === 'price')) {
-            settingsList.unshift({ name: 'price', value: price.toString() });
+                settingsList.unshift({ name: 'price', value: price.toString() });
+            }
+
+        if(!hasTypeSelected()){
+        setIsValid(false);
+        settingsList.shift();
         }
-        let artifactEdited = Object.create(props.artifactToEdit);
+
+        else{
+        let artifactEdited : Artifact = Object.create(props.artifactToEdit);
         artifactEdited.name = artifactName;
         artifactEdited.settings = createSettingsObject();
+        artifactEdited.relationalFields = createSettingTypesList();
         props.setArtifactEdited(artifactEdited);
         props.setNamesOfSettingsChanged(getNamesOfSettingsChanged());
-        props.setIsArtifactEdited(true);
+        props.setIsArtifactEdited(true);}
     }
 
     const getNamesOfSettingsChanged = () => {
@@ -132,6 +189,17 @@ const EditArtifact = (props: {
         const list = [...settingsList];
         list[index][name] = value;
         setSettingsList(list);
+    }
+
+    const handleTypeChange = (event: React.ChangeEvent<{ value: unknown }>, index: number) => {
+        let auxSettingTypes = settingTypes;
+        const mapList = { ...settingsMap };
+        const settingIndex = searchIndexInObject(mapList, index+1);
+        settingIndex !== null ?
+        auxSettingTypes[index+1].value = event.target.value as string
+        :
+        auxSettingTypes.push(Object.assign({ name: settingsList[settingsList.length-1].name, value: event.target.value as string }));
+        setSettingTypes([...auxSettingTypes]);
     }
 
     //Check if the setting's name the user enters has already have been used
@@ -218,6 +286,11 @@ const EditArtifact = (props: {
         const list = [...settingsList];
         list.splice(index, 1);
         setSettingsList(list);
+
+        const listTypes = [...settingTypes];
+        listTypes.splice(index, 1);
+        setSettingTypes(listTypes);
+
         let mapList = { ...settingsMap };
         let key = searchIndexInObject(mapList, index);
         if (key != null) {
@@ -265,9 +338,18 @@ const EditArtifact = (props: {
         }
     }
 
+    const extractName = (pascalName: string):string | null =>{
+        return pascalName.trim() === ''? null: `${pascalName.charAt(0).toUpperCase()}${pascalName.slice(1).replace(/([a-z])([A-Z])/g, '$1 $2')}`;
+    }
+
+    const hasTypeSelected = () => {
+        return Boolean(settingTypes.length === settingsList.length);
+    }
+
     return (
-        <>
-            <DialogTitle id="alert-dialog-title">Formulario de actualización de artefactos custom</DialogTitle>
+        <ThemeProvider theme={theme}>
+            <DialogTitle >Formulario de actualización de artefactos custom</DialogTitle>
+            <DialogContent>
             <DialogContent>
                 <Controller
                     control={control}
@@ -289,13 +371,17 @@ const EditArtifact = (props: {
                         />
                     )}
                 />
+                </DialogContent>
+                <DialogContent>
                 <Typography gutterBottom>
                     Propiedades del artefacto
                 </Typography>
+                </DialogContent>
                 <form className={classes.container}>
+                <DialogContent>
                     <TextField
                         disabled
-                        label="Nombre de la setting"
+                        label="Nombre de la propiedad"
                         helperText={"Requerido*"}
                         variant="outlined"
                         defaultValue='Precio'
@@ -309,7 +395,7 @@ const EditArtifact = (props: {
                         render={({ onChange }) => (
                             <TextField
                                 error={!isPriceValid()}
-                                label="Valor de la setting"
+                                label="Valor"
                                 helperText="Requerido*"
                                 variant="outlined"
                                 defaultValue={price}
@@ -321,9 +407,13 @@ const EditArtifact = (props: {
                             />
                         )}
                     />
+                    </DialogContent>
                     {settingsList.map((setting: Setting, index: number) => {
                         return (
-                            <React.Fragment key={index}>
+                            <DialogContent>
+                            <FormGroup row>
+                            <Grid container  spacing={0}>
+                                <Grid item xs={5} zeroMinWidth spacing={0} style={{flexBasis:'31%'}}>
                                 <Controller
                                     control={control}
                                     name={`settings[${index}].name`}
@@ -333,7 +423,7 @@ const EditArtifact = (props: {
                                             error={errors.settings && errors.settings[index] && typeof errors.settings[index]?.name !== 'undefined' || setting.name === 'price'}
                                             id={`name[${index}]`}
                                             name={`settings[${index}].name`}
-                                            label="Nombre de la setting"
+                                            label="Nombre"
                                             helperText={areNamesRepeated(index) ? "Los nombres no pueden repetirse" : "Requerido*"}
                                             variant="outlined"
                                             defaultValue={setting.name}
@@ -344,7 +434,9 @@ const EditArtifact = (props: {
                                         />
                                     )}
                                 />
+                                </Grid>
 
+                                <Grid item xs={3} zeroMinWidth spacing={0}>
                                 <Controller
                                     control={control}
                                     name={`settings[${index}].value`}
@@ -354,7 +446,7 @@ const EditArtifact = (props: {
                                             error={errors.settings && errors.settings[index] && typeof errors.settings[index]?.value !== 'undefined'}
                                             id={`value[${index}]`}
                                             name={`settings[${index}].value`}
-                                            label="Valor de la setting"
+                                            label="Valor"
                                             helperText="Requerido*"
                                             variant="outlined"
                                             defaultValue={setting.value}
@@ -366,8 +458,34 @@ const EditArtifact = (props: {
                                         />
                                     )}
                                 />
-
-                                <ButtonGroup>
+                                </Grid>
+                                <FormControl variant="outlined" className={classes.select} error={!isValid}>
+                                <InputLabel id="settingTypeLabel">Tipo</InputLabel>
+                                <Controller
+                                    control={control}
+                                    name={`relationalSettings[${index}].type`}
+                                    error={!isValid}
+                                    defaultValue={extractName(settingTypes[index+1] !== undefined ? settingTypes[index+1].value : '')}
+                                    render={({ onChange }) => (
+                                            <Select
+                                                style={{ paddingTop: 5 }}
+                                                labelId="settingTypeLabel"
+                                                id="settingTypeLabel"
+                                                label="Tipo"
+                                                autoWidth
+                                                value={settingTypes[index+1] !== undefined ? settingTypes[index+1].value : ''}
+                                                onChange={event => { handleTypeChange(event, index); onChange(event); }}
+                                            >
+                                                <MenuItem value=""><em>None</em></MenuItem>
+                                                {SETTINGTYPES.map((value: string) => {
+                                                    return <MenuItem value={value}>{extractName(value)}</MenuItem>
+                                                })}
+                                            </Select>
+                                    )}
+                                />
+                                 <FormHelperText>Requerido*</FormHelperText>
+                                 </FormControl>
+                                <ButtonGroup size="small" style={{height:84}}>
                                     {settingsList.length - 1 === index &&
                                         <IconButton onClick={handleAddSetting} aria-label="add" color="primary">
                                             <AddCircleIcon />
@@ -380,17 +498,18 @@ const EditArtifact = (props: {
                                         </IconButton>
                                     }
                                 </ButtonGroup>
-                            </React.Fragment>
+                                </Grid>
+                            </FormGroup>
+                        </DialogContent>
                         );
                     })}
-
                 </form>
             </DialogContent>
             <DialogActions>
                 <Button size="small" color="primary" type="submit" onClick={handleSubmit(handleConfirm)}>Listo</Button>
                 <Button size="small" color="secondary" onClick={handleCancel}>Cancelar</Button>
             </DialogActions>
-        </>
+            </ThemeProvider>
     );
 }
 

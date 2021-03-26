@@ -1,4 +1,5 @@
-﻿using System.Xml.Linq;
+﻿using System.Collections.Generic;
+using System.Xml.Linq;
 
 namespace FRF.Web.Dtos.Artifacts
 {
@@ -8,5 +9,7 @@ namespace FRF.Web.Dtos.Artifacts
         public XElement? Settings { get; set; }
         public int ProjectId { get; set; }
         public int ArtifactTypeId { get; set; }
+
+        public Dictionary<string, string> RelationalFields { get; set; }
     }
 }

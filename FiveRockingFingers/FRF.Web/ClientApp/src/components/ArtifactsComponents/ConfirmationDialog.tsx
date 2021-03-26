@@ -1,9 +1,9 @@
-﻿import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Snackbar } from '@material-ui/core';
+﻿import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from '@material-ui/core';
 import * as React from 'react';
 import Artifact from '../../interfaces/Artifact';
 import ArtifactService from '../../services/ArtifactService';
 
-const ConfirmationDialog = (props: { open: boolean, setOpen: Function, artifactToDelete: Artifact, openSnackbar: Function, updateList: Function }) => {
+const ConfirmationDialog = (props: { open: boolean, setOpen: Function, artifactToDelete: Artifact, openSnackbar: Function, updateList: Function, settingTypes: { [key: string]: string } }) => {
 
     const handleClose = () => {
         props.setOpen(false);
@@ -42,7 +42,7 @@ const ConfirmationDialog = (props: { open: boolean, setOpen: Function, artifactT
                 <DialogTitle id="alert-dialog-title">{"¿Está seguro que desea eliminar el artefacto?"}</DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        El proyecto <i>"{props.artifactToDelete.name}</i>" será eliminado
+                        El artefacto <i>"{props.artifactToDelete.name}</i>" será eliminado
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
