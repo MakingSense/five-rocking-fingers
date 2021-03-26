@@ -74,6 +74,7 @@ namespace FRF.Core
 
 
         //Data transfer
+        public const string ProductFamilyDataTransferValue = "Data Transfer";
         public const string ProductFamilyDataTransferValue1 = "Data Transfer 1";
         public const string ProductFamilyDataTransferValue2 = "Data Transfer 2";
         public const string ProductFamilyDataTransferValue3 = "Data Transfer 3";
