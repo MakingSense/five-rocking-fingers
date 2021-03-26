@@ -216,7 +216,7 @@ namespace FRF.Web.Tests.Controllers
         {
             // Arrange
             var serviceCode = "[Mock] Service code";
-            var requiredFields = JObject.Parse("{\"jsonPropertie\":\"jsonValue\"}");
+            var requiredFields = JObject.Parse("{\"jsonProperty\":\"jsonValue\"}");
 
             _artifactProviderService
                 .Setup(mock => mock.GetRequiredFieldsAsync(It.IsAny<string>()))
