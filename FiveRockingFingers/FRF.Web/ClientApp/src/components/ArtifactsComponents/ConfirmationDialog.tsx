@@ -3,7 +3,7 @@ import * as React from 'react';
 import Artifact from '../../interfaces/Artifact';
 import ArtifactService from '../../services/ArtifactService';
 
-const ConfirmationDialog = (props: { open: boolean, setOpen: Function, artifactToDelete: Artifact, openSnackbar: Function, updateList: Function, settingTypes: { [key: string]: string } }) => {
+const ConfirmationDialog = (props: { open: boolean, setOpen: Function, artifactToDelete: Artifact, openSnackbar: Function, updateList: Function }) => {
 
     const handleClose = () => {
         props.setOpen(false);

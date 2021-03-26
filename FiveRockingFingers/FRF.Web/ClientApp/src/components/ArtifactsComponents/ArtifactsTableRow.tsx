@@ -63,7 +63,6 @@ const ArtifactsTableRow = (props: { artifact: Artifact, openSnackbar: Function, 
           artifactToDelete={props.artifact}
           openSnackbar={props.openSnackbar}
           updateList={props.updateList}
-          settingTypes={props.settingTypes}
         />
       </>
     );
