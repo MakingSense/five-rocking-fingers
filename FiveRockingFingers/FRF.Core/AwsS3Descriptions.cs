@@ -27,6 +27,7 @@
         public const string WriteRequests = "Write Requests";
         public const string RetriveRequests = "Retrive Requests";
         public const string InfrequentAccessStorge = "Infrequent Access Storge";
+        public const string AutomaticMonitoring = "Automatic Monitoring";
 
         //XML nodes names
         public const string Product0 = "product0";
