@@ -26,8 +26,14 @@ export const useSettingsCreator = () => {
 				case 'Provisioned Throughput':
 					settings = createPricingTermObject('product4', awsPricingDimension);
 					break;
-				case 'Data Transfer':
+				case 'Data Transfer 1':
 					settings = createPricingTermObject('product5-1', awsPricingDimension);
+					break;
+				case 'Data Transfer 2':
+					settings = createPricingTermObject('product5-2', awsPricingDimension);
+					break;
+				case 'Data Transfer 3':
+					settings = createPricingTermObject('product5-3', awsPricingDimension);
 					break;
 			}
 
