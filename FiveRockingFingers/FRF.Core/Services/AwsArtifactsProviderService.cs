@@ -543,9 +543,9 @@ namespace FRF.Core.Services
             await AddProductsToPricingList(AwsEc2Descriptions.ServiceValue, ebsSnapshotFilters, pricingDetailsList, AwsEc2Descriptions.ProductFamilyEbsSnapshotsValue);
             await AddProductsToPricingList(AwsEc2Descriptions.ServiceValue, iopsFilters, pricingDetailsList, AwsEc2Descriptions.ProductFamilyEbsIopsValue);
             await AddProductsToPricingList(AwsEc2Descriptions.ServiceValue, throughputFilters, pricingDetailsList, AwsEc2Descriptions.ProductFamilyEbsThroughputValue);
-            await AddProductsToPricingList(AwsEc2Descriptions.ServiceValue, dataTransferFilters1, pricingDetailsList, AwsEc2Descriptions.ProductFamilyDataTransferValue);
-            await AddProductsToPricingList(AwsEc2Descriptions.ServiceValue, dataTransferFilters2, pricingDetailsList, AwsEc2Descriptions.ProductFamilyDataTransferValue);
-            await AddProductsToPricingList(AwsEc2Descriptions.ServiceValue, dataTransferFilters3, pricingDetailsList, AwsEc2Descriptions.ProductFamilyDataTransferValue);
+            await AddProductsToPricingList(AwsEc2Descriptions.ServiceValue, dataTransferFilters1, pricingDetailsList, AwsEc2Descriptions.ProductFamilyDataTransferValue1);
+            await AddProductsToPricingList(AwsEc2Descriptions.ServiceValue, dataTransferFilters2, pricingDetailsList, AwsEc2Descriptions.ProductFamilyDataTransferValue2);
+            await AddProductsToPricingList(AwsEc2Descriptions.ServiceValue, dataTransferFilters3, pricingDetailsList, AwsEc2Descriptions.ProductFamilyDataTransferValue3);
         }
 
         public async Task<bool> AddProductsToPricingList(string serviceCode, List<Filter> filters, List<PricingTerm> pricingDetailsList,
