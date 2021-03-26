@@ -200,7 +200,7 @@ namespace FRF.Core.Services
 
             if (storagePrice == null || !storagePrice.PriceList.Any()) return new ServiceResponse<List<PricingTerm>>(pricingDetailsList);
 
-            AddProductToPricingDetails(storagePrice, pricingDetailsList);
+            AddProductToPricingDetails(storagePrice, pricingDetailsList, AwsS3Descriptions.Storage);
 
             //Check if the product is Standard - Infrequent Access.
             if (volumeTypeFilter.Value.Equals(
@@ -287,7 +287,7 @@ namespace FRF.Core.Services
                 ServiceCode = AwsS3Descriptions.Service
             });
 
-            AddProductToPricingDetails(automaticMonitoringPrice, pricingDetailsList, AwsS3Descriptions.Storage);
+            AddProductToPricingDetails(automaticMonitoringPrice, pricingDetailsList);
 
             return pricingDetailsList;
         }
