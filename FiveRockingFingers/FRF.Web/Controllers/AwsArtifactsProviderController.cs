@@ -54,5 +54,12 @@ namespace FRF.Web.Controllers
             var products = _mapper.Map<List<PricingTermDTO>>(response.Value);
             return Ok(products);
         }
+
+        [HttpGet("required-fields")]
+        public async Task<IActionResult> GetRequiredFieldsAsync(string serviceCode)
+        {
+            var response = await _artifactsProviderService.GetRequiredFieldsAsync(serviceCode);
+            return Ok(response.Value);
+        }
     }
 }

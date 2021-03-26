@@ -5,9 +5,12 @@ using FRF.Core.Base;
 using FRF.Core.Models;
 using FRF.Core.Response;
 using FRF.Core.Services;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Moq;
 using Moq.Protected;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
@@ -25,6 +28,8 @@ namespace FRF.Core.Tests.Services
         private readonly AwsArtifactsProviderService _classUnderTest;
         private readonly Mock<IHttpClientFactory> _httpClientFactory;
         private readonly Mock<AmazonPricingClient> _client;
+        private readonly DataAccessContextForTest _dataAccess;
+        private readonly Mock<IConfiguration> _configuration;
 
         public AwsArtifactsProviderServiceTest()
         {
@@ -34,7 +39,12 @@ namespace FRF.Core.Tests.Services
             _httpClientFactory = new Mock<IHttpClientFactory>();
             _client = new Mock<AmazonPricingClient>("[Mock] Key 1", "[Mock] Key 2", RegionEndpoint.USEast1);
             var httpClientFactory = _httpClientFactory.Object;
-            _classUnderTest = new AwsArtifactsProviderService(_awsApi, httpClientFactory, _client.Object);
+            _configuration = new Mock<IConfiguration>();
+            _dataAccess = new DataAccessContextForTest(Guid.NewGuid(), _configuration.Object);
+
+            _dataAccess.Database.EnsureDeleted();
+            _dataAccess.Database.EnsureCreated();
+            _classUnderTest = new AwsArtifactsProviderService(_awsApi, httpClientFactory, _client.Object, _dataAccess);
         }
 
         [Fact]
@@ -85,6 +95,103 @@ namespace FRF.Core.Tests.Services
             Assert.Equal("AwsArtifact2", response[1].Key);
             Assert.Equal("AwsArtifact3", response[2].Key);
             Assert.Equal("AwsArtifact4", response[3].Key);
+        }
+
+        [Fact]
+        public async Task GetRequireFildsAsync_ReturnJson()
+        {
+            // Arange
+            var serviceCode = "ServiceCode";
+            var attributeNames = new List<string>
+            {
+                "ServiceName"
+            };
+            var service = new Service
+            {
+                AttributeNames = attributeNames,
+                ServiceCode = serviceCode
+            };
+            var services = new List<Service>
+            {
+                service
+            };
+            var responseDescribeServices = new DescribeServicesResponse
+            {
+                FormatVersion = "[Mock] Format Version",
+                NextToken = "[Mock] Next token",
+                Services = services
+            };
+
+            var attributeValue = new AttributeValue
+            {
+                Value = "AttributeValue"
+            };
+
+            var attributeValues = new List<AttributeValue>
+            {
+                attributeValue
+            };
+
+            var responseGetAttributeValue = new GetAttributeValuesResponse
+            {
+                NextToken = "[Mock] Next token",
+                AttributeValues = attributeValues
+            };
+
+            var provider = new DataAccess.EntityModels.Provider
+            {
+                Name = "[Mock] Provider name",
+            };
+
+            await _dataAccess.Providers.AddAsync(provider);
+
+            var principalPropertie = "principalPropertie";
+            var propertiesJsonElement = "properties";
+            var propertieName = "propertie1";
+            var enumJsonElement = "enum";
+
+            var artifactType = new DataAccess.EntityModels.ArtifactType
+            {
+                Name = serviceCode,
+                Description = "[Mock] Description",
+                ProviderId = provider.Id,
+                RequiredFields = "{" +
+                "\"title\":\"Title\"," +
+                "\"description\":\"Description\"," +
+                "\"type\":\"object\"," +
+                "\"properties\":{" +
+                "\"" + principalPropertie + "\":{" +
+                "\"title\":\"principalPropertieTitle\"," +
+                "\"description\":\"Description\"," +
+                "\"type\":\"object\"," +
+                "\"" + propertiesJsonElement + "\":{" +
+                "\"" + propertieName + "\":{" +
+                "\"title\":\"propertie1Title\"," +
+                "\"type\":\"string\"," +
+                "\"" + enumJsonElement + "\":[]}}}}}"
+            };
+
+            await _dataAccess.ArtifactType.AddAsync(artifactType);
+
+            await _dataAccess.SaveChangesAsync();
+
+            _client
+                .Setup(mock => mock.DescribeServicesAsync(It.IsAny<DescribeServicesRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(responseDescribeServices);
+            _client
+                .Setup(mock => mock.GetAttributeValuesAsync(It.IsAny<GetAttributeValuesRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(responseGetAttributeValue);
+
+            // Act
+            var result = await _classUnderTest.GetRequiredFieldsAsync(serviceCode);
+
+            // Assert
+            Assert.IsType<ServiceResponse<JObject>>(result);
+            Assert.True(result.Success);
+            var resultValue = result.Value;
+            var propertie1 = (JObject)resultValue.SelectToken($"{propertiesJsonElement}.{principalPropertie}.{propertiesJsonElement}.{propertieName}");
+            var enums = (JArray)propertie1[enumJsonElement];
+            Assert.Equal(enums[0].ToString(), attributeValue.Value);
         }
 
         [Fact]
@@ -477,7 +584,8 @@ namespace FRF.Core.Tests.Services
                 new KeyValuePair<string, string>("volumeApiName", "gp2"),
                 new KeyValuePair<string, string>("transferType1", "IntraRegion"),
                 new KeyValuePair<string, string>("fromLocation1", "US West (N. California)"),
-                new KeyValuePair<string, string>("toLocation1", "US West (N. California)")
+                new KeyValuePair<string, string>("toLocation1", "US West (N. California)"),
+                new KeyValuePair<string, string>("termType", "OnDemand")
             };
 
             _client

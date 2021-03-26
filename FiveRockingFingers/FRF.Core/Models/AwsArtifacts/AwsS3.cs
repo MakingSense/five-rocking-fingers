@@ -31,15 +31,15 @@ namespace FRF.Core.Models.AwsArtifacts
         {
             PricingDimensions = new Dictionary<string, PricingDimension>();
             var doc = new XmlDocument();
-            if (Settings.Element("product0") == null) return 0;
+            if (Settings.Element(AwsS3Descriptions.Product0) == null) return 0;
 
-            doc.LoadXml(Settings.Element("product0").Element("pricingDimension").ToString());
+            doc.LoadXml(Settings.Element(AwsS3Descriptions.Product0).Element(AwsS3Descriptions.PricingDimensions).ToString());
             var priceDimensionsJson = JsonConvert.SerializeXmlNode(doc);
-            var pricingDimensionsJToken = JObject.Parse(priceDimensionsJson).SelectToken("pricingDimension").ToObject<JObject>().Properties().ToList(); ;
+            var pricingDimensionsJToken = JObject.Parse(priceDimensionsJson).SelectToken(AwsS3Descriptions.PricingDimensions).ToObject<JObject>().Properties().ToList();
             foreach (var jtoken in pricingDimensionsJToken)
             {
                 var name = jtoken.Name;
-                var a = jtoken.First.SelectToken("pricePerUnit").Value<string>();
+                var a = jtoken.First.SelectToken(AwsS3Descriptions.PricePerUnit).Value<string>();
                 if (!string.IsNullOrWhiteSpace(a))
                 {
                     var price = jtoken.Value.ToObject<PricingDimension>();
@@ -50,15 +50,15 @@ namespace FRF.Core.Models.AwsArtifacts
           
             if(InfrequentAccessMultiplier != 0 && InfrequentAccessMultiplier != null)
             {
-                WriteRequestsPrice = GetDecimalPrice("product1");
-                RetrieveRequestsPrice = GetDecimalPrice("product2");
-                InfrequentAccessStoragePrice = GetDecimalPrice("product3");
+                WriteRequestsPrice = GetDecimalPrice(AwsS3Descriptions.Product1);
+                RetrieveRequestsPrice = GetDecimalPrice(AwsS3Descriptions.Product2);
+                InfrequentAccessStoragePrice = GetDecimalPrice(AwsS3Descriptions.Product3);
                 return GetIntelligentPrice();
             }
             else
             {
-                WriteRequestsPrice = GetDecimalPrice("product1");
-                RetrieveRequestsPrice = GetDecimalPrice("product2");
+                WriteRequestsPrice = GetDecimalPrice(AwsS3Descriptions.Product1);
+                RetrieveRequestsPrice = GetDecimalPrice(AwsS3Descriptions.Product2);
                 return GetStandardPrice();
             }
         }
@@ -67,8 +67,8 @@ namespace FRF.Core.Models.AwsArtifacts
         {
             if (product == null) return -1;
 
-            var pricePerUnit = Settings.Element($"{product}").Element("pricingDimension").Element("range0")
-                .Element("pricePerUnit")
+            var pricePerUnit = Settings.Element($"{product}").Element(AwsS3Descriptions.PricingDimensions).Element(AwsS3Descriptions.Range0)
+                .Element(AwsS3Descriptions.PricePerUnit)
                 .Value;
             if (decimal.TryParse(pricePerUnit, NumberStyles.AllowExponent, CultureInfo.InvariantCulture,
                 out decimal decimalPrice)) return decimalPrice;
@@ -81,18 +81,18 @@ namespace FRF.Core.Models.AwsArtifacts
 
         private decimal GetStandardPrice()
         {
-            var endRange1 = (decimal) PricingDimensions["range0"].EndRange;
-            var endRange2 = (decimal) PricingDimensions["range2"].EndRange;
+            var endRange1 = (decimal) PricingDimensions[AwsS3Descriptions.Range0].EndRange;
+            var endRange2 = (decimal) PricingDimensions[AwsS3Descriptions.Range2].EndRange;
             if (endRange1 == 0 || endRange2 == 0) return 0;
 
             decimal storageCost;
             if (StorageUsed <= endRange1)
-                storageCost = PricingDimensions["range0"].PricePerUnit * StorageUsed;
+                storageCost = PricingDimensions[AwsS3Descriptions.Range0].PricePerUnit * StorageUsed;
 
             else if (StorageUsed >= endRange1 && StorageUsed <= endRange2)
-                storageCost = PricingDimensions["range2"].PricePerUnit * StorageUsed;
+                storageCost = PricingDimensions[AwsS3Descriptions.Range2].PricePerUnit * StorageUsed;
             else
-                storageCost = PricingDimensions["range1"].PricePerUnit * StorageUsed;
+                storageCost = PricingDimensions[AwsS3Descriptions.Range1].PricePerUnit * StorageUsed;
 
             var writeRequestCost = WriteRequestsPrice * WriteRequestsUsed;
             var retrieveRequestCost = RetrieveRequestsPrice * RetrieveRequestsUsed;
@@ -102,8 +102,8 @@ namespace FRF.Core.Models.AwsArtifacts
 
         private decimal GetIntelligentPrice()
         {
-            var endRange0 = (decimal)PricingDimensions["range0"].EndRange;
-            var endRange2 = (decimal)PricingDimensions["range2"].EndRange;
+            var endRange0 = (decimal)PricingDimensions[AwsS3Descriptions.Range0].EndRange;
+            var endRange2 = (decimal)PricingDimensions[AwsS3Descriptions.Range2].EndRange;
 
             if (endRange0 == 0 || endRange2 == 0) return 0;
 
@@ -115,13 +115,13 @@ namespace FRF.Core.Models.AwsArtifacts
             var storageFrequentAccessUsed = StorageUsed * storageFrequentAccessMultiplier;
             if (storageFrequentAccessUsed <= endRange0)
                 storageFrequentAccessCost = storageFrequentAccessUsed *
-                                            PricingDimensions["range0"].PricePerUnit;
+                                            PricingDimensions[AwsS3Descriptions.Range0].PricePerUnit;
             else if (storageFrequentAccessUsed >= endRange0 && storageFrequentAccessUsed <= endRange2)
                 storageFrequentAccessCost = storageFrequentAccessUsed *
-                                            PricingDimensions["range2"].PricePerUnit;
+                                            PricingDimensions[AwsS3Descriptions.Range2].PricePerUnit;
             else
                 storageFrequentAccessCost = storageFrequentAccessUsed *
-                                            PricingDimensions["range1"].PricePerUnit;
+                                            PricingDimensions[AwsS3Descriptions.Range1].PricePerUnit;
 
             var storageInfrequentAccessCost = storageInfrequentAccessMultiplier * StorageUsed * InfrequentAccessPrice;
             var writeRequestsCost = WriteRequestsUsed * WriteRequestsPrice;
