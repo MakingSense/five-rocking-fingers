@@ -414,7 +414,7 @@ namespace FRF.Core.Models.AwsArtifacts
                     continue;
                 }
 
-                var transferType = dataTransferPricingNode.Element(AwsEc2Descriptions.TransferType).Value;
+                var transferType = Settings.Element($"transferType{i}").Value;
                 var numberOfGbTransfer = int.Parse(dataTransferNumberOfGbNode.Value);
                 var dataTransferPricePerUnit = GetDecimalPrice(dataTransferPricingNode
                 .Element(AwsEc2Descriptions.PricingDimensions)
