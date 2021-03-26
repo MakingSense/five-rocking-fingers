@@ -11,6 +11,7 @@ using Amazon.Pricing.Model;
 using FRF.Core.Models;
 using FRF.Core.Response;
 using System;
+using FRF.DataAccess;
 
 namespace FRF.Core.Services
 {
@@ -20,13 +21,15 @@ namespace FRF.Core.Services
         private readonly AwsPricing _awsPricingOptions;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IAmazonPricing _pricingClient;
+        private readonly DataAccessContext _dataContext;
 
         public AwsArtifactsProviderService(IOptions<AwsPricing> awsApiString,
-            IHttpClientFactory httpClientFactory, IAmazonPricing pricingClient)
+            IHttpClientFactory httpClientFactory, IAmazonPricing pricingClient, DataAccessContext dataContext)
         {
             _httpClientFactory = httpClientFactory;
             _awsPricingOptions = awsApiString.Value;
             _pricingClient = pricingClient;
+            _dataContext = dataContext;
         }
 
         /// <summary>
@@ -58,6 +61,32 @@ namespace FRF.Core.Services
             }
 
             return new ServiceResponse<List<KeyValuePair<string, string>>>(artifactsNames.ToList());
+        }
+
+        public async Task<ServiceResponse<JObject>> GetRequiredFieldsAsync(string serviceCode)
+        {
+            var artifactType = _dataContext.ArtifactType.Where(at => at.Name.Equals(serviceCode)).SingleOrDefault();
+            var jsonFormString = artifactType.RequiredFields;
+            var jsonForm = JObject.Parse(jsonFormString);
+            var titles = (JObject)jsonForm["properties"];
+            foreach (var title in titles)
+            {
+                var properties = (JObject)title.Value["properties"];
+                foreach (var propertie in properties)
+                {
+                    var attributeName = Regex.Replace(propertie.Key, @"[\d-]", string.Empty);
+                    var attributeValues = await GetAttributeValue(attributeName, serviceCode);
+                    var enums = (JArray)propertie.Value["enum"];
+                    if(enums != null && enums.Count == 0 && attributeValues.Count > 0)
+                    {
+                        foreach (var attributeValue in attributeValues)
+                        {
+                            enums.Add(attributeValue);
+                        }
+                    }                    
+                }
+            }
+            return new ServiceResponse<JObject>(jsonForm);
         }
 
         public async Task<ServiceResponse<List<ProviderArtifactSetting>>> GetAttributesAsync(string serviceCode)
@@ -175,18 +204,20 @@ namespace FRF.Core.Services
             foreach (var (key, value) in settings)
             {
                 var storageFilter = new Filter {Field = key, Type = "TERM_MATCH", Value = value};
-
-                storageFilters.Add(storageFilter);
+                
                 switch (key)
                 {
                     case AwsS3Descriptions.Location:
                         locationFilter.Value = value;
+                        storageFilters.Add(storageFilter);
                         break;
                     case AwsS3Descriptions.StorageClass:
                         storageClassFilter.Value = value;
+                        storageFilters.Add(storageFilter);
                         break;
                     case AwsS3Descriptions.VolumeType:
                         volumeTypeFilter.Value = value;
+                        storageFilters.Add(storageFilter);
                         break;
                 }
             }
@@ -512,9 +543,9 @@ namespace FRF.Core.Services
             await AddProductsToPricingList(AwsEc2Descriptions.ServiceValue, ebsSnapshotFilters, pricingDetailsList, AwsEc2Descriptions.ProductFamilyEbsSnapshotsValue);
             await AddProductsToPricingList(AwsEc2Descriptions.ServiceValue, iopsFilters, pricingDetailsList, AwsEc2Descriptions.ProductFamilyEbsIopsValue);
             await AddProductsToPricingList(AwsEc2Descriptions.ServiceValue, throughputFilters, pricingDetailsList, AwsEc2Descriptions.ProductFamilyEbsThroughputValue);
-            await AddProductsToPricingList(AwsEc2Descriptions.ServiceValue, dataTransferFilters1, pricingDetailsList, AwsEc2Descriptions.ProductFamilyDataTransferValue);
-            await AddProductsToPricingList(AwsEc2Descriptions.ServiceValue, dataTransferFilters2, pricingDetailsList, AwsEc2Descriptions.ProductFamilyDataTransferValue);
-            await AddProductsToPricingList(AwsEc2Descriptions.ServiceValue, dataTransferFilters3, pricingDetailsList, AwsEc2Descriptions.ProductFamilyDataTransferValue);
+            await AddProductsToPricingList(AwsEc2Descriptions.ServiceValue, dataTransferFilters1, pricingDetailsList, AwsEc2Descriptions.ProductFamilyDataTransferValue1);
+            await AddProductsToPricingList(AwsEc2Descriptions.ServiceValue, dataTransferFilters2, pricingDetailsList, AwsEc2Descriptions.ProductFamilyDataTransferValue2);
+            await AddProductsToPricingList(AwsEc2Descriptions.ServiceValue, dataTransferFilters3, pricingDetailsList, AwsEc2Descriptions.ProductFamilyDataTransferValue3);
         }
 
         public async Task<bool> AddProductsToPricingList(string serviceCode, List<Filter> filters, List<PricingTerm> pricingDetailsList,
@@ -627,6 +658,10 @@ namespace FRF.Core.Services
             }
             else
             {
+                if (pricingDetailsList.Any(pd => pd.Product.Equals(product)))
+                {
+                    return;
+                }
                 var pricingTerm = CreatePricingTerm(sku, termName, termOption, product);
                 pricingDetailsList.Add(pricingTerm);
             }

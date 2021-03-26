@@ -41,6 +41,7 @@
     <None Remove="ClientApp\src\components\ArtifactsComponents\EditArtifact.tsx" />
     <None Remove="ClientApp\src\components\ArtifactsComponents\EditArtifactConfirmation.tsx" />
     <None Remove="ClientApp\src\components\ArtifactsComponents\EditArtifactDialog.tsx" />
+    <None Remove="ClientApp\src\components\NewArtifactDialogComponents\useSettingsCreator.ts" />
   </ItemGroup>
 
   <ItemGroup>
