@@ -260,7 +260,7 @@ namespace FRF.Core.Services
 
             if (writeRequestPrice == null || !storagePrice.PriceList.Any()) return new ServiceResponse<List<PricingTerm>>(pricingDetailsList);
 
-            AddProductToPricingDetails(writeRequestPrice, pricingDetailsList);
+            AddProductToPricingDetails(writeRequestPrice, pricingDetailsList, AwsS3Descriptions.WriteRequests);
 
             retrieveRequestFilters.Add(locationFilter);
             retrieveRequestFilters.Add(new Filter
@@ -275,7 +275,7 @@ namespace FRF.Core.Services
 
             if (retrieveRequestPrice == null || !storagePrice.PriceList.Any()) return new ServiceResponse<List<PricingTerm>>(pricingDetailsList);
 
-            AddProductToPricingDetails(retrieveRequestPrice, pricingDetailsList);
+            AddProductToPricingDetails(retrieveRequestPrice, pricingDetailsList, AwsS3Descriptions.RetriveRequests);
 
             //Check if the product is Intelligent-Tiering.
             if (storageClassFilter.Value.Equals(AwsS3Descriptions.IntelligentTieringProduct, StringComparison.InvariantCultureIgnoreCase))
@@ -300,7 +300,7 @@ namespace FRF.Core.Services
                 ServiceCode = AwsS3Descriptions.Service
             });
 
-            AddProductToPricingDetails(infrequentAccessPrice, pricingDetailsList);
+            AddProductToPricingDetails(infrequentAccessPrice, pricingDetailsList, AwsS3Descriptions.InfrequentAccessStorge);
 
             if (!isAutomaticMonitoring) return pricingDetailsList;
 
@@ -318,7 +318,7 @@ namespace FRF.Core.Services
                 ServiceCode = AwsS3Descriptions.Service
             });
 
-            AddProductToPricingDetails(automaticMonitoringPrice, pricingDetailsList);
+            AddProductToPricingDetails(automaticMonitoringPrice, pricingDetailsList, AwsS3Descriptions.Storage);
 
             return pricingDetailsList;
         }
