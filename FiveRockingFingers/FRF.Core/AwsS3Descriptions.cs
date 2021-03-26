@@ -21,5 +21,22 @@
 
         public const string AutomationObjectCountFee = "S3-Monitoring and Automation-ObjectCount";
         public const string IntelligentTieringProduct = "Intelligent-Tiering";
+
+        //Products
+        public const string Storage = "Storage";
+        public const string WriteRequests = "Write Requests";
+        public const string RetriveRequests = "Retrive Requests";
+        public const string InfrequentAccessStorge = "Infrequent Access Storge";
+
+        //XML nodes names
+        public const string Product0 = "product0";
+        public const string Product1 = "product1";
+        public const string Product2 = "product2";
+        public const string Product3 = "product3";
+        public const string Range0 = "range0";
+        public const string Range1 = "range1";
+        public const string Range2 = "range2";
+        public const string PricePerUnit = "pricePerUnit";
+        public const string PricingDimensions = "pricingDimensions";
     }
 }
