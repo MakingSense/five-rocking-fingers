@@ -22,6 +22,12 @@
         public const string AutomationObjectCountFee = "S3-Monitoring and Automation-ObjectCount";
         public const string IntelligentTieringProduct = "Intelligent-Tiering";
 
+        //Products
+        public const string Storage = "Storage";
+        public const string WriteRequests = "Write Requests";
+        public const string RetriveRequests = "Retrive Requests";
+        public const string InfrequentAccessStorge = "Infrequent Access Storge";
+
         //XML nodes names
         public const string Product0 = "product0";
         public const string Product1 = "product1";
