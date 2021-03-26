@@ -658,6 +658,10 @@ namespace FRF.Core.Services
             }
             else
             {
+                if (pricingDetailsList.Any(pd => pd.Product.Equals(product)))
+                {
+                    return;
+                }
                 var pricingTerm = CreatePricingTerm(sku, termName, termOption, product);
                 pricingDetailsList.Add(pricingTerm);
             }
