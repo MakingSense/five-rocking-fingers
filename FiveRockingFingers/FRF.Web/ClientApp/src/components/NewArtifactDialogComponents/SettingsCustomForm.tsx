@@ -103,6 +103,7 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
     const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, index: number) => {
         let { name, value } = event.target;
         name = name.split(".")[1];
+        value = value.replace(/\s/g, '_').trim();
         if (name === 'name') {
             checkSettingName(value, index);
         }
@@ -122,6 +123,7 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
             mapList[settingName] = [index];
             setSettingsMap(mapList);
         }
+        else if (mapList[settingName] === undefined) return;
         else {
             mapList[settingName].push(index);
             setSettingsMap(mapList);
@@ -226,13 +228,14 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
         let settingsObject: { [key: string]: string } = {};
 
         for (let i = 0; i < settingsList.length; i++) {
-            settingsObject[settingsList[i].name.trim()] = settingsList[i].value;
+            settingsObject[settingsList[i].name.trim().replace(/\s+/g, '')] = settingsList[i].value;
         }
 
         return settingsObject;
     }
 
     const handleTypeChange = (event: React.ChangeEvent<{ value: unknown }>, index: number) => {
+        if (areNamesRepeated(index)) return;
         let auxSettingTypes = {...settingTypes};
         auxSettingTypes[settingsList[index].name] = event.target.value as string;
         setSettingTypes(auxSettingTypes);
@@ -250,7 +253,11 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
             <DialogTitle >Formulario de artefactos custom</DialogTitle>
                 <DialogContent>
                 <Typography gutterBottom>
-                    A continuación ingrese las propiedades de su nuevo artefacto custom y el valor que tomarán esas propiedades
+                    A continuación ingrese las propiedades de su nuevo artefacto custom y el valor que tomarán esas propiedades.
+                    Recuerde que no se aceptan nombres con espacios.
+                </Typography>
+                <Typography gutterBottom>
+                    Recuerde que no se aceptan nombres con espacios.
                 </Typography>
                 </DialogContent>
                 <form className={classes.container}>
@@ -307,7 +314,7 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
                                                 variant="outlined"
                                                 value={setting.name}
                                                 className={classes.inputF}
-                                                onChange={event => { handleInputChange(event, index); onChange(event); }}
+                                                onChange={event => {handleInputChange(event, index); onChange(event); }}
                                                 autoComplete='off'
                                             />
                                         )}

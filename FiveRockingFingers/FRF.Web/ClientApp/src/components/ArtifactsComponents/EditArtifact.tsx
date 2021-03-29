@@ -66,7 +66,6 @@ const EditArtifact = (props: {
     const classes = useStyles();
     const { register, handleSubmit, errors, setError, clearErrors, control } = useForm();
     const { closeEditArtifactDialog, settingTypes, setSettingTypes } = props;
-
     const createSettingsListFromArtifact = () => {
         let settingsListFromArtifact: Setting[] = [];
         if (props.artifactToEdit.id === 0) {
@@ -105,9 +104,6 @@ const EditArtifact = (props: {
 
     //Hook for saving the numbers of times a setting's name input is repeated
     const [settingsMap, setSettingsMap] = React.useState<{ [key: string]: number[] }>(createSettingsMapFromArtifact());
-    const [listOfValues, setListOfValues] = React.useState<number[]>(()=>
-        settingsList.map(setting => {return Number(setting.value) } )
-    );
 
     React.useEffect(() => {
         setNameSettingsErrors();
@@ -168,13 +164,9 @@ const EditArtifact = (props: {
     const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, index: number) => {
         let { name, value } = event.target;
         name = name.split(".")[1];
+        value = value.replace(/\s/g, '_').trim();
         if (name === 'name') {
             checkSettingName(value, index);
-        }
-        else{
-            let aux: number[] = [];
-            aux[index]= parseFloat(value);
-            setListOfValues(aux)
         }
         const list = [...settingsList];
         list[index][name] = value;
@@ -182,6 +174,7 @@ const EditArtifact = (props: {
     }
 
     const handleTypeChange = (event: React.ChangeEvent<{ value: unknown }>, index: number) => {
+        if (areNamesRepeated(index)) return;
         let auxSettingTypes = {...settingTypes};
         auxSettingTypes[settingsList[index].name] = event.target.value as string;
         setSettingTypes(auxSettingTypes);
