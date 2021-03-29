@@ -37,6 +37,9 @@ const useStyles = makeStyles((theme: Theme) =>
         "& .MuiDialogContent":{
             padding:0
         }
+    },
+    error: {
+        color: 'red'
     }
     }),
 );
@@ -62,7 +65,7 @@ const EditArtifact = (props: {
 
     const classes = useStyles();
     const { register, handleSubmit, errors, setError, clearErrors, control } = useForm();
-    const { closeEditArtifactDialog } = props;
+    const { closeEditArtifactDialog, settingTypes, setSettingTypes } = props;
 
     const createSettingsListFromArtifact = () => {
         let settingsListFromArtifact: Setting[] = [];
@@ -74,18 +77,6 @@ const EditArtifact = (props: {
             settingsListFromArtifact.push(settingFromArtifact);
         });
         return settingsListFromArtifact;
-    }
-
-    const createSettingsTypesListFromArtifact = () => {
-        let settingsTypesListFromArtifact: { [key: string]: string }[] = [];
-        if (props.artifactToEdit.id === 0) {
-            return settingsTypesListFromArtifact;
-        }
-        Object.entries(props.artifactToEdit.relationalFields).forEach(([key, value], index) => {
-            let settingFromArtifact: { [key: string]: string } = Object.assign({ name: key, value: value });
-            settingsTypesListFromArtifact.push(settingFromArtifact);
-        });
-        return settingsTypesListFromArtifact;
     }
 
     //Hook for save the user's settings input
@@ -101,8 +92,6 @@ const EditArtifact = (props: {
         return 0;
     });
     const [artifactName, setArtifactName] = React.useState(props.artifactToEdit.name);
-    const [settingTypes, setSettingTypes] = React.useState<{ [key: string]: string }[]>(createSettingsTypesListFromArtifact());
-    const [isValid, setIsValid] = React.useState<boolean>(true);
 
     const createSettingsMapFromArtifact = () => {
         let settingsMapFromArtifact: { [key: string]: number[] } = {};
@@ -116,6 +105,9 @@ const EditArtifact = (props: {
 
     //Hook for saving the numbers of times a setting's name input is repeated
     const [settingsMap, setSettingsMap] = React.useState<{ [key: string]: number[] }>(createSettingsMapFromArtifact());
+    const [listOfValues, setListOfValues] = React.useState<number[]>(()=>
+        settingsList.map(setting => {return Number(setting.value) } )
+    );
 
     React.useEffect(() => {
         setNameSettingsErrors();
@@ -125,7 +117,7 @@ const EditArtifact = (props: {
         let settingsObject: { [key: string]: string } = {};
         settingsObject['price'] = 'decimal';
         for (let i = 1; i < settingsList.length; i++) {
-            settingsObject[settingsList[i].name] = settingTypes[i].value;
+            settingsObject[settingsList[i].name] = settingTypes[settingsList[i].name];
         }
         return settingsObject;
     }
@@ -135,20 +127,13 @@ const EditArtifact = (props: {
         if (!settingsList.find(s => s.name === 'price')) {
                 settingsList.unshift({ name: 'price', value: price.toString() });
             }
-
-        if(!hasTypeSelected()){
-        setIsValid(false);
-        settingsList.shift();
-        }
-
-        else{
         let artifactEdited : Artifact = Object.create(props.artifactToEdit);
         artifactEdited.name = artifactName;
         artifactEdited.settings = createSettingsObject();
         artifactEdited.relationalFields = createSettingTypesList();
         props.setArtifactEdited(artifactEdited);
         props.setNamesOfSettingsChanged(getNamesOfSettingsChanged());
-        props.setIsArtifactEdited(true);}
+        props.setIsArtifactEdited(true);
     }
 
     const getNamesOfSettingsChanged = () => {
@@ -186,20 +171,20 @@ const EditArtifact = (props: {
         if (name === 'name') {
             checkSettingName(value, index);
         }
+        else{
+            let aux: number[] = [];
+            aux[index]= parseFloat(value);
+            setListOfValues(aux)
+        }
         const list = [...settingsList];
         list[index][name] = value;
         setSettingsList(list);
     }
 
     const handleTypeChange = (event: React.ChangeEvent<{ value: unknown }>, index: number) => {
-        let auxSettingTypes = settingTypes;
-        const mapList = { ...settingsMap };
-        const settingIndex = searchIndexInObject(mapList, index+1);
-        settingIndex !== null ?
-        auxSettingTypes[index+1].value = event.target.value as string
-        :
-        auxSettingTypes.push(Object.assign({ name: settingsList[settingsList.length-1].name, value: event.target.value as string }));
-        setSettingTypes([...auxSettingTypes]);
+        let auxSettingTypes = {...settingTypes};
+        auxSettingTypes[settingsList[index].name] = event.target.value as string;
+        setSettingTypes(auxSettingTypes);
     }
 
     //Check if the setting's name the user enters has already have been used
@@ -280,14 +265,14 @@ const EditArtifact = (props: {
 
     const handleAddSetting = () => {
         setSettingsList([...settingsList, { name: "", value: "" }]);
+        setSettingTypes({...settingTypes});
     }
 
     const handleDeleteSetting = (index: number) => {
         const list = [...settingsList];
         list.splice(index, 1);
         setSettingsList(list);
-
-        const listTypes = [...settingTypes];
+        const listTypes = [{...settingTypes}];
         listTypes.splice(index, 1);
         setSettingTypes(listTypes);
 
@@ -338,14 +323,26 @@ const EditArtifact = (props: {
         }
     }
 
+    const isValidNumber = (index: number):boolean => {
+        return !isNaN(Number(settingsList[index].value))
+    }
+
+    const isNumberSameType = (index: number) => {
+        let numberType = settingTypes[settingsList[index].name];
+        if (numberType === undefined || settingsList[index].name === 'price' ) return true;
+        
+        if (numberType === SETTINGTYPES[0]) {
+            return Boolean( parseFloat(settingsList[index].value) % 1 !== 0 || parseFloat(settingsList[index].value) % 1 === 0);
+        }
+        else if (numberType === SETTINGTYPES[1]) {
+            return Boolean( parseFloat(settingsList[index].value) % 1 === 0);
+        }
+    }
+
     const extractName = (pascalName: string):string | null =>{
-        return pascalName.trim() === ''? null: `${pascalName.charAt(0).toUpperCase()}${pascalName.slice(1).replace(/([a-z])([A-Z])/g, '$1 $2')}`;
+        return pascalName === undefined || pascalName.trim() === ''? '': `${pascalName.charAt(0).toUpperCase()}${pascalName.slice(1).replace(/([a-z])([A-Z])/g, '$1 $2')}`;
     }
-
-    const hasTypeSelected = () => {
-        return Boolean(settingTypes.length === settingsList.length);
-    }
-
+    console.log(price);
     return (
         <ThemeProvider theme={theme}>
             <DialogTitle >Formulario de actualización de artefactos custom</DialogTitle>
@@ -392,13 +389,13 @@ const EditArtifact = (props: {
                         control={control}
                         name={'price.value'}
                         rules={{ validate: { isValid: () => isPriceValid() } }}
+                        defaultValue={price}
                         render={({ onChange }) => (
                             <TextField
                                 error={!isPriceValid()}
                                 label="Valor"
                                 helperText="Requerido*"
                                 variant="outlined"
-                                defaultValue={price}
                                 value={price}
                                 className={classes.inputF}
                                 onChange={event => { handleChangePrice(event); onChange(event); }}
@@ -410,7 +407,7 @@ const EditArtifact = (props: {
                     </DialogContent>
                     {settingsList.map((setting: Setting, index: number) => {
                         return (
-                            <DialogContent>
+                            <DialogContent key={index}>
                             <FormGroup row>
                             <Grid container  spacing={0}>
                                 <Grid item xs={5} zeroMinWidth spacing={0} style={{flexBasis:'31%'}}>
@@ -418,6 +415,7 @@ const EditArtifact = (props: {
                                     control={control}
                                     name={`settings[${index}].name`}
                                     rules={{ validate: { isValid: () => !isFieldEmpty(index, "name"), isRepeate: () => !areNamesRepeated(index) } }}
+                                    defaultValue={setting.name}
                                     render={({ onChange }) => (
                                         <TextField
                                             error={errors.settings && errors.settings[index] && typeof errors.settings[index]?.name !== 'undefined' || setting.name === 'price'}
@@ -440,16 +438,16 @@ const EditArtifact = (props: {
                                 <Controller
                                     control={control}
                                     name={`settings[${index}].value`}
-                                    rules={{ validate: { isValid: () => !isFieldEmpty(index, "value") } }}
+                                    rules={{ validate: { isValid: () => {return !isFieldEmpty(index, "value") || !isValidNumber(index)} } }}
+                                    defaultValue={setting.value}
                                     render={({ onChange }) => (
                                         <TextField
-                                            error={errors.settings && errors.settings[index] && typeof errors.settings[index]?.value !== 'undefined'}
+                                            error={errors.settings && errors.settings[index] && typeof errors.settings[index]?.value !== 'undefined' || !isValidNumber(index) || !isNumberSameType(index)}
                                             id={`value[${index}]`}
                                             name={`settings[${index}].value`}
                                             label="Valor"
-                                            helperText="Requerido*"
+                                            helperText={!isValidNumber(index)? "Solo puede contener numeros":"Requerido*"}
                                             variant="outlined"
-                                            defaultValue={setting.value}
                                             value={setting.value}
                                             className={classes.inputF}
                                             onChange={event => { handleInputChange(event, index); onChange(event); }}
@@ -459,32 +457,37 @@ const EditArtifact = (props: {
                                     )}
                                 />
                                 </Grid>
-                                <FormControl variant="outlined" className={classes.select} error={!isValid}>
-                                <InputLabel id="settingTypeLabel">Tipo</InputLabel>
-                                <Controller
-                                    control={control}
-                                    name={`relationalSettings[${index}].type`}
-                                    error={!isValid}
-                                    defaultValue={extractName(settingTypes[index+1] !== undefined ? settingTypes[index+1].value : '')}
-                                    render={({ onChange }) => (
-                                            <Select
-                                                style={{ paddingTop: 5 }}
-                                                labelId="settingTypeLabel"
-                                                id="settingTypeLabel"
-                                                label="Tipo"
-                                                autoWidth
-                                                value={settingTypes[index+1] !== undefined ? settingTypes[index+1].value : ''}
-                                                onChange={event => { handleTypeChange(event, index); onChange(event); }}
-                                            >
-                                                <MenuItem value=""><em>None</em></MenuItem>
-                                                {SETTINGTYPES.map((value: string) => {
-                                                    return <MenuItem value={value}>{extractName(value)}</MenuItem>
-                                                })}
-                                            </Select>
-                                    )}
-                                />
-                                 <FormHelperText>Requerido*</FormHelperText>
-                                 </FormControl>
+                                 <FormControl variant="outlined" className={classes.select} error={!isNumberSameType(index)}>
+                                        <InputLabel id="settingTypeLabel">{!isNumberSameType(index)? <Typography gutterBottom className={classes.error}>Tipo</Typography>:"Tipo"}</InputLabel>
+                                        <Controller
+                                            control={control}
+                                            name={`relationalSettings[${index}].type`}
+                                            error={!isNumberSameType(index)}
+                                            rules={{ validate: { isValid: () => {return isNumberSameType(index)} }}}
+                                            defaultValue={settingsList[index].name !== undefined ? extractName(settingTypes[setting.name]):''}
+                                            render={({ onChange }) => (
+                                                <Select
+                                                    style={{ paddingTop: 5 }}
+                                                    labelId="settingTypeLabel"
+                                                    id="settingTypeLabel"
+                                                    name={`types[${index}]`}
+                                                    label="Tipo"
+                                                    autoWidth
+                                                    defaultValue={settingTypes[settingsList[index].name]}
+                                                    value={settingTypes[settingsList[index].name]}
+                                                    onChange={event => { handleTypeChange(event, index); onChange(event); }}
+                                                >
+                                                    <MenuItem value="">
+                                                        <em>None</em>
+                                                    </MenuItem>
+                                                    {SETTINGTYPES.map((value: string) => {
+                                                        return <MenuItem value={value}><em>{`${value.charAt(0).toUpperCase()}${value.slice(1).replace(/([a-z])([A-Z])/g, '$1 $2')}`}</em></MenuItem>
+                                                    })}
+                                                </Select>
+                                            )}
+                                        />
+                                        <FormHelperText>{!isNumberSameType(index)? <Typography gutterBottom className={classes.error}>Tipo invalido</Typography>:"Requerido*"}</FormHelperText>
+                                    </FormControl>
                                 <ButtonGroup size="small" style={{height:84}}>
                                     {settingsList.length - 1 === index &&
                                         <IconButton onClick={handleAddSetting} aria-label="add" color="primary">
