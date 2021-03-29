@@ -142,7 +142,7 @@ const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewAr
                         <div className={classes.circularProgress}>
                             <CircularProgress color="inherit" size={30} />
                         </div> :
-                        props.name !== null && areValidPricingDimensions(props.name, awsPricingDimensionList) ?
+                        props.name !== null && !areValidPricingDimensions(props.name, awsPricingDimensionList) ?
                             <Typography gutterBottom>
                                 Lo sentimos, no hay productos según las especificaciones seleccionadas
                             </Typography> :
@@ -157,7 +157,7 @@ const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewAr
             </DialogContent>
             <DialogActions>
                 <Button size="small" color="primary" onClick={event => goPrevStep()}>Atrás</Button>
-                <Button size="small" color="primary" type="submit" onClick={handleSubmit(handleConfirm)}>Siguiente</Button>
+                <Button size="small" color="primary" type="submit" disabled={props.name !== null && !areValidPricingDimensions(props.name, awsPricingDimensionList)} onClick={handleSubmit(handleConfirm)}>Siguiente</Button>
                 <Button size="small" color="secondary" onClick={handleCancel}>Cancelar</Button>
             </DialogActions>
         </Dialog>
