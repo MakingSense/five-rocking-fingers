@@ -87,8 +87,7 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
     }
 
     const isValidNumber = (index: number):boolean => {
-        return (!listOfValues.length)? !isNaN(Number(settingsList[index].value))
-        : !isNaN(Number(settingsList[index].value))
+        return !isNaN(Number(settingsList[index].value));
     }
 
     const isNumberSameType = (index: number) => {
@@ -199,7 +198,7 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
 
     const handleAddSetting = () => {
         setSettingsList([...settingsList, { name: "", value: "" }]);
-        setSettingTypes([{...settingTypes}]);
+        setSettingTypes({...settingTypes});
     }
 
     const handleDeleteSetting = (index: number) => {
