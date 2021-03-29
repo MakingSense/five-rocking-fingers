@@ -247,10 +247,10 @@ const EditArtifact = (props: {
 
     const isFieldEmpty = (index: number, field: string, select: boolean) => {
         if (!select) {
-            return (settingsList[index][field].trim() === "")? true : false;
+            return (settingsList[index][field].trim() === "");
         }
         else{
-            return (settingTypes[settingsList[index].name] === undefined || settingTypes[settingsList[index].name].trim() === "")? true : false;
+            return (settingTypes[settingsList[index].name] === undefined || settingTypes[settingsList[index].name].trim() === "");
         }
     }
 
