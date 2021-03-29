@@ -266,7 +266,7 @@ const EditArtifact = (props: {
     }
 
     const handleAddSetting = () => {
-        setSettingsList([...settingsList, { name: "", value: "" }]);
+        setSettingsList([...settingsList, { name: "", value: "0" }]);
         setSettingTypes({...settingTypes});
     }
 

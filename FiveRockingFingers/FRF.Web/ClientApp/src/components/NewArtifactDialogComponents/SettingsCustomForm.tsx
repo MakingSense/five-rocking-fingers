@@ -46,13 +46,13 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
     const [settingsList, setSettingsList] = React.useState<Setting[]>(props.settingsList);
     //Hook for saving the numbers of times a setting's name input is repeated
     const [settingsMap, setSettingsMap] = React.useState<{ [key: string]: number[] }>(props.settingsMap);
-    const [price, setPrice] = React.useState(() => {
+    const [price, setPrice] = React.useState<number>(() => {
         let index = settingsList.findIndex(s => s.name === 'price');
         if (index != -1) {
             let price = settingsList[index];
             settingsList.splice(index, 1);
             props.setSettingsList(settingsList);
-            return price.value;
+            return parseFloat(price.value);
         }
         return 0;
     });
@@ -190,7 +190,7 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
     }
 
     const handleAddSetting = () => {
-        setSettingsList([...settingsList, { name: "", value: "" }]);
+        setSettingsList([...settingsList, { name: "", value: "0" }]);
     }
 
     const handleDeleteSetting = (index: number) => {
@@ -320,7 +320,7 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
                                         name={`settings[${index}].value`}
                                         key={index}
                                         rules={{ validate: { isValid: () => isValidNumber(index), isEmpty: () => !isFieldEmpty(index, "value", false) } }}
-                                        defaultValue={setting.value === ''? 0:setting.value}
+                                        defaultValue={setting.value}
                                         render={({ onChange }) => (
                                             <TextField
                                                 error={errors.settings && errors.settings[index] && typeof errors.settings[index]?.value !== 'undefined' || !isValidNumber(index) || !isNumberSameType(index)}
@@ -329,7 +329,7 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
                                                 label="Valor"
                                                 helperText={!isValidNumber(index)? "Solo puede contener numeros positivos":"Requerido*"}
                                                 variant="outlined"
-                                                value={setting.value === ''? 0:setting.value}
+                                                value={setting.value}
                                                 className={classes.inputF}
                                                 onChange={event => { handleInputChange(event, index); onChange(event); }}
                                                 autoComplete='off'
