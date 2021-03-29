@@ -56,9 +56,6 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
         }
         return 0;
     });
-    const [listOfValues, setListOfValues] = React.useState<number[]>(()=>
-        settingsList.map(setting => {return Number(setting.value) } )
-    );
 
     React.useEffect(() => {
         setNameSettingsErrors();
@@ -87,17 +84,18 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
     }
 
     const isValidNumber = (index: number):boolean => {
-        return !isNaN(Number(settingsList[index].value));
+        return !isNaN(Number(settingsList[index].value))?  Math.sign(Number(settingsList[index].value)) >= 0 ? true:false:false;
     }
 
     const isNumberSameType = (index: number) => {
-        let numberType = settingTypes[settingsList[index].name];
+        const numberType = settingTypes[settingsList[index].name];
         if (numberType === undefined) return true;
-        else if (numberType === SETTINGTYPES[1]) {
-            return Boolean( listOfValues[index] % 1 === 0);
+        const settingValue = parseFloat(settingsList[index].value);
+        if (numberType === SETTINGTYPES[1]) {
+            return Boolean( settingValue % 1 === 0);
         }
         else if (numberType === SETTINGTYPES[0]) {
-            return Boolean( listOfValues[index] % 1 !== 0 || listOfValues[index] % 1 === 0);
+            return Boolean( settingValue % 1 !== 0 || settingValue % 1 === 0);
         }
     }
 
@@ -107,11 +105,6 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
         name = name.split(".")[1];
         if (name === 'name') {
             checkSettingName(value, index);
-        }
-        else{
-            let aux: number[] = [];
-            aux[index]= parseFloat(value);
-            setListOfValues(aux)
         }
         const list = [...settingsList];
         list[index][name] = value;
@@ -198,16 +191,15 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
 
     const handleAddSetting = () => {
         setSettingsList([...settingsList, { name: "", value: "" }]);
-        setSettingTypes({...settingTypes});
     }
 
     const handleDeleteSetting = (index: number) => {
-        const listSettings = [...settingsList];
+        let listTypes = {...settingTypes};
+        delete listTypes[settingsList[index].name];
+        setSettingTypes(listTypes);
+        let listSettings = [...settingsList];
         listSettings.splice(index, 1);
         setSettingsList(listSettings);
-        const listTypes = [{...settingTypes}];
-        listTypes.splice(index, 1);
-        setSettingTypes(listTypes);
 
         let mapList = { ...settingsMap };
         let key = searchIndexInObject(mapList, index);
@@ -253,7 +245,6 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
         props.setSettingTypes(settingTypes);
         props.handlePreviousStep();
     }
-
     return (
         <Dialog open={showNewArtifactDialog}>
             <DialogTitle >Formulario de artefactos custom</DialogTitle>
@@ -328,7 +319,7 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
                                         control={control}
                                         name={`settings[${index}].value`}
                                         key={index}
-                                        rules={{ validate: { isValid: () => {return !isFieldEmpty(index, "value", false) || !isValidNumber(index)} } }}
+                                        rules={{ validate: { isValid: () => isValidNumber(index), isEmpty: () => !isFieldEmpty(index, "value", false) } }}
                                         defaultValue={setting.value === ''? 0:setting.value}
                                         render={({ onChange }) => (
                                             <TextField
@@ -336,7 +327,7 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
                                                 id={`value[${index}]`}
                                                 name={`settings[${index}].value`}
                                                 label="Valor"
-                                                helperText={!isValidNumber(index)? "Solo puede contener numeros":"Requerido*"}
+                                                helperText={!isValidNumber(index)? "Solo puede contener numeros positivos":"Requerido*"}
                                                 variant="outlined"
                                                 value={setting.value === ''? 0:setting.value}
                                                 className={classes.inputF}
@@ -347,14 +338,14 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
                                         )}
                                     />
                                     </Grid>
-                                    <FormControl variant="outlined" className={classes.select} error={errors.types && errors.types[index] && typeof errors.types[index] !== 'undefined'  || !isNumberSameType(index)}>
-                                        <InputLabel id="settingTypeLabel">{!isNumberSameType(index)? <Typography gutterBottom className={classes.error}>Tipo</Typography>:"Tipo"}</InputLabel>
+                                    <FormControl variant="outlined" className={classes.select} error={errors.relationalSettings && errors.relationalSettings[index] && typeof errors.relationalSettings[index] !== 'undefined' || !isNumberSameType(index)}>
+                                        <InputLabel id="settingTypeLabel">{!isNumberSameType(index) ? <Typography gutterBottom className={classes.error}>Tipo</Typography> : "Tipo"}</InputLabel>
                                         <Controller
                                             control={control}
                                             name={`relationalSettings[${index}].type`}
                                             key={index}
                                             error={!isNumberSameType(index)}
-                                            rules={{ validate: { isValid: () => {return !isFieldEmpty(index, "value", true) && isNumberSameType(index)} }}}
+                                            rules={{ validate: { isValid: () => isValidNumber(index), isEmpty: () => !isFieldEmpty(index, "value", true) } }}
                                             defaultValue={settingTypes[settingsList[index].name] === undefined ? '' : settingTypes[settingsList[index].name]}
                                             render={({ onChange }) => (
                                                 <Select
@@ -367,16 +358,16 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
                                                     value={settingTypes[settingsList[index].name] === undefined ? '' : settingTypes[settingsList[index].name]}
                                                     onChange={event => { handleTypeChange(event, index); onChange(event); }}
                                                 >
-                                                <MenuItem value="">
-                                                    <em>None</em>
-                                                </MenuItem>
-                                                {SETTINGTYPES.map((value: string) => {
-                                                    return <MenuItem value={value}><em>{`${value.charAt(0).toUpperCase()}${value.slice(1).replace(/([a-z])([A-Z])/g, '$1 $2')}`}</em></MenuItem>
-                                                })}
+                                                    <MenuItem value="">
+                                                        <em>None</em>
+                                                    </MenuItem>
+                                                    {SETTINGTYPES.map((value: string) => {
+                                                        return <MenuItem value={value}><em>{`${value.charAt(0).toUpperCase()}${value.slice(1).replace(/([a-z])([A-Z])/g, '$1 $2')}`}</em></MenuItem>
+                                                    })}
                                                 </Select>
                                             )}
                                         />
-                                        <FormHelperText>{!isNumberSameType(index)? <Typography gutterBottom className={classes.error}>Tipo invalido</Typography>:"Requerido*"}</FormHelperText>
+                                        <FormHelperText>{!isNumberSameType(index) ? <Typography gutterBottom className={classes.error}>Tipo invalido</Typography> : "Requerido*"}</FormHelperText>
                                     </FormControl>
                                 <ButtonGroup size='small' key={index}>
                                     {settingsList.length - 1 === index &&

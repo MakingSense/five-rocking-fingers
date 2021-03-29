@@ -269,12 +269,12 @@ const EditArtifact = (props: {
     }
 
     const handleDeleteSetting = (index: number) => {
-        const list = [...settingsList];
+        let listTypes = {...settingTypes};
+        delete listTypes[settingsList[index].name];
+        setSettingTypes(listTypes);
+        let list = [...settingsList];
         list.splice(index, 1);
         setSettingsList(list);
-        const listTypes = [{...settingTypes}];
-        listTypes.splice(index, 1);
-        setSettingTypes(listTypes);
 
         let mapList = { ...settingsMap };
         let key = searchIndexInObject(mapList, index);
@@ -324,25 +324,24 @@ const EditArtifact = (props: {
     }
 
     const isValidNumber = (index: number):boolean => {
-        return !isNaN(Number(settingsList[index].value))
+        return !isNaN(Number(settingsList[index].value))?  Math.sign(Number(settingsList[index].value)) >= 0 ? true:false:false;
     }
 
     const isNumberSameType = (index: number) => {
-        let numberType = settingTypes[settingsList[index].name];
+        const numberType = settingTypes[settingsList[index].name];
         if (numberType === undefined || settingsList[index].name === 'price' ) return true;
-        
+        const settingValue = parseFloat(settingsList[index].value);
         if (numberType === SETTINGTYPES[0]) {
-            return Boolean( parseFloat(settingsList[index].value) % 1 !== 0 || parseFloat(settingsList[index].value) % 1 === 0);
+            return Boolean( settingValue % 1 !== 0 || settingValue % 1 === 0);
         }
         else if (numberType === SETTINGTYPES[1]) {
-            return Boolean( parseFloat(settingsList[index].value) % 1 === 0);
+            return Boolean( settingValue % 1 === 0);
         }
     }
 
     const extractName = (pascalName: string):string | null =>{
         return pascalName === undefined || pascalName.trim() === ''? '': `${pascalName.charAt(0).toUpperCase()}${pascalName.slice(1).replace(/([a-z])([A-Z])/g, '$1 $2')}`;
     }
-    console.log(price);
     return (
         <ThemeProvider theme={theme}>
             <DialogTitle >Formulario de actualización de artefactos custom</DialogTitle>
@@ -438,7 +437,7 @@ const EditArtifact = (props: {
                                 <Controller
                                     control={control}
                                     name={`settings[${index}].value`}
-                                    rules={{ validate: { isValid: () => {return !isFieldEmpty(index, "value") || !isValidNumber(index)} } }}
+                                    rules={{ validate: { isValid: () => isValidNumber(index), isEmpty: () => !isFieldEmpty(index, "value", false) } }}
                                     defaultValue={setting.value}
                                     render={({ onChange }) => (
                                         <TextField
@@ -446,24 +445,25 @@ const EditArtifact = (props: {
                                             id={`value[${index}]`}
                                             name={`settings[${index}].value`}
                                             label="Valor"
-                                            helperText={!isValidNumber(index)? "Solo puede contener numeros":"Requerido*"}
+                                            helperText={!isValidNumber(index)? "Solo puede contener numeros positivos":"Requerido*"}
                                             variant="outlined"
                                             value={setting.value}
                                             className={classes.inputF}
                                             onChange={event => { handleInputChange(event, index); onChange(event); }}
                                             autoComplete='off'
                                             disabled={isSettingAtTheEndOfAnyRelation(setting.name)}
+                                            type="number"
                                         />
                                     )}
                                 />
                                 </Grid>
-                                 <FormControl variant="outlined" className={classes.select} error={!isNumberSameType(index)}>
+                                <FormControl variant="outlined" className={classes.select} error={errors.relationalSettings && errors.relationalSettings[index] && typeof errors.relationalSettings[index] !== 'undefined' || !isNumberSameType(index)}>
                                         <InputLabel id="settingTypeLabel">{!isNumberSameType(index)? <Typography gutterBottom className={classes.error}>Tipo</Typography>:"Tipo"}</InputLabel>
                                         <Controller
                                             control={control}
                                             name={`relationalSettings[${index}].type`}
                                             error={!isNumberSameType(index)}
-                                            rules={{ validate: { isValid: () => {return isNumberSameType(index)} }}}
+                                            rules={{ validate: { isValid: () => isValidNumber(index), isEmpty: () => !isFieldEmpty(index, "value", true) } }}
                                             defaultValue={settingsList[index].name !== undefined ? extractName(settingTypes[setting.name]):''}
                                             render={({ onChange }) => (
                                                 <Select
