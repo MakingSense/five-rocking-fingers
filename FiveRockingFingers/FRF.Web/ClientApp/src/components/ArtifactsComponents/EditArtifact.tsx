@@ -252,11 +252,13 @@ const EditArtifact = (props: {
         return false;
     }
 
-    const isFieldEmpty = (index: number, field: string) => {
-        if (settingsList[index][field].trim() === "") {
-            return true;
+    const isFieldEmpty = (index: number, field: string, select: boolean) => {
+        if (!select) {
+            return (settingsList[index][field].trim() === "")? true : false;
         }
-        return false;
+        else{
+            return (settingTypes[settingsList[index].name] === undefined || settingTypes[settingsList[index].name].trim() === "")? true : false;
+        }
     }
 
     const handleCancel = () => {
@@ -413,7 +415,7 @@ const EditArtifact = (props: {
                                 <Controller
                                     control={control}
                                     name={`settings[${index}].name`}
-                                    rules={{ validate: { isValid: () => !isFieldEmpty(index, "name"), isRepeate: () => !areNamesRepeated(index) } }}
+                                    rules={{ validate: { isValid: () => !isFieldEmpty(index, "name", false), isRepeate: () => !areNamesRepeated(index) } }}
                                     defaultValue={setting.name}
                                     render={({ onChange }) => (
                                         <TextField
