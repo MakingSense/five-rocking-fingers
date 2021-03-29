@@ -1,5 +1,6 @@
 ﻿import PricingTerm from '../../interfaces/PricingTerm';
 import PricingDimension from '../../interfaces/PricingDimension';
+import { AMAZON_EC2, COMPUTE_INSTACE, STORAGE, STORAGE_SNAPSHOTS, SYSTEM_OPERATIONS, PROVISIONED_THROUGHPUT, DATA_TRANSFER_1, DATA_TRANSFER_2, DATA_TRANSFER_3, AMAZON_S3 } from '../../Constants';
 
 export const useSettingsCreator = () => {
 
@@ -11,28 +12,28 @@ export const useSettingsCreator = () => {
 			let settings = {};
 
 			switch (awsPricingDimension.product) {
-				case 'Compute Instance':
+				case COMPUTE_INSTACE:
 					settings = createPricingTermObject('product0', awsPricingDimension);
 					break;
-				case 'Storage':
+				case STORAGE:
 					settings = createPricingTermObject('product1', awsPricingDimension);
 					break;
-				case 'Storage Snapshot':
+				case STORAGE_SNAPSHOTS:
 					settings = createPricingTermObject('product2', awsPricingDimension);
 					break;
-				case 'System Operation':
+				case SYSTEM_OPERATIONS:
 					settings = createPricingTermObject('product3', awsPricingDimension);
 					break;
-				case 'Provisioned Throughput':
+				case PROVISIONED_THROUGHPUT:
 					settings = createPricingTermObject('product4', awsPricingDimension);
 					break;
-				case 'Data Transfer 1':
+				case DATA_TRANSFER_1:
 					settings = createPricingTermObject('product5-1', awsPricingDimension);
 					break;
-				case 'Data Transfer 2':
+				case DATA_TRANSFER_2:
 					settings = createPricingTermObject('product5-2', awsPricingDimension);
 					break;
-				case 'Data Transfer 3':
+				case DATA_TRANSFER_3:
 					settings = createPricingTermObject('product5-3', awsPricingDimension);
 					break;
 			}
@@ -83,10 +84,10 @@ export const useSettingsCreator = () => {
 		let pricingTermSetting = {};
 
 		switch (serviceCode) {
-			case 'AmazonEC2':
+			case AMAZON_EC2:
 				pricingTermSetting = createAmazonEc2Settings(awsPricingDimensionList);
 				break;
-			case 'AmazonS3':
+			case AMAZON_S3:
 				pricingTermSetting = createAmazonS3Settings(awsPricingDimensionList);
 				break;
 		}

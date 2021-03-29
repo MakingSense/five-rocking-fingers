@@ -1,4 +1,5 @@
 ﻿import PricingTerm from '../../interfaces/PricingTerm';
+import { AMAZON_EC2, COMPUTE_INSTACE, AMAZON_S3 } from '../../Constants';
 
 export const usePricingDimensionsValidator = () => {
 
@@ -6,7 +7,7 @@ export const usePricingDimensionsValidator = () => {
 		if (awsPricingDimensionList.length === 0) return false;
 		for (let i = 0; i < awsPricingDimensionList.length; i++) {
 			let awsPricingDimension = awsPricingDimensionList[i];
-			if (awsPricingDimension.product === 'Compute Instance')
+			if (awsPricingDimension.product === COMPUTE_INSTACE)
 				return true;
 		}
 		return false;
@@ -20,10 +21,10 @@ export const usePricingDimensionsValidator = () => {
 	const areValidPricingDimensions = (serviceCode: string, awsPricingDimensionList: PricingTerm[]): boolean => {
 		let validPricingDimensions = false;
 		switch (serviceCode) {
-			case 'AmazonEC2':
+			case AMAZON_EC2:
 				validPricingDimensions = areValidAmazonEc2PricingDimensions(awsPricingDimensionList);
 				break;
-			case 'AmazonS3':
+			case AMAZON_S3:
 				validPricingDimensions = areValidAmazonS3PricingDimensions(awsPricingDimensionList);
 				break;
 		}
