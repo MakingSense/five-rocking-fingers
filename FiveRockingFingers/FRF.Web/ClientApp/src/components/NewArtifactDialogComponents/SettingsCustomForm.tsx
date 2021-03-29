@@ -226,7 +226,7 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
         let settingsObject: { [key: string]: string } = {};
 
         for (let i = 0; i < settingsList.length; i++) {
-            settingsObject[settingsList[i].name] = settingsList[i].value;
+            settingsObject[settingsList[i].name.trim()] = settingsList[i].value;
         }
 
         return settingsObject;
