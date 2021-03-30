@@ -1,6 +1,6 @@
 ﻿import PricingTerm from '../../interfaces/PricingTerm';
 import PricingDimension from '../../interfaces/PricingDimension';
-import { AMAZON_EC2, COMPUTE_INSTACE, STORAGE, STORAGE_SNAPSHOTS, SYSTEM_OPERATIONS, PROVISIONED_THROUGHPUT, DATA_TRANSFER_1, DATA_TRANSFER_2, DATA_TRANSFER_3, AMAZON_S3 } from '../../Constants';
+import { AMAZON_EC2, COMPUTE_INSTACE, STORAGE, STORAGE_SNAPSHOT, SYSTEM_OPERATION, PROVISIONED_THROUGHPUT, DATA_TRANSFER_1, DATA_TRANSFER_2, DATA_TRANSFER_3, AMAZON_S3 } from '../../Constants';
 
 export const useSettingsCreator = () => {
 
@@ -18,10 +18,10 @@ export const useSettingsCreator = () => {
 				case STORAGE:
 					settings = createPricingTermObject('product1', awsPricingDimension);
 					break;
-				case STORAGE_SNAPSHOTS:
+				case STORAGE_SNAPSHOT:
 					settings = createPricingTermObject('product2', awsPricingDimension);
 					break;
-				case SYSTEM_OPERATIONS:
+				case SYSTEM_OPERATION:
 					settings = createPricingTermObject('product3', awsPricingDimension);
 					break;
 				case PROVISIONED_THROUGHPUT:
