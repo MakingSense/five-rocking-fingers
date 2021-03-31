@@ -70,7 +70,6 @@ const SettingsAwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifa
     //Create the artifact after submit
     const handleConfirm = async () => {
         let awsSettingsListFiltered = awsSettingsList.filter(awsSetting => awsSetting !== undefined && awsSetting !== null && awsSetting.value !== "");
-        console.log(awsSettingsListFiltered);
         props.setSettingsList(awsSettingsListToSettingsList(awsSettingsListFiltered));
         props.setAwsSettingsList(awsSettingsListFiltered);
         props.handleNextStep();

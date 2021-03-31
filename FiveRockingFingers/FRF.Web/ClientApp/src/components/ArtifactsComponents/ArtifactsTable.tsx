@@ -21,6 +21,7 @@ const ArtifactsTable = (props: { projectId: number}) => {
     const [price, setPrice] = React.useState<string>('');
     const [projectBudget, setProjectBudget] = React.useState<number>(-1);
     const [updateList, setUpdateList] = React.useState(true);
+    const [settingTypes, setSettingTypes] = React.useState<{ [key: string]: string }>({});
     const loading = projectBudget=== -1 || artifacts.length === 0;
     const {projectId} = props;
 
@@ -122,6 +123,8 @@ const ArtifactsTable = (props: { projectId: number}) => {
                                 updateList={getArtifacts}
                                 setArtifactToEdit={setArtifactToEdit}
                                 openEditArtifactDialog={openEditArtifactDialog}
+                                setSettingTypes={setSettingTypes}
+                                settingTypes={settingTypes}
                             />
                             ) : null}
                         <ArtifactsTotalPrice totalPrice={price} projectBudget={projectBudget} /></>
@@ -151,6 +154,8 @@ const ArtifactsTable = (props: { projectId: number}) => {
                     artifactToEdit={artifactToEdit}
                     updateArtifacts={getArtifacts}
                     manageOpenSnackbar={manageOpenSnackbar}
+                    setSettingTypes={setSettingTypes}
+                    settingTypes={settingTypes}
                 /> :
                 null
             }

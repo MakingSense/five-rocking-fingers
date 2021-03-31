@@ -1,4 +1,4 @@
-﻿import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core';
+﻿import { Button, DialogActions, DialogContent, DialogTitle } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
@@ -28,7 +28,8 @@ const EditArtifactConfirmation = (props: {
     closeEditArtifactDialog: Function,
     setOpenSnackbar: Function,
     setSnackbarSettings: Function,
-    updateArtifacts: Function }) => {
+    updateArtifacts: Function,
+    settingTypes: { [key: string]: string } }) => {
 
     const classes = useStyles();
     const { handleSubmit } = useForm();
@@ -43,7 +44,8 @@ const EditArtifactConfirmation = (props: {
             projectId: props.artifactToEdit.projectId,
             settings: {
                 settings: props.artifactToEdit.settings
-            }
+            },
+            relationalFields: props.artifactToEdit.relationalFields
         };
 
         try {
@@ -73,10 +75,12 @@ const EditArtifactConfirmation = (props: {
             <DialogTitle id="alert-dialog-title">Confirmación</DialogTitle>
             <DialogContent>
                 {props.namesOfSettingsChanged.length > 0 ?
+                    <>
                     <Typography gutterBottom color="secondary" className={classes.title}>
                         Tenga en cuenta que al modificar el nombre de alguna de las settings se borrará
                         las relaciones asociadas.
                         Las settings cuyos nombres serán modificados son:
+                    </Typography>
                         <br />
                         <br />
                         <li className={classes.listStyleNone}>
@@ -84,7 +88,7 @@ const EditArtifactConfirmation = (props: {
                                 return (<ul>{name}</ul>);
                             })}
                         </li>
-                    </Typography> :
+                    </> :
                     null
                 }
                 <hr/>
@@ -103,8 +107,8 @@ const EditArtifactConfirmation = (props: {
                 </Typography>
                 {
                     Object.entries(props.artifactToEdit.settings).map(([key, value], index) =>  (
-                            <Typography gutterBottom>
-                                <span className={classes.settingName}>{key}</span>: {value}
+                            <Typography gutterBottom key={index}>
+                                <span className={classes.settingName} key={index}>{key}</span>: {value}
                             </Typography>
                         )
                     )

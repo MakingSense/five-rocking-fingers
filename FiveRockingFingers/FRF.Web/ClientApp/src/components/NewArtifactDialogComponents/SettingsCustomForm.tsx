@@ -1,4 +1,4 @@
-﻿import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, IconButton, ButtonGroup } from '@material-ui/core';
+﻿import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, IconButton, ButtonGroup, Select, MenuItem, Grid, FormGroup, FormHelperText, FormControl, InputLabel } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import * as React from 'react';
 import { useForm, Controller } from 'react-hook-form';
@@ -6,7 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Setting from '../../interfaces/Setting';
-
+import { SETTINGTYPES } from '../../Constants';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -21,28 +21,38 @@ const useStyles = makeStyles((theme: Theme) =>
         inputF: {
             padding: 2,
             marginTop: 10
+        },
+        select: {
+            marginBottom: 24,
+            marginRight: 0,
+            marginLeft: 0,
+            marginTop: 12,
+            "& .MuiSelect-outlined": {
+                paddingBottom: 13
+              }
+        },
+        error: {
+            color: 'red'
         }
     }),
 );
 
-const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, updateList: Function, setOpenSnackbar: Function, setSnackbarSettings: Function, handleNextStep: Function, handlePreviousStep: Function, settingsList: Setting[], setSettingsList: Function, settingsMap: { [key: string]: number[] }, setSettingsMap: Function, setSettings: Function }) => {
+const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, updateList: Function, setOpenSnackbar: Function, setSnackbarSettings: Function, handleNextStep: Function, handlePreviousStep: Function, settingsList: Setting[], setSettingsList: Function, settingsMap: { [key: string]: number[] }, setSettingsMap: Function, setSettings: Function, settingTypes: { [key: string]: string }, setSettingTypes: Function }) => {
 
     const classes = useStyles();
     const { handleSubmit, errors, setError, clearErrors, control } = useForm();
-    const { showNewArtifactDialog, closeNewArtifactDialog } = props;
-
+    const { showNewArtifactDialog, closeNewArtifactDialog,setSettingTypes,settingTypes } = props;
     //Hook for save the user's settings input
     const [settingsList, setSettingsList] = React.useState<Setting[]>(props.settingsList);
     //Hook for saving the numbers of times a setting's name input is repeated
     const [settingsMap, setSettingsMap] = React.useState<{ [key: string]: number[] }>(props.settingsMap);
-
-    const [price, setPrice] = React.useState(() => {
+    const [price, setPrice] = React.useState<number>(() => {
         let index = settingsList.findIndex(s => s.name === 'price');
         if (index != -1) {
             let price = settingsList[index];
             settingsList.splice(index, 1);
             props.setSettingsList(settingsList);
-            return price.value;
+            return parseFloat(price.value);
         }
         return 0;
     });
@@ -59,9 +69,11 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
         props.setSettingsList(settingsList);
         props.setSettingsMap(settingsMap);
         props.setSettings({ settings: createSettingsObject() });
+        props.setSettingTypes(settingTypes);
         props.handleNextStep();
+        
     }
-
+   
     const handleChangePrice = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         setPrice(parseInt(event.target.value, 10));
     }
@@ -71,10 +83,27 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
         return false
     }
 
+    const isValidNumber = (index: number):boolean => {
+        return !isNaN(Number(settingsList[index].value))?  Math.sign(Number(settingsList[index].value)) >= 0 ? true:false:false;
+    }
+
+    const isNumberSameType = (index: number) => {
+        const numberType = settingTypes[settingsList[index].name];
+        if (numberType === undefined) return true;
+        const settingValue = parseFloat(settingsList[index].value);
+        if (numberType === SETTINGTYPES[1]) {
+            return Boolean( settingValue % 1 === 0);
+        }
+        else if (numberType === SETTINGTYPES[0]) {
+            return Boolean( settingValue % 1 !== 0 || settingValue % 1 === 0);
+        }
+    }
+
     //Handle changes in the inputs fields
     const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, index: number) => {
         let { name, value } = event.target;
         name = name.split(".")[1];
+        value = value.replace(/\s/g, '_').trim();
         if (name === 'name') {
             checkSettingName(value, index);
         }
@@ -94,6 +123,7 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
             mapList[settingName] = [index];
             setSettingsMap(mapList);
         }
+        else if (mapList[settingName] === undefined) return;
         else {
             mapList[settingName].push(index);
             setSettingsMap(mapList);
@@ -124,7 +154,7 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
 
     //Set errors if the setting's name the user enters are repeat
     const setNameSettingsErrors = () => {
-        for (let [key, array] of Object.entries(settingsMap)) {
+        for (let [, array] of Object.entries(settingsMap)) {
             if (array.length > 1) {
                 for (let i = 0; i < array.length; i++) {
                     setError(`settings[${array[i]}].name`, {
@@ -148,11 +178,13 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
         return false;
     }
 
-    const isFieldEmpty = (index: number, field: string) => {
-        if (settingsList[index][field].trim() === "") {
-            return true;
+    const isFieldEmpty = (index: number, field: string, select: boolean) => {
+        if (!select) {
+            return (settingsList[index][field].trim() === "");
         }
-        return false;
+        else{
+            return (settingTypes[settingsList[index].name] === undefined || settingTypes[settingsList[index].name].trim() === "");
+        }
     }
 
     const handleCancel = () => {
@@ -160,24 +192,29 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
     }
 
     const handleAddSetting = () => {
-        setSettingsList([...settingsList, { name: "", value: "" }]);
+        setSettingsList([...settingsList, { name: "", value: "0" }]);
     }
 
     const handleDeleteSetting = (index: number) => {
-        const list = [...settingsList];
-        list.splice(index, 1);
-        setSettingsList(list);
+        let listTypes = {...settingTypes};
+        delete listTypes[settingsList[index].name];
+        setSettingTypes(listTypes);
+        let listSettings = [...settingsList];
+        listSettings.splice(index, 1);
+        setSettingsList(listSettings);
+
         let mapList = { ...settingsMap };
         let key = searchIndexInObject(mapList, index);
         if (key != null) {
             deleteIndexFromObject(mapList, index, key);
             updateSettingsMap(mapList, index);
+
         }
         setSettingsMap(mapList);
     }
 
     const updateSettingsMap = (object: { [key: string]: number[] }, index: number) => {
-        for (let [key, array] of Object.entries(object)) {
+        for (let [, array] of Object.entries(object)) {
             for (let i = 0; i < array.length; i++) {
                 if (array[i] > index) {
                     array[i] = array[i] - 1;
@@ -191,30 +228,43 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
         let settingsObject: { [key: string]: string } = {};
 
         for (let i = 0; i < settingsList.length; i++) {
-            settingsObject[settingsList[i].name] = settingsList[i].value;
+            settingsObject[settingsList[i].name.trim().replace(/\s+/g, '')] = settingsList[i].value;
         }
 
         return settingsObject;
+    }
+
+    const handleTypeChange = (event: React.ChangeEvent<{ value: unknown }>, index: number) => {
+        if (areNamesRepeated(index)) return;
+        let auxSettingTypes = {...settingTypes};
+        auxSettingTypes[settingsList[index].name] = event.target.value as string;
+        setSettingTypes(auxSettingTypes);
     }
 
     const goPrevStep = () => {
         settingsList.unshift({ name: 'price', value: price.toString() });
         props.setSettingsList(settingsList);
         props.setSettingsMap(settingsMap);
+        props.setSettingTypes(settingTypes);
         props.handlePreviousStep();
     }
-
     return (
         <Dialog open={showNewArtifactDialog}>
-            <DialogTitle id="alert-dialog-title">Formulario de artefactos custom</DialogTitle>
-            <DialogContent>
+            <DialogTitle >Formulario de artefactos custom</DialogTitle>
+                <DialogContent>
                 <Typography gutterBottom>
-                    A continuación ingrese las propiedades de su nuevo artefacto custom y el valor que tomarán esas propiedades
+                    A continuación ingrese las propiedades de su nuevo artefacto custom y el valor que tomarán esas propiedades.
+                    Recuerde que no se aceptan nombres con espacios.
                 </Typography>
+                <Typography gutterBottom>
+                    Recuerde que no se aceptan nombres con espacios.
+                </Typography>
+                </DialogContent>
                 <form className={classes.container}>
+                <DialogContent>
                     <TextField
                         disabled
-                        label="Nombre de la setting"
+                        label="Nombre de la propiedad"
                         helperText={"Requerido*"}
                         variant="outlined"
                         defaultValue='Precio'
@@ -225,13 +275,13 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
                         control={control}
                         name={'price.value'}
                         rules={{ validate: { isValid: () => isPriceValid() } }}
+                        defaultValue={price}
                         render={({ onChange }) => (
                             <TextField
                                 error={!isPriceValid()}
-                                label="Valor de la setting"
+                                label="Valor"
                                 helperText="Requerido*"
                                 variant="outlined"
-                                defaultValue={price}
                                 value={price}
                                 className={classes.inputF}
                                 onChange={event => { handleChangePrice(event); onChange(event); }}
@@ -240,72 +290,113 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
                             />
                         )}
                     />
-                    {settingsList.map((setting: Setting, index: number) => {
-                        return (
-                            <React.Fragment key={index}>
-                                <Controller
-                                    control={control}
-                                    name={`settings[${index}].name`}
-                                    rules={{ validate: { isValid: () => !isFieldEmpty(index, "name"), isRepeate: () => !areNamesRepeated(index) } }}
-                                    render={({ onChange }) => (
-                                        <TextField
-                                            error={errors.settings && errors.settings[index] && typeof errors.settings[index]?.name !== 'undefined' || setting.name === 'price' }
-                                            id={`name[${index}]`}
-                                            name={`settings[${index}].name`}
-                                            label="Nombre de la setting"
-                                            helperText={areNamesRepeated(index) ? "Los nombres no pueden repetirse" : "Requerido*"}
-                                            variant="outlined"
-                                            defaultValue={setting.name}
-                                            value={setting.name}
-                                            className={classes.inputF}
-                                            onChange={event => { handleInputChange(event, index); onChange(event); }}
-                                            autoComplete='off'
-                                        />
-                                    )}
-                                />
+                </DialogContent>
+                <DialogTitle style={{marginBottom: '-14px', paddingTop:1}} >Propiedades: </DialogTitle>
+                {settingsList.map((setting: Setting, index: number) => {
+                    return (
+                        <DialogContent key={index}>
+                            <FormGroup row>
+                            <Grid container>
+                                <Grid item xs={5} zeroMinWidth spacing={0} style={{flexBasis:'31%'}}>
+                                    <Controller
+                                        control={control}
+                                        name={`settings[${index}].name`}
+                                        key={index}
+                                        rules={{ validate: { isValid: () => !isFieldEmpty(index, "name", false), isRepeate: () => !areNamesRepeated(index) } }}
+                                        defaultValue={setting.name}
+                                        render={({ onChange }) => (
+                                            <TextField
+                                                error={errors.settings && errors.settings[index] && typeof errors.settings[index]?.name !== 'undefined' || setting.name === 'price'}
+                                                id={`name[${index}]`}
+                                                name={`settings[${index}].name`}
+                                                label="Nombre"
+                                                helperText={areNamesRepeated(index) ? "Los nombres no pueden repetirse" : "Requerido*"}
+                                                variant="outlined"
+                                                value={setting.name}
+                                                className={classes.inputF}
+                                                onChange={event => {handleInputChange(event, index); onChange(event); }}
+                                                autoComplete='off'
+                                            />
+                                        )}
+                                    />
+                                </Grid>
 
-                                <Controller
-                                    control={control}
-                                    name={`settings[${index}].value`}
-                                    rules={{ validate: { isValid: () => !isFieldEmpty(index, "value") }}}
-                                    render={({ onChange }) => (
-                                        <TextField
-                                            error={errors.settings && errors.settings[index] && typeof errors.settings[index]?.value !== 'undefined'}
-                                            id={`value[${index}]`}
-                                            name={`settings[${index}].value`}
-                                            label="Valor de la setting"
-                                            helperText="Requerido*"
-                                            variant="outlined"
-                                            defaultValue={setting.value}
-                                            value={setting.value}
-                                            className={classes.inputF}
-                                            onChange={event => { handleInputChange(event, index); onChange(event); }}
-                                            autoComplete='off'
+                                <Grid item xs={3} zeroMinWidth spacing={0}>
+                                    <Controller
+                                        control={control}
+                                        name={`settings[${index}].value`}
+                                        key={index}
+                                        rules={{ validate: { isValid: () => isValidNumber(index), isEmpty: () => !isFieldEmpty(index, "value", false) } }}
+                                        defaultValue={setting.value}
+                                        render={({ onChange }) => (
+                                            <TextField
+                                                error={errors.settings && errors.settings[index] && typeof errors.settings[index]?.value !== 'undefined' || !isValidNumber(index) || !isNumberSameType(index)}
+                                                id={`value[${index}]`}
+                                                name={`settings[${index}].value`}
+                                                label="Valor"
+                                                helperText={!isValidNumber(index)? "Solo puede contener numeros positivos":"Requerido*"}
+                                                variant="outlined"
+                                                value={setting.value}
+                                                className={classes.inputF}
+                                                onChange={event => { handleInputChange(event, index); onChange(event); }}
+                                                autoComplete='off'
+                                                type="number"
+                                            />
+                                        )}
+                                    />
+                                    </Grid>
+                                    <FormControl variant="outlined" className={classes.select} error={errors.relationalSettings && errors.relationalSettings[index] && typeof errors.relationalSettings[index] !== 'undefined' || !isNumberSameType(index)}>
+                                        <InputLabel id="settingTypeLabel">{!isNumberSameType(index) ? <Typography gutterBottom className={classes.error}>Tipo</Typography> : "Tipo"}</InputLabel>
+                                        <Controller
+                                            control={control}
+                                            name={`relationalSettings[${index}].type`}
+                                            key={index}
+                                            error={!isNumberSameType(index)}
+                                            rules={{ validate: { isValid: () => isValidNumber(index), isEmpty: () => !isFieldEmpty(index, "value", true) } }}
+                                            defaultValue={settingTypes[settingsList[index].name] === undefined ? '' : settingTypes[settingsList[index].name]}
+                                            render={({ onChange }) => (
+                                                <Select
+                                                    style={{ paddingTop: 5 }}
+                                                    labelId="settingTypeLabel"
+                                                    id="settingTypeLabel"
+                                                    name={`types[${index}]`}
+                                                    label="Tipo"
+                                                    autoWidth
+                                                    value={settingTypes[settingsList[index].name] === undefined ? '' : settingTypes[settingsList[index].name]}
+                                                    onChange={event => { handleTypeChange(event, index); onChange(event); }}
+                                                >
+                                                    <MenuItem value="">
+                                                        <em>None</em>
+                                                    </MenuItem>
+                                                    {SETTINGTYPES.map((value: string) => {
+                                                        return <MenuItem value={value}><em>{`${value.charAt(0).toUpperCase()}${value.slice(1).replace(/([a-z])([A-Z])/g, '$1 $2')}`}</em></MenuItem>
+                                                    })}
+                                                </Select>
+                                            )}
                                         />
-                                    )}
-                                />
-
-                                <ButtonGroup>
+                                        <FormHelperText>{!isNumberSameType(index) ? <Typography gutterBottom className={classes.error}>Tipo invalido</Typography> : "Requerido*"}</FormHelperText>
+                                    </FormControl>
+                                <ButtonGroup size='small' key={index}>
                                     {settingsList.length - 1 === index &&
-                                        <IconButton onClick={handleAddSetting } aria-label="add" color="primary">
+                                        <IconButton onClick={handleAddSetting} aria-label="add" color="primary">
                                             <AddCircleIcon />
                                         </IconButton>
                                     }
 
                                     {settingsList.length !== 1 &&
-                                        <IconButton onClick={event => handleDeleteSetting(index)} aria-label="delete" color="secondary">
+                                        <IconButton onClick={() => handleDeleteSetting(index)} aria-label="delete" color="secondary">
                                             <DeleteIcon />
                                         </IconButton>
                                     }
                                 </ButtonGroup>
-                        </React.Fragment>
-                        ); 
-                    })}
-                    
-                </form>
-            </DialogContent>
+                                </Grid>
+                            </FormGroup>
+                        </DialogContent>
+                    );
+                })}
+            </form>
             <DialogActions>
-                <Button size="small" color="primary" onClick={event => goPrevStep()}>Atrás</Button>
+                <Button size="small" color="primary" onClick={() => goPrevStep()}>Atrás</Button>
                 <Button size="small" color="primary" type="submit" onClick={handleSubmit(handleConfirm)}>Siguiente</Button>
                 <Button size="small" color="secondary" onClick={handleCancel}>Cancelar</Button>
             </DialogActions>
