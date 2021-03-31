@@ -240,6 +240,16 @@ namespace FRF.Core.Services
                 return new ServiceResponse<Artifact>(new Error(ErrorCodes.InvalidArtifactSettings, $"Settings are invalid"));
             }
 
+            // Update XML node types if the artifact is a custom one
+            if (artifact.ArtifactType.Provider.Name == ArtifactTypes.Custom)
+            {
+                artifact = SetSettingTypesXML(artifact);
+                if (!ValidTypeSettings(artifact))
+                {
+                    return new ServiceResponse<Artifact>(new Error(ErrorCodes.InvalidArtifactSettings, "At least one of the settings values doesn't correspond to it's type"));
+                }
+            }
+
             // Maps the artifact into an EntityModel, deleting the Id if there was one, and setting the CreatedDate field
             var mappedArtifact = _mapper.Map<EntityModels.Artifact>(artifact);
             mappedArtifact.CreatedDate = DateTime.Now;
@@ -295,6 +305,16 @@ namespace FRF.Core.Services
             if (!_settingsValidator.ValidateSettings(artifact))
             {
                 return new ServiceResponse<Artifact>(new Error(ErrorCodes.InvalidArtifactSettings, $"Settings are invalid"));
+            }
+
+            // Update XML node types if the artifact is a custom one, and validate relation type/value in settings
+            if (artifact.ArtifactType.Provider.Name == ArtifactTypes.Custom)
+            {
+                artifact = SetSettingTypesXML(artifact);
+                if (!ValidTypeSettings(artifact))
+                {
+                    return new ServiceResponse<Artifact>(new Error(ErrorCodes.InvalidArtifactSettings, "At least one of the settings values doesn't correspond to it's type"));
+                }
             }
 
             var artifactsRelationsIdsToDelete = await GetRelationsToDeleteOfUpdatedArtifact(artifact.Id, artifact.Settings, result.Settings);
@@ -996,6 +1016,49 @@ namespace FRF.Core.Services
             }
 
             return flag;
+        }
+
+        private Artifact SetSettingTypesXML(Artifact artifact)
+        {
+            var updatedArtifact = artifact;
+            var newSettings = new XElement("settings");
+
+            foreach (XElement xe in artifact.Settings.Elements())
+            {
+                if (updatedArtifact.RelationalFields.ContainsKey(xe.Name.ToString()))
+                {
+                    xe.SetAttributeValue("type", updatedArtifact.RelationalFields[xe.Name.ToString()]);
+                }
+                else if (xe.Name.ToString().Equals("price"))
+                {
+                    xe.SetAttributeValue("type", SettingTypes.Decimal);
+                }
+                newSettings.Add(xe);
+            }
+
+            updatedArtifact.Settings = newSettings;
+
+            return updatedArtifact;
+        }
+
+        private bool ValidTypeSettings(Artifact artifact)
+        {
+            foreach (XElement xe in artifact.Settings.Elements())
+            {
+                switch (xe.Attribute("type").Value.ToString())
+                {
+                    case SettingTypes.Decimal:
+                        if (!SettingTypes.IsDecimal(xe.Value)) return false;
+                        break;
+                    case SettingTypes.NaturalNumber:
+                        if (!SettingTypes.IsNaturalNumber(xe.Value)) return false;
+                        break;
+                    default:
+                        continue;
+                }
+            }
+
+            return true;
         }
     }
 }
