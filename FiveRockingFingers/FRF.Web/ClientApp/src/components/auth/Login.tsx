@@ -1,5 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Button, Checkbox, FormControlLabel, Paper, TextField } from "@material-ui/core";
+import { Button, Checkbox, FormControlLabel, Paper, TextField, Tooltip, Typography } from "@material-ui/core";
 import axios from "axios";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -27,9 +27,12 @@ const UserLoginSchema = yup.object().shape({
         .required('Requerido.').email('Debe ser un email valido.'),
     password: yup.string()
         .trim()
-        .min(8, 'Debe tener al menos 8 caracteres.')
-        .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[@#$%^&+=.\-_*])(?=.*[A-Z]).{8,}$/, 'Debe incluir al menos un numero, un caracter en mayuscula y un simbolo.')
-        .required('Requerido.'),
+        .required('Requerido.')
+        .matches(/(?=.*[@#$%^&+=.\-_*])/, 'Debe incluir al menos un simbolo distinto de + o =')
+        .test("hasPlusOrEqual","No puede incluir los simbolos + o =",(password)=> !/(\+|=)/.test(password!))
+        .test("hasAnyNumber","Debe incluir al menos un numero.",(password)=> /(?=.*\d)/.test(password!))
+        .test("hasAnyUppercase","Debe incluir al menos un caracter en mayuscula.",(password)=> /(?=.*[A-Z])/.test(password!))
+        .test("hasMinLenght",'Debe tener al menos 8 caracteres.',(password)=> /(.{8,}$)/.test(password!))
 });
 
 const Login = () => {
@@ -97,6 +100,9 @@ const Login = () => {
                 <FormGroup className="campo-form">
                     <Label for="password" md={4}>Password</Label>
                     <Col sm={9}>
+                    <Tooltip title={
+                    <Typography variant="body2">Debe tener al menos 8 caracteres, un numero, un caracter en mayuscula y un simbolo distinto de + o =
+                    </Typography>} placement="right" arrow>
                         <TextField
                             inputRef={register}
                             type="password"
@@ -104,6 +110,7 @@ const Login = () => {
                             size="small"
                             error={!!errors.password}
                             helperText={errors.password ? errors.password.message : ''} />
+                    </Tooltip>
                     </Col>
                 </FormGroup>
                 <FormControlLabel className="alinea-centro"
