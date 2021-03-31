@@ -10,7 +10,7 @@ import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 import ArtifactService from '../../services/ArtifactService';
 import { Select } from '@material-ui/core';
-import { PROVIDERS } from '../../Constants';
+import { updateArtifactsSettings, toRegularSentence, handleArtifactChange, handleSettingChange, differentSettingTypes } from './HelperArtifactRelation';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -57,34 +57,7 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
     const [relation, setRelation] = React.useState<ArtifactRelation>(props.artifactRelations);
     const [isErrorRelationRepeated, setIsErrorRelationRepeated] = React.useState<boolean>(false);
     const [isErrorEmptyField, setIsErrorEmptyField] = React.useState<boolean>(false);
-
-    const updateArtifactsSettings = () => {
-        props.updateList(true);
-        if (artifact1 !== null && artifact1 !== undefined) {
-            if (artifact1.artifactType?.name != PROVIDERS[1]) {
-                var relationalSettings: { [key: string]: string } = {};
-                Object.entries(artifact1.relationalFields).map(([key, value]) => relationalSettings[key] = artifact1.settings[key]);
-                setArtifact1Settings(relationalSettings);
-            } else {
-                setArtifact1Settings(artifact1.settings);
-            }
-        }
-        else {
-            setArtifact1Settings({});
-        }
-        if (artifact2 !== null && artifact2 !== undefined) {
-            if (artifact2.artifactType?.name != PROVIDERS[1]) {
-                var relationalSettings: { [key: string]: string } = {};
-                Object.entries(artifact2.relationalFields).map(([key, value]) => relationalSettings[key] = artifact2.settings[key]);
-                setArtifact2Settings(relationalSettings);
-            } else {
-                setArtifact2Settings(artifact2.settings);
-            }
-        }
-        else {
-            setArtifact2Settings({});
-        }
-    }
+    const [areSettingTypesDifferent, setAreSettingTypesDifferent] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         setArtifact1(props.artifacts.find(a => a.id === props.artifactRelations.artifact1.id) as Artifact);
@@ -92,8 +65,13 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
     }, [props.open])
 
     React.useEffect(() => {
-        updateArtifactsSettings();
+        updateArtifactsSettings(artifact1, artifact2, setArtifact1Settings, setArtifact2Settings);
     }, [artifact1, artifact2, relation])
+
+    React.useEffect(() => {
+        let result = differentSettingTypes(setting1, setting2, artifact1, artifact2);
+        setAreSettingTypesDifferent(result);
+    }, [setting1, setting2]);
 
     const areRelationsEqual = (relation: ArtifactRelation) => {
         if (artifact1 === null || artifact2 === null || setting1 === null || setting2 === null) {
@@ -127,7 +105,7 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
     }
 
     const resetState = () => {
-        updateArtifactsSettings();
+        updateArtifactsSettings(artifact1, artifact2, setArtifact1Settings, setArtifact2Settings);
         setArtifact1(props.artifacts.find(a => a.id === props.artifactRelations.artifact1.id) as Artifact);
         setArtifact2(props.artifacts.find(a => a.id === props.artifactRelations.artifact2.id) as Artifact);
         setSetting1(null);
@@ -162,6 +140,8 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
         }
         else setIsErrorRelationRepeated(false);
 
+        if (areSettingTypesDifferent) return;
+
         let artifactsRelationsList: any[] = [];
         let artifactsRelation = {
             id: relation.id,
@@ -187,41 +167,8 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
         handleClose();
     }
 
-    const handleChange = (event: React.ChangeEvent<{ name?: string | undefined; value: unknown }>) => {
-        if (event.target.name === 'artifact1') {
-            setSetting1(null)
-            setArtifact1(props.artifacts.find(a => a.id === event.target.value) as Artifact);
-        }
-        else if (event.target.name === 'artifact2') {
-            setSetting2(null)
-            setArtifact2(props.artifacts.find(a => a.id === event.target.value) as Artifact);
-        }
-    }
-
-    const handleSettingChange = (event: React.ChangeEvent<{ name?: string | undefined; value: unknown }>) => {
-        if (event.target.name === 'setting1') {
-            let setting: KeyValueStringPair = { key: event.target.value as string, value: artifact1Settings[event.target.value as string] };
-            setSetting1(setting);
-        }
-        else if (event.target.name === 'setting2') {
-            let setting: KeyValueStringPair = { key: event.target.value as string, value: artifact2Settings[event.target.value as string] };
-            setSetting2(setting);
-        }
-    }
-
     const handleRelationTypeChange = (event: React.ChangeEvent<{ name?: string | undefined; value: unknown }>) => {
         setRelationTypeId(event.target.value as number);
-    }
-
-    const toRegularSentence = (value: string) => {
-        if (!value || value.length === 0) return "";
-
-        const result = value.replace(/([A-Z])/g, ' $1');
-        if (/[a-z]/.test(result.charAt(0))) {
-            return `${result.charAt(0).toUpperCase()}${result.slice(1)}`;
-        } else {
-            return result;
-        }
     }
 
     return (
@@ -241,7 +188,7 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
                                         name: 'artifact1',
                                         id: 'type-select1'
                                     }}
-                                    onChange={(event) => handleChange(event)}
+                                    onChange={(event) => handleArtifactChange(event, setSetting1, setArtifact1, setSetting2, setArtifact2, props.artifacts)}
                                     defaultValue={artifact1?.id}
                                     error={false}
                                 >
@@ -265,7 +212,7 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
                                         name: 'artifact2',
                                         id: 'type-select2'
                                     }}
-                                    onChange={(event) => handleChange(event)}
+                                    onChange={(event) => handleArtifactChange(event, setSetting1, setArtifact1, setSetting2, setArtifact2, props.artifacts)}
                                     defaultValue={artifact2?.id}
                                     error={false}
                                 >
@@ -292,10 +239,10 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
                                         name: 'setting1',
                                         id: 'type-select'
                                     }}
-                                    onChange={(event) => handleSettingChange(event)}
+                                    onChange={(event) => handleSettingChange(event, artifact1Settings, artifact2Settings, setSetting1, setSetting2)}
                                     defaultValue={''}
                                     value={setting1 ? setting1.key : ''}
-                                    error={false}
+                                    error={areSettingTypesDifferent}
                                 >
                                     <MenuItem value="">
                                         <em>None</em>
@@ -346,10 +293,10 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
                                         name: 'setting2',
                                         id: 'type-select'
                                     }}
-                                    onChange={(event) => handleSettingChange(event)}
+                                    onChange={(event) => handleSettingChange(event, artifact1Settings, artifact2Settings, setSetting1, setSetting2)}
                                     defaultValue={''}
                                     value={setting2 ? setting2.key : ''}
-                                    error={false}
+                                    error={areSettingTypesDifferent}
                                 >
                                     <MenuItem value="">
                                         <em>None</em>
@@ -381,6 +328,11 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
                     {isErrorEmptyField ?
                         <Typography gutterBottom className={classes.error}>
                             Todos los campos deben ser completados para modificar una relación
+                        </Typography> : null
+                    }
+                    {areSettingTypesDifferent ?
+                        <Typography gutterBottom className={classes.error}>
+                            Los tipos de las settings a relacionar deben ser iguales
                         </Typography> : null
                     }
                 </form>
