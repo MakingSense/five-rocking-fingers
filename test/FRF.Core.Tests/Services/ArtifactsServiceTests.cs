@@ -1023,7 +1023,12 @@ namespace FRF.Core.Tests.Services
         {
             // Arange
             var project = CreateProject();
-            var provider = CreateProvider();
+
+            var provider = new Provider();
+            provider.Name = ArtifactTypes.Custom;
+            _dataAccess.Providers.Add(provider);
+            _dataAccess.SaveChanges();
+
             var artifactType = CreateArtifactType(provider);
 
             var setting1Name = "Setting1";
@@ -1088,7 +1093,12 @@ namespace FRF.Core.Tests.Services
         {
             // Arange
             var project = CreateProject();
-            var provider = CreateProvider();
+
+            var provider = new Provider();
+            provider.Name = ArtifactTypes.Custom;
+            _dataAccess.Providers.Add(provider);
+            _dataAccess.SaveChanges();
+
             var artifactType = CreateArtifactType(provider);
 
             var setting1Name = "Setting1";
@@ -1303,15 +1313,20 @@ namespace FRF.Core.Tests.Services
         [Fact]
         public async Task SetRelationAsync_ReturnsErrorCycleDetected1()
         {
-            var provider = CreateProvider();
+            var provider = new Provider();
+            provider.Name = ArtifactTypes.Custom;
+            _dataAccess.Providers.Add(provider);
+            _dataAccess.SaveChanges();
+
             var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
-            var artifact1 = CreateArtifact(project, artifactType);
-            var artifact2 = CreateArtifact(project, artifactType);
-            var artifact3 = CreateArtifact(project, artifactType);
 
-            var artifactRelation1 = CreateArtifactsRelationModel(artifact1.Id, artifact2.Id, "[Mock] Property artefact 1", "[Mock] Property artefact 2");
-            var artifactRelation2 = CreateArtifactsRelationModel(artifact2.Id, artifact3.Id, "[Mock] Property artefact 2", "[Mock] Property artefact 3");
+            var artifact1 = CreateArtifactWithSetting(project, artifactType, "setting1", 100);
+            var artifact2 = CreateArtifactWithSetting(project, artifactType, "setting2", 200);
+            var artifact3 = CreateArtifactWithSetting(project, artifactType, "setting3", 300);
+
+            var artifactRelation1 = CreateArtifactsRelationModel(artifact1.Id, artifact2.Id, "setting1", "setting2");
+            var artifactRelation2 = CreateArtifactsRelationModel(artifact2.Id, artifact3.Id, "setting2", "setting3");
 
             await _dataAccess.ArtifactsRelation.AddAsync(_mapper.Map<ArtifactsRelation>(artifactRelation1));
             await _dataAccess.ArtifactsRelation.AddAsync(_mapper.Map<ArtifactsRelation>(artifactRelation2));
@@ -1319,7 +1334,7 @@ namespace FRF.Core.Tests.Services
 
             var newArtifactRelationList = new List<CoreModels.ArtifactsRelation>();
 
-            newArtifactRelationList.Add(CreateArtifactsRelationModel(artifact3.Id, artifact1.Id, "[Mock] Property artefact 3", "[Mock] Property artefact 1"));
+            newArtifactRelationList.Add(CreateArtifactsRelationModel(artifact3.Id, artifact1.Id, "setting3", "setting1"));
 
             // Act
             var response = await _classUnderTest.SetRelationAsync(artifact1.Id, newArtifactRelationList);
@@ -1333,15 +1348,29 @@ namespace FRF.Core.Tests.Services
         [Fact]
         public async Task SetRelationAsync_ReturnsErrorCycleDetected2()
         {
-            var provider = CreateProvider();
+            var provider = new Provider();
+            provider.Name = ArtifactTypes.Custom;
+            _dataAccess.Providers.Add(provider);
+            _dataAccess.SaveChanges();
+
             var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
-            var artifact1 = CreateArtifact(project, artifactType);
-            var artifact2 = CreateArtifact(project, artifactType);
 
-            var artifactRelation1 = CreateArtifactsRelationModel(artifact1.Id, artifact2.Id, "[Mock] Property artefact 11", "[Mock] Property artefact 21");
-            var artifactRelation2 = CreateArtifactsRelationModel(artifact2.Id, artifact1.Id, "[Mock] Property artefact 21", "[Mock] Property artefact 12");
-            var artifactRelation3 = CreateArtifactsRelationModel(artifact1.Id, artifact2.Id, "[Mock] Property artefact 12", "[Mock] Property artefact 22");
+            var artifact1 = CreateArtifact(project, artifactType);
+            var SettingsArt1 = new XElement("Settings",
+                new XElement("setting11", 100, new XAttribute("type", SettingTypes.Decimal)),
+                new XElement("setting12", 200, new XAttribute("type", SettingTypes.Decimal)));
+            artifact1.Settings = SettingsArt1;
+
+            var artifact2 = CreateArtifact(project, artifactType);
+            var SettingsArt2 = new XElement("Settings",
+                new XElement("setting21", 300, new XAttribute("type", SettingTypes.Decimal)),
+                new XElement("setting22", 400, new XAttribute("type", SettingTypes.Decimal)));
+            artifact2.Settings = SettingsArt2;
+
+            var artifactRelation1 = CreateArtifactsRelationModel(artifact1.Id, artifact2.Id, "setting11", "setting21");
+            var artifactRelation2 = CreateArtifactsRelationModel(artifact2.Id, artifact1.Id, "setting21", "setting12");
+            var artifactRelation3 = CreateArtifactsRelationModel(artifact1.Id, artifact2.Id, "setting12", "setting22");
 
             await _dataAccess.ArtifactsRelation.AddAsync(_mapper.Map<ArtifactsRelation>(artifactRelation1));
             await _dataAccess.ArtifactsRelation.AddAsync(_mapper.Map<ArtifactsRelation>(artifactRelation2));
@@ -1350,7 +1379,7 @@ namespace FRF.Core.Tests.Services
 
             var newArtifactRelationList = new List<CoreModels.ArtifactsRelation>();
 
-            newArtifactRelationList.Add(CreateArtifactsRelationModel(artifact2.Id, artifact1.Id, "[Mock] Property artefact 22", "[Mock] Property artefact 11"));
+            newArtifactRelationList.Add(CreateArtifactsRelationModel(artifact2.Id, artifact1.Id, "setting22", "setting11"));
 
             // Act
             var response = await _classUnderTest.SetRelationAsync(artifact1.Id, newArtifactRelationList);
@@ -1366,26 +1395,31 @@ namespace FRF.Core.Tests.Services
         {
             // Arange
             var artifactsRelationToSave = new List<CoreModels.ArtifactsRelation>();
-            var provider = CreateProvider();
+
+            var provider = new Provider();
+            provider.Name = ArtifactTypes.Custom;
+            _dataAccess.Providers.Add(provider);
+            _dataAccess.SaveChanges();
+
             var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
-            var baseArtifact = CreateArtifact(project, artifactType);
-            var artifact2 = CreateArtifact(project, artifactType);
+            var baseArtifact = CreateArtifactWithSetting(project, artifactType, "setting1", 100);
+            var artifact2 = CreateArtifactWithSetting(project, artifactType, "setting2", 200);
 
             var artifactRelation1 = new CoreModels.ArtifactsRelation()
             {
                 Artifact1Id = baseArtifact.Id,
                 Artifact2Id = artifact2.Id,
-                Artifact1Property = "Mock 1 Property",
-                Artifact2Property = "Mock 2 Property",
+                Artifact1Property = "setting1",
+                Artifact2Property = "setting2",
                 RelationTypeId = 1
             };
             var artifactRelation2 = new CoreModels.ArtifactsRelation()
             {
                 Artifact1Id = artifact2.Id,
                 Artifact2Id = baseArtifact.Id,
-                Artifact1Property = "Mock 2 Property",
-                Artifact2Property = "Mock 1 Property",
+                Artifact1Property = "setting2",
+                Artifact2Property = "setting1",
                 RelationTypeId = 1
             };
             artifactsRelationToSave.Add(artifactRelation2);
@@ -1410,26 +1444,31 @@ namespace FRF.Core.Tests.Services
         {
             // Arange
             var artifactsRelationToSave = new List<CoreModels.ArtifactsRelation>();
-            var provider = CreateProvider();
+
+            var provider = new Provider();
+            provider.Name = ArtifactTypes.Custom;
+            _dataAccess.Providers.Add(provider);
+            _dataAccess.SaveChanges();
+
             var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
-            var baseArtifact = CreateArtifact(project, artifactType);
-            var artifact2 = CreateArtifact(project, artifactType);
+            var baseArtifact = CreateArtifactWithSetting(project, artifactType, "setting1", 100);
+            var artifact2 = CreateArtifactWithSetting(project, artifactType, "setting2", 200);
 
             var artifactRelation1 = new CoreModels.ArtifactsRelation()
             {
                 Artifact1Id = baseArtifact.Id,
                 Artifact2Id = artifact2.Id,
-                Artifact1Property = "Mock 1 Property",
-                Artifact2Property = "Mock 2 Property",
+                Artifact1Property = "setting1",
+                Artifact2Property = "setting2",
                 RelationTypeId = 1
             };
             var artifactRelation2 = new CoreModels.ArtifactsRelation()
             {
                 Artifact1Id = baseArtifact.Id,
                 Artifact2Id = artifact2.Id,
-                Artifact1Property = "Mock 1 Property",
-                Artifact2Property = "Mock 2 Property",
+                Artifact1Property = "setting1",
+                Artifact2Property = "setting2",
                 RelationTypeId = 0
             };
             artifactsRelationToSave.Add(artifactRelation2);
@@ -1495,7 +1534,11 @@ namespace FRF.Core.Tests.Services
         public async Task UpdateRelationAsync_ReturnsListOfRelations()
         {
             // Arange
-            var provider = CreateProvider();
+            var provider = new Provider();
+            provider.Name = ArtifactTypes.Custom;
+            _dataAccess.Providers.Add(provider);
+            _dataAccess.SaveChanges();
+
             var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
 
@@ -1587,27 +1630,32 @@ namespace FRF.Core.Tests.Services
             // Arange
             var artifactsRelationUpdated = new List<CoreModels.ArtifactsRelation>();
 
-            var provider = CreateProvider();
+            var provider = new Provider();
+            provider.Name = ArtifactTypes.Custom;
+            _dataAccess.Providers.Add(provider);
+            _dataAccess.SaveChanges();
+
             var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
 
-            var artifact1 = CreateArtifact(project, artifactType);
-            var artifact2 = CreateArtifact(project, artifactType);
-            var artifact3 = CreateArtifact(project, artifactType);
+            var artifact1 = CreateArtifactWithSetting(project, artifactType, "setting1", 100);
+            var artifact2 = CreateArtifactWithSetting(project, artifactType, "setting2", 200);
+            var artifact3 = CreateArtifactWithSetting(project, artifactType, "setting3", 300);
+            var artifact4 = CreateArtifactWithSetting(project, artifactType, "setting4", 400);
 
-            var artifactRelation1 = CreateArtifactsRelationEntityModel(artifact1.Id, artifact2.Id, "[Mock] Property artefact 1", "[Mock] Property artefact 2");
+            var artifactRelation1 = CreateArtifactsRelationEntityModel(artifact1.Id, artifact2.Id, "setting1", "setting2");
             await _dataAccess.ArtifactsRelation.AddAsync(artifactRelation1);
             await _dataAccess.SaveChangesAsync();
 
-            var artifactRelation2 = CreateArtifactsRelationEntityModel(artifact2.Id, artifact3.Id, "[Mock] Property artefact 2", "[Mock] Property artefact 3");
+            var artifactRelation2 = CreateArtifactsRelationEntityModel(artifact2.Id, artifact3.Id, "setting2", "setting3");
             await _dataAccess.ArtifactsRelation.AddAsync(artifactRelation2);
             await _dataAccess.SaveChangesAsync();
 
-            var artifactRelation3 = CreateArtifactsRelationEntityModel(artifact3.Id, artifact1.Id, "[Mock] Property artefact 3", "[Mock] Another property");
+            var artifactRelation3 = CreateArtifactsRelationEntityModel(artifact3.Id, artifact4.Id, "setting3", "setting4");
             await _dataAccess.ArtifactsRelation.AddAsync(artifactRelation3);
             await _dataAccess.SaveChangesAsync();
 
-            var updatedRelation = CreateArtifactsRelationModel(artifact3.Id, artifact1.Id, "[Mock] Property artefact 3", "[Mock] Property artefact 1");
+            var updatedRelation = CreateArtifactsRelationModel(artifact3.Id, artifact1.Id, "setting3", "setting1");
             updatedRelation.Id = artifactRelation3.Id;
             artifactsRelationUpdated.Add(updatedRelation);
 
@@ -1626,30 +1674,44 @@ namespace FRF.Core.Tests.Services
             // Arange
             var artifactsRelationUpdated = new List<CoreModels.ArtifactsRelation>();
 
-            var provider = CreateProvider();
+            var provider = new Provider();
+            provider.Name = ArtifactTypes.Custom;
+            _dataAccess.Providers.Add(provider);
+            _dataAccess.SaveChanges();
+
             var artifactType = CreateArtifactType(provider);
             var project = CreateProject();
 
             var artifact1 = CreateArtifact(project, artifactType);
-            var artifact2 = CreateArtifact(project, artifactType);
+            var SettingsArt1 = new XElement("Settings",
+                new XElement("setting11", 100, new XAttribute("type", SettingTypes.Decimal)),
+                new XElement("setting12", 200, new XAttribute("type", SettingTypes.Decimal)),
+                new XElement("anotherSetting", 8000, new XAttribute("type", SettingTypes.Decimal)));
+            artifact1.Settings = SettingsArt1;
 
-            var artifactRelation1 = CreateArtifactsRelationEntityModel(artifact1.Id, artifact2.Id, "[Mock] Property artefact 11", "[Mock] Property artefact 21");
+            var artifact2 = CreateArtifact(project, artifactType);
+            var SettingsArt2 = new XElement("Settings",
+                new XElement("setting21", 300, new XAttribute("type", SettingTypes.Decimal)),
+                new XElement("setting22", 400, new XAttribute("type", SettingTypes.Decimal)));
+            artifact2.Settings = SettingsArt2;
+
+            var artifactRelation1 = CreateArtifactsRelationEntityModel(artifact1.Id, artifact2.Id, "setting11", "setting21");
             await _dataAccess.ArtifactsRelation.AddAsync(artifactRelation1);
             await _dataAccess.SaveChangesAsync();
 
-            var artifactRelation2 = CreateArtifactsRelationEntityModel(artifact2.Id, artifact1.Id, "[Mock] Property artefact 21", "[Mock] Property artefact 12");
+            var artifactRelation2 = CreateArtifactsRelationEntityModel(artifact2.Id, artifact1.Id, "setting21", "setting12");
             await _dataAccess.ArtifactsRelation.AddAsync(artifactRelation2);
             await _dataAccess.SaveChangesAsync();
 
-            var artifactRelation3 = CreateArtifactsRelationEntityModel(artifact1.Id, artifact2.Id, "[Mock] Property artefact 12", "[Mock] Property artefact 22");
+            var artifactRelation3 = CreateArtifactsRelationEntityModel(artifact1.Id, artifact2.Id, "setting12", "setting22");
             await _dataAccess.ArtifactsRelation.AddAsync(artifactRelation3);
             await _dataAccess.SaveChangesAsync();
 
-            var artifactRelation4 = CreateArtifactsRelationEntityModel(artifact2.Id, artifact1.Id, "[Mock] Property artefact 22", "[Mock] Another Property");
+            var artifactRelation4 = CreateArtifactsRelationEntityModel(artifact2.Id, artifact1.Id, "setting22", "anotherSetting");
             await _dataAccess.ArtifactsRelation.AddAsync(artifactRelation4);
             await _dataAccess.SaveChangesAsync();
 
-            var updatedRelation = CreateArtifactsRelationModel(artifact2.Id, artifact1.Id, "[Mock] Property artefact 22", "[Mock] Property artefact 11");
+            var updatedRelation = CreateArtifactsRelationModel(artifact2.Id, artifact1.Id, "setting22", "setting11");
             updatedRelation.Id = artifactRelation4.Id;
             artifactsRelationUpdated.Add(updatedRelation);
 
