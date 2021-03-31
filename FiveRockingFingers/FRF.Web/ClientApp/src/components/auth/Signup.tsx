@@ -1,5 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Box, Button, Paper, TextField } from '@material-ui/core';
+import { Box, Button, Paper, TextField, Tooltip, Typography } from '@material-ui/core';
 import axios from 'axios';
 import React from 'react';
 import { useForm } from "react-hook-form";
@@ -35,9 +35,12 @@ const UserSignupSchema = yup.object().shape({
         .required('Requerido.').email('Debe ser un email valido.'),
     password: yup.string()
         .trim()
-        .min(8, 'Debe tener al menos 8 caracteres.')
-        .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[@#$%^&+=.\-_*])(?=.*[A-Z]).{8,}$/, 'Debe incluir al menos un numero, un caracter en mayuscula y un simbolo.')
-        .required('Requerido.'),
+        .required('Requerido.')
+        .matches(/(?=.*[@#$%^&+=.\-_*])/, 'Debe incluir al menos un simbolo distinto de + o =')
+        .test("hasPlusOrEqual","No puede incluir los simbolos + o =",(password)=> !/(\+|=)/.test(password!))
+        .test("hasAnyNumber","Debe incluir al menos un numero.",(password)=> /(?=.*\d)/.test(password!))
+        .test("hasAnyUppercase","Debe incluir al menos un caracter en mayuscula.",(password)=> /(?=.*[A-Z])/.test(password!))
+        .test("hasMinLenght",'Debe tener al menos 8 caracteres.',(password)=> /(.{8,}$)/.test(password!)),
     confirm: yup.string()
         .oneOf([yup.ref('password'), ''], 'El password no coincide.')
 });
@@ -45,7 +48,8 @@ const UserSignupSchema = yup.object().shape({
 const Signup = ({ }) => {
     const history = useHistory();
     const { storeUser, cleanUserStorage } = useUser();
-    const { register, handleSubmit, errors, reset } = useForm<userSignUp>({ resolver: yupResolver(UserSignupSchema) });
+    const { register, handleSubmit, errors, reset } = useForm<userSignUp>({ mode: 'onChange',
+    reValidateMode: 'onChange',resolver: yupResolver(UserSignupSchema) });
     const [loading, setLoading] = React.useState(false);
     const [snackbarSettings, setSnackbarSettings] = React.useState<SnackbarSettings>({ message: "", severity: undefined });
     const [openSnackbar, setOpenSnackbar] = React.useState(false);
@@ -86,7 +90,6 @@ const Signup = ({ }) => {
                 }
             });
     }
-
     return (
         <Paper className="paperForm" elevation={9} id="signup">
             <h2 className="text-center">
@@ -141,6 +144,9 @@ const Signup = ({ }) => {
                 </FormGroup>
                 <FormGroup className="campo-form">
                     <Label className="text-center" for="userPassword">Password</Label>
+                    <Tooltip title={
+                    <Typography variant="body2">Debe tener al menos 8 caracteres, un numero, un caracter en mayuscula y un simbolo distinto de + o =
+                    </Typography>} placement="right" arrow>
                     <TextField
                         inputRef={register}
                         type="password"
@@ -151,11 +157,16 @@ const Signup = ({ }) => {
                                 padding: '0 14px',
                             },
                         }}
+                        autoComplete="current-password"
                         error={!!errors.password}
                         helperText={errors.password ? errors.password.message : ''} />
+                    </Tooltip>
                 </FormGroup>
                 <FormGroup className="campo-form">
-                    <Label className="text-center" for="confirmPassword">Password</Label>
+                    <Label className="text-center" for="confirmPassword">Confirmar Password</Label>
+                    <Tooltip title={
+                    <Typography variant="body2">Debe tener al menos 8 caracteres, un numero, un caracter en mayuscula y un simbolo distinto de + o =
+                    </Typography>} placement="right" arrow>
                     <TextField
                         inputRef={register}
                         type="password"
@@ -168,6 +179,7 @@ const Signup = ({ }) => {
                         }}
                         error={!!errors.confirm}
                         helperText={errors.confirm ? errors.confirm.message : ''} />
+                    </Tooltip>
                 </FormGroup>
                 <Row className="alinea-centro">
                     <LoadingButton buttonText="Registrarse" loading={loading} />

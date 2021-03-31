@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Amazon.CognitoIdentityProvider.Model;
 using Amazon.Extensions.CognitoAuthentication;
@@ -130,13 +131,14 @@ namespace FRF.Core.Tests.Services
         }
 
         [Fact]
-        public async Task SignUpAsync_ReturnTrue()
+        public async Task SignUpAsync_ReturnTrueAndUserToken()
         {
             // Arrange
             var newUser = CreateUser();
             var cognitoUser = CreateCognitoUser();
             var userSignin = CreateUserSignIn();
             var signInResult = SignInResult.Success;
+            cognitoUser.SessionTokens = new CognitoUserSession("idToken", "accessToken", "refreshToken", DateTime.Now, DateTime.MaxValue);
 
             _userManagerMock
                 .Setup(mock => mock.CreateAsync(It.IsAny<CognitoUser>(), It.IsAny<string>()))
@@ -166,7 +168,7 @@ namespace FRF.Core.Tests.Services
             // Assert
             Assert.IsType<ServiceResponse<string>>(result);
             Assert.True(result.Success);
-            Assert.Equal(cognitoUser.UserID, result.Value);
+            Assert.Equal(cognitoUser.SessionTokens.IdToken, result.Value);
 
             _userManagerMock.Verify(mock => mock.FindByEmailAsync(It.IsAny<string>()), Times.Once);
 
