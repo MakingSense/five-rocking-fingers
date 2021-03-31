@@ -39,7 +39,6 @@ const EditArtifactConfirmation = (props: {
 
         const artifactEdited = {
             name: props.artifactToEdit.name,
-            provider: props.artifactToEdit.provider,
             artifactTypeId: props.artifactToEdit.artifactType.id,
             projectId: props.artifactToEdit.projectId,
             settings: {

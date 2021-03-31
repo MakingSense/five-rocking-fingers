@@ -6,6 +6,7 @@ using FRF.Web.Controllers;
 using FRF.Web.Dtos.Artifacts;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
@@ -208,6 +209,25 @@ namespace FRF.Web.Tests.Controllers
             Assert.Equal(pricingTermList[0].PricingDimensions[1].RateCode, returnValue[0].PricingDimensions[1].RateCode);
             Assert.Equal(pricingTermList[0].PricingDimensions[1].Unit, returnValue[0].PricingDimensions[1].Unit);
             _artifactProviderService.Verify(mock => mock.GetProductsAsync(artifactSettingsList, serviceCode), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetRequiredFieldsAsync_ReturnsOk()
+        {
+            // Arrange
+            var serviceCode = "[Mock] Service code";
+            var requiredFields = JObject.Parse("{\"jsonProperty\":\"jsonValue\"}");
+
+            _artifactProviderService
+                .Setup(mock => mock.GetRequiredFieldsAsync(It.IsAny<string>()))
+                .ReturnsAsync(new ServiceResponse<JObject>(requiredFields));
+
+            // Act
+            var result = await _classUnderTest.GetRequiredFieldsAsync(serviceCode);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var returnValue = Assert.IsType<JObject>(okResult.Value);
         }
     }
 }

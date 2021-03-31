@@ -22,7 +22,7 @@ const ArtifactsTableRow = (props: { artifact: Artifact, openSnackbar: Function, 
       <>
         <tr>
             <td>{props.artifact.name}</td>
-            <td>{props.artifact.provider}</td>
+            <td>{props.artifact.artifactType.provider.name}</td>
             <td>{props.artifact.artifactType.name}</td>
             <td>{props.artifact.price}</td>
             <td>                
