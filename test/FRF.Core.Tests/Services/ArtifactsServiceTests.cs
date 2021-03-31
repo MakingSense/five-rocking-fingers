@@ -122,7 +122,7 @@ namespace FRF.Core.Tests.Services
                 ProjectId = project.Id,
                 ArtifactType = artifactType,
                 ArtifactTypeId = artifactType.Id,
-                Settings = new XElement("Settings", new XElement(settingName, settingValue))
+                Settings = new XElement("Settings", new XElement(settingName, settingValue, new XAttribute("type", SettingTypes.Decimal)))
             };
             _dataAccess.Artifacts.Add(artifact);
             _dataAccess.SaveChanges();
@@ -422,6 +422,82 @@ namespace FRF.Core.Tests.Services
         }
 
         [Fact]
+        public async Task SaveAsync_ReturnsExceptionInvalidArtifactSettings_NaturalNumberWrongValue1()
+        {
+            // Arange
+            var provider = new Provider();
+            provider.Name = ArtifactTypes.Custom;
+            _dataAccess.Providers.Add(provider);
+            _dataAccess.SaveChanges();
+
+            var artifactType = CreateArtifactType(provider);
+            var project = CreateProject();
+
+            var artifactToSave = new CoreModels.Artifact();
+            artifactToSave.Name = "[Mock] Artifact name 1";
+            artifactToSave.ProjectId = project.Id;
+            artifactToSave.ArtifactTypeId = artifactType.Id;
+            var setting1 = new XElement("setting1", 100);
+            var setting2 = new XElement("setting2", -1);
+
+            var relationalFields = new Dictionary<string, string>();
+            relationalFields.Add(setting1.Name.ToString(), SettingTypes.Decimal);
+            relationalFields.Add(setting2.Name.ToString(), SettingTypes.NaturalNumber);
+            artifactToSave.RelationalFields = relationalFields;
+
+            artifactToSave.Settings = new XElement("Settings", setting1, setting2);
+
+            _settingsValidator.Setup(mock => mock.ValidateSettings(It.IsAny<CoreModels.Artifact>()))
+                .Returns(true);
+
+            // Act
+            var result = await _classUnderTest.Save(artifactToSave);
+
+            // Assert
+            Assert.IsType<ServiceResponse<CoreModels.Artifact>>(result);
+            Assert.False(result.Success);
+            Assert.Equal(ErrorCodes.InvalidArtifactSettings, result.Error.Code);
+        }
+
+        [Fact]
+        public async Task SaveAsync_ReturnsExceptionInvalidArtifactSettings_NaturalNumberWrongValue2()
+        {
+            // Arange
+            var provider = new Provider();
+            provider.Name = ArtifactTypes.Custom;
+            _dataAccess.Providers.Add(provider);
+            _dataAccess.SaveChanges();
+
+            var artifactType = CreateArtifactType(provider);
+            var project = CreateProject();
+
+            var artifactToSave = new CoreModels.Artifact();
+            artifactToSave.Name = "[Mock] Artifact name 1";
+            artifactToSave.ProjectId = project.Id;
+            artifactToSave.ArtifactTypeId = artifactType.Id;
+            var setting1 = new XElement("setting1", 100);
+            var setting2 = new XElement("setting2", 1.1);
+
+            var relationalFields = new Dictionary<string, string>();
+            relationalFields.Add(setting1.Name.ToString(), SettingTypes.Decimal);
+            relationalFields.Add(setting2.Name.ToString(), SettingTypes.NaturalNumber);
+            artifactToSave.RelationalFields = relationalFields;
+
+            artifactToSave.Settings = new XElement("Settings", setting1, setting2);
+
+            _settingsValidator.Setup(mock => mock.ValidateSettings(It.IsAny<CoreModels.Artifact>()))
+                .Returns(true);
+
+            // Act
+            var result = await _classUnderTest.Save(artifactToSave);
+
+            // Assert
+            Assert.IsType<ServiceResponse<CoreModels.Artifact>>(result);
+            Assert.False(result.Success);
+            Assert.Equal(ErrorCodes.InvalidArtifactSettings, result.Error.Code);
+        }
+
+        [Fact]
         public async Task SaveAsync_ExceptionNoProjectWithId()
         {
             // Arange
@@ -686,6 +762,116 @@ namespace FRF.Core.Tests.Services
                 ArtifactType = _mapper.Map<CoreModels.ArtifactType>(newArtifactType),
                 Settings = new XElement("Settings")
             };
+
+            // Act
+            var result = await _classUnderTest.Update(artifactToUpdate);
+
+            // Assert
+            Assert.IsType<ServiceResponse<CoreModels.Artifact>>(result);
+            Assert.False(result.Success);
+            Assert.NotNull(result.Error);
+            Assert.Equal(ErrorCodes.InvalidArtifactSettings, result.Error.Code);
+        }
+
+        [Fact]
+        public async Task UpdateAsync_ReturnsExceptionInvalidArtifactSettings2()
+        {
+            // Arange
+            var provider = new Provider();
+            provider.Name = ArtifactTypes.Custom;
+            _dataAccess.Providers.Add(provider);
+            _dataAccess.SaveChanges();
+
+            var artifactType = CreateArtifactType(provider);
+            var project = CreateProject();
+
+            var artifactInDb = new Artifact();
+            artifactInDb.Name = "[Mock] Artifact name 1";
+            artifactInDb.ProjectId = project.Id;
+            artifactInDb.ArtifactTypeId = artifactType.Id;
+            var setting1 = new XElement("setting1", 100, new XAttribute("type", SettingTypes.NaturalNumber));
+            var setting2 = new XElement("setting2", 1, new XAttribute("type", SettingTypes.NaturalNumber));
+            artifactInDb.Settings = new XElement("Settings", setting1, setting2);
+
+            _dataAccess.Artifacts.Add(artifactInDb);
+            _dataAccess.SaveChanges();
+
+            var newSetting1 = new XElement(setting1.Name.ToString(), setting1.Value);
+            var newSetting2 = new XElement(setting2.Name.ToString(), -1);
+            var relationalFields = new Dictionary<string, string>();
+            relationalFields.Add(newSetting1.Name.ToString(), SettingTypes.NaturalNumber);
+            relationalFields.Add(newSetting2.Name.ToString(), SettingTypes.NaturalNumber);
+
+            var artifactToUpdate = new CoreModels.Artifact()
+            {
+                Id = artifactInDb.Id,
+                Name = "[Mock] Updated name",
+                CreatedDate = DateTime.Now,
+                ProjectId = project.Id,
+                Project = _mapper.Map<CoreModels.Project>(project),
+                ArtifactTypeId = artifactType.Id,
+                ArtifactType = _mapper.Map<CoreModels.ArtifactType>(artifactType),
+                Settings = new XElement("Settings", newSetting1, newSetting2),
+                RelationalFields = relationalFields                
+            };
+
+            _settingsValidator.Setup(mock => mock.ValidateSettings(It.IsAny<CoreModels.Artifact>()))
+                .Returns(true);
+
+            // Act
+            var result = await _classUnderTest.Update(artifactToUpdate);
+
+            // Assert
+            Assert.IsType<ServiceResponse<CoreModels.Artifact>>(result);
+            Assert.False(result.Success);
+            Assert.NotNull(result.Error);
+            Assert.Equal(ErrorCodes.InvalidArtifactSettings, result.Error.Code);
+        }
+
+        [Fact]
+        public async Task UpdateAsync_ReturnsExceptionInvalidArtifactSettings3()
+        {
+            // Arange
+            var provider = new Provider();
+            provider.Name = ArtifactTypes.Custom;
+            _dataAccess.Providers.Add(provider);
+            _dataAccess.SaveChanges();
+
+            var artifactType = CreateArtifactType(provider);
+            var project = CreateProject();
+
+            var artifactInDb = new Artifact();
+            artifactInDb.Name = "[Mock] Artifact name 1";
+            artifactInDb.ProjectId = project.Id;
+            artifactInDb.ArtifactTypeId = artifactType.Id;
+            var setting1 = new XElement("setting1", 1.8, new XAttribute("type", SettingTypes.Decimal));
+            var setting2 = new XElement("setting2", 99.9, new XAttribute("type", SettingTypes.Decimal));
+            artifactInDb.Settings = new XElement("Settings", setting1, setting2);
+
+            _dataAccess.Artifacts.Add(artifactInDb);
+            _dataAccess.SaveChanges();
+
+            var newSetting1 = new XElement(setting1.Name.ToString(), setting1.Value);
+            var newSetting2 = new XElement(setting2.Name.ToString(), setting2.Value);
+            var relationalFields = new Dictionary<string, string>();
+            relationalFields.Add(newSetting1.Name.ToString(), SettingTypes.Decimal);
+            relationalFields.Add(newSetting2.Name.ToString(), SettingTypes.NaturalNumber);
+
+            var artifactToUpdate = new CoreModels.Artifact()
+            {
+                Id = artifactInDb.Id,
+                Name = "[Mock] Updated name",
+                CreatedDate = DateTime.Now,
+                ProjectId = project.Id,
+                Project = _mapper.Map<CoreModels.Project>(project),
+                ArtifactTypeId = artifactType.Id,
+                ArtifactType = _mapper.Map<CoreModels.ArtifactType>(artifactType),
+                Settings = new XElement("Settings", newSetting1, newSetting2),
+                RelationalFields = relationalFields
+            };
+
+            _settingsValidator.Setup(mock => mock.ValidateSettings(It.IsAny<CoreModels.Artifact>()))
+                .Returns(true);
 
             // Act
             var result = await _classUnderTest.Update(artifactToUpdate);
@@ -1262,6 +1448,7 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(ErrorCodes.RelationAlreadyExisted, response.Error.Code);
             Assert.Null(response.Value);
         }
+
         [Fact]
         public async Task UpdateRelationAsync_ReturnsNull_WhenIsAnyArtifactExcept()
         {

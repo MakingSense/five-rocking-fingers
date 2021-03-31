@@ -19,8 +19,9 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
     const [artifactType, setArtifactType] = React.useState<ArtifactType | null>(null);
     const [name, setName] = React.useState<string | null>("");
     const [provider, setProvider] = React.useState<string | null>("");
-    const [settingsList, setSettingsList] = React.useState<Setting[]>([{ name: "", value: "" }]);
+    const [settingsList, setSettingsList] = React.useState<Setting[]>([{ name: "", value: "0" }]);
     const [settings, setSettings] = React.useState<object>({});
+    const [settingTypes, setSettingTypes] = React.useState<{ [key: string]: string }>({});
     const [settingsMap, setSettingsMap] = React.useState<{ [key: string]: number[] }>({});
     const [awsSettingsList, setAwsSettingsList] = React.useState<KeyValueStringPair[]>([]);
     const [awsPricingTerm, setAwsPricingTerm] = React.useState<PricingTerm | null>(null);
@@ -43,6 +44,7 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
         setProvider(null);
         setSettingsList([{ name: "", value: "" }]);
         setSettingsMap({});
+        setSettingTypes({});
         props.closeNewArtifactDialog()
     }
 
@@ -125,6 +127,8 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
                         settingsMap={settingsMap}
                         setSettingsMap={setSettingsMap}
                         setSettings={setSettings}
+                        settingTypes={settingTypes}
+                        setSettingTypes={setSettingTypes}
                     />
                 );
             }
@@ -183,6 +187,7 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
                         settingsList={settingsList}
                         settings={settings}
                         awsPricingTerm={awsPricingTerm}
+                        settingTypes={settingTypes}
                     />
                 );
             }
@@ -204,6 +209,7 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
                         settingsList={settingsList}
                         settings={settings}
                         awsPricingTerm={awsPricingTerm}
+                        settingTypes={settingTypes}
                     />
                 );
             }

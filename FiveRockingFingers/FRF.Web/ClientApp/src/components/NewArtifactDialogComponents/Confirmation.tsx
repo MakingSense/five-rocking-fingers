@@ -1,4 +1,4 @@
-﻿import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core';
+﻿import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import * as React from 'react';
@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const Confirmation = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, provider: string | null, name: string | null, projectId: number, artifactType: ArtifactType | null, setOpenSnackbar: Function, setSnackbarSettings: Function, handlePreviousStep: Function, settingsList: Setting[], settings: object, updateList: Function, awsPricingTerm: PricingTerm | null }) => {
+const Confirmation = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, provider: string | null, name: string | null, projectId: number, artifactTypeId: number | null, setOpenSnackbar: Function, setSnackbarSettings: Function, handlePreviousStep: Function, settingsList: Setting[], settings: object, updateList: Function, awsPricingTerm: PricingTerm | null }) => {
 
     const classes = useStyles();
     const { handleSubmit } = useForm();
@@ -33,7 +33,8 @@ const Confirmation = (props: { showNewArtifactDialog: boolean, closeNewArtifactD
             provider: provider,
             artifactTypeId: artifactType?.id,
             projectId: projectId,
-            settings: props.settings
+            settings: props.settings,
+            relationalFields: props.settingTypes
         };
 
         try {
@@ -79,7 +80,7 @@ const Confirmation = (props: { showNewArtifactDialog: boolean, closeNewArtifactD
             <DialogTitle id="alert-dialog-title">Confirmación</DialogTitle>
             <DialogContent>
                 <Typography gutterBottom>
-                    Revise las características de su nuevo artefacto y se está de acuerdo haga click en confirmar
+                    Revise las características de su nuevo artefacto y se está de acuerdo haga click en Finalizar
                 </Typography>
                 <Typography gutterBottom>
                     <span className={classes.title}>Nombre:</span> {name}

@@ -14,9 +14,11 @@ const EditArtifactDialog = (props: {
     setOpenSnackbar: Function,
     setSnackbarSettings: Function,
     updateArtifacts: Function,
-    manageOpenSnackbar: Function}) => {
+    manageOpenSnackbar: Function, 
+    settingTypes: { [key: string]: string }, 
+    setSettingTypes: Function  }) => {
 
-    const { showEditArtifactDialog, closeEditArtifactDialog } = props;
+    const { showEditArtifactDialog, closeEditArtifactDialog, settingTypes, setSettingTypes } = props;
 
     const [isArtifactEdited, setIsArtifactEdited] = React.useState<boolean>(false);
     const [artifactEdited, setArtifactEdited] = React.useState<Artifact>(props.artifactToEdit);
@@ -54,6 +56,8 @@ const EditArtifactDialog = (props: {
                     setArtifactEdited={setArtifactEdited}
                     setNamesOfSettingsChanged={setNamesOfSettingsChanged}
                     artifactsRelations={artifactsRelations}
+                    settingTypes={settingTypes}
+                    setSettingTypes={setSettingTypes}
                 /> :
                 <EditArtifactConfirmation
                     artifactToEdit={artifactEdited}
@@ -62,6 +66,7 @@ const EditArtifactDialog = (props: {
                     setOpenSnackbar={props.setOpenSnackbar}
                     setSnackbarSettings={props.setSnackbarSettings}
                     updateArtifacts={props.updateArtifacts}
+                    settingTypes={settingTypes}
                 />
             }
         </Dialog>
