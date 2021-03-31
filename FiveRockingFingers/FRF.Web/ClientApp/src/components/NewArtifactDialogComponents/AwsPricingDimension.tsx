@@ -9,6 +9,7 @@ import PricingTerm from '../../interfaces/PricingTerm';
 import AwsArtifactService from '../../services/AwsArtifactService';
 import { useSettingsCreator } from './useSettingsCreator';
 import ArtifactType from '../../interfaces/ArtifactType';
+import { usePricingDimensionsValidator } from './usePricingDimensionsValidator';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -41,6 +42,7 @@ const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewAr
     const { showNewArtifactDialog, closeNewArtifactDialog, artifactType, awsSettingsList } = props;
 
     const { createPricingTermSettings } = useSettingsCreator();
+    const { areValidPricingDimensions } = usePricingDimensionsValidator();
 
     const [loading, setLoading] = React.useState<Boolean>(true);
     const [awsPricingDimensionList, setPricingDimensionList] = React.useState<PricingTerm[]>([]);
@@ -146,7 +148,7 @@ const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewAr
                         <div className={classes.circularProgress}>
                             <CircularProgress color="inherit" size={30} />
                         </div> :
-                        awsPricingDimensionList.length === 0 ?
+                        props.name !== null && !areValidPricingDimensions(props.name, awsPricingDimensionList) ?
                             <Typography gutterBottom>
                                 Lo sentimos, no hay productos según las especificaciones seleccionadas
                             </Typography> :
@@ -161,7 +163,7 @@ const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewAr
             </DialogContent>
             <DialogActions>
                 <Button size="small" color="primary" onClick={event => goPrevStep()}>Atrás</Button>
-                <Button size="small" color="primary" type="submit" onClick={handleSubmit(handleConfirm)}>Siguiente</Button>
+                <Button size="small" color="primary" type="submit" disabled={props.name !== null && !areValidPricingDimensions(props.name, awsPricingDimensionList)} onClick={handleSubmit(handleConfirm)}>Siguiente</Button>
                 <Button size="small" color="secondary" onClick={handleCancel}>Cancelar</Button>
             </DialogActions>
         </Dialog>
