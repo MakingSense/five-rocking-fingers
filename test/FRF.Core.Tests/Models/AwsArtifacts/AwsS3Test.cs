@@ -78,6 +78,35 @@ namespace FRF.Core.Tests.Models
         }
 
         [Fact]
+        public void GetPrice_WhenIsOneZoneInfrequent_ReturnDecimalPrice()
+        {
+            // Arrange
+            var writeRequestsUsed = 2000;
+            var retrieveRequestsUsed = 3000;
+            var storageUsed = 1024;
+            var standardPricePerUnitTier1 = "0.023";
+            var standardPricePerUnitTier2 = "0.021";
+            var standardPricePerUnitTier3 = "0.022";
+            var writeRequestsPrice = "4E-07";
+            var retrieveRequestsPrice = "5E-06";
+            var endRange1 = -1;
+
+            const decimal FinalCost = 10.2558000m;
+
+            _classUnderTest.Settings = RetrieveOneZoneSettings(writeRequestsUsed, retrieveRequestsUsed, storageUsed, standardPricePerUnitTier1
+                , standardPricePerUnitTier2, standardPricePerUnitTier3, writeRequestsPrice,
+                retrieveRequestsPrice, endRange1);
+            _classUnderTest.StorageUsed = storageUsed;
+            _classUnderTest.RetrieveRequestsUsed = retrieveRequestsUsed;
+            _classUnderTest.WriteRequestsUsed = writeRequestsUsed;
+            
+            // Act
+            var result = _classUnderTest.GetPrice();
+            // Assert
+            Assert.IsType<decimal>(result);
+            Assert.Equal(FinalCost,result);
+        }
+        [Fact]
         public void GetPrice_StandardServiceWhenInvalidEndRange_Return0()
         {
             // Arrange
@@ -311,5 +340,64 @@ namespace FRF.Core.Tests.Models
             return settings;
         }
         #endregion
+
+        #region RetrieveOneZoneSettings
+        private XElement RetrieveOneZoneSettings(int writeRequestsUsed, int retrieveRequestsUsed, int storageUsed,
+            string? standardPricePerUnitTier1, string? standardPricePerUnitTier2, string? standardPricePerUnitTier3,
+            string writeRequestsPrice, string retrieveRequestsPrice, int endRange1)
+        {
+            var settingsXML =
+                "{\"location\": \"US East (N. Virginia)\",\"volumeType\": " +
+                "\"One Zone - Infrequent Access\"," +
+                "\"storageClass\": \"Infrequent Access\",   " +
+                "\"storageUsed\": \"" + storageUsed + "\"," +
+                "\"writeRequestsUsed\": \"" + writeRequestsUsed + "\"," +
+                "\"retrieveRequestsUsed\": \"" + retrieveRequestsUsed + "\"," +
+                "\"product0\": " +
+                "{\"sku\": \"KRY2B57FKTA8GJW7\"," +
+                "\"term\": \"OnDemand\"," +
+                "\"leaseContractLength\": []," +
+                "\"offeringClass\": []," +
+                "\"purchaseOption\": []," +
+                "\"pricingDimensions\": " +
+                "{\"range0\": " +
+                "{\"unit\": \"GB-Mo\"," +
+                "\"endRange\": \"" + endRange1 + "\"," +
+                "\"description\": \"$0.01 per GB-Month of storage used in One Zone-Infrequent Access\"," +
+                "\"rateCode\": \"KRY2B57FKTA8GJW7.JRTCKXETXF.6YS6EN2CT7\"," +
+                "\"beginRange\": \"0\"," +
+                "\"currency\": \"USD\"," +
+                "\"pricePerUnit\": \"0.01\"}}}," +
+                "\"product1\": {\"sku\": \"B7AD99B3N6FTT9TR\"," +
+                "\"term\": \"OnDemand\"," +
+                "\"leaseContractLength\": []," +
+                "\"offeringClass\": []," +
+                "\"purchaseOption\": []," +
+                "\"pricingDimensions\": {\"range0\": {\"unit\": \"Requests\"," +
+                "\"endRange\": \"-1\"," +
+                "\"description\": \"POST or LIST requests to One Zone-Infrequent Access\"," +
+                "\"rateCode\": \"B7AD99B3N6FTT9TR.JRTCKXETXF.6YS6EN2CT7\"," +
+                "\"beginRange\": \"0\"," +
+                "\"currency\": \"USD\"," +
+                "\"pricePerUnit\": \"" + writeRequestsPrice + "\"}}}," +
+                "\"product2\": {\"sku\": \"Q8UHH97856JSTGFA\"," +
+                "\"term\": \"OnDemand\"," +
+                "\"leaseContractLength\": []," +
+                "\"offeringClass\": []," +
+                "\"purchaseOption\": []," +
+                "\"pricingDimensions\": {\"range0\": {\"unit\": \"Requests\"," +
+                "\"endRange\": \"-1\"," +
+                "\"description\": \"$0.01 per 10 GET and all other requests  to One Zone-Infrequent Access\"," +
+                "\"rateCode\": \"Q8UHH97856JSTGFA.JRTCKXETXF.6YS6EN2CT7\"," +
+                "\"beginRange\": \"0\"," +
+                "\"currency\": \"USD\"," +
+                "\"pricePerUnit\": \"" + retrieveRequestsPrice + "\"}}}}";
+
+            XNode node = JsonConvert.DeserializeXNode(settingsXML, "settings");
+            var settings = XElement.Parse(node.ToString());
+            return settings;
+        }
+        #endregion
+
     }
 }
