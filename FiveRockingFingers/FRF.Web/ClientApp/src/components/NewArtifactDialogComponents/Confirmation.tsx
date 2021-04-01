@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const Confirmation = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, provider: string | null, name: string | null, projectId: number, artifactTypeId: number | null, setOpenSnackbar: Function, setSnackbarSettings: Function, handlePreviousStep: Function, settingsList: Setting[], settings: object, updateList: Function, awsPricingTerm: PricingTerm | null }) => {
+const Confirmation = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, provider: string | null, name: string | null, projectId: number, artifactType: ArtifactType | null, setOpenSnackbar: Function, setSnackbarSettings: Function, handlePreviousStep: Function, settingsList: Setting[], settings: object, updateList: Function, awsPricingTerm: PricingTerm | null, settingTypes: { [key: string]: string } }) => {
 
     const classes = useStyles();
     const { handleSubmit } = useForm();
