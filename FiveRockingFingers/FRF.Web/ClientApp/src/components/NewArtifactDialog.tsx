@@ -16,7 +16,7 @@ import ArtifactType from '../interfaces/ArtifactType';
 const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, projectId: number, updateList: Function, setOpenSnackbar: Function , setSnackbarSettings: Function }) => {
 
     const [step, setStep] = React.useState<number>(1);
-    const [artifactTypeId, setArtifactTypeId] = React.useState<number | null>(null);
+    const [artifactType, setArtifactType] = React.useState<ArtifactType | null>(null);
     const [name, setName] = React.useState<string | null>("");
     const [provider, setProvider] = React.useState<string | null>("");
     const [settingsList, setSettingsList] = React.useState<Setting[]>([{ name: "", value: "0" }]);
@@ -39,7 +39,7 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
 
     const handleCancel = () => {
         setStep(1);
-        setArtifactTypeId(null);
+        setArtifactType(null);
         setName(null);
         setProvider(null);
         setSettingsList([{ name: "", value: "" }]);
@@ -86,9 +86,9 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
                         handleNextStep={handleNextStep}
                         handlePreviousStep={handlePreviousStep}
                         setName={setName}
-                        setArtifactTypeId={setArtifactTypeId}
+                        setArtifactType={setArtifactType}
                         name={name}
-                        artifactTypeId={artifactTypeId}
+                        artifactType={artifactType}
                         getArtifactTypes={getArtifactTypes}
                     />
                 );
@@ -96,10 +96,11 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
             else {
                 return (
                     <AwsForm
+                        name={name}
                         showNewArtifactDialog={props.showNewArtifactDialog}
                         closeNewArtifactDialog={handleCancel}
                         projectId={props.projectId}
-                        setArtifactTypeId={setArtifactTypeId}
+                        setArtifactType={setArtifactType}
                         updateList={props.updateList}
                         handleNextStep={handleNextStep}
                         handlePreviousStep={handlePreviousStep}
@@ -136,7 +137,7 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
                     <SettingsAwsForm
                         showNewArtifactDialog={props.showNewArtifactDialog}
                         closeNewArtifactDialog={handleCancel}
-                        name={name}
+                        artifactType={artifactType}
                         updateList={props.updateList}
                         handleNextStep={handleNextStep}
                         handlePreviousStep={handlePreviousStep}
@@ -154,7 +155,7 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
                     <AwsPricingDimension
                         showNewArtifactDialog={props.showNewArtifactDialog}
                         closeNewArtifactDialog={handleCancel}
-                        name={name}
+                        artifactType={artifactType}
                         handleNextStep={handleNextStep}
                         handlePreviousStep={handlePreviousStep}
                         settingsList={settingsList}
@@ -178,7 +179,7 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
                         provider={provider}
                         name={name}
                         projectId={props.projectId}
-                        artifactTypeId={artifactTypeId}
+                        artifactType={artifactType}
                         updateList={props.updateList}
                         setOpenSnackbar={props.setOpenSnackbar}
                         setSnackbarSettings={props.setSnackbarSettings}
@@ -200,7 +201,7 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
                         provider={provider}
                         name={name}
                         projectId={props.projectId}
-                        artifactTypeId={artifactTypeId}
+                        artifactType={artifactType}
                         updateList={props.updateList}
                         setOpenSnackbar={props.setOpenSnackbar}
                         setSnackbarSettings={props.setSnackbarSettings}

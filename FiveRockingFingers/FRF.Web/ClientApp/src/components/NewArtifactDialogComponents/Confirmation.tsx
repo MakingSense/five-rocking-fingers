@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import Setting from '../../interfaces/Setting';
 import PricingTerm from '../../interfaces/PricingTerm';
 import ArtifactService from '../../services/ArtifactService';
+import ArtifactType from '../../interfaces/ArtifactType';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -19,18 +20,18 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const Confirmation = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, provider: string | null, name: string | null, projectId: number, artifactTypeId: number | null, setOpenSnackbar: Function, setSnackbarSettings: Function, handlePreviousStep: Function, settingsList: Setting[], settings: object, updateList: Function, awsPricingTerm: PricingTerm | null, settingTypes: { [key: string]: string } }) => {
+const Confirmation = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, provider: string | null, name: string | null, projectId: number, artifactType: ArtifactType | null, setOpenSnackbar: Function, setSnackbarSettings: Function, handlePreviousStep: Function, settingsList: Setting[], settings: object, updateList: Function, awsPricingTerm: PricingTerm | null, settingTypes: { [key: string]: string } }) => {
 
     const classes = useStyles();
     const { handleSubmit } = useForm();
-    const { showNewArtifactDialog, closeNewArtifactDialog, provider, name, projectId, artifactTypeId, setOpenSnackbar, setSnackbarSettings, settingsList, updateList } = props;
+    const { showNewArtifactDialog, closeNewArtifactDialog, provider, name, projectId, artifactType, setOpenSnackbar, setSnackbarSettings, settingsList, updateList } = props;
 
     //Create the artifact after submit
     const handleConfirm = async () => {
         const artifactToCreate = {
             name: name,
             provider: provider,
-            artifactTypeId: artifactTypeId,
+            artifactTypeId: artifactType?.id,
             projectId: projectId,
             settings: props.settings,
             relationalFields: props.settingTypes
