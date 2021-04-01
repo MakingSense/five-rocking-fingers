@@ -4,6 +4,9 @@ export const BASE_URL = process.env.REACT_APP_BASE_URL;
 export const PROVIDERS = ['AWS', 'Custom'];
 export const SETTINGTYPES = ['decimal', 'naturalNumber'];
 
+//Custom artifacts constants
+export const CUSTOM_REQUIRED_FIELD = 'price';
+
 //Amazon EC2 constants
 export const AMAZON_EC2 = 'AmazonEC2';
 export const COMPUTE_INSTACE = 'Compute Instance';
