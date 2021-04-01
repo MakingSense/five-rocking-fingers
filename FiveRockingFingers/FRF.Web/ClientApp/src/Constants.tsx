@@ -1,8 +1,11 @@
 ﻿// Constants definitions for access on ClientApp
 
 export const BASE_URL = process.env.REACT_APP_BASE_URL;
-export const PROVIDERS = ['AWS', 'Custom'];
 export const SETTINGTYPES = ['decimal', 'naturalNumber'];
+
+export const CUSTOM_PROVIDER = 'Custom';
+export const AWS_PROVIDER = 'AWS';
+export const PROVIDERS = [AWS_PROVIDER, CUSTOM_PROVIDER];
 
 //Custom artifacts constants
 export const CUSTOM_REQUIRED_FIELD = 'price';
