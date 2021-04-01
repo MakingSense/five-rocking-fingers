@@ -7,6 +7,9 @@ export const CUSTOM_PROVIDER = 'Custom';
 export const AWS_PROVIDER = 'AWS';
 export const PROVIDERS = [AWS_PROVIDER, CUSTOM_PROVIDER];
 
+//Custom artifacts constants
+export const CUSTOM_REQUIRED_FIELD = 'price';
+
 //Amazon EC2 constants
 export const AMAZON_EC2 = 'AmazonEC2';
 export const COMPUTE_INSTACE = 'Compute Instance';

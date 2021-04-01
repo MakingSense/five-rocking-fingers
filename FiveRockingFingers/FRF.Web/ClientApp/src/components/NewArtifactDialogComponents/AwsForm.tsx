@@ -3,13 +3,15 @@ import Typography from '@material-ui/core/Typography';
 import Autocomplete from '@material-ui/lab/Autocomplete/Autocomplete';
 import * as React from 'react';
 import ArtifactType from '../../interfaces/ArtifactType';
+import { Controller, useForm } from 'react-hook-form';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     container: {
       display: 'flex',
       flexWrap: 'wrap',
-    }, autoComplete: {
+    },
+    autoComplete: {
       padding: 2,
       marginTop: 10,
       width: 350
@@ -19,17 +21,23 @@ const useStyles = makeStyles((theme: Theme) =>
       width: '90%',
       display: 'flex',
       alignItems: 'center'
-    }
+      },
+      inputF: {
+          padding: 2,
+          margin: 'auto',
+          width: 350
+      }
   }),
 );
 
-const AwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, projectId: number, updateList: Function, setArtifactTypeId: Function, handleNextStep: Function, handlePreviousStep: Function, setName: Function, getArtifactTypes: Function }) => {
+const AwsForm = (props: { name: string | null, showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, projectId: number, updateList: Function, setArtifactType: Function, handleNextStep: Function, handlePreviousStep: Function, setName: Function, getArtifactTypes: Function }) => {
     const classes = useStyles();
     const [formError, setFormError] = React.useState(false);
     const [selectedArtifactType, setSelectedArtifactType] = React.useState<ArtifactType | null>(null);
     const [inputSelectedArtifactType, setInputSelectedArtifactType] = React.useState("");
     const [artifactTypes, setArtifactTypes] = React.useState([] as ArtifactType[]);
     const { showNewArtifactDialog, closeNewArtifactDialog } = props;
+    const { handleSubmit, register, control, errors } = useForm();
 
     React.useEffect(() => {
         (async () => {
@@ -39,14 +47,13 @@ const AwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog
     }, [])
 
     //Create the artifact after submit
-    const handleConfirm = async () => {
+    const handleConfirm = async (data: { artifactType: object, name: string }) => {
         if (selectedArtifactType === null) {
             setFormError(true);
             return;
         }
-        props.setArtifactTypeId(selectedArtifactType.id);
-        const name = selectedArtifactType.name;
-        props.setName(name);
+        props.setArtifactType(selectedArtifactType);
+        props.setName(data.name);
         props.handleNextStep();
     }
 
@@ -101,12 +108,25 @@ const AwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog
                     />
                 <FormHelperText error={formError}>Requerido*</FormHelperText>
             </FormControl>
-
+            <FormControl className={classes.formControl} >
+                <TextField
+                    inputRef={register({ required: true, validate: { isValid: value => value.trim() != "" } })}
+                    error={errors.name ? true : false}
+                    id="name"
+                    name="name"
+                    label="Nombre del artefacto"
+                    variant="outlined"
+                    className={classes.inputF}
+                    fullWidth
+                    defaultValue={props.name}
+                />          
+                <FormHelperText error={formError}>Requerido*</FormHelperText>
+            </FormControl>            
             <DialogActions>
                 <Button size="small" color="primary" onClick={handlePreviousStep}>
                     Atrás
                 </Button>
-                <Button size="small" color="primary" type="submit" onClick={handleConfirm}>
+                <Button size="small" color="primary" type="submit" onClick={handleSubmit(handleConfirm)}>
                     Siguiente
                 </Button>
                 <Button size="small" color="secondary" onClick={handleCancel}>

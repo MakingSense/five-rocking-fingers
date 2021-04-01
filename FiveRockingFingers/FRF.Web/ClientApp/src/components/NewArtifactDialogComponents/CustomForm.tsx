@@ -2,7 +2,7 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import * as React from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import ArtifactType from '../../interfaces/ArtifactType';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -22,32 +22,32 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const CustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, handleNextStep: Function, handlePreviousStep: Function, setName: Function, setArtifactTypeId: Function, name: string | null, artifactTypeId: number | null, getArtifactTypes: Function }) => {
+const CustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, handleNextStep: Function, handlePreviousStep: Function, setName: Function, setArtifactType: Function, name: string | null, artifactType: ArtifactType | null, getArtifactTypes: Function }) => {
 
     const classes = useStyles();
 
-    const { register, handleSubmit, errors, control, getValues } = useForm();
+    const { register, handleSubmit, errors, getValues } = useForm();
     const { showNewArtifactDialog, closeNewArtifactDialog } = props;
 
-    const [artifactTypes, setArtifactTypes] = React.useState([] as ArtifactType[]);
+    const [artifactType, setArtifactType] = React.useState<ArtifactType | null>(null);
 
     React.useEffect(() => {
         (async () => {
-            let artifactTypes = await props.getArtifactTypes(1);
-            setArtifactTypes(artifactTypes);
+            let artifactTypeAux = await props.getArtifactTypes(1);
+            setArtifactType(artifactTypeAux[0]);
         })();
     }, [])
 
-    const handleConfirm = async (data: { name: string, artifactType: string }) => {
+    const handleConfirm = async (data: { name: string }) => {
         props.setName(data.name);
-        props.setArtifactTypeId(data.artifactType);
+        props.setArtifactType(artifactType);
         props.handleNextStep();
     }
 
     const handlePreviousStep = () => {
         let data = getValues();
         props.setName(data.name);
-        props.setArtifactTypeId(data.artifactType);
+        props.setArtifactType(artifactType);
         props.handlePreviousStep();
     }
 
@@ -63,29 +63,6 @@ const CustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDia
                     A continuación ingrese el tipo y el nombre de su nuevo artefacto custom
                 </Typography>
                 <form className={classes.container}>
-                    <FormControl className={classes.formControl} error={Boolean(errors.artifactType)}>
-                        <InputLabel htmlFor="type-select">Tipo de artefacto</InputLabel>
-                        <Controller
-                            as={
-                                <Select
-                                    inputProps={{
-                                        name: 'artifactType',
-                                        id: 'type-select'
-                                    }}
-                                >
-                                    <MenuItem value="">
-                                        <em>None</em>
-                                    </MenuItem>
-                                    {artifactTypes.map(at => <MenuItem key={at.id} value={at.id}>{at.name}</MenuItem>)}
-                                </Select>
-                            }
-                            name="artifactType"
-                            rules={{ required: true }}
-                            control={control}
-                            defaultValue={props.artifactTypeId}
-                        />
-                        <FormHelperText>Requerido*</FormHelperText>
-                    </FormControl>
                     <TextField
                         inputRef={register({ required: true, validate: { isValid: value => value.trim() != "" } })}
                         error={errors.name ? true : false}

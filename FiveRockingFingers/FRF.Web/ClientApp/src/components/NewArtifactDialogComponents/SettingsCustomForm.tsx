@@ -6,7 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Setting from '../../interfaces/Setting';
-import { SETTINGTYPES } from '../../Constants';
+import { SETTINGTYPES, CUSTOM_REQUIRED_FIELD } from '../../Constants';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -47,7 +47,7 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
     //Hook for saving the numbers of times a setting's name input is repeated
     const [settingsMap, setSettingsMap] = React.useState<{ [key: string]: number[] }>(props.settingsMap);
     const [price, setPrice] = React.useState<number>(() => {
-        let index = settingsList.findIndex(s => s.name === 'price');
+        let index = settingsList.findIndex(s => s.name === CUSTOM_REQUIRED_FIELD);
         if (index != -1) {
             let price = settingsList[index];
             settingsList.splice(index, 1);
@@ -63,8 +63,8 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
 
     //Create the artifact after submit
     const handleConfirm = async () => {
-        if (!settingsList.find(s => s.name === 'price')) {
-            settingsList.unshift({ name: 'price', value: price.toString() });
+        if (!settingsList.find(s => s.name === CUSTOM_REQUIRED_FIELD)) {
+            settingsList.unshift({ name: CUSTOM_REQUIRED_FIELD, value: price.toString() });
         }
         props.setSettingsList(settingsList);
         props.setSettingsMap(settingsMap);
@@ -172,7 +172,7 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
     //Check if there are names repeated in settingsMap
     const areNamesRepeated = (index: number) => {
         let key = searchIndexInObject(settingsMap, index);
-        if (key != null && (settingsMap[key].length > 1 || key === 'price')) {
+        if (key != null && (settingsMap[key].length > 1 || key === CUSTOM_REQUIRED_FIELD)) {
             return true;
         }
         return false;
@@ -242,7 +242,7 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
     }
 
     const goPrevStep = () => {
-        settingsList.unshift({ name: 'price', value: price.toString() });
+        settingsList.unshift({ name: CUSTOM_REQUIRED_FIELD, value: price.toString() });
         props.setSettingsList(settingsList);
         props.setSettingsMap(settingsMap);
         props.setSettingTypes(settingTypes);

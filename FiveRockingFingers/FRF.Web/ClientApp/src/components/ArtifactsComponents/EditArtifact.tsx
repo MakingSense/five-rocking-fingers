@@ -8,7 +8,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import Setting from '../../interfaces/Setting';
 import Artifact from '../../interfaces/Artifact';
 import ArtifactRelation from '../../interfaces/ArtifactRelation';
-import { SETTINGTYPES } from '../../Constants';
+import { SETTINGTYPES, CUSTOM_REQUIRED_FIELD } from '../../Constants';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -81,7 +81,7 @@ const EditArtifact = (props: {
     //Hook for save the user's settings input
     const [settingsList, setSettingsList] = React.useState<Setting[]>(createSettingsListFromArtifact());
     const [price, setPrice] = React.useState(() => {
-        let index = settingsList.findIndex(s => s.name === 'price');
+        let index = settingsList.findIndex(s => s.name === CUSTOM_REQUIRED_FIELD);
         if (index != -1) {
             let price = settingsList[index];
             settingsList.splice(index, 1);
@@ -95,7 +95,7 @@ const EditArtifact = (props: {
     const createSettingsMapFromArtifact = () => {
         let settingsMapFromArtifact: { [key: string]: number[] } = {};
         Object.entries(props.artifactToEdit.settings).forEach(([key, value], index) => {
-            if (key !== 'price') {
+            if (key !== CUSTOM_REQUIRED_FIELD) {
                 settingsMapFromArtifact[key] = [index];
             }            
         });
@@ -111,7 +111,7 @@ const EditArtifact = (props: {
 
     const createSettingTypesList = () => {
         let settingsObject: { [key: string]: string } = {};
-        settingsObject['price'] = 'decimal';
+        settingsObject[CUSTOM_REQUIRED_FIELD] = 'decimal';
         for (let i = 1; i < settingsList.length; i++) {
             settingsObject[settingsList[i].name] = settingTypes[settingsList[i].name];
         }
@@ -120,8 +120,8 @@ const EditArtifact = (props: {
 
     //Create the artifact after submit
     const handleConfirm = async () => {
-        if (!settingsList.find(s => s.name === 'price')) {
-                settingsList.unshift({ name: 'price', value: price.toString() });
+        if (!settingsList.find(s => s.name === CUSTOM_REQUIRED_FIELD)) {
+            settingsList.unshift({ name: CUSTOM_REQUIRED_FIELD, value: price.toString() });
             }
         let artifactEdited : Artifact = Object.create(props.artifactToEdit);
         artifactEdited.name = artifactName;
@@ -135,7 +135,7 @@ const EditArtifact = (props: {
     const getNamesOfSettingsChanged = () => {
         let namesOfSettingsChanged : string[] = [];
         let originalSettingsList = createSettingsListFromArtifact();
-        let index = originalSettingsList.findIndex(s => s.name === 'price');
+        let index = originalSettingsList.findIndex(s => s.name === CUSTOM_REQUIRED_FIELD);
         if (index != -1) {
             originalSettingsList.splice(index, 1);
         }
@@ -239,7 +239,7 @@ const EditArtifact = (props: {
     //Check if there are names repeated in settingsMap
     const areNamesRepeated = (index: number) => {
         let key = searchIndexInObject(settingsMap, index);
-        if (key != null && (settingsMap[key].length > 1 || key === 'price')) {
+        if (key != null && (settingsMap[key].length > 1 || key === CUSTOM_REQUIRED_FIELD)) {
             return true;
         }
         return false;
@@ -311,10 +311,10 @@ const EditArtifact = (props: {
 
     const isSettingAtTheEndOfRelation = (settingName: string, relation: ArtifactRelation) => {
         if (relation.relationTypeId === 0) {
-            return relation.artifact2Property === settingName;
+            return props.artifactToEdit.id === relation.artifact2.id && relation.artifact2Property === settingName;
         }
         else {
-            return relation.artifact1Property === settingName;
+            return props.artifactToEdit.id === relation.artifact1.id && relation.artifact1Property === settingName;
         }
     }
 
@@ -324,7 +324,7 @@ const EditArtifact = (props: {
 
     const isNumberSameType = (index: number) => {
         const numberType = settingTypes[settingsList[index].name];
-        if (numberType === undefined || settingsList[index].name === 'price' ) return true;
+        if (numberType === undefined || settingsList[index].name === CUSTOM_REQUIRED_FIELD ) return true;
         const settingValue = parseFloat(settingsList[index].value);
         if (numberType === SETTINGTYPES[0]) {
             return Boolean( settingValue % 1 !== 0 || settingValue % 1 === 0);
@@ -394,6 +394,7 @@ const EditArtifact = (props: {
                                 className={classes.inputF}
                                 onChange={event => { handleChangePrice(event); onChange(event); }}
                                 autoComplete='off'
+                                disabled={isSettingAtTheEndOfAnyRelation(CUSTOM_REQUIRED_FIELD)}
                                 type="number"
                             />
                         )}

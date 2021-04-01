@@ -8,6 +8,7 @@ import KeyValueStringPair from '../../interfaces/KeyValueStringPair';
 import PricingTerm from '../../interfaces/PricingTerm';
 import AwsArtifactService from '../../services/AwsArtifactService';
 import { useSettingsCreator } from './useSettingsCreator';
+import ArtifactType from '../../interfaces/ArtifactType';
 import { usePricingDimensionsValidator } from './usePricingDimensionsValidator';
 
 
@@ -34,11 +35,11 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, name: string | null, handleNextStep: Function, handlePreviousStep: Function, settingsList: Setting[], setSettingsList: Function, settingsMap: { [key: string]: number[] }, setSettingsMap: Function, awsSettingsList: KeyValueStringPair[], settings: object, setSettings: Function, setAwsPricingTerm: Function, setSnackbarSettings: Function, setOpenSnackbar: Function }) => {
+const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, artifactType: ArtifactType | null, handleNextStep: Function, handlePreviousStep: Function, settingsList: Setting[], setSettingsList: Function, settingsMap: { [key: string]: number[] }, setSettingsMap: Function, awsSettingsList: KeyValueStringPair[], settings: object, setSettings: Function, setAwsPricingTerm: Function, setSnackbarSettings: Function, setOpenSnackbar: Function }) => {
 
     const classes = useStyles();
     const { handleSubmit } = useForm();
-    const { showNewArtifactDialog, closeNewArtifactDialog, name, awsSettingsList } = props;
+    const { showNewArtifactDialog, closeNewArtifactDialog, artifactType, awsSettingsList } = props;
 
     const { createPricingTermSettings } = useSettingsCreator();
     const { areValidPricingDimensions } = usePricingDimensionsValidator();
@@ -48,31 +49,36 @@ const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewAr
 
     React.useEffect(() => {
         getPricingDimensions();
-    }, [name, awsSettingsList]);
+    }, [artifactType, awsSettingsList]);
 
     const getPricingDimensions = async () => {
-        if (name) {
-            let statusOk = 200;
-            try {
+        let statusOk = 200;
+        try {
+            if (artifactType !== null) {
                 setLoading(true);
-                const response = await AwsArtifactService.GetProductsAsync(name, awsSettingsList);
+                const response = await AwsArtifactService.GetProductsAsync(artifactType.name, awsSettingsList);
                 if (response.status === statusOk) {
                     setPricingDimensionList(response.data);
                     setLoading(false);
                 }
             }
-            catch (error) {
-                props.setSnackbarSettings({ message: "Fuera de servicio. Por favor intente mas tarde.", severity: "error" });
+            else {
+                props.setSnackbarSettings({ message: "Ha ocurrido un error al cargar el tipo de artefacto", severity: "error" });
                 props.setOpenSnackbar(true);
                 closeNewArtifactDialog();
             }
+        }
+        catch (error) {
+            props.setSnackbarSettings({ message: "Fuera de servicio. Por favor intente mas tarde.", severity: "error" });
+            props.setOpenSnackbar(true);
+            closeNewArtifactDialog();
         }
     }
 
     //Create the artifact after submit
     const handleConfirm = async () => {
-        if (!props.name) return;
-        props.setSettings({ settings: createSettings(props.name) });
+        if (artifactType === null) return;
+        props.setSettings({ settings: createSettings(artifactType.name) });
         props.handleNextStep();
     }
 
@@ -142,7 +148,7 @@ const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewAr
                         <div className={classes.circularProgress}>
                             <CircularProgress color="inherit" size={30} />
                         </div> :
-                        props.name !== null && !areValidPricingDimensions(props.name, awsPricingDimensionList) ?
+                        artifactType !== null && !areValidPricingDimensions(artifactType.name, awsPricingDimensionList) ?
                             <Typography gutterBottom>
                                 Lo sentimos, no hay productos según las especificaciones seleccionadas
                             </Typography> :
@@ -157,7 +163,7 @@ const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewAr
             </DialogContent>
             <DialogActions>
                 <Button size="small" color="primary" onClick={event => goPrevStep()}>Atrás</Button>
-                <Button size="small" color="primary" type="submit" disabled={props.name !== null && !areValidPricingDimensions(props.name, awsPricingDimensionList)} onClick={handleSubmit(handleConfirm)}>Siguiente</Button>
+                <Button size="small" color="primary" type="submit" disabled={artifactType !== null && !areValidPricingDimensions(artifactType.name, awsPricingDimensionList)} onClick={handleSubmit(handleConfirm)}>Siguiente</Button>
                 <Button size="small" color="secondary" onClick={handleCancel}>Cancelar</Button>
             </DialogActions>
         </Dialog>
