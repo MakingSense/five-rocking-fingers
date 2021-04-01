@@ -5,7 +5,7 @@ export const PROVIDERS = ['AWS', 'Custom'];
 export const SETTINGTYPES = ['decimal', 'naturalNumber'];
 
 //Custom artifacts constants
-export const CUSTOM_REQUIRED_FIELDS = 'price';
+export const CUSTOM_REQUIRED_FIELD = 'price';
 
 //Amazon EC2 constants
 export const AMAZON_EC2 = 'AmazonEC2';
