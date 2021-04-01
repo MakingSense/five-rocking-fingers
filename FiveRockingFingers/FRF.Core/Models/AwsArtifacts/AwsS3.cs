@@ -81,12 +81,16 @@ namespace FRF.Core.Models.AwsArtifacts
 
         private decimal GetStandardPrice()
         {
+            var endRange2 = 0m;
             var endRange1 = (decimal) PricingDimensions[AwsS3Descriptions.Range0].EndRange;
-            var endRange2 = (decimal) PricingDimensions[AwsS3Descriptions.Range2].EndRange;
-            if (endRange1 == 0 || endRange2 == 0) return 0;
+            var isEndRange2 = PricingDimensions.ContainsKey(AwsS3Descriptions.Range2);
+            if (isEndRange2)
+                endRange2 = (decimal) PricingDimensions[AwsS3Descriptions.Range2].EndRange;
+
+            if (endRange1 == 0) return 0;
 
             decimal storageCost;
-            if (StorageUsed <= endRange1)
+            if (StorageUsed <= endRange1 || endRange1 == -1)
                 storageCost = PricingDimensions[AwsS3Descriptions.Range0].PricePerUnit * StorageUsed;
 
             else if (StorageUsed >= endRange1 && StorageUsed <= endRange2)
