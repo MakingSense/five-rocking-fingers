@@ -725,6 +725,60 @@ namespace FRF.Core.Tests.Services
         }
 
         [Fact]
+        public async Task UpdateAsync_RemovesRelationSettingTypeChanged()
+        {
+            // Arange
+            var project = CreateProject();
+
+            var provider = new Provider();
+            provider.Name = ArtifactTypes.Custom;
+            _dataAccess.Providers.Add(provider);
+            _dataAccess.SaveChanges();
+
+            var artifactType = CreateArtifactType(provider);
+
+            var settingArtifact1 = "setting1";
+            var settingArtifact2 = "setting2";
+
+            var artifactInDb = new Artifact();
+            artifactInDb.Name = "[Mock] Artifact name 1";
+            artifactInDb.ProjectId = project.Id;
+            artifactInDb.ArtifactTypeId = artifactType.Id;
+            artifactInDb.Settings = new XElement("Settings", new XElement(settingArtifact1, 100, new XAttribute("type", SettingTypes.NaturalNumber)));
+
+            _dataAccess.Artifacts.Add(artifactInDb);
+            _dataAccess.SaveChanges();
+
+            var artifact2 = CreateArtifactWithSetting(project, artifactType, settingArtifact2, 100);
+
+            CreateArtifactRelation(artifactInDb.Id, artifact2.Id, settingArtifact1, settingArtifact2, 0);
+
+            var relationalFields = new Dictionary<string, string>();
+            relationalFields.Add(settingArtifact1, SettingTypes.Decimal);
+
+            var updatedArtifact = new CoreModels.Artifact()
+            {
+                Id = artifactInDb.Id,
+                Name = artifactInDb.Name,
+                ProjectId = artifactInDb.ProjectId,
+                ArtifactTypeId = artifactInDb.ArtifactTypeId,
+                Settings = new XElement("Settings", new XElement(settingArtifact1, 100)),
+                RelationalFields = relationalFields
+            };
+
+            _settingsValidator.Setup(mock => mock.ValidateSettings(It.IsAny<CoreModels.Artifact>()))
+                .Returns(true);
+
+            // Act
+            var result = await _classUnderTest.Update(updatedArtifact);
+
+            // Assert
+            Assert.IsType<ServiceResponse<CoreModels.Artifact>>(result);
+            Assert.True(result.Success);
+            Assert.Equal(0, _dataAccess.ArtifactsRelation.Count());
+        }
+
+        [Fact]
         public async Task UpdateAsync_ReturnsExceptionInvalidArtifactSettings()
         {
             // Arange
