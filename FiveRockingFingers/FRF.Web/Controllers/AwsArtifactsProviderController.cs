@@ -37,15 +37,6 @@ namespace FRF.Web.Controllers
             return Ok(response.Value);
         }
 
-        [HttpGet("attributes")]
-        public async Task<IActionResult> GetAttributesAsync(string serviceCode)
-        {
-            var response = await _artifactsProviderService.GetAttributesAsync(serviceCode);
-
-            var attributes = _mapper.Map<List<ProviderArtifactSettingDTO>>(response.Value);
-            return Ok(attributes);
-        }
-
         [HttpPost("products")]
         public async Task<IActionResult> GetProductsAsync(List<KeyValuePair<string, string>> settings, string serviceCode)
         {

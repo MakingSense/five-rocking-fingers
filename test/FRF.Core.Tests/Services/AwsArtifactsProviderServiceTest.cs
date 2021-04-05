@@ -134,7 +134,7 @@ namespace FRF.Core.Tests.Services
 
             var responseGetAttributeValue = new GetAttributeValuesResponse
             {
-                NextToken = "[Mock] Next token",
+                NextToken = null,
                 AttributeValues = attributeValues
             };
 
@@ -192,85 +192,6 @@ namespace FRF.Core.Tests.Services
             var propertie1 = (JObject)resultValue.SelectToken($"{propertiesJsonElement}.{principalPropertie}.{propertiesJsonElement}.{propertieName}");
             var enums = (JArray)propertie1[enumJsonElement];
             Assert.Equal(enums[0].ToString(), attributeValue.Value);
-        }
-
-        [Fact]
-        public async Task GetAttributesAsync_ReturnList()
-        {
-            // Arange
-            var serviceCode = "[Mock] Service Code";
-            var attributeNames = new List<string>
-            {
-                "[Mock] Service Name"
-            };
-            var service = new Service
-            {
-                AttributeNames = attributeNames,
-                ServiceCode = serviceCode
-            };
-            var services = new List<Service>
-            {
-                service
-            };
-            var response = new DescribeServicesResponse
-            {
-                FormatVersion = "[Mock] Format Version",
-                NextToken = "[Mock] Next token",
-                Services = services
-            };
-
-            var attributeValue = new AttributeValue
-            {
-                Value = "[Mock] Attribute Value"
-            };
-
-            var attributeValues = new List<AttributeValue>
-            {
-                attributeValue
-            };
-
-            var response2 = new GetAttributeValuesResponse
-            {
-                NextToken = "[Mock] Next token",
-                AttributeValues = attributeValues
-            };
-
-            _client
-                .Setup(mock => mock.DescribeServicesAsync(It.IsAny<DescribeServicesRequest>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(response);
-            _client
-                .Setup(mock => mock.GetAttributeValuesAsync(It.IsAny<GetAttributeValuesRequest>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(response2);
-
-            // Act
-            var result = await _classUnderTest.GetAttributesAsync(serviceCode);
-
-            // Assert
-            Assert.IsType<ServiceResponse<List<ProviderArtifactSetting>>>(result);
-            Assert.True(result.Success);
-
-            var settingsList = result.Value;
-            Assert.NotEmpty(settingsList);
-
-            Assert.Equal(service.AttributeNames[0], settingsList[0].Name.Key);
-            Assert.Equal(attributeValue.Value, settingsList[0].Values[0]);
-            _client.Verify(mock => mock.DescribeServicesAsync(It.IsAny<DescribeServicesRequest>(), It.IsAny<CancellationToken>()), Times.Once);
-            _client.Verify(mock => mock.GetAttributeValuesAsync(It.IsAny<GetAttributeValuesRequest>(), It.IsAny<CancellationToken>()), Times.Once);
-        }
-
-        [Fact]
-        public async Task GetAttributesAsync_ReturnsEmptyList()
-        {
-            // Arange
-            var serviceCode = "[Mock] Service Code";
-
-            // Act
-            var result = await _classUnderTest.GetAttributesAsync(serviceCode);
-
-            // Assert
-            Assert.IsType<ServiceResponse<List<ProviderArtifactSetting>>>(result);
-            Assert.True(result.Success);
-            Assert.Empty(result.Value);
         }
 
         [Fact]
