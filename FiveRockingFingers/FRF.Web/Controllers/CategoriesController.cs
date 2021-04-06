@@ -39,7 +39,7 @@ namespace FRF.Web.Controllers
 
             if (!response.Success)
             {
-                return NotFound();
+                return NotFound($"Error {response.Error.Code}: {response.Error.Message}");
             }
 
             var categoryDto = _mapper.Map<CategoryDTO>(response.Value);
@@ -65,7 +65,7 @@ namespace FRF.Web.Controllers
 
             if (!response.Success)
             {
-                return NotFound();
+                return NotFound($"Error {response.Error.Code}: {response.Error.Message}");
             }
 
             _mapper.Map(categoryDto, response.Value);
@@ -83,7 +83,7 @@ namespace FRF.Web.Controllers
 
             if (!response.Success)
             {
-                return NotFound();
+                return NotFound($"Error {response.Error.Code}: {response.Error.Message}");
             }
 
             await _categoriesService.DeleteAsync(id);

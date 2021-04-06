@@ -29,7 +29,7 @@ namespace FRF.Web.Controllers
         {
             var email = HttpContext.User.FindFirst(ClaimTypes.Email).Value;
             var userPublicProfile = await _userService.GetUserPublicProfileAsync(email);
-            if (!userPublicProfile.Success) return BadRequest();
+            if (!userPublicProfile.Success) return BadRequest($"Error {userPublicProfile.Error.Code}: {userPublicProfile.Error.Message}");
 
             var mappedProfile = _mapper.Map<UserProfileDTO>(userPublicProfile.Value);
             return Ok(mappedProfile);
@@ -55,7 +55,7 @@ namespace FRF.Web.Controllers
             if (string.IsNullOrWhiteSpace(email)) return BadRequest();
             
             var userProfile = await _userService.GetUserPublicProfileAsync(email); 
-            if (!userProfile.Success) return NotFound();
+            if (!userProfile.Success) return NotFound($"Error {userProfile.Error.Code}: {userProfile.Error.Message}");
 
             var userPublicProfile = _mapper.Map<UserProfileDTO>(userProfile.Value);
             

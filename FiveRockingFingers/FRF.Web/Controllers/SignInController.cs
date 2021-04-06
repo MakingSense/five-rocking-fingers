@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using AutoMapper;
+﻿using AutoMapper;
 using FRF.Core.Models;
 using FRF.Core.Response;
 using FRF.Core.Services;
@@ -7,7 +6,6 @@ using FRF.Web.Dtos.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using FRF.Web.Dtos.Projects;
 
 namespace FRF.Web.Controllers
 {
@@ -32,8 +30,8 @@ namespace FRF.Web.Controllers
         {
             var userSignIn = _mapper.Map<UserSignIn>(signInDto);
             var response = await _signInService.SignInAsync(userSignIn);
-            if (!response.Success && response.Error.Code == ErrorCodes.InvalidCredentials) return Unauthorized();
-            if (!response.Success && response.Error.Code == ErrorCodes.AuthenticationServerCurrentlyUnavailable) return StatusCode(500);
+            if (!response.Success && response.Error.Code == ErrorCodes.InvalidCredentials) return Unauthorized($"Error {response.Error.Code}: {response.Error.Message}");
+            if (!response.Success && response.Error.Code == ErrorCodes.AuthenticationServerCurrentlyUnavailable) return StatusCode(500,($"Error {response.Error.Code}: {response.Error.Message}"));
 
             return Ok(response.Value);
         }

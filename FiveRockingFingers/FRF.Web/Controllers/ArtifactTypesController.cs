@@ -37,7 +37,7 @@ namespace FRF.Web.Controllers
             var artifactTypes = await _artifactTypesService.GetAllByProviderAsync(providerName);
             if (!artifactTypes.Success)
             {
-                return NotFound();
+                return NotFound($"Error {artifactTypes.Error.Code}: {artifactTypes.Error.Message}");
             }
 
             var artifactTypesDto = _mapper.Map<IEnumerable<ArtifactTypeDTO>>(artifactTypes.Value);

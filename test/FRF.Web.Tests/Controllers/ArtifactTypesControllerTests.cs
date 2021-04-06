@@ -134,7 +134,7 @@ namespace FRF.Web.Tests.Controllers
             var result = await _classUnderTest.GetAllByProviderAsync(providerName);
 
             // Assert
-            Assert.IsType<NotFoundResult>(result);
+            Assert.IsType<NotFoundObjectResult>(result);
 
             _artifactTypesService.Verify(mock => mock.GetAllByProviderAsync(It.IsAny<string>()), Times.Once);
         }
