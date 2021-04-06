@@ -28,7 +28,7 @@ const UserLoginSchema = yup.object().shape({
     password: yup.string()
         .trim()
         .required('Requerido.')
-        .matches(/(?=.*[@#$%^&+=.\-_*])/, 'Debe incluir al menos un simbolo distinto de + o =')
+        .matches(/(?=.*[@#$%^&+=.\-_!*])/, 'Debe incluir al menos un simbolo distinto de + o =')
         .test("hasPlusOrEqual","No puede incluir los simbolos + o =",(password)=> !/(\+|=)/.test(password!))
         .test("hasAnyNumber","Debe incluir al menos un numero.",(password)=> /(?=.*\d)/.test(password!))
         .test("hasAnyUppercase","Debe incluir al menos un caracter en mayuscula.",(password)=> /(?=.*[A-Z])/.test(password!))
