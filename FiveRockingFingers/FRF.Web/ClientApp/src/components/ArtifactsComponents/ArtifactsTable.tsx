@@ -9,7 +9,8 @@ import ArtifactService from '../../services/ArtifactService';
 import ProjectService from '../../services/ProjectService';
 import ArtifactsTotalPrice from './ArtifactsTotalPrice';
 import EditArtifactDialog from './EditArtifactDialog';
-import ArtifactRelation from '../../interfaces/ArtifactRelation';
+import { extractErrorCode } from '../../commons/Helpers';
+import * as Errors from '../../ErrorCodes';
 
 const ArtifactsTable = (props: { projectId: number}) => {
     const [artifacts, setArtifacts] = React.useState<Artifact[]>([]);
@@ -51,12 +52,20 @@ const ArtifactsTable = (props: { projectId: number}) => {
     const getArtifacts = async () => {
         try {
             const response = await ArtifactService.getAllByProjectId(projectId);
-            if (response.status == 200) {
-                setArtifacts(response.data);
-                getTotalPrice();
-            }
-            else {
-                manageOpenSnackbar({ message: "Hubo un error al cargar los artifacts", severity: "error" });
+            switch (response.status) {
+                case 200:
+                    setArtifacts(response.data);
+                    getTotalPrice();
+                    break;
+                case 400:
+                    const errorCode = extractErrorCode(response.data);
+                    errorCode === Errors.PROJECT_NOT_EXISTS ?
+                        manageOpenSnackbar({ message: `No hay projectos con ID: ${projectId}`, severity: "error" }) :
+                        manageOpenSnackbar({ message: "Hubo un error al cargar los artifacts", severity: "error" });
+                    break;
+                default:
+                    manageOpenSnackbar({ message: "Hubo un error al cargar los artifacts", severity: "error" });
+                    break;
             }
         }
         catch {
