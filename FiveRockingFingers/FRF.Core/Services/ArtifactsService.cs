@@ -406,17 +406,17 @@ namespace FRF.Core.Services
 
             var hasAnyRelationWithoutBaseArtifact = HasAnyRelationWithoutBaseArtifact(artifactId, artifactRelations);
             if (hasAnyRelationWithoutBaseArtifact)
-                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid,
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValidDifferentBaseArtifact,
                     "At least one of the artifact relation provided does not involve the base artifact. "));
 
             var isAnyNewRelationRepeated = IsAnyRelationRepeated(artifactRelations);
             if (isAnyNewRelationRepeated)
-                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid,
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValidRepeated,
                     "At least one of the artifact relation provided is repeat"));
 
             var areNewRelationTypesValid = AreRelationTypesValid(artifactRelations, artifactsInNewRelations.Value);
             if (!areNewRelationTypesValid)
-                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid,
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValidDifferentType,
                     "At least one of the relations has different types"));
 
             var projectRelationsResponse = await GetAllRelationsByProjectIdAsync(artifactResponse.Value.ProjectId);
@@ -582,17 +582,17 @@ namespace FRF.Core.Services
 
             var relationInNewListRepeated = IsAnyRelationRepeated(artifactsRelationsNew);
             if (relationInNewListRepeated)
-                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid,
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValidRepeated,
                     "At least one of the artifact relation provided is repeat"));
 
             var relationsWithOriginalRepeated = IsAnyRelationRepeated(_mapper.Map<List<ArtifactsRelation>>(artifactsRelations), artifactsRelationsNew, isAnUpdate: true);
             if (relationsWithOriginalRepeated)
-                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid,
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValidRepeated,
                     "At least one of the artifact relation provided already exist"));
 
             var areNewRelationTypesValid = AreRelationTypesValid(artifactsRelationsNew, artifactsInNewRelations.Value);
             if (!areNewRelationTypesValid)
-                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid,
+                return new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValidDifferentType,
                     "At least one of the relations has different types"));
 
             var cycleDetected = IsCircularReference(_mapper.Map<List<ArtifactsRelation>>(artifactsRelations), artifactsRelationsNew, true);
