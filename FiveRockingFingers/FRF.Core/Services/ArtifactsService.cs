@@ -746,7 +746,11 @@ namespace FRF.Core.Services
         private async Task<List<Guid>> GetRelationsToDeleteOfUpdatedArtifact(int artifactId, XElement updatedSettings, XElement originalSettings)
         {
             var changedSettingsName = FindSettingsWithNamesChanged(updatedSettings, originalSettings);
-            var artifactsRelationsIdsToDelete = await FindRelationsToDeleteOfUpdatedArtifact(artifactId, changedSettingsName);
+            var changedSettingsTypes = FindSettingsWithTypesChanged(updatedSettings, originalSettings);
+
+            var changedSettings = changedSettingsName.Concat(changedSettingsTypes).ToList();
+
+            var artifactsRelationsIdsToDelete = await FindRelationsToDeleteOfUpdatedArtifact(artifactId, changedSettings);
             return artifactsRelationsIdsToDelete;
         }
 
@@ -763,6 +767,22 @@ namespace FRF.Core.Services
             }
 
             return changedSettingsName;
+        }
+
+        private List<string> FindSettingsWithTypesChanged(XElement updatedSettings, XElement originalSettings)
+        {
+            var changedSettings = new List<string>();
+
+            foreach (var setting in updatedSettings.Elements())
+            {
+                var originalSetting = originalSettings.Element(setting.Name);
+                if (!setting.HasElements && originalSetting != null && setting.Attribute("type").Value.ToString() != originalSetting.Attribute("type").Value.ToString())
+                {
+                    changedSettings.Add(setting.Name.ToString());
+                }
+            }
+
+            return changedSettings;
         }
 
         private async Task<List<Guid>> FindRelationsToDeleteOfUpdatedArtifact(int artifactId, List<string> changedSettingsName)

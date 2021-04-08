@@ -1,4 +1,4 @@
-﻿import { PROVIDERS } from "../../Constants";
+﻿import { PROVIDERS, CUSTOM_PROVIDER } from "../../Constants";
 import Artifact from "../../interfaces/Artifact";
 import KeyValueStringPair from "../../interfaces/KeyValueStringPair";
 
@@ -9,7 +9,7 @@ export function updateArtifactsSettings(
     setArtifact2Settings: Function
 ) {
     if (artifact1 !== null && artifact1 !== undefined) {
-        if (artifact1.artifactType?.name != PROVIDERS[1]) {
+        if (artifact1.artifactType?.name != CUSTOM_PROVIDER) {
             var relationalSettings: { [key: string]: string } = {};
             Object.entries(artifact1.relationalFields).map(([key, value]) => relationalSettings[key] = artifact1.settings[key]);
             setArtifact1Settings(relationalSettings);
@@ -21,7 +21,7 @@ export function updateArtifactsSettings(
         setArtifact1Settings({});
     }
     if (artifact2 !== null && artifact2 !== undefined) {
-        if (artifact2.artifactType?.name != PROVIDERS[1]) {
+        if (artifact2.artifactType?.name != CUSTOM_PROVIDER) {
             var relationalSettings: { [key: string]: string } = {};
             Object.entries(artifact2.relationalFields).map(([key, value]) => relationalSettings[key] = artifact2.settings[key]);
             setArtifact2Settings(relationalSettings);

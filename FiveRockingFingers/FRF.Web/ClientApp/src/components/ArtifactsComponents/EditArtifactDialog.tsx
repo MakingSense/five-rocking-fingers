@@ -25,6 +25,8 @@ const EditArtifactDialog = (props: {
     const [namesOfSettingsChanged, setNamesOfSettingsChanged] = React.useState<string[]>([]);
     const [artifactsRelations, setArtifactsRelations] = React.useState<ArtifactRelation[]>([]);
 
+    const [originalSettingTypes, setOriginalSettingTypes] = React.useState<{ [key: string]: string }>();
+
     const getRelations = async () => {
         try {
             const response = await ArtifactService.getRelationsAsync(props.artifactToEdit.id);
@@ -45,6 +47,10 @@ const EditArtifactDialog = (props: {
     React.useEffect(() => {
         getRelations();
     }, [artifactEdited]);
+
+    React.useEffect(() => {
+        setOriginalSettingTypes(props.artifactToEdit.relationalFields);
+    }, [props.artifactToEdit])
 
     return (
         <Dialog open={showEditArtifactDialog}>
@@ -67,6 +73,7 @@ const EditArtifactDialog = (props: {
                     setSnackbarSettings={props.setSnackbarSettings}
                     updateArtifacts={props.updateArtifacts}
                     settingTypes={settingTypes}
+                    originalSettingTypes={originalSettingTypes}
                 />
             }
         </Dialog>

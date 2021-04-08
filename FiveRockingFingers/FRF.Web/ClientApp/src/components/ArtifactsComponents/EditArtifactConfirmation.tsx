@@ -29,10 +29,25 @@ const EditArtifactConfirmation = (props: {
     setOpenSnackbar: Function,
     setSnackbarSettings: Function,
     updateArtifacts: Function,
-    settingTypes: { [key: string]: string } }) => {
+    settingTypes: { [key: string]: string },
+    originalSettingTypes: { [key: string]: string }
+}) => {
 
     const classes = useStyles();
     const { handleSubmit } = useForm();
+
+    const [namesOfSettingsTypeChange, setNamesOfSettingsTypeChange] = React.useState<string[]>([]);
+
+    // Update the names of the settings that changed types
+    React.useEffect(() => {
+        let changedSettingsList: string[] = [];
+        Object.keys(props.originalSettingTypes).forEach(key => {
+            if (props.settingTypes[key] && props.originalSettingTypes[key] !== props.settingTypes[key]) {
+                changedSettingsList.push(key);
+            }
+        });
+        setNamesOfSettingsTypeChange(changedSettingsList);
+    }, [props.settingTypes, props.originalSettingTypes]);
 
     //Create the artifact after submit
     const handleConfirm = async () => {
@@ -73,17 +88,33 @@ const EditArtifactConfirmation = (props: {
         <>
             <DialogTitle id="alert-dialog-title">Confirmación</DialogTitle>
             <DialogContent>
+                {props.namesOfSettingsChanged.length > 0 || namesOfSettingsTypeChange.length > 0 ?
+                    <Typography gutterBottom color="secondary" className={classes.title}>
+                        Tenga en cuenta que al modificar el nombre o tipo de alguna de las settings se borrarán
+                        las relaciones asociadas.
+                    </Typography> :
+                    null
+                }
                 {props.namesOfSettingsChanged.length > 0 ?
                     <>
-                    <Typography gutterBottom color="secondary" className={classes.title}>
-                        Tenga en cuenta que al modificar el nombre de alguna de las settings se borrará
-                        las relaciones asociadas.
-                        Las settings cuyos nombres serán modificados son:
-                    </Typography>
-                        <br />
-                        <br />
+                        <Typography gutterBottom color="secondary" className={classes.title}>
+                            Las settings cuyos nombres serán modificados son:
+                        </Typography>
                         <li className={classes.listStyleNone}>
                             {props.namesOfSettingsChanged.map(name => {
+                                return (<ul>{name}</ul>);
+                            })}
+                        </li>
+                    </> :
+                    null
+                }
+                {namesOfSettingsTypeChange.length > 0 ?
+                    <>
+                        <Typography gutterBottom color="secondary" className={classes.title}>
+                            Las settings cuyos tipos serán modificados son:
+                        </Typography>
+                        <li className={classes.listStyleNone}>
+                            {namesOfSettingsTypeChange.map(name => {
                                 return (<ul>{name}</ul>);
                             })}
                         </li>
