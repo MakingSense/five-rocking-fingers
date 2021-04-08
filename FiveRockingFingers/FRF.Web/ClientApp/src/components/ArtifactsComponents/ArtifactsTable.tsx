@@ -66,14 +66,14 @@ const ArtifactsTable = (props: { projectId: number}) => {
             else {
                 handleErrorMessage(
                     response.data,
-                    "Hubo un error al cargar los artifacts",
+                    "Hubo un error al cargar los artefactos",
                     manageOpenSnackbar,
                     undefined
                 );
             }
         }
         catch {
-            manageOpenSnackbar({ message: "Hubo un error al cargar los artifacts", severity: "error" });
+            manageOpenSnackbar({ message: "Hubo un error al cargar los artefactos", severity: "error" });
         }
     }
 
