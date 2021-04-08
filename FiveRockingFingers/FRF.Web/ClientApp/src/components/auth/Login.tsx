@@ -12,6 +12,7 @@ import SnackbarSettings from '../../interfaces/SnackbarSettings';
 import "./authStyle.css";
 import { BASE_URL } from '../../Constants';
 import { useUser } from '../../commons/useUser'
+import { handleErrorMessage } from '../../commons/Helpers';
 
 interface userLogin {
     email: string;
@@ -72,7 +73,7 @@ const Login = () => {
                 }
                 else {
                     cleanUserStorage();
-                    manageOpenSnackbar({ message: "Error al iniciar sesion!", severity: "error" });
+                    manageOpenSnackbar({ message: "Hubo un error con el servidor de autenticación! Intente nuevamente más tarde.", severity: "error" });
                     setLoading(false);
                     reset();
                 }

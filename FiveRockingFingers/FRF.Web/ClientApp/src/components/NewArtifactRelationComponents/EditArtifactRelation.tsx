@@ -11,6 +11,7 @@ import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 import ArtifactService from '../../services/ArtifactService';
 import { Select } from '@material-ui/core';
 import { updateArtifactsSettings, toRegularSentence, handleArtifactChange, handleSettingChange, differentSettingTypes } from './HelperArtifactRelation';
+import { handleErrorMessage } from '../../commons/Helpers';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -158,7 +159,12 @@ const EditArtifactRelation = (props: { open: boolean, closeEditArtifactsRelation
                 props.openSnackbar({ message: "La relacion ha sido modificada con éxito", severity: "success" });
                 props.updateList();
             } else {
-                props.openSnackbar({ message: "Hubo un error al modificar la relacion", severity: "error" });
+              handleErrorMessage(
+                response.data,
+                "Hubo un error al modificar la relacion",
+                props.openSnackbar,
+                undefined
+              );
             }
         }
         catch (error) {

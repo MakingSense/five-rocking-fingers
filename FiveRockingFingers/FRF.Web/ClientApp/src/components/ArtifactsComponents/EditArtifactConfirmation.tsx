@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import Typography from '@material-ui/core/Typography';
 import Artifact from '../../interfaces/Artifact';
 import ArtifactService from '../../services/ArtifactService';
-
+import { handleErrorMessage } from '../../commons/Helpers';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -53,8 +53,12 @@ const EditArtifactConfirmation = (props: {
                 props.setSnackbarSettings({ message: "El artefacto ha sido modificado con éxito", severity: "success" });
                 props.setOpenSnackbar(true);
             } else {
-                props.setSnackbarSettings({ message: "Hubo un error al modificar el artefacto", severity: "error" });
-                props.setOpenSnackbar(true);
+                handleErrorMessage(
+                  response.data,
+                  "Hubo un error al modificar el artefacto",
+                  props.setSnackbarSettings,
+                  props.setOpenSnackbar
+                );
             }
         }
         catch (error) {

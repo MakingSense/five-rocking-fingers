@@ -7,8 +7,7 @@ import Setting from '../../interfaces/Setting';
 import PricingTerm from '../../interfaces/PricingTerm';
 import ArtifactService from '../../services/ArtifactService';
 import ArtifactType from '../../interfaces/ArtifactType';
-import { extractErrorCode } from '../../commons/Helpers';
-import * as Errors from '../../ErrorCodes';
+import { handleErrorMessage } from '../../commons/Helpers';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -37,40 +36,20 @@ const Confirmation = (props: { showNewArtifactDialog: boolean, closeNewArtifactD
             settings: props.settings,
             relationalFields: props.settingTypes
         };
-///To do : HASTA ACA LLEGUE
         try {
             const response = await ArtifactService.save(artifactToCreate);
-            let errorCode: number = 0;
             if (response.status === 200) {
                 setSnackbarSettings({ message: "El artefacto ha sido creado con éxito", severity: "success" });
                 setOpenSnackbar(true);
                 updateList();
-            } else {
-                setSnackbarSettings({ message: "Hubo un error al crear el artefacto", severity: "error" });
-                setOpenSnackbar(true);
             }
-            switch (response.status) {
-                case 200:
-                    setSnackbarSettings({ message: "El artefacto ha sido creado con éxito", severity: "success" });
-                    setOpenSnackbar(true);
-                    updateList();
-                    break;
-                case 400:
-                    errorCode = extractErrorCode(response.data);
-                    errorCode === Errors.PROJECT_NOT_EXISTS ?
-                    setSnackbarSettings({ message: "Hubo un error al crear el artefacto", severity: "error" });
-                    setOpenSnackbar(true);
-                    break;
-                case 404:
-                    errorCode = extractErrorCode(response.data);
-                    errorCode === Errors.PROJECT_NOT_EXISTS ?
-                    setSnackbarSettings({ message: "Hubo un error al crear el artefacto", severity: "error" });
-                    setOpenSnackbar(true);
-                    break;
-                default:
-                    setSnackbarSettings({ message: "Hubo un error al crear el artefacto", severity: "error" });
-                    setOpenSnackbar(true);
-                    break;
+            else {
+                handleErrorMessage(
+                    response.data,
+                    "Hubo un error al crear el artefacto",
+                    setSnackbarSettings,
+                    setOpenSnackbar
+                );
             }
         }
         catch (error) {

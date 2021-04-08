@@ -9,8 +9,7 @@ import ArtifactService from '../../services/ArtifactService';
 import ProjectService from '../../services/ProjectService';
 import ArtifactsTotalPrice from './ArtifactsTotalPrice';
 import EditArtifactDialog from './EditArtifactDialog';
-import { extractErrorCode } from '../../commons/Helpers';
-import * as Errors from '../../ErrorCodes';
+import { handleErrorMessage } from '../../commons/Helpers';
 
 const ArtifactsTable = (props: { projectId: number}) => {
     const [artifacts, setArtifacts] = React.useState<Artifact[]>([]);
@@ -32,6 +31,14 @@ const ArtifactsTable = (props: { projectId: number}) => {
           if(response.status === 200){
             setPrice(response.data.toFixed(2));
           }
+          else{
+            handleErrorMessage(
+                response.data,
+                "Hubo un error al obtener el costo",
+                manageOpenSnackbar,
+                undefined
+              );
+          }
         } catch {
           setPrice('');
         }
@@ -52,20 +59,17 @@ const ArtifactsTable = (props: { projectId: number}) => {
     const getArtifacts = async () => {
         try {
             const response = await ArtifactService.getAllByProjectId(projectId);
-            switch (response.status) {
-                case 200:
-                    setArtifacts(response.data);
-                    getTotalPrice();
-                    break;
-                case 400:
-                    const errorCode = extractErrorCode(response.data);
-                    errorCode === Errors.PROJECT_NOT_EXISTS ?
-                        manageOpenSnackbar({ message: `No hay projectos con ID: ${projectId}`, severity: "error" }) :
-                        manageOpenSnackbar({ message: "Hubo un error al cargar los artifacts", severity: "error" });
-                    break;
-                default:
-                    manageOpenSnackbar({ message: "Hubo un error al cargar los artifacts", severity: "error" });
-                    break;
+            if (response.status === 200) {
+                setArtifacts(response.data);
+                getTotalPrice();
+            }
+            else {
+                handleErrorMessage(
+                    response.data,
+                    "Hubo un error al cargar los artifacts",
+                    manageOpenSnackbar,
+                    undefined
+                );
             }
         }
         catch {

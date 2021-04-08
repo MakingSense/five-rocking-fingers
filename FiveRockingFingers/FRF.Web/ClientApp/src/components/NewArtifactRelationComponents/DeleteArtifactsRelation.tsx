@@ -3,6 +3,7 @@ import * as React from 'react';
 import ArtifactService from '../../services/ArtifactService';
 import ArtifactRelation from '../../interfaces/ArtifactRelation';
 import RelationCard from './RelationCard';
+import { handleErrorMessage } from '../../commons/Helpers';
 
 const DeleteArtifactsRelation = (props: { open: boolean, setOpen: Function, artifactRelationToDelete: ArtifactRelation, openSnackbar: Function, updateList: Function }) => {
     const [relationList, setRelationList] = React.useState<ArtifactRelation[]>([]);
@@ -18,7 +19,12 @@ const DeleteArtifactsRelation = (props: { open: boolean, setOpen: Function, arti
                 props.updateList(true);
             }
             else {
-                props.openSnackbar({ message: "Hubo un error al borrar la relacion", severity: "error" });
+              handleErrorMessage(
+                response.data,
+                "Hubo un error al borrar la relacion",
+                props.openSnackbar,
+                undefined
+              );
             }
         }
         catch {
