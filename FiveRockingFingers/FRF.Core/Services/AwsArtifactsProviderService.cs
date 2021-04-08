@@ -75,7 +75,7 @@ namespace FRF.Core.Services
                 foreach (var propertie in properties)
                 {
                     var attributeName = Regex.Replace(propertie.Key, @"[\d-]", string.Empty);
-                    var attributeValues = await GetAttributeValue(attributeName, serviceCode);
+                    var attributeValues = await GetAttributeValueAsync(attributeName, serviceCode);
                     var enums = (JArray)propertie.Value["enum"];
                     if(enums != null && enums.Count == 0 && attributeValues.Count > 0)
                     {
@@ -89,54 +89,28 @@ namespace FRF.Core.Services
             return new ServiceResponse<JObject>(jsonForm);
         }
 
-        public async Task<ServiceResponse<List<ProviderArtifactSetting>>> GetAttributesAsync(string serviceCode)
-        {
-            var attributes = new List<ProviderArtifactSetting>();
-            var response = await _pricingClient.DescribeServicesAsync(new DescribeServicesRequest
-            {
-                FormatVersion = "aws_v1",
-                ServiceCode = serviceCode
-            });
-
-            if(response == null)
-            {
-                return new ServiceResponse<List<ProviderArtifactSetting>>(attributes);
-            }
-
-            foreach (var service in response.Services)
-            {
-                foreach (var attributeName in service.AttributeNames)
-                {
-                    var attributeKeyValue = new KeyValuePair<string, string>(attributeName, ExtractName(attributeName));
-                    var attribute = new ProviderArtifactSetting();
-                    attribute.Name = attributeKeyValue;
-                    attribute.Values = await GetAttributeValue(attributeName, serviceCode);
-                    attributes.Add(attribute);
-                }
-            }
-
-            return new ServiceResponse<List<ProviderArtifactSetting>>(attributes);
-        }
-
-        private async Task<List<string>> GetAttributeValue(string attributeName, string serviceCode)
+        private async Task<List<string>> GetAttributeValueAsync(string attributeName, string serviceCode)
         {
             var attributeValues = new List<string>();
 
-            var response = await _pricingClient.GetAttributeValuesAsync(new GetAttributeValuesRequest
-            {
-                AttributeName = attributeName,
-                ServiceCode = serviceCode
-            });
+            var nextToken = "";
 
-            if(response == null)
+            while (nextToken != null)
             {
-                return attributeValues;
-            }
+                var response = await _pricingClient.GetAttributeValuesAsync(new GetAttributeValuesRequest
+                {
+                    AttributeName = attributeName,
+                    ServiceCode = serviceCode,
+                    NextToken = nextToken
+                });
 
-            foreach (var attributeValue in response.AttributeValues)
-            {
-                attributeValues.Add(attributeValue.Value);
-            }
+                foreach (var attributeValue in response.AttributeValues)
+                {
+                    attributeValues.Add(attributeValue.Value);
+                }
+
+                nextToken = response.NextToken;
+            }            
 
             return attributeValues;
         }

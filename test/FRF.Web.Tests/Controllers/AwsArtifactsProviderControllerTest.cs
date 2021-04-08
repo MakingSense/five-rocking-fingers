@@ -143,30 +143,6 @@ namespace FRF.Web.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetAttributesAsync_ReturnsOk()
-        {
-            // Arrange
-            var serviceCode = "[Mock] Service code";
-            var artifactSettings = CreateArtifactSetting();
-
-            _artifactProviderService
-                .Setup(mock => mock.GetAttributesAsync(It.IsAny<string>()))
-                .ReturnsAsync(new ServiceResponse<List<ProviderArtifactSetting>>(artifactSettings));
-
-            // Act
-            var result = await _classUnderTest.GetAttributesAsync(serviceCode);
-
-            // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result);
-            var returnValue = Assert.IsType<List<ProviderArtifactSettingDTO>>(okResult.Value);
-
-            Assert.Equal(artifactSettings[0].Name.Key, returnValue[0].Name.Key);
-            Assert.Equal(artifactSettings[0].Name.Value, returnValue[0].Name.Value);
-            Assert.Equal(artifactSettings[0].Values[0], returnValue[0].Values[0]);
-            _artifactProviderService.Verify(mock => mock.GetAttributesAsync(serviceCode), Times.Once);
-        }
-
-        [Fact]
         public async Task GetProductsAsync_ReturnsOk()
         {
             // Arrange
