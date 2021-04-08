@@ -7,6 +7,7 @@ import AddCircleIcon from '@material-ui/icons/AddCircle';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Setting from '../../interfaces/Setting';
 import { SETTINGTYPES, CUSTOM_REQUIRED_FIELD } from '../../Constants';
+import { useArtifact } from '../../commons/useArtifact';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -40,10 +41,11 @@ const useStyles = makeStyles((theme: Theme) =>
 const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, updateList: Function, setOpenSnackbar: Function, setSnackbarSettings: Function, handleNextStep: Function, handlePreviousStep: Function, settingsList: Setting[], setSettingsList: Function, settingsMap: { [key: string]: number[] }, setSettingsMap: Function, setSettings: Function, settingTypes: { [key: string]: string }, setSettingTypes: Function }) => {
 
     const classes = useStyles();
+    const { handleInputChange, handleAddSetting, handleDeleteSetting, settingsList } = useArtifact();
     const { handleSubmit, errors, setError, clearErrors, control } = useForm();
     const { showNewArtifactDialog, closeNewArtifactDialog,setSettingTypes,settingTypes } = props;
     //Hook for save the user's settings input
-    const [settingsList, setSettingsList] = React.useState<Setting[]>(props.settingsList);
+    //-----const [settingsList, setSettingsList] = React.useState<Setting[]>(props.settingsList);
     //Hook for saving the numbers of times a setting's name input is repeated
     const [settingsMap, setSettingsMap] = React.useState<{ [key: string]: number[] }>(props.settingsMap);
     const [price, setPrice] = React.useState<number>(() => {
@@ -97,19 +99,6 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
         else if (numberType === SETTINGTYPES[0]) {
             return Boolean( settingValue % 1 !== 0 || settingValue % 1 === 0);
         }
-    }
-
-    //Handle changes in the inputs fields
-    const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, index: number) => {
-        let { name, value } = event.target;
-        name = name.split(".")[1];
-        value = value.replace(/\s/g, '_').trim();
-        if (name === 'name') {
-            checkSettingName(value, index);
-        }
-        const list = [...settingsList];
-        list[index][name] = value;
-        setSettingsList(list);
     }
 
     //Check if the setting's name the user enters has already have been used
@@ -189,28 +178,6 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
 
     const handleCancel = () => {
         closeNewArtifactDialog();
-    }
-
-    const handleAddSetting = () => {
-        setSettingsList([...settingsList, { name: "", value: "0" }]);
-    }
-
-    const handleDeleteSetting = (index: number) => {
-        let listTypes = {...settingTypes};
-        delete listTypes[settingsList[index].name];
-        setSettingTypes(listTypes);
-        let listSettings = [...settingsList];
-        listSettings.splice(index, 1);
-        setSettingsList(listSettings);
-
-        let mapList = { ...settingsMap };
-        let key = searchIndexInObject(mapList, index);
-        if (key != null) {
-            deleteIndexFromObject(mapList, index, key);
-            updateSettingsMap(mapList, index);
-
-        }
-        setSettingsMap(mapList);
     }
 
     const updateSettingsMap = (object: { [key: string]: number[] }, index: number) => {
@@ -314,7 +281,7 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
                                                 variant="outlined"
                                                 value={setting.name}
                                                 className={classes.inputF}
-                                                onChange={event => {handleInputChange(event, index); onChange(event); }}
+                                                onChange={event => { handleInputChange(event, index); onChange(event); }}
                                                 autoComplete='off'
                                             />
                                         )}
