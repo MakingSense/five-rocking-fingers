@@ -30,8 +30,8 @@ namespace FRF.Web.Controllers
         {
             var userSignIn = _mapper.Map<UserSignIn>(signInDto);
             var response = await _signInService.SignInAsync(userSignIn);
-            if (!response.Success && response.Error.Code == ErrorCodes.InvalidCredentials) return Unauthorized($"Error {response.Error.Code}: {response.Error.Message}");
-            if (!response.Success && response.Error.Code == ErrorCodes.AuthenticationServerCurrentlyUnavailable) return StatusCode(500,($"Error {response.Error.Code}: {response.Error.Message}"));
+            if (!response.Success && response.Error.Code == ErrorCodes.InvalidCredentials) return Unauthorized(response.Error);
+            if (!response.Success && response.Error.Code == ErrorCodes.AuthenticationServerCurrentlyUnavailable) return StatusCode(500,(response.Error));
 
             return Ok(response.Value);
         }

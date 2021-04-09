@@ -43,7 +43,7 @@ namespace FRF.Web.Controllers
 
             if (!artifacts.Success)
             {
-                return BadRequest($"Error {artifacts.Error.Code}: {artifacts.Error.Message}");
+                return BadRequest(artifacts.Error);
             }
 
             var artifactsDto = _mapper.Map<IEnumerable<ArtifactDTO>>(artifacts.Value);
@@ -59,7 +59,7 @@ namespace FRF.Web.Controllers
 
             if (!artifact.Success)
             {
-                return NotFound($"Error {artifact.Error.Code}: {artifact.Error.Message}");
+                return NotFound(artifact.Error);
             }
 
             var artifactDto = _mapper.Map<ArtifactDTO>(artifact.Value);
@@ -77,10 +77,10 @@ namespace FRF.Web.Controllers
             {
                 if (response.Error.Code == ErrorCodes.InvalidArtifactSettings)
                 {
-                    return BadRequest($"Error {response.Error.Code}: {response.Error.Message}");
+                    return BadRequest(response.Error);
                 }
 
-                return NotFound($"Error {response.Error.Code}: {response.Error.Message}");
+                return NotFound(response.Error);
             }
             var artifactCreated = _mapper.Map<ArtifactDTO>(response.Value);
 
@@ -97,10 +97,10 @@ namespace FRF.Web.Controllers
             {
                 if (artifact.Error.Code == ErrorCodes.InvalidArtifactSettings)
                 {
-                    return BadRequest($"Error {artifact.Error.Code}: {artifact.Error.Message}");
+                    return BadRequest(artifact.Error);
                 }
 
-                return NotFound($"Error {artifact.Error.Code}: {artifact.Error.Message}");
+                return NotFound(artifact.Error);
             }
 
             _mapper.Map(artifactDto, artifact.Value);
@@ -119,7 +119,7 @@ namespace FRF.Web.Controllers
 
             if (!artifact.Success)
             {
-                return NotFound($"Error {artifact.Error.Code}: {artifact.Error.Message}");
+                return NotFound(artifact.Error);
             }
 
             await _artifactsService.Delete(artifactId);
@@ -139,9 +139,9 @@ namespace FRF.Web.Controllers
                 if (result.Error.Code == ErrorCodes.ArtifactNotExists ||
                     result.Error.Code == ErrorCodes.ProjectNotExists)
                 {
-                    return NotFound($"Error {result.Error.Code}: {result.Error.Message}");
+                    return NotFound(result.Error);
                 }
-                return BadRequest($"Error {result.Error.Code}: {result.Error.Message}");
+                return BadRequest(result.Error);
             }
 
             var artifactsResult = _mapper.Map<IList<ArtifactsRelationDTO>>(result.Value);
@@ -155,7 +155,7 @@ namespace FRF.Web.Controllers
             var result = await _artifactsService.GetAllRelationsOfAnArtifactAsync(artifactId);
             if (!result.Success)
             {
-                return NotFound($"Error {result.Error.Code}: {result.Error.Message}");
+                return NotFound(result.Error);
             }
             var artifactsRelationsDTO = _mapper.Map<IList<ArtifactsRelationDTO>>(result.Value);
             return Ok(artifactsRelationsDTO);
@@ -166,7 +166,7 @@ namespace FRF.Web.Controllers
         {
             var result = await _artifactsService.GetAllRelationsByProjectIdAsync(projectId);
 
-             if (!result.Success) return BadRequest($"Error {result.Error.Code}: {result.Error.Message}");
+             if (!result.Success) return BadRequest(result.Error);
 
              return Ok(_mapper.Map<IList<ArtifactsRelationDTO>>(result.Value));
 
@@ -176,7 +176,7 @@ namespace FRF.Web.Controllers
         public async Task<IActionResult> DeleteRelationAsync(Guid relationId)
         {
             var result = await _artifactsService.DeleteRelationAsync(relationId);
-            if (!result.Success) return NotFound($"Error {result.Error.Code}: {result.Error.Message}");
+            if (!result.Success) return NotFound(result.Error);
 
             return NoContent();
         }
@@ -190,9 +190,9 @@ namespace FRF.Web.Controllers
                 switch (result.Error.Code)
                 {
                     case ErrorCodes.ArtifactNotExists:
-                        return NotFound($"Error {result.Error.Code}: {result.Error.Message}");
+                        return NotFound(result.Error);
                     case ErrorCodes.InvalidArtifactSettings:
-                        return BadRequest($"Error {result.Error.Code}: {result.Error.Message}");
+                        return BadRequest(result.Error);
                 }
 
             return NoContent();
@@ -211,9 +211,9 @@ namespace FRF.Web.Controllers
                 if (result.Error.Code == ErrorCodes.ArtifactNotExists ||
                     result.Error.Code == ErrorCodes.ProjectNotExists)
                 {
-                    return NotFound($"Error {result.Error.Code}: {result.Error.Message}");
+                    return NotFound(result.Error);
                 }
-                return BadRequest($"Error {result.Error.Code}: {result.Error.Message}");
+                return BadRequest(result.Error);
             }
 
             var artifactsResult = _mapper.Map<IList<ArtifactsRelationDTO>>(result.Value);
