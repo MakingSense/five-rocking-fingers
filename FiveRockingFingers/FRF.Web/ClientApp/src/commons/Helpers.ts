@@ -1,16 +1,14 @@
 import * as React from 'react';
 import * as Errors from '../ErrorCodes';
 
-export function extractErrorCode(errorData: string): number | null {
-    if (errorData === null || errorData.trim() === '') return null;
-    let text: RegExp = new RegExp(/\b(^|\s)([0-9]+)($|:){1}\B/g);
-    return parseInt(text.exec(errorData)![0]);
-}
+interface IErrorResponse {
+    code: number;
+    message: string;
+  } 
 
-export function handleErrorMessage(responseData: string, baseErrorMessage: string, setSnackbarSettings: Function, setOpenSnackbar: Function | undefined) {
-    let errorCode = extractErrorCode(responseData);
+export function handleErrorMessage(responseData: IErrorResponse, baseErrorMessage: string, setSnackbarSettings: Function, setOpenSnackbar: Function | undefined) {
     if (setOpenSnackbar === undefined) setOpenSnackbar = () => { };
-    switch (errorCode) {
+    switch (responseData.code) {
         case Errors.PROJECT_NOT_EXISTS:
             setSnackbarSettings({ message: `${baseErrorMessage}:\ El proyecto no existe`, severity: "error" });
             setOpenSnackbar(true);
