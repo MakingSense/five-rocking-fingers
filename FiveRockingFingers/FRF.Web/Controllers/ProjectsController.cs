@@ -52,14 +52,14 @@ namespace FiveRockingFingers.Controllers
         {
             var currentUserId = await _userService.GetCurrentUserIdAsync();
             if (!currentUserId.Success)
-                return BadRequest($"Error {currentUserId.Error.Code}: {currentUserId.Error.Message}");
+                return BadRequest(currentUserId.Error);
 
             projectDto.Users.Add(new UserProfileUpsertDTO() {UserId = currentUserId.Value});
             var project = _mapper.Map<Project>(projectDto);
 
             var projectSaved = await _projectService.SaveAsync(project);
             if (!projectSaved.Success)
-                return BadRequest($"Error {projectSaved.Error.Code}: {projectSaved.Error.Message}");
+                return BadRequest(projectSaved.Error);
 
             var projectCreated = _mapper.Map<ProjectDTO>(projectSaved.Value);
             return Ok(projectCreated);
@@ -69,11 +69,11 @@ namespace FiveRockingFingers.Controllers
         public async Task<IActionResult> UpdateAsync(int id, ProjectUpsertDTO projectDto)
         {
             var response = await _projectService.GetAsync(id);
-            if (!response.Success) return NotFound($"Error {response.Error.Code}: {response.Error.Message}");
+            if (!response.Success) return NotFound(response.Error);
 
             _mapper.Map(projectDto, response.Value);
             var updated = await _projectService.UpdateAsync(response.Value);
-            if (!updated.Success) return BadRequest($"Error {updated.Error.Code}: {updated.Error.Message}");
+            if (!updated.Success) return BadRequest(updated.Error);
 
             var updatedProject = _mapper.Map<ProjectDTO>(updated.Value);
             return Ok(updatedProject);
@@ -83,10 +83,10 @@ namespace FiveRockingFingers.Controllers
         public async Task<IActionResult> DeleteAsync(int id)
         {
             var project = await _projectService.GetAsync(id);
-            if (!project.Success) return NotFound($"Error {project.Error.Code}: {project.Error.Message}");
+            if (!project.Success) return NotFound(project.Error);
 
             var isDeleted = await _projectService.DeleteAsync(id);
-            if (!isDeleted.Success) return NotFound($"Error {isDeleted.Error.Code}: {isDeleted.Error.Message}");
+            if (!isDeleted.Success) return NotFound(isDeleted.Error);
 
             return NoContent();
         }

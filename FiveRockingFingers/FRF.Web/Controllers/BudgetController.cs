@@ -22,7 +22,7 @@ namespace FRF.Web.Controllers
         {
             var response = await _budgetService.GetBudget(projectId);
 
-            if (!response.Success) return NotFound($"Error {response.Error.Code}: {response.Error.Message}");
+            if (!response.Success) return NotFound(response.Error);
 
             return Ok(response.Value);
         }
