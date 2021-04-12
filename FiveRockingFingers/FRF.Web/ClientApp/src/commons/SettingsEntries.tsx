@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import { useForm, Controller, DeepMap, FieldError, useFormContext } from 'react-hook-form';
+import { Controller, useFormContext } from 'react-hook-form';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { DialogContent, DialogTitle, TextField } from '@material-ui/core';
 import Artifact from '../interfaces/Artifact';

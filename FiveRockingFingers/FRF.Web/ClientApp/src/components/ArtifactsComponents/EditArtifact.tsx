@@ -1,7 +1,7 @@
 ﻿import { Button, DialogActions, DialogContent, DialogTitle, TextField } from '@material-ui/core';
 import { createMuiTheme, createStyles, makeStyles, Theme, ThemeProvider } from '@material-ui/core/styles';
 import * as React from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, FormProvider } from 'react-hook-form';
 import Typography from '@material-ui/core/Typography';
 import Setting from '../../interfaces/Setting';
 import Artifact from '../../interfaces/Artifact';
@@ -64,9 +64,10 @@ const EditArtifact = (props: {
     setSettingTypes: Function  }) => {
 
     const classes = useStyles();
-    const { register, handleSubmit, errors, control } = useForm();
+    const methods = useForm();
+    const { register, handleSubmit, errors, control } = methods;
     const { settingsList, setSettingsList, price, setPrice, setSettingsMap, createSettingsObject, setSettings } = useArtifact();
-    const { closeEditArtifactDialog, settingTypes, setSettingTypes } = props;
+    const { artifactToEdit, artifactsRelations, closeEditArtifactDialog, settingTypes, setSettingTypes } = props;
 
     
 
@@ -160,41 +161,41 @@ const EditArtifact = (props: {
     }    
 
     return (
-        <ThemeProvider theme={theme}>
-            <DialogTitle >Formulario de actualización de artefactos custom</DialogTitle>
-            <DialogContent>
-                <Controller
-                    control={control}
-                    name={'name'}
-                    rules={{ validate: { isValid: value => value.trim() != "" } }}
-                    render={({ onChange }) => (
-                        <TextField
-                            inputRef={register({ required: true, validate: { isValid: value => value.trim() != "" } })}
-                            error={errors.name ? true : false}
-                            id="name"
-                            name="name"
-                            label="Nombre del artefacto"
-                            helperText="Requerido*"
-                            variant="outlined"
-                            className={classes.inputF}
-                            onChange={event => { handleChangeName(event); onChange(event); }}
-                            fullWidth
-                            defaultValue={props.artifactToEdit.name}
-                        />
-                    )}
+        <FormProvider {...methods}>
+            <ThemeProvider theme={theme}>
+                <DialogTitle >Formulario de actualización de artefactos custom</DialogTitle>
+                <DialogContent>
+                    <Controller
+                        control={control}
+                        name={'name'}
+                        rules={{ validate: { isValid: value => value.trim() != "" } }}
+                        render={({ onChange }) => (
+                            <TextField
+                                inputRef={register({ required: true, validate: { isValid: value => value.trim() != "" } })}
+                                error={errors.name ? true : false}
+                                id="name"
+                                name="name"
+                                label="Nombre del artefacto"
+                                helperText="Requerido*"
+                                variant="outlined"
+                                className={classes.inputF}
+                                onChange={event => { handleChangeName(event); onChange(event); }}
+                                fullWidth
+                                defaultValue={props.artifactToEdit.name}
+                            />
+                        )}
+                    />
+                </DialogContent>
+                <SettingsEntries
+                    artifactToEdit={artifactToEdit}
+                    artifactsRelations={artifactsRelations}
                 />
-            </DialogContent>
-            <DialogContent>
-                <Typography gutterBottom>
-                    Propiedades del artefacto
-                </Typography>
-            </DialogContent>
-            <SettingsEntries />
-            <DialogActions>
-                <Button size="small" color="primary" type="submit" onClick={handleSubmit(handleConfirm)}>Listo</Button>
-                <Button size="small" color="secondary" onClick={handleCancel}>Cancelar</Button>
-            </DialogActions>
-        </ThemeProvider>
+                <DialogActions>
+                    <Button size="small" color="primary" type="submit" onClick={handleSubmit(handleConfirm)}>Listo</Button>
+                    <Button size="small" color="secondary" onClick={handleCancel}>Cancelar</Button>
+                </DialogActions>
+            </ThemeProvider>
+        </FormProvider>        
     );
 }
 
