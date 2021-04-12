@@ -5,6 +5,7 @@ import ArtifactService from '../../services/ArtifactService';
 import ArtifactRelation from '../../interfaces/ArtifactRelation';
 import EditArtifact from './EditArtifact';
 import EditArtifactConfirmation from './EditArtifactConfirmation';
+import { useArtifact } from '../../commons/useArtifact';
 
 
 const EditArtifactDialog = (props: {
@@ -18,12 +19,14 @@ const EditArtifactDialog = (props: {
     settingTypes: { [key: string]: string }, 
     setSettingTypes: Function  }) => {
 
-    const { showEditArtifactDialog, closeEditArtifactDialog, settingTypes, setSettingTypes } = props;
+    const { showEditArtifactDialog, closeEditArtifactDialog, settingTypes } = props;
 
     const [isArtifactEdited, setIsArtifactEdited] = React.useState<boolean>(false);
     const [artifactEdited, setArtifactEdited] = React.useState<Artifact>(props.artifactToEdit);
     const [namesOfSettingsChanged, setNamesOfSettingsChanged] = React.useState<string[]>([]);
     const [artifactsRelations, setArtifactsRelations] = React.useState<ArtifactRelation[]>([]);
+
+    const { resetStateOnClose, setSettingTypes } = useArtifact();
 
     const getRelations = async () => {
         try {
@@ -42,7 +45,13 @@ const EditArtifactDialog = (props: {
         }
     }
 
+    const closeDialog = () => {
+        resetStateOnClose();
+        closeEditArtifactDialog();
+    } 
+
     React.useEffect(() => {
+        setSettingTypes(props.settingTypes);
         getRelations();
     }, [artifactEdited]);
 
@@ -51,7 +60,7 @@ const EditArtifactDialog = (props: {
             {!isArtifactEdited ?
                 <EditArtifact
                     artifactToEdit={props.artifactToEdit}
-                    closeEditArtifactDialog={closeEditArtifactDialog}
+                    closeEditArtifactDialog={closeDialog}
                     setIsArtifactEdited={setIsArtifactEdited}
                     setArtifactEdited={setArtifactEdited}
                     setNamesOfSettingsChanged={setNamesOfSettingsChanged}
@@ -62,7 +71,7 @@ const EditArtifactDialog = (props: {
                 <EditArtifactConfirmation
                     artifactToEdit={artifactEdited}
                     namesOfSettingsChanged={namesOfSettingsChanged}
-                    closeEditArtifactDialog={closeEditArtifactDialog}
+                    closeEditArtifactDialog={closeDialog}
                     setOpenSnackbar={props.setOpenSnackbar}
                     setSnackbarSettings={props.setSnackbarSettings}
                     updateArtifacts={props.updateArtifacts}

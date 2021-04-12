@@ -1,8 +1,14 @@
 ﻿import * as React from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, DeepMap, useFormContext } from 'react-hook-form';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, IconButton, ButtonGroup, Select, MenuItem, Grid, FormGroup, FormHelperText, FormControl, InputLabel } from '@material-ui/core';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import DeleteIcon from '@material-ui/icons/Delete';
+import Setting from '../interfaces/Setting';
+import { useArtifact } from './useArtifact';
+import Typography from '@material-ui/core/Typography';
+import { SETTINGTYPES, CUSTOM_REQUIRED_FIELD } from '../Constants';
+import { FieldError } from '@rjsf/core';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -33,10 +39,12 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const SettingEntry = (index: number, settingListLenght: number) => {
+const SettingEntry = (props: { index: number, settingListLenght: number, setting: Setting, isSettingAtTheEndOfAnyRelation?: Function }) => {
 
     const classes = useStyles();
-    const { handleSubmit, errors, setError, clearErrors, control } = useForm();
+    const { control, register, errors } = useFormContext();
+    const { index, settingListLenght, setting } = props;
+    const { areNamesRepeated, isFieldEmpty, handleInputChange, handleTypeChange, isValidNumber, isNumberSameType, handleAddSetting, handleDeleteSetting, settingTypes, settingsList } = useArtifact();
 
     return (
         <DialogContent key={index}>
@@ -61,6 +69,12 @@ const SettingEntry = (index: number, settingListLenght: number) => {
                                     className={classes.inputF}
                                     onChange={event => { handleInputChange(event, index); onChange(event); }}
                                     autoComplete='off'
+                                    {...register(`settings[${index}].name`, {
+                                        validate: {
+                                            isValid: () => !isFieldEmpty(index, "name", false),
+                                            isRepeate: () => !areNamesRepeated(index)
+                                        }
+                                    })}
                                 />
                             )}
                         />
@@ -85,7 +99,14 @@ const SettingEntry = (index: number, settingListLenght: number) => {
                                     className={classes.inputF}
                                     onChange={event => { handleInputChange(event, index); onChange(event); }}
                                     autoComplete='off'
+                                    disabled={props.isSettingAtTheEndOfAnyRelation !== undefined ? props.isSettingAtTheEndOfAnyRelation(setting.name) : false}
                                     type="number"
+                                    {...register(`settings[${index}].value`, {
+                                        validate: {
+                                            isValid: () => isValidNumber(index),
+                                            isEmpty: () => !isFieldEmpty(index, "value", false)
+                                        }
+                                    })}
                                 />
                             )}
                         />
@@ -109,6 +130,12 @@ const SettingEntry = (index: number, settingListLenght: number) => {
                                     autoWidth
                                     value={settingTypes[settingsList[index].name] === undefined ? '' : settingTypes[settingsList[index].name]}
                                     onChange={event => { handleTypeChange(event, index); onChange(event); }}
+                                    {...register(`types[${index}]`, {
+                                        validate: {
+                                            isValid: () => isValidNumber(index),
+                                            isEmpty: () => !isFieldEmpty(index, "value", true)
+                                        }
+                                    })}
                                 >
                                     <MenuItem value="">
                                         <em>None</em>
@@ -139,3 +166,5 @@ const SettingEntry = (index: number, settingListLenght: number) => {
         </DialogContent>    
     );
 }
+
+export default SettingEntry;
