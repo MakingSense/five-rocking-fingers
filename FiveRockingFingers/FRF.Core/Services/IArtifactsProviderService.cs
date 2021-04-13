@@ -12,7 +12,6 @@ namespace FRF.Core.Services
     public interface IArtifactsProviderService
     {
         Task<ServiceResponse<List<KeyValuePair<string, string>>>> GetNamesAsync();
-        Task<ServiceResponse<List<ProviderArtifactSetting>>> GetAttributesAsync(string serviceCode);
         Task<ServiceResponse<List<PricingTerm>>> GetProductsAsync(List<KeyValuePair<string, string>> settings, string serviceCode);
         Task<ServiceResponse<JObject>> GetRequiredFieldsAsync(string serviceCode);
     }

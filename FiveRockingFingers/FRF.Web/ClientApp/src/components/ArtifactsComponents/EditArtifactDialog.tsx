@@ -19,13 +19,14 @@ const EditArtifactDialog = (props: {
     settingTypes: { [key: string]: string }, 
     setSettingTypes: Function  }) => {
 
-    const { showEditArtifactDialog, closeEditArtifactDialog, settingTypes } = props;
+    const { showEditArtifactDialog, closeEditArtifactDialog, settingTypes, setSettingTypes } = props;
 
     const [isArtifactEdited, setIsArtifactEdited] = React.useState<boolean>(false);
     const [artifactEdited, setArtifactEdited] = React.useState<Artifact>(props.artifactToEdit);
     const [namesOfSettingsChanged, setNamesOfSettingsChanged] = React.useState<string[]>([]);
     const [artifactsRelations, setArtifactsRelations] = React.useState<ArtifactRelation[]>([]);
 
+    const [originalSettingTypes, setOriginalSettingTypes] = React.useState<{ [key: string]: string }>();
     const { resetStateOnClose, setSettingTypes } = useArtifact();
 
     const getRelations = async () => {
@@ -55,6 +56,10 @@ const EditArtifactDialog = (props: {
         getRelations();
     }, [artifactEdited]);
 
+    React.useEffect(() => {
+        setOriginalSettingTypes(props.artifactToEdit.relationalFields);
+    }, [props.artifactToEdit])
+
     return (
         <Dialog open={showEditArtifactDialog}>
             {!isArtifactEdited ?
@@ -76,6 +81,7 @@ const EditArtifactDialog = (props: {
                     setSnackbarSettings={props.setSnackbarSettings}
                     updateArtifacts={props.updateArtifacts}
                     settingTypes={settingTypes}
+                    originalSettingTypes={originalSettingTypes}
                 />
             }
         </Dialog>
