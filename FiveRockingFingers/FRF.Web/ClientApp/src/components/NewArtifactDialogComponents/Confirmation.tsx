@@ -4,9 +4,8 @@ import Typography from '@material-ui/core/Typography';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import Setting from '../../interfaces/Setting';
-import PricingTerm from '../../interfaces/PricingTerm';
 import ArtifactService from '../../services/ArtifactService';
-import ArtifactType from '../../interfaces/ArtifactType';
+import { useArtifact } from '../../commons/useArtifact';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -20,11 +19,12 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const Confirmation = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, provider: string | null, name: string | null, projectId: number, artifactType: ArtifactType | null, setOpenSnackbar: Function, setSnackbarSettings: Function, handlePreviousStep: Function, settingsList: Setting[], settings: object, updateList: Function, awsPricingTerm: PricingTerm | null, settingTypes: { [key: string]: string } }) => {
+const Confirmation = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, projectId: number, setOpenSnackbar: Function, setSnackbarSettings: Function, handlePreviousStep: Function, updateList: Function }) => {
 
     const classes = useStyles();
     const { handleSubmit } = useForm();
-    const { showNewArtifactDialog, closeNewArtifactDialog, provider, name, projectId, artifactType, setOpenSnackbar, setSnackbarSettings, settingsList, updateList } = props;
+    const { name, provider, artifactType, settings, settingTypes, settingsList, awsPricingTerm } = useArtifact();
+    const { showNewArtifactDialog, closeNewArtifactDialog, projectId, setOpenSnackbar, setSnackbarSettings, updateList } = props;
 
     //Create the artifact after submit
     const handleConfirm = async () => {
@@ -33,8 +33,8 @@ const Confirmation = (props: { showNewArtifactDialog: boolean, closeNewArtifactD
             provider: provider,
             artifactTypeId: artifactType?.id,
             projectId: projectId,
-            settings: props.settings,
-            relationalFields: props.settingTypes
+            settings: settings,
+            relationalFields: settingTypes
         };
 
         try {
@@ -100,15 +100,15 @@ const Confirmation = (props: { showNewArtifactDialog: boolean, closeNewArtifactD
                         );
                     })
                 }
-                {provider !== 'Custom' && props.awsPricingTerm !== null ?
+                {provider !== 'Custom' && awsPricingTerm !== null ?
                     <React.Fragment>
-                        {createPropertieLabel("Unit", props.awsPricingTerm.pricingDimensions[0].unit)}
-                        {createPropertieLabel("Lease Contract Length", props.awsPricingTerm.leaseContractLength)}
-                        {createPropertieLabel("Purchase Option", props.awsPricingTerm.purchaseOption)}
-                        {createPropertieLabel("Description", props.awsPricingTerm.pricingDimensions[0].description)}
-                        {createPropertieLabel("Currency", props.awsPricingTerm.pricingDimensions[0].currency)}
-                        {createPropertieLabel("Price per unit", props.awsPricingTerm.pricingDimensions[0].pricePerUnit.toFixed(10))}
-                        {createPropertieLabel("Term", props.awsPricingTerm.term)}
+                        {createPropertieLabel("Unit", awsPricingTerm.pricingDimensions[0].unit)}
+                        {createPropertieLabel("Lease Contract Length", awsPricingTerm.leaseContractLength)}
+                        {createPropertieLabel("Purchase Option", awsPricingTerm.purchaseOption)}
+                        {createPropertieLabel("Description", awsPricingTerm.pricingDimensions[0].description)}
+                        {createPropertieLabel("Currency", awsPricingTerm.pricingDimensions[0].currency)}
+                        {createPropertieLabel("Price per unit", awsPricingTerm.pricingDimensions[0].pricePerUnit.toFixed(10))}
+                        {createPropertieLabel("Term", awsPricingTerm.term)}
                     </React.Fragment>
                     : null
                 }

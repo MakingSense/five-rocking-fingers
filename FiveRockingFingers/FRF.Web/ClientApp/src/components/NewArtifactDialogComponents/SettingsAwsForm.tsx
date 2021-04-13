@@ -6,7 +6,7 @@ import KeyValueStringPair from '../../interfaces/KeyValueStringPair';
 import AwsArtifactService from '../../services/AwsArtifactService';
 import { withTheme } from "@rjsf/core";
 import { Theme as MaterialUITheme } from "@rjsf/material-ui";
-import ArtifactType from '../../interfaces/ArtifactType';
+import { useArtifact } from '../../commons/useArtifact';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -33,11 +33,12 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const SettingsAwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, artifactType: ArtifactType | null, updateList: Function, handleNextStep: Function, handlePreviousStep: Function, setAwsSettingsList: Function, setSettingsList: Function, setSnackbarSettings: Function, setOpenSnackbar: Function }) => {
+const SettingsAwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, handleNextStep: Function, handlePreviousStep: Function, setSnackbarSettings: Function, setOpenSnackbar: Function }) => {
 
     const classes = useStyles();
     const Form = withTheme(MaterialUITheme);
-    const { showNewArtifactDialog, closeNewArtifactDialog, artifactType } = props;
+    const { showNewArtifactDialog, closeNewArtifactDialog } = props;
+    const { artifactType, setAwsSettingsList, setSettingsList } = useArtifact();
 
     //Hook for save the user's settings input
     const [loading, setLoading] = React.useState<Boolean>(true);
@@ -84,8 +85,8 @@ const SettingsAwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifa
                 awsSettingsListAux.push(newSetting);                
             });
         });
-        props.setSettingsList(awsSettingsListToSettingsList(awsSettingsListAux));
-        props.setAwsSettingsList(awsSettingsListAux);
+        setSettingsList(awsSettingsListToSettingsList(awsSettingsListAux));
+        setAwsSettingsList(awsSettingsListAux);
         props.handleNextStep();
     }
 
