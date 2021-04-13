@@ -8,14 +8,13 @@ import SettingsEntries from '../../commons/SettingsEntries';
 
 const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, setOpenSnackbar: Function, setSnackbarSettings: Function, handleNextStep: Function, handlePreviousStep: Function }) => {
 
-    const { settingsList, setSettingsList, price, settingsMap, setSettingsMap, createSettingsObject, settingTypes, setSettingTypes, setSettings } = useArtifact();
+    const { settingsList, setSettingsList, price, setPrice, settingsMap, setSettingsMap, createSettingsObject, settingTypes, setSettingTypes, setSettings } = useArtifact();
     const methods = useForm();
     const { handleSubmit } = methods;
     const { showNewArtifactDialog, closeNewArtifactDialog } = props;
 
     //Create the artifact after submit
     const handleConfirm = async () => {
-
         if (!settingsList.find(s => s.name === CUSTOM_REQUIRED_FIELD)) {
             settingsList.unshift({ name: CUSTOM_REQUIRED_FIELD, value: price.toString() });
         }
@@ -23,8 +22,7 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
         setSettingsMap(settingsMap);
         setSettings({ settings: createSettingsObject() });
         setSettingTypes(settingTypes);
-        props.handleNextStep();
-        
+        props.handleNextStep();        
     }
 
     const handleCancel = () => {
@@ -38,6 +36,21 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
         setSettingTypes(settingTypes);
         props.handlePreviousStep();
     }
+
+    React.useEffect(() => {
+        let price = 0;
+        let settingsListAux = [...settingsList];
+        let index = settingsListAux.findIndex(s => s.name === CUSTOM_REQUIRED_FIELD);
+        if (index != -1) {
+
+            let priceFromList = settingsListAux[index];
+            settingsListAux.splice(index, 1);
+            price = parseFloat(priceFromList.value);
+        }
+        setPrice(price);
+        setSettingsList(settingsListAux);
+    }, []);
+
     return (
         <FormProvider {...methods}>
             <Dialog open={showNewArtifactDialog}>
@@ -58,7 +71,7 @@ const SettingsCustomForm = (props: { showNewArtifactDialog: boolean, closeNewArt
                     <Button size="small" color="secondary" onClick={handleCancel}>Cancelar</Button>
                 </DialogActions>
             </Dialog>
-        </FormProvider>        
+        </FormProvider>
     );
 }
 

@@ -62,7 +62,7 @@ const CustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDia
                 <Typography gutterBottom>
                     A continuación el nombre de su nuevo artefacto custom
                 </Typography>
-                <form className={classes.container}>
+                <FormControl className={classes.container}>
                     <TextField
                         inputRef={register({ required: true, validate: { isValid: value => value.trim() != "" } })}
                         error={errors.name ? true : false}
@@ -75,7 +75,7 @@ const CustomForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDia
                         fullWidth
                         defaultValue={name}
                     />
-                </form>
+                </FormControl>
             </DialogContent>
             <DialogActions>
                 <Button size="small" color="primary" onClick={handlePreviousStep}>Atrás</Button>
