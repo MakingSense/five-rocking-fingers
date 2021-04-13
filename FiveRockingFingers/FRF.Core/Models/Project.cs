@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
 
 namespace FRF.Core.Models
 {
@@ -16,5 +14,6 @@ namespace FRF.Core.Models
         public DateTime? ModifiedDate { get; set; }
         public IList<ProjectCategory> ProjectCategories { get; set; }
         public ICollection<UsersProfile> UsersByProject { get; set; }
+        public IList<ProjectResources> ProjectResources { get; set; }
     }
 }

@@ -18,5 +18,6 @@ namespace FRF.DataAccess.EntityModels
         #nullable disable
         public IList<ProjectCategory> ProjectCategories { get; set; }
         public ICollection<UsersByProject> UsersByProject { get; set; }
+        public IList<ProjectResources> ProjectResources { get; set; } 
     }
 }

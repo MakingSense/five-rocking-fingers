@@ -1,4 +1,6 @@
-﻿namespace FRF.Core.Models
+﻿using System.Collections.Generic;
+
+namespace FRF.Core.Models
 {
     public class Resources
     {
@@ -7,5 +9,6 @@
         public string? Description { get; set; }
         public decimal SalaryPerMonth { get; set; }
         public int WorkloadCapacity { get; set; }
+        public IList<ProjectResources> ProjectResources { get; set; }
     }
 }
