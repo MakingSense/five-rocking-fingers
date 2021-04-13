@@ -59,15 +59,13 @@ const EditArtifact = (props: {
     setIsArtifactEdited: Function,
     setArtifactEdited: Function,
     setNamesOfSettingsChanged: Function,
-    artifactsRelations: ArtifactRelation[], 
-    settingTypes: { [key: string]: string }, 
-    setSettingTypes: Function  }) => {
+    artifactsRelations: ArtifactRelation[]  }) => {
 
     const classes = useStyles();
     const methods = useForm();
     const { register, handleSubmit, errors, control } = methods;
-    const { settingsList, setSettingsList, price, setPrice, setSettingsMap, createSettingsObject, setSettings } = useArtifact();
-    const { artifactToEdit, artifactsRelations, closeEditArtifactDialog, settingTypes, setSettingTypes } = props;
+    const { settingsList, setSettingsList, price, setPrice, setSettingsMap, createSettingsObject, settingTypes } = useArtifact();
+    const { artifactToEdit, artifactsRelations, closeEditArtifactDialog } = props;
 
     
 

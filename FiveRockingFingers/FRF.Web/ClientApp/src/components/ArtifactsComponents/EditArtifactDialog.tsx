@@ -19,14 +19,15 @@ const EditArtifactDialog = (props: {
     settingTypes: { [key: string]: string }, 
     setSettingTypes: Function  }) => {
 
-    const { showEditArtifactDialog, closeEditArtifactDialog, settingTypes, setSettingTypes } = props;
+    const { showEditArtifactDialog, closeEditArtifactDialog, settingTypes } = props;
 
     const [isArtifactEdited, setIsArtifactEdited] = React.useState<boolean>(false);
     const [artifactEdited, setArtifactEdited] = React.useState<Artifact>(props.artifactToEdit);
     const [namesOfSettingsChanged, setNamesOfSettingsChanged] = React.useState<string[]>([]);
     const [artifactsRelations, setArtifactsRelations] = React.useState<ArtifactRelation[]>([]);
+    const [firstRender, setFirstRender] = React.useState<boolean>(true);
 
-    const [originalSettingTypes, setOriginalSettingTypes] = React.useState<{ [key: string]: string }>();
+    const [originalSettingTypes, setOriginalSettingTypes] = React.useState<{ [key: string]: string }>({});
     const { resetStateOnClose, setSettingTypes } = useArtifact();
 
     const getRelations = async () => {
@@ -52,8 +53,11 @@ const EditArtifactDialog = (props: {
     } 
 
     React.useEffect(() => {
-        setSettingTypes(props.settingTypes);
-        getRelations();
+        if (firstRender) {
+            setSettingTypes(props.settingTypes);
+            getRelations();
+            setFirstRender(false);
+        }        
     }, [artifactEdited]);
 
     React.useEffect(() => {
@@ -70,8 +74,6 @@ const EditArtifactDialog = (props: {
                     setArtifactEdited={setArtifactEdited}
                     setNamesOfSettingsChanged={setNamesOfSettingsChanged}
                     artifactsRelations={artifactsRelations}
-                    settingTypes={settingTypes}
-                    setSettingTypes={setSettingTypes}
                 /> :
                 <EditArtifactConfirmation
                     artifactToEdit={artifactEdited}
@@ -80,7 +82,6 @@ const EditArtifactDialog = (props: {
                     setOpenSnackbar={props.setOpenSnackbar}
                     setSnackbarSettings={props.setSnackbarSettings}
                     updateArtifacts={props.updateArtifacts}
-                    settingTypes={settingTypes}
                     originalSettingTypes={originalSettingTypes}
                 />
             }
