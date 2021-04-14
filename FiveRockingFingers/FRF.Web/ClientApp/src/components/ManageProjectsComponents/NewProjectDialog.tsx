@@ -15,6 +15,7 @@ import { HelperAddUser } from "./HelperAddUser";
 import ManageCategories from "./ManageCategories";
 import { ValidateEmail } from "./ValidateEmail";
 import { useUser } from '../../commons/useUser';
+import { handleErrorMessage } from '../../commons/Helpers';
 
 const useStyles = makeStyles({
     inputF: {
@@ -113,7 +114,12 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
             props.openSnackbar({ message: "El proyecto ha sido creado con éxito", severity: "success" });
             props.updateProjects();
         } else {
-            props.openSnackbar({ message: "Ocurrió un error al crear el proyecto", severity: "error" });
+          handleErrorMessage(
+            response.data,
+            "Ocurrió un error al crear el proyecto",
+            props.openSnackbar,
+            undefined
+          );
         }
         clearState();
         props.updateCategories();

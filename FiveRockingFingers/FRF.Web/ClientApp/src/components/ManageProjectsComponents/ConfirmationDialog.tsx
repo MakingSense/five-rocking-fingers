@@ -2,6 +2,7 @@
 import * as React from 'react';
 import Project from '../../interfaces/Project';
 import ProjectService from '../../services/ProjectService';
+import { handleErrorMessage } from '../../commons/Helpers';
 
 export default function ConfirmationDialog(props: { keepMounted: boolean, open: boolean, project: Project | null, onClose: Function, resetView: Function, openSnackbar: Function, updateProjects: Function }) {
     const { onClose, project, open, updateProjects } = props;
@@ -18,11 +19,14 @@ export default function ConfirmationDialog(props: { keepMounted: boolean, open: 
                 if (response.status === 204) {
                     props.openSnackbar({ message: "Se eliminó el proyecto con éxito", severity: "success" });
                     updateProjects();
-                } else if (response.status === 404) {
-                    props.openSnackbar({ message: "No se encontró el proyecto a eliminar", severity: "info" });
                 }
                 else {
-                    props.openSnackbar({ message: "Ocurrió un error al eliminar el proyecto", severity: "error" });
+                  handleErrorMessage(
+                    response.data,
+                    "Ocurrió un error al eliminar el proyecto",
+                    props.openSnackbar,
+                    undefined
+                  );
                 }
             }
             catch {
