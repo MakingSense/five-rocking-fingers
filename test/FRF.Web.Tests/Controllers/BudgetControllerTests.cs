@@ -54,7 +54,7 @@ namespace FRF.Web.Tests.Controllers
             var result = await _classUnderTest.GetBudget(projectId);
 
             //Assert
-            var notFoundResult = Assert.IsType<NotFoundResult>(result);
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
             _budgetService.Verify(mock => mock.GetBudget(It.IsAny<int>()), Times.Once);
         }
     }

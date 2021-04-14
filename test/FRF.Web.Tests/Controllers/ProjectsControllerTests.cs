@@ -232,32 +232,7 @@ namespace FRF.Web.Tests.Controllers
             var result = await _classUnderTest.UpdateAsync(0, projectUpsertDTO);
 
             // Assert
-            Assert.IsType<NotFoundResult>(result);
-
-            _projectsService.Verify(mock => mock.UpdateAsync(It.IsAny<Project>()), Times.Never);
-            _projectsService.Verify(mock => mock.GetAsync(It.IsAny<int>()), Times.Once);
-        }
-
-        [Fact]
-        public async Task Update_WhenGivenEmptyUserList_BadRequest()
-        {
-            // Arrange
-            var rnd = new Random();
-            var projectId = rnd.Next(1, 99999);
-            var project = CreateProject(projectId);
-            var projectUpsertDTO = CreateProjectUpsertDto(project);
-
-            projectUpsertDTO.Users.Clear();
-
-            _projectsService
-                .Setup(mock => mock.GetAsync(It.IsAny<int>()))
-                .ReturnsAsync(new ServiceResponse<Project>(project));
-
-            // Act
-            var result = await _classUnderTest.UpdateAsync(project.Id, projectUpsertDTO);
-
-            // Assert
-            Assert.IsType<BadRequestResult>(result);
+            Assert.IsType<NotFoundObjectResult>(result);
 
             _projectsService.Verify(mock => mock.UpdateAsync(It.IsAny<Project>()), Times.Never);
             _projectsService.Verify(mock => mock.GetAsync(It.IsAny<int>()), Times.Once);
@@ -334,7 +309,7 @@ namespace FRF.Web.Tests.Controllers
             var result = await _classUnderTest.DeleteAsync(projectId);
 
             // Assert
-            Assert.IsType<NotFoundResult>(result);
+            Assert.IsType<NotFoundObjectResult>(result);
 
             _projectsService.Verify(mock => mock.DeleteAsync(It.IsAny<int>()), Times.Never);
         }
@@ -359,7 +334,7 @@ namespace FRF.Web.Tests.Controllers
             var result = await _classUnderTest.DeleteAsync(projectId);
 
             // Assert
-            Assert.IsType<NotFoundResult>(result);
+            Assert.IsType<NotFoundObjectResult>(result);
 
             _projectsService.Verify(mock => mock.GetAsync(It.Is<int>(p => p.Equals(projectId))), Times.Once);
             _projectsService.Verify(mock => mock.DeleteAsync(It.Is<int>(p => p.Equals(projectId))), Times.Once);

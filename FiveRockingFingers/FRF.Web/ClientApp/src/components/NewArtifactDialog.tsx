@@ -12,6 +12,7 @@ import PricingTerm from '../interfaces/PricingTerm';
 import { PROVIDERS } from '../Constants';
 import ArtifactTypeService from '../services/ArtifactTypeService';
 import ArtifactType from '../interfaces/ArtifactType';
+import { handleErrorMessage } from '../commons/Helpers';
 
 const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, projectId: number, updateList: Function, setOpenSnackbar: Function , setSnackbarSettings: Function }) => {
 
@@ -54,9 +55,13 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
             if (response.status === 200) {
                 return response.data as ArtifactType[];
             } else {
-                props.setSnackbarSettings({ message: "Hubo un problema al cargar los tipos de artefactos.", severity: "error" });
-                props.setOpenSnackbar(true);
-                return [];
+              handleErrorMessage(
+                response.data,
+                "Hubo un problema al cargar los tipos de artefactos.",
+                props.setSnackbarSettings,
+                props.setOpenSnackbar
+              );
+              return [];
             }
         } catch {
             props.setSnackbarSettings({ message: "Hubo un problema al cargar los tipos de artefactos.", severity: "error" });

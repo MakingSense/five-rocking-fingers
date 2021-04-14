@@ -7,7 +7,7 @@ import Setting from '../../interfaces/Setting';
 import PricingTerm from '../../interfaces/PricingTerm';
 import ArtifactService from '../../services/ArtifactService';
 import ArtifactType from '../../interfaces/ArtifactType';
-
+import { handleErrorMessage } from '../../commons/Helpers';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -36,16 +36,20 @@ const Confirmation = (props: { showNewArtifactDialog: boolean, closeNewArtifactD
             settings: props.settings,
             relationalFields: props.settingTypes
         };
-
         try {
             const response = await ArtifactService.save(artifactToCreate);
             if (response.status === 200) {
                 setSnackbarSettings({ message: "El artefacto ha sido creado con éxito", severity: "success" });
                 setOpenSnackbar(true);
                 updateList();
-            } else {
-                setSnackbarSettings({ message: "Hubo un error al crear el artefacto", severity: "error" });
-                setOpenSnackbar(true);
+            }
+            else {
+                handleErrorMessage(
+                    response.data,
+                    "Hubo un error al crear el artefacto",
+                    setSnackbarSettings,
+                    setOpenSnackbar
+                );
             }
         }
         catch (error) {

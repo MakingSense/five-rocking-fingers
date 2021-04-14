@@ -5,7 +5,7 @@ import ArtifactService from '../../services/ArtifactService';
 import ArtifactRelation from '../../interfaces/ArtifactRelation';
 import EditArtifact from './EditArtifact';
 import EditArtifactConfirmation from './EditArtifactConfirmation';
-
+import { handleErrorMessage } from '../../commons/Helpers';
 
 const EditArtifactDialog = (props: {
     artifactToEdit: Artifact,
@@ -34,7 +34,12 @@ const EditArtifactDialog = (props: {
                 setArtifactsRelations(response.data);
             }
             else {
-                props.manageOpenSnackbar({ message: "Hubo un error al cargar las relaciones entre artefactos", severity: "error" });
+                handleErrorMessage(
+                    response.data,
+                    "Hubo un error al cargar las relaciones entre artefactos",
+                    props.manageOpenSnackbar,
+                    undefined
+                  );
                 closeEditArtifactDialog();
             }
         }
