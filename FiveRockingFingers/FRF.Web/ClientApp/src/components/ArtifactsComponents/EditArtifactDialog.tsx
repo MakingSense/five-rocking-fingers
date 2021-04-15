@@ -25,7 +25,7 @@ const EditArtifactDialog = (props: {
     const [namesOfSettingsChanged, setNamesOfSettingsChanged] = React.useState<string[]>([]);
     const [artifactsRelations, setArtifactsRelations] = React.useState<ArtifactRelation[]>([]);
 
-    const [originalSettingTypes, setOriginalSettingTypes] = React.useState<{ [key: string]: string }>();
+    const [originalSettingTypes, setOriginalSettingTypes] = React.useState<{ [key: string]: string }>({});
 
     const getRelations = async () => {
         try {
