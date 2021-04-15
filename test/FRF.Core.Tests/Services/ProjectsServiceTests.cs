@@ -340,6 +340,7 @@ namespace FRF.Core.Tests.Services
             projectToUpdate.Client = "[Mock] Updated Project Client";
             projectToUpdate.Budget = 50000;
             projectToUpdate.CreatedDate = project.CreatedDate;
+            projectToUpdate.StartDate = project.StartDate?.AddDays(2);
             projectToUpdate.UsersByProject = new List<UsersProfile>
             {
                 userByProject
@@ -362,6 +363,7 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(projectToUpdate.Client, resultValue.Client);
             Assert.Equal(projectToUpdate.Budget, resultValue.Budget);
             Assert.Equal(projectToUpdate.CreatedDate, resultValue.CreatedDate);
+            Assert.Equal(projectToUpdate.StartDate, resultValue.StartDate);
             Assert.NotNull(resultValue.ModifiedDate);
             Assert.Equal(projectToUpdate.UsersByProject.ToList()[0].UserId, resultValue.UsersByProject.ToList()[0].UserId);
         }

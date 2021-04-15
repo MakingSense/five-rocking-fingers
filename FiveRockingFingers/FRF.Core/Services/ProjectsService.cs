@@ -193,6 +193,7 @@ namespace FRF.Core.Services
             result.Client = project.Client;
             result.Budget = project.Budget;
             result.ModifiedDate = DateTime.Now;
+            result.StartDate = project.StartDate;
             result.ProjectCategories = mappedProjectCategory;
             result.UsersByProject = mappedUBP;
 
@@ -228,7 +229,7 @@ namespace FRF.Core.Services
             if (startDate == null)
                 return true;
 
-            return createdDate < startDate;
+            return createdDate.Date <= startDate?.Date;
         }
     }
 }
