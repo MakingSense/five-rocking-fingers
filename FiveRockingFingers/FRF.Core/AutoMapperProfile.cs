@@ -1,6 +1,4 @@
-﻿using System;
-using System.Globalization;
-using AutoMapper;
+﻿using AutoMapper;
 using FRF.Core.Models;
 using FRF.Core.Models.AwsArtifacts;
 
@@ -49,6 +47,9 @@ namespace FRF.Core
             CreateMap<DataAccess.EntityModels.ArtifactsRelation, ArtifactsRelation>()
                 .ReverseMap();
             CreateMap<DataAccess.EntityModels.Provider, Provider>();
+            CreateMap<DataAccess.EntityModels.Resource, Resource>()
+                .ReverseMap()
+                .ForMember(dest => dest.Id, act => act.Ignore());
         }
     }
 }

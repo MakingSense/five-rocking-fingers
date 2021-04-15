@@ -1,6 +1,6 @@
-﻿namespace FRF.DataAccess.EntityModels
+﻿namespace FRF.Core.Models
 {
-    public class Resources
+    public class Resource
     {
         public int Id { get; set; }
         public string RoleName { get; set; }
