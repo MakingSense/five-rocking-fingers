@@ -685,7 +685,7 @@ namespace FRF.Core.Tests.Services
                 Project = _mapper.Map<CoreModels.Project>(project),
                 ArtifactTypeId = artifactType.Id,
                 ArtifactType = _mapper.Map<CoreModels.ArtifactType>(artifactType),
-                Settings = new XElement("Settings", new XElement(setting1Name, updatedSetting1Value))
+                Settings = new XElement("Settings", new XElement(setting1Name, updatedSetting1Value, new XAttribute("type", SettingTypes.Decimal)))
             };
 
             _settingsValidator.Setup(mock => mock.ValidateSettings(It.IsAny<CoreModels.Artifact>()))

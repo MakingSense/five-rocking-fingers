@@ -70,6 +70,11 @@ namespace FRF.Core.Services
             mappedProject.CreatedDate = DateTime.Now;
             mappedProject.ModifiedDate = null;
 
+            if(!IsStartDateValid(mappedProject.CreatedDate, mappedProject.StartDate))
+                return new ServiceResponse<Project>(
+                        new Error(ErrorCodes.InvalidStartDateForProject, "The project start date must be a future date")
+                        );
+
             // Separate all the non duplicated User Id in a list of UsersProfile
             var noDuplicatedUsersId = project.UsersByProject
                 .Select(ubp =>
@@ -135,6 +140,11 @@ namespace FRF.Core.Services
 
         public async Task<ServiceResponse<Project>> UpdateAsync(Project project)
         {
+            if (!IsStartDateValid(project.CreatedDate, project.StartDate))
+                return new ServiceResponse<Project>(
+                        new Error(ErrorCodes.InvalidStartDateForProject, "The project start date must be a future date")
+                        );
+
             var categoryList = new List<EntityModels.Category>();
             foreach (var category in project.ProjectCategories)
             {
@@ -211,6 +221,14 @@ namespace FRF.Core.Services
 
             var mappedProject = _mapper.Map<Project>(projectToDelete);
             return new ServiceResponse<Project>(mappedProject);
+        }
+
+        private bool IsStartDateValid(DateTime createdDate, DateTime? startDate)
+        {
+            if (startDate == null)
+                return true;
+
+            return createdDate < startDate;
         }
     }
 }
