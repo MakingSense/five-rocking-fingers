@@ -116,7 +116,7 @@ namespace FRF.Web.Tests.Controllers
             var result = await _classUnderTest.GetAsync(categoryId);
 
             // Assert
-            var notFoundResult = Assert.IsType<NotFoundResult>(result);
+            var NotFoundObjectResult = Assert.IsType<NotFoundObjectResult>(result);
             _categoriesService.Verify(mock => mock.GetAsync(categoryId), Times.Once);
         }
 
@@ -222,7 +222,7 @@ namespace FRF.Web.Tests.Controllers
             var result = await _classUnderTest.UpdateAsync(1, updatedCategory);
 
             // Assert
-            Assert.IsType<NotFoundResult>(result);
+            Assert.IsType<NotFoundObjectResult>(result);
 
             _categoriesService.Verify(mock => mock.GetAsync(It.IsAny<int>()), Times.Once);
             _categoriesService.Verify(mock => mock.UpdateAsync(It.IsAny<Category>()), Times.Never);
@@ -259,7 +259,7 @@ namespace FRF.Web.Tests.Controllers
             var result = await _classUnderTest.DeleteAsync(1);
 
             // Assert
-            Assert.IsType<NotFoundResult>(result);
+            Assert.IsType<NotFoundObjectResult>(result);
             _categoriesService.Verify(mock => mock.GetAsync(It.IsAny<int>()), Times.Once);
             _categoriesService.Verify(mock => mock.DeleteAsync(It.IsAny<int>()), Times.Never);
         }

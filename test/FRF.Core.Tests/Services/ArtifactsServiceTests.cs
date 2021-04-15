@@ -1259,7 +1259,7 @@ namespace FRF.Core.Tests.Services
             Assert.False(response.Success);
             Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
             Assert.NotNull(response.Error);
-            Assert.Equal(ErrorCodes.RelationNotValid, response.Error.Code);
+            Assert.Equal(ErrorCodes.RelationNotValidRepeated, response.Error.Code);
             Assert.Null(response.Value);
         }
 
@@ -1293,7 +1293,7 @@ namespace FRF.Core.Tests.Services
             Assert.False(response.Success);
             Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
             Assert.NotNull(response.Error);
-            Assert.Equal(ErrorCodes.RelationNotValid, response.Error.Code);
+            Assert.Equal(ErrorCodes.RelationNotValidRepeated, response.Error.Code);
             Assert.Null(response.Value);
         }
 
@@ -1325,7 +1325,7 @@ namespace FRF.Core.Tests.Services
             Assert.False(response.Success);
             Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
             Assert.NotNull(response.Error);
-            Assert.Equal(ErrorCodes.RelationNotValid, response.Error.Code);
+            Assert.Equal(ErrorCodes.RelationNotValidDifferentBaseArtifact, response.Error.Code);
             Assert.Null(response.Value);
         }
 
@@ -1675,7 +1675,7 @@ namespace FRF.Core.Tests.Services
             // Assert
             Assert.False(response.Success);
             Assert.IsType<ServiceResponse<IList<CoreModels.ArtifactsRelation>>>(response);
-            Assert.Equal(ErrorCodes.RelationNotValid, response.Error.Code);
+            Assert.Equal(ErrorCodes.RelationNotValidRepeated, response.Error.Code);
         }
 
         [Fact]

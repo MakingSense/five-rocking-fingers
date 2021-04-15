@@ -9,6 +9,7 @@ import Artifact from '../../interfaces/Artifact';
 import Typography from '@material-ui/core/Typography/Typography';
 import { Link } from 'react-router-dom';
 import NewArtifactsRelation from '../NewArtifactsRelation';
+import { handleErrorMessage } from '../../commons/Helpers';
 
 const ArtifactsRelationTable = (props: { artifactId: number, projectId: number }) => {
     const [artifactsRelations, setArtifactsRelations] = React.useState<ArtifactRelation[]>([]);
@@ -26,7 +27,12 @@ const ArtifactsRelationTable = (props: { artifactId: number, projectId: number }
                 setArtifactsRelations(response.data);
             }
             else {
-                manageOpenSnackbar({ message: "Hubo un error al cargar las relaciones", severity: "error" });
+              handleErrorMessage(
+                response.data,
+                "Hubo un error al cargar las relaciones",
+                manageOpenSnackbar,
+                undefined
+              );
             }
         }
         catch {
@@ -42,7 +48,12 @@ const ArtifactsRelationTable = (props: { artifactId: number, projectId: number }
                 setArtifacts(response.data);
             }
             else {
-                manageOpenSnackbar({ message: "Hubo un error al cargar los artefactos", severity: "error" });
+              handleErrorMessage(
+                response.data,
+                "Hubo un error al cargar los artefactos",
+                manageOpenSnackbar,
+                undefined
+              );
             }
         }
         catch {

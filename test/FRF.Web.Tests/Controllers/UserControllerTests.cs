@@ -104,7 +104,7 @@ namespace FRF.Web.Tests.Controllers
             var result = await _classUnderTest.GetUserPublicProfileAsync();
 
             // Assert
-            var badRequestResult = Assert.IsType<BadRequestResult>(result);
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             _userService.Verify(mock => mock.GetUserPublicProfileAsync(It.IsAny<string>()), Times.Once);
         }
 
@@ -170,7 +170,7 @@ namespace FRF.Web.Tests.Controllers
             var result = await _classUnderTest.SearchUserAsync(userProfile.Email);
 
             // Assert
-            var notFoundResult = Assert.IsType<NotFoundResult>(result);
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
             _userService.Verify(mock => mock.GetUserPublicProfileAsync(It.IsAny<string>()), Times.Once);
         }
     }

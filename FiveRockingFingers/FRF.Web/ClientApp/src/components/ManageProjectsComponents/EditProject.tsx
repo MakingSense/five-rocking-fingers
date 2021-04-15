@@ -14,6 +14,7 @@ import ProjectService from '../../services/ProjectService';
 import UserService from '../../services/UserService';
 import { HelperAddUser } from './HelperAddUser';
 import { ValidateEmail } from "./ValidateEmail";
+import { handleErrorMessage } from '../../commons/Helpers';
 
 const useStyles = makeStyles({
     root: {
@@ -126,7 +127,12 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
             props.openSnackbar({ message: "El proyecto ha sido modificado con éxito", severity: "success" });
             props.updateProjects();
         } else {
-            props.openSnackbar({ message: "Ocurrió un error al modificar el proyecto", severity: "error" });
+            handleErrorMessage(
+                response.data,
+                "Ocurrió un error al modificar el proyecto",
+                props.openSnackbar,
+                undefined
+              );
         }
         props.updateCategories();
         props.cancelEdit();

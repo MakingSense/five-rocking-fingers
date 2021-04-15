@@ -1,6 +1,4 @@
-﻿using System;
-using System.Globalization;
-using AutoMapper;
+﻿using AutoMapper;
 using FRF.Core.Models;
 using FRF.Core.Models.AwsArtifacts;
 
@@ -14,7 +12,8 @@ namespace FRF.Core
                 .ReverseMap()
                 .ForMember(dest => dest.Id, act => act.Ignore())
                 .ForMember(dest => dest.UsersByProject, act => act.Ignore())
-                .ForMember(dest => dest.ProjectCategories, act => act.Ignore());
+                .ForMember(dest => dest.ProjectCategories, act => act.Ignore())
+                .ForMember(dest => dest.ProjectResource, act => act.Ignore());
             CreateMap<DataAccess.EntityModels.Category, Models.Category>()
                 .ReverseMap()
                 .ForMember(dest => dest.Id, act => act.Ignore())
@@ -49,6 +48,15 @@ namespace FRF.Core
             CreateMap<DataAccess.EntityModels.ArtifactsRelation, ArtifactsRelation>()
                 .ReverseMap();
             CreateMap<DataAccess.EntityModels.Provider, Provider>();
+            CreateMap<DataAccess.EntityModels.Resource, Resource>()
+                .ReverseMap()
+                .ForMember(dest => dest.Id, act => act.Ignore())
+                .ForMember(dest => dest.ProjectResource, act => act.Ignore());
+            CreateMap<DataAccess.EntityModels.ProjectResource, Models.ProjectResource>()
+                .ReverseMap()
+                .ForMember(dest => dest.Id, act => act.Ignore())
+                .ForMember(dest => dest.Project, act => act.Ignore())
+                .ForMember(dest => dest.Resource, act => act.Ignore());
         }
     }
 }
