@@ -12,12 +12,12 @@ namespace FRF.Web.Controllers
     [ApiController]
     [Route("api/resources")]
     [Authorize]
-    public class ResourceController : ControllerBase
+    public class ResourcesController : ControllerBase
     {
         private readonly IResourcesService _resourcesService;
         private readonly IMapper _mapper;
 
-        public ResourceController(IResourcesService resourcesService, IMapper mapper)
+        public ResourcesController(IResourcesService resourcesService, IMapper mapper)
         {
             _resourcesService = resourcesService;
             _mapper = mapper;
