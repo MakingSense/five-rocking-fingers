@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FRF.Core.Models;
 using FRF.Web.Dtos.Artifacts;
+using FRF.Web.Dtos.ProjectResources;
 using FRF.Web.Dtos.Projects;
 using FRF.Web.Dtos.Users;
 
@@ -47,6 +48,8 @@ namespace FRF.Web.Dtos
             CreateMap<ArtifactsRelationInsertDTO, ArtifactsRelation>();
             CreateMap<ArtifactsRelationUpdateDTO, ArtifactsRelation>();
             CreateMap<Provider, ProviderDTO>();
+            CreateMap<ProjectResource, ProjectResourceDTO>();
+            CreateMap<ProjectResourceUpsertDTO, ProjectResource>();
         }
     }
 }
