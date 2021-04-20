@@ -8,7 +8,9 @@
         public const int CategoryNotExists = 3;
         public const int ProjectNotExists = 4;
         public const int ProviderNotExists = 5;
-        public const int ArtifactFromAnotherProject= 6;
+        public const int ArtifactFromAnotherProject = 6;
+        public const int ProjectResourceNotExists = 8;
+        public const int ResourceNotExists = 9;
 
         // Relation errors
         public const int RelationAlreadyExisted = 10;
@@ -28,5 +30,9 @@
 
         //Artifacts errors
         public const int InvalidArtifactSettings = 40;
+
+        //ProjectResourcecs errors
+        public const int InvalidBeginDateForProjectResource = 50;
+        public const int InvalidEndDateForProjectResource = 51;
     }
 }
