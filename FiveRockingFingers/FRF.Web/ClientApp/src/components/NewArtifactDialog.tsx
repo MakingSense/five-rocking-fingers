@@ -17,6 +17,8 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
 
     const { resetStateOnClose, provider } = useArtifact();
 
+    const { showNewArtifactDialog, closeNewArtifactDialog, projectId, updateList, setOpenSnackbar, setSnackbarSettings } = props;
+
     React.useEffect(() => {
     }, [step]);
 
@@ -31,7 +33,7 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
     const handleCancel = () => {
         setStep(1);
         resetStateOnClose();
-        props.closeNewArtifactDialog()
+        closeNewArtifactDialog()
     }
 
     const getArtifactTypes = async (id: number) => {
@@ -40,13 +42,13 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
             if (response.status === 200) {
                 return response.data as ArtifactType[];
             } else {
-                props.setSnackbarSettings({ message: "Hubo un problema al cargar los tipos de artefactos.", severity: "error" });
-                props.setOpenSnackbar(true);
+                setSnackbarSettings({ message: "Hubo un problema al cargar los tipos de artefactos.", severity: "error" });
+                setOpenSnackbar(true);
                 return [];
             }
         } catch {
-            props.setSnackbarSettings({ message: "Hubo un problema al cargar los tipos de artefactos.", severity: "error" });
-            props.setOpenSnackbar(true);
+            setSnackbarSettings({ message: "Hubo un problema al cargar los tipos de artefactos.", severity: "error" });
+            setOpenSnackbar(true);
             return [];
         }
     }
@@ -55,7 +57,7 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
         case 1:
             return (
                 <ProviderForm
-                    showNewArtifactDialog={props.showNewArtifactDialog}
+                    showNewArtifactDialog={showNewArtifactDialog}
                     closeNewArtifactDialog={handleCancel}
                     handleNextStep={handleNextStep}
                 />
@@ -65,7 +67,7 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
             if (provider === "Custom") {
                 return (
                     <CustomForm
-                        showNewArtifactDialog={props.showNewArtifactDialog}
+                        showNewArtifactDialog={showNewArtifactDialog}
                         closeNewArtifactDialog={handleCancel}
                         handleNextStep={handleNextStep}
                         handlePreviousStep={handlePreviousStep}
@@ -76,10 +78,10 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
             else {
                 return (
                     <AwsForm
-                        showNewArtifactDialog={props.showNewArtifactDialog}
+                        showNewArtifactDialog={showNewArtifactDialog}
                         closeNewArtifactDialog={handleCancel}
-                        projectId={props.projectId}
-                        updateList={props.updateList}
+                        projectId={projectId}
+                        updateList={updateList}
                         handleNextStep={handleNextStep}
                         handlePreviousStep={handlePreviousStep}
                         getArtifactTypes={getArtifactTypes}
@@ -92,10 +94,10 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
             if (provider === "Custom") {
                 return (
                     <SettingsCustomForm
-                        showNewArtifactDialog={props.showNewArtifactDialog}
+                        showNewArtifactDialog={showNewArtifactDialog}
                         closeNewArtifactDialog={handleCancel}
-                        setOpenSnackbar={props.setOpenSnackbar}
-                        setSnackbarSettings={props.setSnackbarSettings}
+                        setOpenSnackbar={setOpenSnackbar}
+                        setSnackbarSettings={setSnackbarSettings}
                         handleNextStep={handleNextStep}
                         handlePreviousStep={handlePreviousStep}
                     />
@@ -104,12 +106,12 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
             else {
                 return (
                     <SettingsAwsForm
-                        showNewArtifactDialog={props.showNewArtifactDialog}
+                        showNewArtifactDialog={showNewArtifactDialog}
                         closeNewArtifactDialog={handleCancel}
                         handleNextStep={handleNextStep}
                         handlePreviousStep={handlePreviousStep}
-                        setOpenSnackbar={props.setOpenSnackbar}
-                        setSnackbarSettings={props.setSnackbarSettings}
+                        setOpenSnackbar={setOpenSnackbar}
+                        setSnackbarSettings={setSnackbarSettings}
                     />
                 );
             }
@@ -118,24 +120,24 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
             if (provider === "AWS") {
                 return (
                     <AwsPricingDimension
-                        showNewArtifactDialog={props.showNewArtifactDialog}
+                        showNewArtifactDialog={showNewArtifactDialog}
                         closeNewArtifactDialog={handleCancel}
                         handleNextStep={handleNextStep}
                         handlePreviousStep={handlePreviousStep}
-                        setOpenSnackbar={props.setOpenSnackbar}
-                        setSnackbarSettings={props.setSnackbarSettings}
+                        setOpenSnackbar={setOpenSnackbar}
+                        setSnackbarSettings={setSnackbarSettings}
                     />
                 );
             }
             else {
                 return (
                     <Confirmation
-                        showNewArtifactDialog={props.showNewArtifactDialog}
+                        showNewArtifactDialog={showNewArtifactDialog}
                         closeNewArtifactDialog={handleCancel}
-                        projectId={props.projectId}
-                        updateList={props.updateList}
-                        setOpenSnackbar={props.setOpenSnackbar}
-                        setSnackbarSettings={props.setSnackbarSettings}
+                        projectId={projectId}
+                        updateList={updateList}
+                        setOpenSnackbar={setOpenSnackbar}
+                        setSnackbarSettings={setSnackbarSettings}
                         handlePreviousStep={handlePreviousStep}
                     />
                 );
@@ -145,12 +147,12 @@ const NewArtifactDialog = (props: { showNewArtifactDialog: boolean, closeNewArti
             if (provider === "AWS") {
                 return (
                     <Confirmation
-                        showNewArtifactDialog={props.showNewArtifactDialog}
+                        showNewArtifactDialog={showNewArtifactDialog}
                         closeNewArtifactDialog={handleCancel}
-                        projectId={props.projectId}
-                        updateList={props.updateList}
-                        setOpenSnackbar={props.setOpenSnackbar}
-                        setSnackbarSettings={props.setSnackbarSettings}
+                        projectId={projectId}
+                        updateList={updateList}
+                        setOpenSnackbar={setOpenSnackbar}
+                        setSnackbarSettings={setSnackbarSettings}
                         handlePreviousStep={handlePreviousStep}
                     />
                 );
