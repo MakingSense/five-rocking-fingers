@@ -6,7 +6,7 @@ using Moq;
 using System;
 using System.Threading.Tasks;
 using Xunit;
-using Resource = FRF.DataAccess.EntityModels.Resource;
+using Resource = FRF.Core.Models.Resource;
 
 namespace FRF.Core.Tests.Services
 {
@@ -36,7 +36,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetAsync(resource.Id);
 
             // Assert
-            Assert.IsType<ServiceResponse<Core.Models.Resource>>(result);
+            Assert.IsType<ServiceResponse<Resource>>(result);
             Assert.True(result.Success);
             var resultValue = result.Value;
 
@@ -54,7 +54,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.GetAsync(It.IsAny<int>());
 
             // Assert
-            Assert.IsType<ServiceResponse<Core.Models.Resource>>(result);
+            Assert.IsType<ServiceResponse<Resource>>(result);
             Assert.False(result.Success);
             Assert.Equal(ErrorCodes.ResourceNotExist,result.Error.Code);
         }
@@ -70,7 +70,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.UpdateAsync(updatedResource);
 
             // Assert
-            Assert.IsType<ServiceResponse<Core.Models.Resource>>(result);
+            Assert.IsType<ServiceResponse<Resource>>(result);
             Assert.True(result.Success);
             var resultValue = result.Value;
 
@@ -85,7 +85,7 @@ namespace FRF.Core.Tests.Services
         public async Task UpdateAsync_WhenResourceNotExist_ReturnsNotExistError()
         {
             // Arrange
-            var resource = new Core.Models.Resource
+            var resource = new Resource
             {
                 Description = "Mock description",
                 Id = 1,
@@ -97,7 +97,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.UpdateAsync(resource);
 
             // Assert
-            Assert.IsType<ServiceResponse<Core.Models.Resource>>(result);
+            Assert.IsType<ServiceResponse<Resource>>(result);
             Assert.False(result.Success);
             Assert.Equal(ErrorCodes.ResourceNotExist,result.Error.Code);
         }
@@ -108,7 +108,7 @@ namespace FRF.Core.Tests.Services
             // Arrange
             var baseResource = CreateAndSaveResource();
             var anotherResource = CreateAndSaveResource();
-            var updatedResource = new Core.Models.Resource
+            var updatedResource = new Resource
             {
                 Description = "Mock description",
                 Id = baseResource.Id,
@@ -121,7 +121,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.UpdateAsync(updatedResource);
 
             // Assert
-            Assert.IsType<ServiceResponse<Core.Models.Resource>>(result);
+            Assert.IsType<ServiceResponse<Resource>>(result);
             Assert.False(result.Success);
             Assert.Equal(ErrorCodes.ResourceNameRepeated,result.Error.Code);
             Assert.Equal(anotherResource.RoleName, updatedResource.RoleName);
@@ -134,7 +134,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.DeleteAsync(It.IsAny<int>());
 
             // Assert
-            Assert.IsType<ServiceResponse<Core.Models.Resource>>(result);
+            Assert.IsType<ServiceResponse<Resource>>(result);
             Assert.False(result.Success);
             Assert.Equal(ErrorCodes.ResourceNotExist,result.Error.Code);
         }
@@ -149,7 +149,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.DeleteAsync(baseResource.Id);
 
             // Assert
-            Assert.IsType<ServiceResponse<Core.Models.Resource>>(result);
+            Assert.IsType<ServiceResponse<Resource>>(result);
             Assert.True(result.Success);
         }
 
@@ -157,7 +157,7 @@ namespace FRF.Core.Tests.Services
         public async Task SaveAsync_ReturnsSavedResource()
         {
             // Arrange
-            var resource = new Core.Models.Resource
+            var resource = new Resource
             {
                 Description = "Mock Description",
                 RoleName = "Mock role name",
@@ -169,7 +169,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.SaveAsync(resource);
 
             // Assert
-            Assert.IsType<ServiceResponse<Core.Models.Resource>>(result);
+            Assert.IsType<ServiceResponse<Resource>>(result);
             Assert.True(result.Success);
             var resultValue = result.Value;
 
@@ -184,7 +184,7 @@ namespace FRF.Core.Tests.Services
         {
             // Arrange
             var resourceInDb = CreateAndSaveResource();
-            var toSaveResource = new Core.Models.Resource
+            var toSaveResource = new Resource
             {
                 Description = "Mock Description",
                 RoleName = resourceInDb.RoleName,
@@ -196,7 +196,7 @@ namespace FRF.Core.Tests.Services
             var result = await _classUnderTest.SaveAsync(toSaveResource);
 
             // Assert
-            Assert.IsType<ServiceResponse<Core.Models.Resource>>(result);
+            Assert.IsType<ServiceResponse< Resource>>(result);
             Assert.False(result.Success);
             Assert.Equal(ErrorCodes.ResourceNameRepeated,result.Error.Code);
             Assert.Equal(resourceInDb.RoleName, toSaveResource.RoleName);
@@ -206,7 +206,7 @@ namespace FRF.Core.Tests.Services
         {
             var rnd = new Random();
             var id = rnd.Next();
-            var resource = new Resource()
+            var resource = new DataAccess.EntityModels.Resource()
             {
                 Id = id,
                 RoleName = $"Mock Role name {id}",
@@ -216,13 +216,13 @@ namespace FRF.Core.Tests.Services
             };
             _dataAccess.Resources.Add(resource);
             _dataAccess.SaveChanges();
-
-            return resource;
+            
+            return _mapper.Map<Resource>(resource);;
         }
 
-        private Core.Models.Resource CreateUpdateResource(Resource resource)
+        private Resource CreateUpdateResource(Resource resource)
         {
-            return new Core.Models.Resource()
+            return new Resource()
             {
                 Id = resource.Id,
                 RoleName = resource.RoleName,
