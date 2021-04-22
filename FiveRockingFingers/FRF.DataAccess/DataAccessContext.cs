@@ -18,6 +18,7 @@ namespace FRF.DataAccess
         public DbSet<Provider> Providers { get; set; }
         public DbSet<Resource> Resources { get; set; }
         public DbSet<ProjectResource> ProjectResources { get; set; }
+        public DbSet<Module> Modules { get; set; }
 
         public DataAccessContext(DbContextOptions<DataAccessContext> options, IConfiguration configuration) : base(options)
         {
@@ -33,6 +34,7 @@ namespace FRF.DataAccess
             builder.Entity<ArtifactsRelation>().HasKey(ar => new {ar.Id});
             builder.Entity<Resource>().HasKey(re => new {re.Id});
             builder.Entity<ProjectResource>().HasKey(pr => new { pr.Id});
+            builder.Entity<Module>().HasKey(m => new { m.Id});
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
