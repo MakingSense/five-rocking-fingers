@@ -120,23 +120,24 @@ namespace FRF.Web.Tests.Controllers
             // Arrange
             const int ResourceId = 1;
             var resource = CreateResource(ResourceId);
-            var updatedResource = CreateResourceUpdateDto(resource);
+            var updatedResourceDTO = CreateResourceUpdateDto(resource);
+            var updatedResource = _mapper.Map<Resource>(updatedResourceDTO);
             _resourcesServices
                 .Setup(mock => mock.UpdateAsync(It.IsAny<Resource>()))
-                .ReturnsAsync(new ServiceResponse<Resource>(resource));
+                .ReturnsAsync(new ServiceResponse<Resource>(updatedResource));
 
             // Act
-            var response = await _classUnderTest.UpdateAsync(updatedResource);
+            var response = await _classUnderTest.UpdateAsync(updatedResourceDTO);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(response);
             var returnValue = Assert.IsType<ResourceDTO>(okResult.Value);
 
             Assert.Equal(ResourceId, returnValue.Id);
-            Assert.Equal(resource.RoleName, returnValue.RoleName);
-            Assert.Equal(resource.Description, returnValue.Description);
-            Assert.Equal(resource.SalaryPerMonth, returnValue.SalaryPerMonth);
-            Assert.Equal(resource.WorkloadCapacity, returnValue.WorkloadCapacity);
+            Assert.Equal(updatedResourceDTO.RoleName, returnValue.RoleName);
+            Assert.Equal(updatedResourceDTO.Description, returnValue.Description);
+            Assert.Equal(updatedResourceDTO.SalaryPerMonth, returnValue.SalaryPerMonth);
+            Assert.Equal(updatedResourceDTO.WorkloadCapacity, returnValue.WorkloadCapacity);
             _resourcesServices.Verify(mock => mock.UpdateAsync(It.IsAny<Resource>()), Times.Once);
         }
 
