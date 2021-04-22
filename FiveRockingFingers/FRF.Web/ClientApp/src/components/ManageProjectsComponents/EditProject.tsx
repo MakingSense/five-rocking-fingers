@@ -1,6 +1,7 @@
 ﻿import {
     Button, Card, CardActions, CardContent,
-    Chip, FormControl, FormGroup, IconButton, InputAdornment, Paper, TextField, TextFieldProps, Typography
+    Checkbox,
+    Chip, FormControl, FormControlLabel, FormGroup, Grid, IconButton, InputAdornment, Paper, TextField, TextFieldProps, Typography
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
@@ -48,6 +49,7 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
     const { register, handleSubmit, errors } = useForm();
     const [isValid] = React.useState<boolean>(true);
     const [tempCategories, setTempCategories] = React.useState([...props.categories]);
+    const [startDateEnabled, setStartDateEnabled] = React.useState(props.project.startDate ? true : false);
     const [state, setState] = React.useState({
         name: props.project.name,
         client: props.project.client,
@@ -57,6 +59,7 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
         id: props.project.id,
         projectCategories: props.project.projectCategories,
         users: props.project.users,
+        startDate: props.project.startDate,
         selectedCategories: props.project.projectCategories.map(pc => pc.category)
     });
 
@@ -121,7 +124,8 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
     const handleConfirm = async () => {
         var projectCategories = await props.fillProjectCategories(state.selectedCategories);
         const { name, client, owner, budget, id, createdDate, users } = state;
-        const project = { name, client, owner, budget, id, createdDate, projectCategories, users }
+        var startDate = startDateEnabled && state.startDate ? new Date(state.startDate) : null;
+        const project = { name, client, owner, budget, id, createdDate, startDate, projectCategories, users }
         const response = await ProjectService.update(id, project as Project);
         if (response.status === 200) {
             props.openSnackbar({ message: "El proyecto ha sido modificado con éxito", severity: "success" });
@@ -231,6 +235,42 @@ const EditProject = (props: { project: Project, cancelEdit: any, categories: Cat
                                 />
                             )}
                         />
+                        <Grid>
+                            <Grid container spacing={3}>
+                                <Grid item xs={8}>
+                                    <TextField
+                                        id="startDate"
+                                        type="date"
+                                        name="startDate"
+                                        inputRef={register({ validate: { isValid: value => !startDateEnabled || value >= new Date().toISOString().slice(0, 10) } })}
+                                        error={errors.startDate ? true : false}
+                                        defaultValue={props.project.startDate ? new Date(props.project.startDate).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10)}
+                                        onChange={handleChange}
+                                        className={classes.inputF}
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
+                                        helperText={errors.startDate ? "La fecha no puede ser anterior a hoy" : null}
+                                        fullWidth
+                                        disabled={!startDateEnabled}
+                                    />
+                                </Grid>
+                                <Grid item xs={4}>
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={startDateEnabled}
+                                                onChange={() => setStartDateEnabled(!startDateEnabled)}
+                                                name="checkedB"
+                                                color="primary"
+                                            />
+                                        }
+                                        label="Fecha de inicio"
+                                        style={{ height: '100%' }}
+                                    />
+                                </Grid>
+                            </Grid>
+                        </Grid>
                     </Typography>
                     <Typography className={classes.title} color="textSecondary" gutterBottom>
                         Usuarios
