@@ -69,7 +69,8 @@ namespace FRF.Core.Tests.Services
             {
                 Name = "[Mock] Project name",
                 Budget = 100,
-                ProjectCategories = new List<DataAccess.EntityModels.ProjectCategory>()
+                ProjectCategories = new List<DataAccess.EntityModels.ProjectCategory>(),
+                StartDate = DateTime.Now
             };
 
             _dataAccess.Projects.Add(project);
@@ -165,8 +166,8 @@ namespace FRF.Core.Tests.Services
             var project = CreateProject();
             var projectResourceToSave = new ProjectResource()
             {
-                BeginDate = DateTime.Now,
-                EndDate = DateTime.Now.AddDays(5),
+                BeginDate = project.StartDate,
+                EndDate = project.StartDate?.AddDays(5),
                 DedicatedHours = 8,
                 ProjectId = project.Id,
                 ResourceId = resource.Id
@@ -235,6 +236,55 @@ namespace FRF.Core.Tests.Services
             Assert.False(result.Success);
             Assert.NotNull(result.Error);
             Assert.Equal(ErrorCodes.ResourceNotExists, result.Error.Code);
+        }
+
+        [Fact]
+        public async Task SaveAsync_ReturnsExceptionInvalidBeginDate()
+        {
+            // Arrange
+            var resource = CreateResource();
+            var project = CreateProject();
+            var projectResourceToSave = new ProjectResource()
+            {
+                BeginDate = project.StartDate?.AddDays(-1),
+                DedicatedHours = 8,
+                ProjectId = project.Id,
+                ResourceId = resource.Id
+            };
+
+            // Act
+            var result = await _classUnderTest.SaveAsync(projectResourceToSave);
+
+            // Assert
+            Assert.IsType<ServiceResponse<ProjectResource>>(result);
+            Assert.False(result.Success);
+            Assert.NotNull(result.Error);
+            Assert.Equal(ErrorCodes.InvalidBeginDateForProjectResource, result.Error.Code);
+        }
+
+        [Fact]
+        public async Task SaveAsync_ReturnsExceptionInvalidEndDate()
+        {
+            // Arrange
+            var resource = CreateResource();
+            var project = CreateProject();
+            var projectResourceToSave = new ProjectResource()
+            {
+                BeginDate = project.StartDate,
+                EndDate = project.StartDate?.AddDays(-1),
+                DedicatedHours = 8,
+                ProjectId = project.Id,
+                ResourceId = resource.Id
+            };
+
+            // Act
+            var result = await _classUnderTest.SaveAsync(projectResourceToSave);
+
+            // Assert
+            Assert.IsType<ServiceResponse<ProjectResource>>(result);
+            Assert.False(result.Success);
+            Assert.NotNull(result.Error);
+            Assert.Equal(ErrorCodes.InvalidEndDateForProjectResource, result.Error.Code);
         }
 
         [Fact]
@@ -325,6 +375,61 @@ namespace FRF.Core.Tests.Services
             Assert.False(result.Success);
             Assert.NotNull(result.Error);
             Assert.Equal(ErrorCodes.ResourceNotExists, result.Error.Code);
+        }
+
+        [Fact]
+        public async Task UpdateAsync_ReturnsExceptionInvalidBeginDate()
+        {
+            // Arrange
+            var resource = CreateResource();
+            var project = CreateProject();
+            var projectResource = CreateProjectResource(project.Id, resource.Id);
+
+            var updatedProjectResource = new ProjectResource()
+            {
+                Id = projectResource.Id,
+                BeginDate = project.StartDate?.AddDays(-1),
+                DedicatedHours = 6,
+                ProjectId = project.Id,
+                ResourceId = resource.Id
+            };
+
+            // Act
+            var result = await _classUnderTest.UpdateAsync(updatedProjectResource);
+
+            // Assert
+            Assert.IsType<ServiceResponse<ProjectResource>>(result);
+            Assert.False(result.Success);
+            Assert.NotNull(result.Error);
+            Assert.Equal(ErrorCodes.InvalidBeginDateForProjectResource, result.Error.Code);
+        }
+
+        [Fact]
+        public async Task UpdateAsync_ReturnsExceptionEndBeginDate()
+        {
+            // Arrange
+            var resource = CreateResource();
+            var project = CreateProject();
+            var projectResource = CreateProjectResource(project.Id, resource.Id);
+
+            var updatedProjectResource = new ProjectResource()
+            {
+                Id = projectResource.Id,
+                BeginDate = project.StartDate,
+                EndDate = project.StartDate?.AddDays(-1),
+                DedicatedHours = 6,
+                ProjectId = project.Id,
+                ResourceId = resource.Id
+            };
+
+            // Act
+            var result = await _classUnderTest.UpdateAsync(updatedProjectResource);
+
+            // Assert
+            Assert.IsType<ServiceResponse<ProjectResource>>(result);
+            Assert.False(result.Success);
+            Assert.NotNull(result.Error);
+            Assert.Equal(ErrorCodes.InvalidEndDateForProjectResource, result.Error.Code);
         }
 
         [Fact]
