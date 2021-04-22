@@ -80,7 +80,7 @@ namespace FRF.Core.Services
             var projectResourseResponse = await GetAsync(projectResource.Id);
 
             if(!projectResourseResponse.Success)
-                return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.ProjectResourceNotExists, $"There is no project with Id = {projectResource.ProjectId}"));
+                return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.ProjectResourceNotExists, $"There is no project resource with Id = {projectResource.ProjectId}"));
 
             var project = await _dataContext.Projects.SingleOrDefaultAsync(p => p.Id == projectResource.ProjectId);
 
@@ -110,7 +110,11 @@ namespace FRF.Core.Services
 
         public async Task<ServiceResponse<ProjectResource>> DeleteAsync(int id)
         {
-            var projectResourceToDelete = await _dataContext.ProjectResources.SingleAsync(pr => pr.Id == id);
+            var projectResourceToDelete = await _dataContext.ProjectResources.SingleOrDefaultAsync(pr => pr.Id == id);
+
+            if(projectResourceToDelete == null)
+                return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.ProjectResourceNotExists, $"There is no project resource with Id = {id}"));
+            
             _dataContext.ProjectResources.Remove(projectResourceToDelete);
             await _dataContext.SaveChangesAsync();
 
