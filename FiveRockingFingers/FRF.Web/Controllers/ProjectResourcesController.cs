@@ -91,11 +91,9 @@ namespace FRF.Web.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
-            var response = await _projectResourcesService.GetAsync(id);
+            var response = await _projectResourcesService.DeleteAsync(id);
 
-            if (!response.Success) return NotFound(response.Error);
-
-            await _projectResourcesService.DeleteAsync(id);
+            if (!response.Success) return NotFound(response.Error);            
 
             return NoContent();
         }

@@ -415,7 +415,7 @@ namespace FRF.Web.Tests.Controllers
             var idToDelete = 1;
 
             _projectResourcesService
-                .Setup(mock => mock.GetAsync(It.IsAny<int>()))
+                .Setup(mock => mock.DeleteAsync(It.IsAny<int>()))
                 .ReturnsAsync(new ServiceResponse<ProjectResource>(new ProjectResource()));
 
             // Act
@@ -423,7 +423,6 @@ namespace FRF.Web.Tests.Controllers
 
             // Assert
             Assert.IsType<NoContentResult>(result);
-            _projectResourcesService.Verify(mock => mock.GetAsync(It.IsAny<int>()), Times.Once);
             _projectResourcesService.Verify(mock => mock.DeleteAsync(It.IsAny<int>()), Times.Once);
         }
 
@@ -431,17 +430,20 @@ namespace FRF.Web.Tests.Controllers
         public async Task DeleteAsync_ReturnsNotFound()
         {
             // Arrange
+            var idToDelete = 1;
+
             _projectResourcesService
-                .Setup(mock => mock.GetAsync(It.IsAny<int>()))
-                .ReturnsAsync(new ServiceResponse<ProjectResource>(new Error(ErrorCodes.CategoryNotExists, "Error message")));
+                .Setup(mock => mock.DeleteAsync(It.IsAny<int>()))
+                .ReturnsAsync(new ServiceResponse<ProjectResource>(new Error(ErrorCodes.ProjectResourceNotExists, "Error message")));
 
             // Act
-            var result = await _classUnderTest.DeleteAsync(1);
+            var result = await _classUnderTest.DeleteAsync(idToDelete);
 
             // Assert
-            Assert.IsType<NotFoundObjectResult>(result);
-            _projectResourcesService.Verify(mock => mock.GetAsync(It.IsAny<int>()), Times.Once);
-            _projectResourcesService.Verify(mock => mock.DeleteAsync(It.IsAny<int>()), Times.Never);
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+            var resultValue = Assert.IsType<Error>(notFoundResult.Value);
+            Assert.Equal(ErrorCodes.ProjectResourceNotExists, resultValue.Code);
+            _projectResourcesService.Verify(mock => mock.DeleteAsync(It.IsAny<int>()), Times.Once);
         }
     }
 }
