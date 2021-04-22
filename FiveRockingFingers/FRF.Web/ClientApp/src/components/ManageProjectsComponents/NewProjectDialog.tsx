@@ -1,6 +1,6 @@
 ﻿import {
     Button, Chip, Dialog, DialogActions, DialogContent, DialogContentText,
-    DialogTitle, FormGroup, IconButton, InputAdornment, Paper, TextField, TextFieldProps
+    DialogTitle, FormGroup, IconButton, InputAdornment, Paper, TextField, TextFieldProps, Grid, FormControlLabel, Checkbox
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
@@ -39,6 +39,7 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
     const email = React.useRef<TextFieldProps>(null);
     const [fieldEmail, setFieldEmail] = React.useState<string | null>("")
     const [selectedCategories, setSelectedCategories] = React.useState([] as Category[]);
+    const [startDateEnabled, setStartDateEnabled] = React.useState(true);
     const classes = useStyles();
     const { user }  = useUser();
 
@@ -49,6 +50,7 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
         client: "",
         owner: "",
         budget: -1,
+        startDate: new Date().toISOString().slice(0, 10),
         users: [] as UserProfile[],
     });
 
@@ -58,6 +60,7 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
             client: "",
             owner: "",
             budget: -1,
+            startDate: new Date().toISOString().slice(0, 10),
             users: []
         });
     }
@@ -108,7 +111,8 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
     const handleConfirm = async () => {
         var projectCategories = await props.fillProjectCategories(selectedCategories);
         const { name, client, owner, budget, users } = state;
-        const project = { name, client, owner, budget, projectCategories, users }
+        var startDate = startDateEnabled ? new Date(state.startDate) : null;
+        const project = { name, client, owner, budget, startDate, projectCategories, users }
         const response = await ProjectService.save(project as Project);
         if (response.status === 200) {
             props.openSnackbar({ message: "El proyecto ha sido creado con éxito", severity: "success" });
@@ -188,6 +192,42 @@ const NewProjectDialog = (props: { create: boolean, categories: Category[], fini
                         fullWidth
                     />
                     <ManageCategories categories={props.categories} selectedCategories={selectedCategories} setSelectedCategories={setSelectedCategories} />
+                    <Grid>
+                        <Grid container spacing={3}>
+                            <Grid item xs={8}>
+                                <TextField
+                                    id="startDate"
+                                    type="date"
+                                    name="startDate"
+                                    inputRef={register({ validate: { isValid: value => !startDateEnabled || value >= new Date().toISOString().slice(0, 10) } })}
+                                    error={errors.startDate ? true : false}
+                                    defaultValue={new Date().toISOString().slice(0, 10)}
+                                    onChange={handleChange}
+                                    className={classes.inputF}
+                                    InputLabelProps={{
+                                        shrink: true,
+                                    }}
+                                    helperText={errors.startDate ? "La fecha no puede ser anterior a hoy" : null}
+                                    fullWidth
+                                    disabled={!startDateEnabled}
+                                />
+                            </Grid>
+                            <Grid item xs={4}>
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={startDateEnabled}
+                                            onChange={() => setStartDateEnabled(!startDateEnabled)}
+                                            name="checkedB"
+                                            color="primary"
+                                        />
+                                    }
+                                    label="Fecha de inicio"
+                                    style={{ height: '100%' }}
+                                />
+                            </Grid>
+                        </Grid>
+                    </Grid>
                     <FormGroup>
                         <Paper component="ul" className={classes.addUser} >
                             {state.users.map((user,index) => {
