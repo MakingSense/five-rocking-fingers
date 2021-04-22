@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace FRF.Core.Models
 {
@@ -12,5 +10,6 @@ namespace FRF.Core.Models
         public string? Description { get; set; }
 #nullable disable
         public IList<ProjectCategory> ProjectCategories { get; set; }
+        public IList<CategoryModule> CategoryModules { get; set; }
     }
 }
