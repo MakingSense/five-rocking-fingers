@@ -27,9 +27,7 @@ namespace FRF.Core.Services
             var projectResource = await _dataContext.ProjectResources.SingleOrDefaultAsync(pr => pr.Id == id);
 
             if (projectResource == null)
-            {
                 return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.ProjectResourceNotExists, $"There is no project resource with Id = {id}"));
-            }
 
             var mappedProjectResource = _mapper.Map<ProjectResource>(projectResource);
             return new ServiceResponse<ProjectResource>(mappedProjectResource);
@@ -38,9 +36,7 @@ namespace FRF.Core.Services
         public async Task<ServiceResponse<List<ProjectResource>>> GetByProjectIdAsync(int projectId)
         {
             if (!await _dataContext.Projects.AnyAsync(p => p.Id == projectId))
-            {
                 return new ServiceResponse<List<ProjectResource>>(new Error(ErrorCodes.ProjectNotExists, $"There is no project with Id = {projectId}"));
-            }
 
             var projectResources = await _dataContext.ProjectResources
                 .Where(pr => pr.ProjectId == projectId)
@@ -53,20 +49,19 @@ namespace FRF.Core.Services
 
         public async Task<ServiceResponse<ProjectResource>> SaveAsync(ProjectResource projectResource)
         {
-            if (!await _dataContext.Projects.AnyAsync(p => p.Id == projectResource.ProjectId))
-            {
+            var project = await _dataContext.Projects.SingleOrDefaultAsync(p => p.Id == projectResource.ProjectId);
+
+            if (project == null)
                 return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.ProjectNotExists, $"There is no project with Id = {projectResource.ProjectId}"));
-            }
 
             if (!await _dataContext.Resources.AnyAsync(r => r.Id == projectResource.ResourceId))
-            {
                 return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.ResourceNotExists, $"There is no resource with Id = {projectResource.ResourceId}"));
-            }
 
-            if (!IsEndDateValid(projectResource.BeginDate, projectResource.EndDate))
-            {
-                return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.InvalidEndDateForProjectResource, $"The end date of the project resource cannot be before the begin date"));
-            }
+            if (!IsStartDateValid(project.StartDate, projectResource.BeginDate))
+                return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.InvalidEndDateForProjectResource, $"The begin date of the project resource cannot be before the start date of the project"));
+            
+            if (!IsEndDateValid(project.StartDate, projectResource.BeginDate, projectResource.EndDate))
+                return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.InvalidEndDateForProjectResource, $"The end date of the project resource cannot be before the begin date or the start date of the project"));
 
             // Maps the category into an EntityModel, deleting the Id if there was one.
             var mappedProjectResource = _mapper.Map<DataAccess.EntityModels.ProjectResource>(projectResource);
@@ -82,20 +77,24 @@ namespace FRF.Core.Services
 
         public async Task<ServiceResponse<ProjectResource>> UpdateAsync(ProjectResource projectResource)
         {
-            if (!await _dataContext.Projects.AnyAsync(p => p.Id == projectResource.ProjectId))
-            {
+            var projectResourseResponse = await GetAsync(projectResource.Id);
+
+            if(!projectResourseResponse.Success)
+                return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.ProjectResourceNotExists, $"There is no project with Id = {projectResource.ProjectId}"));
+
+            var project = await _dataContext.Projects.SingleOrDefaultAsync(p => p.Id == projectResource.ProjectId);
+
+            if (project == null)
                 return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.ProjectNotExists, $"There is no project with Id = {projectResource.ProjectId}"));
-            }
 
             if (!await _dataContext.Resources.AnyAsync(r => r.Id == projectResource.ResourceId))
-            {
                 return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.ResourceNotExists, $"There is no resource with Id = {projectResource.ResourceId}"));
-            }
 
-            if(!IsEndDateValid(projectResource.BeginDate, projectResource.EndDate))
-            {
-                return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.InvalidEndDateForProjectResource, $"The end date of the project resource cannot be before the begin date"));
-            }
+            if (!IsStartDateValid(project.StartDate, projectResource.BeginDate))
+                return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.InvalidEndDateForProjectResource, $"The begin date of the project resource cannot be before the start date of the project"));
+
+            if (!IsEndDateValid(project.StartDate, projectResource.BeginDate, projectResource.EndDate))
+                return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.InvalidEndDateForProjectResource, $"The end date of the project resource cannot be before the begin date or the start date of the project"));
 
             var result = await _dataContext.ProjectResources.SingleAsync(pr => pr.Id == projectResource.Id);
             result.BeginDate = projectResource.BeginDate;
@@ -119,12 +118,29 @@ namespace FRF.Core.Services
             return new ServiceResponse<ProjectResource>(mappedProjectResource);
         }
 
-        private bool IsEndDateValid(DateTime? beginDate, DateTime? endDate)
+        private bool IsStartDateValid(DateTime? startDateOfProject, DateTime? beginDate)
         {
-            if (beginDate == null || endDate == null)
+            if (startDateOfProject == null && beginDate != null)
+                return false;
+
+            if (beginDate == null)
                 return true;
 
-            return beginDate?.Date < endDate?.Date;
+            return startDateOfProject?.Date <= beginDate?.Date;
+        }
+
+        private bool IsEndDateValid(DateTime? startDateOfProject, DateTime? beginDate, DateTime? endDate)
+        {
+            if (startDateOfProject == null && endDate != null)
+                return false;
+
+            if (endDate == null)
+                return true;
+
+            if(beginDate != null)
+                return beginDate?.Date < endDate?.Date;
+
+            return startDateOfProject?.Date < endDate?.Date;
         }
     }
 }
