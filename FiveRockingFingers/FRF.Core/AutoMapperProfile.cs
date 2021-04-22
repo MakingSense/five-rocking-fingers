@@ -60,6 +60,11 @@ namespace FRF.Core
             CreateMap<DataAccess.EntityModels.Module, Models.Module>()
                 .ReverseMap()
                 .ForMember(dest => dest.Id, act => act.Ignore());
+            CreateMap<DataAccess.EntityModels.ProjectModule, Models.ProjectModule>()
+                .ReverseMap()
+                .ForMember(dest => dest.Id, act => act.Ignore())
+                .ForMember(dest => dest.Project, act => act.Ignore())
+                .ForMember(dest => dest.Module, act => act.Ignore());
         }
     }
 }
