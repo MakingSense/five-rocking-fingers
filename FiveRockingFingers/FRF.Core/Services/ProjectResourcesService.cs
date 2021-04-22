@@ -58,7 +58,7 @@ namespace FRF.Core.Services
                 return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.ResourceNotExists, $"There is no resource with Id = {projectResource.ResourceId}"));
 
             if (!IsStartDateValid(project.StartDate, projectResource.BeginDate))
-                return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.InvalidEndDateForProjectResource, $"The begin date of the project resource cannot be before the start date of the project"));
+                return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.InvalidBeginDateForProjectResource, $"The begin date of the project resource cannot be before the start date of the project"));
             
             if (!IsEndDateValid(project.StartDate, projectResource.BeginDate, projectResource.EndDate))
                 return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.InvalidEndDateForProjectResource, $"The end date of the project resource cannot be before the begin date or the start date of the project"));
@@ -91,7 +91,7 @@ namespace FRF.Core.Services
                 return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.ResourceNotExists, $"There is no resource with Id = {projectResource.ResourceId}"));
 
             if (!IsStartDateValid(project.StartDate, projectResource.BeginDate))
-                return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.InvalidEndDateForProjectResource, $"The begin date of the project resource cannot be before the start date of the project"));
+                return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.InvalidBeginDateForProjectResource, $"The begin date of the project resource cannot be before the start date of the project"));
 
             if (!IsEndDateValid(project.StartDate, projectResource.BeginDate, projectResource.EndDate))
                 return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.InvalidEndDateForProjectResource, $"The end date of the project resource cannot be before the begin date or the start date of the project"));
