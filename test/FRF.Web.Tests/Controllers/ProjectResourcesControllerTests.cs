@@ -56,7 +56,7 @@ namespace FRF.Web.Tests.Controllers
                 .ReturnsAsync(new ServiceResponse<List<ProjectResource>>(projectResources));
 
             // Act
-            var result = await _classUnderTest.GetByProjectIdAsync(1);
+            var result = await _classUnderTest.GetByProjectIdAsync(projectId);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
@@ -72,6 +72,27 @@ namespace FRF.Web.Tests.Controllers
                 Assert.Equal(projectResources[i].ProjectId, resultValue[i].ProjectId);
                 Assert.Equal(projectResources[i].ResourceId, resultValue[i].ResourceId);
             }
+        }
+
+        [Fact]
+        public async Task GetByProjectIdAsync_ReturnsNotFound()
+        {
+            // Arrange
+            var projectId = 0;
+            var error = new Error(ErrorCodes.ProjectNotExists, "[Mock] Message");
+
+            _projectResourcesService
+               .Setup(mock => mock.GetByProjectIdAsync(It.IsAny<int>()))
+                .ReturnsAsync(new ServiceResponse<List<ProjectResource>>(error));
+
+            // Act
+            var result = await _classUnderTest.GetByProjectIdAsync(projectId);
+
+            // Assert
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+            var resultValue = Assert.IsType<Error>(notFoundResult.Value);
+            Assert.Equal(ErrorCodes.ProjectNotExists, resultValue.Code);
+            _projectResourcesService.Verify(mock => mock.GetByProjectIdAsync(projectId), Times.Once);
         }
 
         [Fact]
@@ -124,13 +145,15 @@ namespace FRF.Web.Tests.Controllers
 
             _projectResourcesService
                 .Setup(mock => mock.GetAsync(It.IsAny<int>()))
-                .ReturnsAsync(new ServiceResponse<ProjectResource>(new Error(ErrorCodes.CategoryNotExists, "Error message")));
+                .ReturnsAsync(new ServiceResponse<ProjectResource>(new Error(ErrorCodes.ProjectResourceNotExists, "[Mock] Message")));
 
             // Act
             var result = await _classUnderTest.GetAsync(projectResourceId);
 
             // Assert
-            var NotFoundObjectResult = Assert.IsType<NotFoundObjectResult>(result);
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+            var resultValue = Assert.IsType<Error>(notFoundResult.Value);
+            Assert.Equal(ErrorCodes.ProjectResourceNotExists, resultValue.Code);
             _projectResourcesService.Verify(mock => mock.GetAsync(projectResourceId), Times.Once);
         }
 
@@ -180,6 +203,72 @@ namespace FRF.Web.Tests.Controllers
             Assert.Equal(projectResourceToSave.ProjectId, resultValue.ProjectId);
             Assert.Equal(projectResourceToSave.ResourceId, resultValue.ResourceId);
 
+            _projectResourcesService.Verify(mock => mock.SaveAsync(It.IsAny<ProjectResource>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task SaveAsync_ReturnsNotFound_ProjectNotExists()
+        {
+            // Arrange
+            var beginDate = DateTime.Now.AddDays(10);
+            var endDate = DateTime.Now.AddDays(5);
+            var dedicatedHours = 8;
+            var projectId = 1;
+            var resourceId = 1;
+
+            var projectResourceToSave = new ProjectResourceUpsertDTO()
+            {
+                BeginDate = beginDate,
+                EndDate = endDate,
+                DedicatedHours = dedicatedHours,
+                ProjectId = projectId,
+                ResourceId = resourceId
+            };
+
+            _projectResourcesService
+                .Setup(mock => mock.SaveAsync(It.IsAny<ProjectResource>()))
+                .ReturnsAsync(new ServiceResponse<ProjectResource>(new Error(ErrorCodes.ProjectNotExists, "[Mock] Message")));
+
+            // Act
+            var result = await _classUnderTest.SaveAsync(projectResourceToSave);
+
+            // Assert
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+            var resultValue = Assert.IsType<Error>(notFoundResult.Value);
+            Assert.Equal(ErrorCodes.ProjectNotExists, resultValue.Code);
+            _projectResourcesService.Verify(mock => mock.SaveAsync(It.IsAny<ProjectResource>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task SaveAsync_ReturnsBadRequest_InvalidBeginDateForProjectResource()
+        {
+            // Arrange
+            var beginDate = DateTime.Now.AddDays(10);
+            var endDate = DateTime.Now.AddDays(5);
+            var dedicatedHours = 8;
+            var projectId = 1;
+            var resourceId = 1;
+
+            var projectResourceToSave = new ProjectResourceUpsertDTO()
+            {
+                BeginDate = beginDate,
+                EndDate = endDate,
+                DedicatedHours = dedicatedHours,
+                ProjectId = projectId,
+                ResourceId = resourceId
+            };
+
+            _projectResourcesService
+                .Setup(mock => mock.SaveAsync(It.IsAny<ProjectResource>()))
+                .ReturnsAsync(new ServiceResponse<ProjectResource>(new Error(ErrorCodes.InvalidBeginDateForProjectResource, "[Mock] Message")));
+
+            // Act
+            var result = await _classUnderTest.SaveAsync(projectResourceToSave);
+
+            // Assert
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            var resultValue = Assert.IsType<Error>(badRequestResult.Value);
+            Assert.Equal(ErrorCodes.InvalidBeginDateForProjectResource, resultValue.Code);
             _projectResourcesService.Verify(mock => mock.SaveAsync(It.IsAny<ProjectResource>()), Times.Once);
         }
 
@@ -248,12 +337,11 @@ namespace FRF.Web.Tests.Controllers
             Assert.Equal(updatedProjectResource.ProjectId, resultValue.ProjectId);
             Assert.Equal(updatedProjectResource.ResourceId, resultValue.ResourceId);
 
-            _projectResourcesService.Verify(mock => mock.GetAsync(It.IsAny<int>()), Times.Once);
             _projectResourcesService.Verify(mock => mock.UpdateAsync(It.IsAny<ProjectResource>()), Times.Once);
         }
 
         [Fact]
-        public async Task UpdateAsync_ReturnsNotFound()
+        public async Task UpdateAsync_ReturnsNotFound_ProjectNotExists()
         {
             // Arrange
             var projectResourceId = 0;
@@ -273,21 +361,51 @@ namespace FRF.Web.Tests.Controllers
             };
 
             _projectResourcesService
-                .Setup(mock => mock.GetAsync(It.IsAny<int>()))
-                .ReturnsAsync(new ServiceResponse<ProjectResource>(new Error(ErrorCodes.CategoryNotExists, "Error message")));
-
-            _projectResourcesService
                 .Setup(mock => mock.UpdateAsync(It.IsAny<ProjectResource>()))
-                .ReturnsAsync(new ServiceResponse<ProjectResource>(new Error(ErrorCodes.CategoryNotExists, "Error message")));
+                .ReturnsAsync(new ServiceResponse<ProjectResource>(new Error(ErrorCodes.ProjectNotExists, "[Mock] Message")));
 
             // Act
             var result = await _classUnderTest.UpdateAsync(projectResourceId, updatedProjectResource);
 
             // Assert
-            Assert.IsType<NotFoundObjectResult>(result);
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+            var resultValue = Assert.IsType<Error>(notFoundResult.Value);
+            Assert.Equal(ErrorCodes.ProjectNotExists, resultValue.Code);
+            _projectResourcesService.Verify(mock => mock.UpdateAsync(It.IsAny<ProjectResource>()), Times.Once);
+        }
 
-            _projectResourcesService.Verify(mock => mock.GetAsync(It.IsAny<int>()), Times.Once);
-            _projectResourcesService.Verify(mock => mock.UpdateAsync(It.IsAny<ProjectResource>()), Times.Never);
+        [Fact]
+        public async Task UpdateAsync_ReturnsBadRequest_InvalidBeginDateForProjectResource()
+        {
+            // Arrange
+            var projectResourceId = 1;
+            var beginDate = DateTime.Now.AddDays(10);
+            var endDate = DateTime.Now.AddDays(5);
+            var dedicatedHours = 8;
+            var projectId = 1;
+            var resourceId = 1;
+
+            var updatedProjectResource = new ProjectResourceUpsertDTO()
+            {
+                BeginDate = beginDate,
+                EndDate = endDate,
+                DedicatedHours = dedicatedHours,
+                ProjectId = projectId,
+                ResourceId = resourceId
+            };
+
+            _projectResourcesService
+                .Setup(mock => mock.UpdateAsync(It.IsAny<ProjectResource>()))
+                .ReturnsAsync(new ServiceResponse<ProjectResource>(new Error(ErrorCodes.InvalidBeginDateForProjectResource, "[Mock] Message")));
+
+            // Act
+            var result = await _classUnderTest.UpdateAsync(projectResourceId, updatedProjectResource);
+
+            // Assert
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            var resultValue = Assert.IsType<Error>(badRequestResult.Value);
+            Assert.Equal(ErrorCodes.InvalidBeginDateForProjectResource, resultValue.Code);
+            _projectResourcesService.Verify(mock => mock.UpdateAsync(It.IsAny<ProjectResource>()), Times.Once);
         }
 
         [Fact]

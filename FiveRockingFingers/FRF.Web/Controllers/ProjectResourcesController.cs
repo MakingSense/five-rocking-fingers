@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using FRF.Core.Models;
+using FRF.Core.Response;
 using FRF.Core.Services;
 using FRF.Web.Dtos.ProjectResources;
 using Microsoft.AspNetCore.Authorization;
@@ -29,10 +31,7 @@ namespace FRF.Web.Controllers
         {
             var projectResources = await _projectResourcesService.GetByProjectIdAsync(projectId);
 
-            if (!projectResources.Success)
-            {
-                return BadRequest(projectResources.Error);
-            }
+            if (!projectResources.Success) return NotFound(projectResources.Error);
 
             var projectResourcesDto = _mapper.Map<IEnumerable<ProjectResourceDTO>>(projectResources.Value);
 
@@ -44,10 +43,7 @@ namespace FRF.Web.Controllers
         {
             var response = await _projectResourcesService.GetAsync(id);
 
-            if (!response.Success)
-            {
-                return NotFound(response.Error);
-            }
+            if (!response.Success) return NotFound(response.Error);
 
             var projectResourceDto = _mapper.Map<ProjectResourceDTO>(response.Value);
 
@@ -60,6 +56,13 @@ namespace FRF.Web.Controllers
             var projectResource = _mapper.Map<FRF.Core.Models.ProjectResource>(projectResourceDto);
 
             var response = await _projectResourcesService.SaveAsync(projectResource);
+
+            if (!response.Success && (response.Error.Code == ErrorCodes.ProjectNotExists || response.Error.Code == ErrorCodes.ResourceNotExists))
+                return NotFound(response.Error);
+
+            if (!response.Success && (response.Error.Code == ErrorCodes.InvalidBeginDateForProjectResource || response.Error.Code == ErrorCodes.InvalidEndDateForProjectResource))
+                return BadRequest(response.Error);
+
             var projectResourceCreated = _mapper.Map<ProjectResourceDTO>(response.Value);
 
             return Ok(projectResourceCreated);
@@ -68,17 +71,19 @@ namespace FRF.Web.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAsync(int id, ProjectResourceUpsertDTO projectResourceDto)
         {
-            var response = await _projectResourcesService.GetAsync(id);
 
-            if (!response.Success)
-            {
+            var projectResource = _mapper.Map<ProjectResource>(projectResourceDto);
+            projectResource.Id = id;
+
+            var response = await _projectResourcesService.UpdateAsync(projectResource);
+
+            if (!response.Success && (response.Error.Code == ErrorCodes.ProjectNotExists || response.Error.Code == ErrorCodes.ResourceNotExists))
                 return NotFound(response.Error);
-            }
 
-            _mapper.Map(projectResourceDto, response.Value);
+            if (!response.Success && (response.Error.Code == ErrorCodes.InvalidBeginDateForProjectResource || response.Error.Code == ErrorCodes.InvalidEndDateForProjectResource))
+                return BadRequest(response.Error);
 
-            var projectResource = await _projectResourcesService.UpdateAsync(response.Value);
-            var updatedProjectResource = _mapper.Map<ProjectResourceDTO>(projectResource.Value);
+            var updatedProjectResource = _mapper.Map<ProjectResourceDTO>(response.Value);
 
             return Ok(updatedProjectResource);
         }
@@ -88,10 +93,7 @@ namespace FRF.Web.Controllers
         {
             var response = await _projectResourcesService.GetAsync(id);
 
-            if (!response.Success)
-            {
-                return NotFound(response.Error);
-            }
+            if (!response.Success) return NotFound(response.Error);
 
             await _projectResourcesService.DeleteAsync(id);
 
