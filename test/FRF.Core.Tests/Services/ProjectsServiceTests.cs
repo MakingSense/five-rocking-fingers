@@ -44,6 +44,7 @@ namespace FRF.Core.Tests.Services
             project.Client = "[MOCK] Project client";
             project.Budget = 1000;
             project.CreatedDate = DateTime.Now;
+            project.StartDate = DateTime.Now.AddDays(1);
             project.ProjectCategories = new List<DataAccess.EntityModels.ProjectCategory>();
             _dataAccess.Projects.Add(project);
             _dataAccess.SaveChanges();
@@ -268,6 +269,48 @@ namespace FRF.Core.Tests.Services
         }
 
         [Fact]
+        public async Task SaveAsync_ReturnsErrorInvalidStartDate()
+        {
+            // Arange
+            var userByProject = new UsersProfile()
+            {
+                UserId = new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba")
+            };
+
+            var project = CreateProject();
+            CreateUserByProject(project);
+
+            var category = CreateCategory();
+
+            var projectToSave = new CoreModels.Project();
+            projectToSave.Name = "[Mock] Project name 1";
+            projectToSave.Owner = "[Mock] Project Owner";
+            projectToSave.Client = "[Mock] Project Client";
+            projectToSave.CreatedDate = DateTime.Now;
+            projectToSave.StartDate = DateTime.Now.AddDays(-1);
+            projectToSave.UsersByProject = new List<UsersProfile>
+            {
+                userByProject
+            };
+
+            var projectCategories = new CoreModels.ProjectCategory();
+            projectCategories.Category = _mapper.Map<CoreModels.Category>(category);
+
+            projectToSave.ProjectCategories = new List<CoreModels.ProjectCategory>
+            {
+                projectCategories
+            };
+
+            // Act
+            var result = await _classUnderTest.SaveAsync(projectToSave);
+
+            // Assert
+            Assert.IsType<ServiceResponse<CoreModels.Project>>(result);
+            Assert.False(result.Success);
+            Assert.Equal(ErrorCodes.InvalidStartDateForProject, result.Error.Code);
+        }
+
+        [Fact]
         public async Task UpdateAsync_ReturnsProject()
         {
             // Arange
@@ -297,6 +340,7 @@ namespace FRF.Core.Tests.Services
             projectToUpdate.Client = "[Mock] Updated Project Client";
             projectToUpdate.Budget = 50000;
             projectToUpdate.CreatedDate = project.CreatedDate;
+            projectToUpdate.StartDate = project.StartDate?.AddDays(2);
             projectToUpdate.UsersByProject = new List<UsersProfile>
             {
                 userByProject
@@ -319,6 +363,7 @@ namespace FRF.Core.Tests.Services
             Assert.Equal(projectToUpdate.Client, resultValue.Client);
             Assert.Equal(projectToUpdate.Budget, resultValue.Budget);
             Assert.Equal(projectToUpdate.CreatedDate, resultValue.CreatedDate);
+            Assert.Equal(projectToUpdate.StartDate, resultValue.StartDate);
             Assert.NotNull(resultValue.ModifiedDate);
             Assert.Equal(projectToUpdate.UsersByProject.ToList()[0].UserId, resultValue.UsersByProject.ToList()[0].UserId);
         }
@@ -402,6 +447,55 @@ namespace FRF.Core.Tests.Services
             Assert.IsType<ServiceResponse<CoreModels.Project>>(result);
             Assert.False(result.Success);
             Assert.Equal(ErrorCodes.ProjectNotExists, result.Error.Code);
+        }
+
+        [Fact]
+        public async Task UpdateAsync_ReturnsErrorInvalidStartDate()
+        {
+            // Arange
+            var project = CreateProject();
+            project.StartDate = DateTime.Now.AddDays(-1);
+            CreateUserByProject(project);
+            var category = CreateCategory();
+
+            var projectCategory = new CoreModels.ProjectCategory()
+            {
+                Category = new CoreModels.Category()
+                {
+                    Id = category.Id,
+                    Name = category.Name,
+                    Description = category.Description
+                }
+            };
+
+            var userByProject = new UsersProfile()
+            {
+                UserId = new Guid("c3c0b740-1c8f-49a0-a5d7-2354cb9b6eba")
+            };
+
+            var projectToUpdate = new CoreModels.Project();
+            projectToUpdate.Id = project.Id;
+            projectToUpdate.Name = "[Mock] Project name 1";
+            projectToUpdate.Owner = "[Mock] Project Owner";
+            projectToUpdate.Client = "[Mock] Project Client";
+            projectToUpdate.CreatedDate = project.CreatedDate;
+            projectToUpdate.StartDate = project.StartDate;
+            projectToUpdate.UsersByProject = new List<UsersProfile>
+            {
+                userByProject
+            };
+            projectToUpdate.ProjectCategories = new List<CoreModels.ProjectCategory>()
+            {
+                projectCategory
+            };
+
+            // Act
+            var result = await _classUnderTest.UpdateAsync(projectToUpdate);
+
+            // Assert
+            Assert.IsType<ServiceResponse<CoreModels.Project>>(result);
+            Assert.False(result.Success);
+            Assert.Equal(ErrorCodes.InvalidStartDateForProject, result.Error.Code);
         }
 
         [Fact]

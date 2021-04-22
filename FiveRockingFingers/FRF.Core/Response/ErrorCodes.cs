@@ -9,6 +9,7 @@
         public const int ProjectNotExists = 4;
         public const int ProviderNotExists = 5;
         public const int ArtifactFromAnotherProject = 6;
+        public const int InvalidStartDateForProject = 7;
         public const int ProjectResourceNotExists = 8;
         public const int ResourceNotExists = 9;
 
