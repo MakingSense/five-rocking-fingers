@@ -1,4 +1,6 @@
-﻿namespace FRF.DataAccess.EntityModels
+﻿using System.Collections.Generic;
+
+namespace FRF.DataAccess.EntityModels
 {
     public class Module
     {
@@ -6,5 +8,8 @@
         public string Name { get; set; }
         public string Description { get; set; }
         public int SuggestedCost { get; set; }
+        public IList<CategoryModule> CategoryModules { get; set; }
+        public IList<ProjectModule> ProjectModules { get; set; } 
+
     }
 }

@@ -13,11 +13,13 @@ namespace FRF.Core
                 .ForMember(dest => dest.Id, act => act.Ignore())
                 .ForMember(dest => dest.UsersByProject, act => act.Ignore())
                 .ForMember(dest => dest.ProjectCategories, act => act.Ignore())
-                .ForMember(dest => dest.ProjectResource, act => act.Ignore());
+                .ForMember(dest => dest.ProjectResource, act => act.Ignore())
+                .ForMember(dest => dest.ProjectModules, act => act.Ignore());
             CreateMap<DataAccess.EntityModels.Category, Models.Category>()
                 .ReverseMap()
                 .ForMember(dest => dest.Id, act => act.Ignore())
-                .ForMember(dest => dest.ProjectCategories, act => act.Ignore());
+                .ForMember(dest => dest.ProjectCategories, act => act.Ignore())
+                .ForMember(dest => dest.CategoryModules, act => act.Ignore());
             CreateMap<DataAccess.EntityModels.ProjectCategory, Models.ProjectCategory>()
                 .ReverseMap();
             CreateMap<DataAccess.EntityModels.Artifact, Models.Artifact>()
@@ -59,7 +61,17 @@ namespace FRF.Core
                 .ForMember(dest => dest.Resource, act => act.Ignore());
             CreateMap<DataAccess.EntityModels.Module, Models.Module>()
                 .ReverseMap()
-                .ForMember(dest => dest.Id, act => act.Ignore());
+                .ForMember(dest => dest.Id, act => act.Ignore())
+                .ForMember(dest => dest.ProjectModules, act => act.Ignore())
+                .ForMember(dest => dest.Id, act => act.Ignore())
+                .ForMember(dest => dest.CategoryModules, act => act.Ignore());
+            CreateMap<DataAccess.EntityModels.ProjectModule, Models.ProjectModule>()
+                .ReverseMap()
+                .ForMember(dest => dest.Id, act => act.Ignore())
+                .ForMember(dest => dest.Project, act => act.Ignore())
+                .ForMember(dest => dest.Module, act => act.Ignore());
+            CreateMap<DataAccess.EntityModels.CategoryModule, Models.CategoryModule>()
+                .ReverseMap();
         }
     }
 }
