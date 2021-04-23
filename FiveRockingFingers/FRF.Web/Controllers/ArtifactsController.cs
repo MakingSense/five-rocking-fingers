@@ -41,6 +41,11 @@ namespace FRF.Web.Controllers
         {
             var artifacts = await _artifactsService.GetAllByProjectId(projectId);
 
+            if (!artifacts.Success)
+            {
+                return BadRequest(artifacts.Error);
+            }
+
             var artifactsDto = _mapper.Map<IEnumerable<ArtifactDTO>>(artifacts.Value);
 
             return Ok(artifactsDto);
@@ -54,7 +59,7 @@ namespace FRF.Web.Controllers
 
             if (!artifact.Success)
             {
-                return NotFound();
+                return NotFound(artifact.Error);
             }
 
             var artifactDto = _mapper.Map<ArtifactDTO>(artifact.Value);
@@ -68,6 +73,15 @@ namespace FRF.Web.Controllers
             var artifact = _mapper.Map<Artifact>(artifactDto);
 
             var response = await _artifactsService.Save(artifact);
+            if (!response.Success)
+            {
+                if (response.Error.Code == ErrorCodes.InvalidArtifactSettings)
+                {
+                    return BadRequest(response.Error);
+                }
+
+                return NotFound(response.Error);
+            }
             var artifactCreated = _mapper.Map<ArtifactDTO>(response.Value);
 
             return Ok(artifactCreated);
@@ -81,7 +95,12 @@ namespace FRF.Web.Controllers
 
             if (!artifact.Success)
             {
-                return NotFound();
+                if (artifact.Error.Code == ErrorCodes.InvalidArtifactSettings)
+                {
+                    return BadRequest(artifact.Error);
+                }
+
+                return NotFound(artifact.Error);
             }
 
             _mapper.Map(artifactDto, artifact.Value);
@@ -100,7 +119,7 @@ namespace FRF.Web.Controllers
 
             if (!artifact.Success)
             {
-                return NotFound();
+                return NotFound(artifact.Error);
             }
 
             await _artifactsService.Delete(artifactId);
@@ -115,7 +134,15 @@ namespace FRF.Web.Controllers
         {
             var artifactsRelations = _mapper.Map<IList<ArtifactsRelation>>(artifactRelationList);
             var result = await _artifactsService.SetRelationAsync(artifactId, artifactsRelations);
-            if (!result.Success) return BadRequest();
+            if (!result.Success)
+            {
+                if (result.Error.Code == ErrorCodes.ArtifactNotExists ||
+                    result.Error.Code == ErrorCodes.ProjectNotExists)
+                {
+                    return NotFound(result.Error);
+                }
+                return BadRequest(result.Error);
+            }
 
             var artifactsResult = _mapper.Map<IList<ArtifactsRelationDTO>>(result.Value);
             return Ok(artifactsResult);
@@ -126,7 +153,10 @@ namespace FRF.Web.Controllers
         public async Task<IActionResult> GetRelationsAsync(int artifactId)
         {
             var result = await _artifactsService.GetAllRelationsOfAnArtifactAsync(artifactId);
-
+            if (!result.Success)
+            {
+                return NotFound(result.Error);
+            }
             var artifactsRelationsDTO = _mapper.Map<IList<ArtifactsRelationDTO>>(result.Value);
             return Ok(artifactsRelationsDTO);
         }
@@ -136,7 +166,7 @@ namespace FRF.Web.Controllers
         {
             var result = await _artifactsService.GetAllRelationsByProjectIdAsync(projectId);
 
-             if (!result.Success) return BadRequest();
+             if (!result.Success) return BadRequest(result.Error);
 
              return Ok(_mapper.Map<IList<ArtifactsRelationDTO>>(result.Value));
 
@@ -146,7 +176,7 @@ namespace FRF.Web.Controllers
         public async Task<IActionResult> DeleteRelationAsync(Guid relationId)
         {
             var result = await _artifactsService.DeleteRelationAsync(relationId);
-            if (!result.Success) return NotFound();
+            if (!result.Success) return NotFound(result.Error);
 
             return NoContent();
         }
@@ -156,7 +186,14 @@ namespace FRF.Web.Controllers
         public async Task<IActionResult> DeleteRelationsAsync(IList<Guid> artifactRelationIds)
         {
             var result = await _artifactsService.DeleteRelationsAsync(artifactRelationIds);
-            if (!result.Success) return NotFound();
+            if (!result.Success)
+                switch (result.Error.Code)
+                {
+                    case ErrorCodes.ArtifactNotExists:
+                        return NotFound(result.Error);
+                    case ErrorCodes.InvalidArtifactSettings:
+                        return BadRequest(result.Error);
+                }
 
             return NoContent();
         }
@@ -169,10 +206,15 @@ namespace FRF.Web.Controllers
         {
             var artifactsRelationsList = _mapper.Map<IList<ArtifactsRelation>>(artifactRelationUpdatedList);
             var result = await _artifactsService.UpdateRelationAsync(artifactId, artifactsRelationsList);
-
-            if (!result.Success && result.Error.Code == ErrorCodes.ArtifactNotExists) return NotFound();
-
-            if (!result.Success && result.Error.Code == ErrorCodes.RelationNotValid) return BadRequest();
+            if (!result.Success)
+            {
+                if (result.Error.Code == ErrorCodes.ArtifactNotExists ||
+                    result.Error.Code == ErrorCodes.ProjectNotExists)
+                {
+                    return NotFound(result.Error);
+                }
+                return BadRequest(result.Error);
+            }
 
             var artifactsResult = _mapper.Map<IList<ArtifactsRelationDTO>>(result.Value);
             return Ok(artifactsResult);

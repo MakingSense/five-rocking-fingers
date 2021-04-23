@@ -15,6 +15,7 @@ export default class ProjectService {
                     client: project.client,
                     budget: project.budget,
                     projectCategories: project.projectCategories,
+                    startDate: project.startDate,
                     users: project.users.map((parameter) => ({ userId: parameter.userId }))
                 });
         } catch (error) {
@@ -33,6 +34,7 @@ export default class ProjectService {
                     createdDate: project.createdDate,
                     budget: project.budget,
                     projectCategories: project.projectCategories,
+                    startDate: project.startDate,
                     users: project.users.map((parameter) => ({ userId: parameter.userId }))
                 });
         } catch (error) {

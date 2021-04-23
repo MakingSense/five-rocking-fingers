@@ -343,7 +343,7 @@ namespace FRF.Web.Tests.Controllers
             var result = await _classUnderTest.GetAsync(artifactId);
 
             // Assert
-            Assert.IsType<NotFoundResult>(result);
+            Assert.IsType<NotFoundObjectResult>(result);
             _artifactsService.Verify(mock => mock.Get(artifactId), Times.Once);
         }
 
@@ -549,7 +549,7 @@ namespace FRF.Web.Tests.Controllers
             var result = await _classUnderTest.UpdateAsync(artifactId, artifactUpdate);
 
             // Assert
-            Assert.IsType<NotFoundResult>(result);
+            Assert.IsType<NotFoundObjectResult>(result);
             _artifactsService.Verify(mock => mock.Get(artifactId), Times.Once);
         }
 
@@ -629,7 +629,7 @@ namespace FRF.Web.Tests.Controllers
             var result = await _classUnderTest.DeleteAsync(artifactId);
 
             // Assert
-            Assert.IsType<NotFoundResult>(result);
+            Assert.IsType<NotFoundObjectResult>(result);
             _artifactsService.Verify(mock => mock.Get(artifactId), Times.Once);
             _artifactsService.Verify(mock => mock.Delete(artifactId), Times.Never);
         }
@@ -667,13 +667,13 @@ namespace FRF.Web.Tests.Controllers
 
             _artifactsService
                 .Setup(mock => mock.SetRelationAsync(It.IsAny<int>(), It.IsAny<List<ArtifactsRelation>>()))
-                .ReturnsAsync(new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid, "Error Message")));
+                .ReturnsAsync(new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValidRepeated, "Error Message")));
 
             // Act
             var result = await _classUnderTest.SetRelationAsync(artifactsRelationDtos[0].Artifact1Id, artifactsRelationDtos);
 
             // Assert
-            var response = Assert.IsType<BadRequestResult>(result);
+            var response = Assert.IsType<BadRequestObjectResult>(result);
             Assert.IsNotType<List<ArtifactsRelationDTO>>(response);
             _artifactsService.Verify(mock => mock.SetRelationAsync(It.IsAny<int>(), It.IsAny<List<ArtifactsRelation>>()), Times.Once);
         }
@@ -701,13 +701,13 @@ namespace FRF.Web.Tests.Controllers
 
             _artifactsService
                 .Setup(mock => mock.SetRelationAsync(It.IsAny<int>(), It.IsAny<List<ArtifactsRelation>>()))
-                .ReturnsAsync(new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid, "Error Message")));
+                .ReturnsAsync(new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValidRepeated, "Error Message")));
 
             // Act
             var result = await _classUnderTest.SetRelationAsync(artifactsRelationDtos[0].Artifact1Id, artifactsRelationDtos);
 
             // Assert
-            var response = Assert.IsType<BadRequestResult>(result);
+            var response = Assert.IsType<BadRequestObjectResult>(result);
             Assert.IsNotType<List<ArtifactsRelationDTO>>(response);
             _artifactsService.Verify(mock => mock.SetRelationAsync(It.IsAny<int>(), It.IsAny<List<ArtifactsRelation>>()), Times.Once);
         }
@@ -817,7 +817,7 @@ namespace FRF.Web.Tests.Controllers
             var result = await _classUnderTest.GetAllRelationsByProjectIdAsync(projectId);
 
             // Assert
-            Assert.IsType<BadRequestResult>(result);
+            Assert.IsType<BadRequestObjectResult>(result);
             _artifactsService.Verify(mock => mock.GetAllRelationsByProjectIdAsync(It.IsAny<int>()), Times.Once);
         }
 
@@ -859,7 +859,7 @@ namespace FRF.Web.Tests.Controllers
             var result = await _classUnderTest.DeleteRelationAsync(artifactRelationId);
 
             // Assert
-            Assert.IsType<NotFoundResult>(result);
+            Assert.IsType<NotFoundObjectResult>(result);
             _artifactsService.Verify(mock => mock.DeleteRelationAsync(It.IsAny<Guid>()), Times.Once);
         }
 
@@ -912,7 +912,7 @@ namespace FRF.Web.Tests.Controllers
             var result = await _classUnderTest.DeleteRelationsAsync(artifactRelationIdsList);
 
             // Assert
-            Assert.IsType<NotFoundResult>(result);
+            Assert.IsType<NotFoundObjectResult>(result);
             _artifactsService.Verify(mock => mock.DeleteRelationsAsync(It.IsAny<IList<Guid>>()), Times.Once);
         }
 
@@ -1001,7 +1001,7 @@ namespace FRF.Web.Tests.Controllers
             var result = await _classUnderTest.UpdateRelationsAsync(0, artifactsRelationsListDto);
 
             // Assert
-            Assert.IsType<NotFoundResult>(result);
+            Assert.IsType<NotFoundObjectResult>(result);
             _artifactsService.Verify(mock => mock.UpdateRelationAsync(It.IsAny<int>(), It.IsAny<IList<ArtifactsRelation>>()), Times.Once);
         }
 
@@ -1042,13 +1042,13 @@ namespace FRF.Web.Tests.Controllers
 
             _artifactsService
                 .Setup(mock => mock.UpdateRelationAsync(It.IsAny<int>(), It.IsAny<IList<ArtifactsRelation>>()))
-                .ReturnsAsync(new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValid, "[Mock] message")));
+                .ReturnsAsync(new ServiceResponse<IList<ArtifactsRelation>>(new Error(ErrorCodes.RelationNotValidRepeated, "[Mock] message")));
 
             // Act
             var result = await _classUnderTest.UpdateRelationsAsync(artifact1Id, artifactsRelationsListDto);
 
             // Assert
-            Assert.IsType<BadRequestResult>(result);
+            Assert.IsType<BadRequestObjectResult>(result);
             _artifactsService.Verify(mock => mock.UpdateRelationAsync(It.IsAny<int>(), It.IsAny<IList<ArtifactsRelation>>()), Times.Once);
         }
 

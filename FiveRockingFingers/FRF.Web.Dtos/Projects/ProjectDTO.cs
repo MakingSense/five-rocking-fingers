@@ -16,6 +16,7 @@ namespace FRF.Web.Dtos
         public string? Client { get; set; }
         public int? Budget { get; set; }
         public DateTime CreatedDate { get; set; }
+        public DateTime? StartDate { get; set; }
         public IList<ProjectCategoryDTO> ProjectCategories { get; set; }
         public IList<UserProfileDTO> Users { get; set; }
     }
