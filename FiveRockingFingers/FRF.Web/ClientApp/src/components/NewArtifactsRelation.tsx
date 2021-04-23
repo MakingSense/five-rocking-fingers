@@ -11,6 +11,7 @@ import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 import ArtifactService from '../services/ArtifactService';
 import { updateArtifactsSettings, toRegularSentence, handleArtifactChange, handleSettingChange, differentSettingTypes } from './NewArtifactRelationComponents/HelperArtifactRelation';
+import { handleErrorMessage } from '../commons/Helpers';
 
 interface handlerUpdateList{
     update: boolean,
@@ -158,8 +159,12 @@ const NewArtifactsRelation = (props: { showNewArtifactsRelation: boolean, closeN
                 props.setOpenSnackbar(true);
                 if(props.updateList.update && props.updateList.setUpdate) props.updateList.setUpdate();
             } else {
-                props.setSnackbarSettings({ message: "Hubo un error al crear las relaciones", severity: "error" });
-                props.setOpenSnackbar(true);
+              handleErrorMessage(
+                response.data,
+                "Hubo un error al crear las relaciones",
+                props.setSnackbarSettings,
+                props.setOpenSnackbar
+              );
             }
         }
         catch (error) {
