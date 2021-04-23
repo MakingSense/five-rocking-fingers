@@ -2,6 +2,7 @@
 import * as React from 'react';
 import Artifact from '../../interfaces/Artifact';
 import ArtifactService from '../../services/ArtifactService';
+import { handleErrorMessage } from '../../commons/Helpers';
 
 const ConfirmationDialog = (props: { open: boolean, setOpen: Function, artifactToDelete: Artifact, openSnackbar: Function, updateList: Function }) => {
 
@@ -11,14 +12,18 @@ const ConfirmationDialog = (props: { open: boolean, setOpen: Function, artifactT
 
     const handleConfirm = async () => {
         try {
-            const response = await ArtifactService.delete(props.artifactToDelete.id)
-
+            const response = await ArtifactService.delete(props.artifactToDelete.id);
             if (response.status == 204) {
                 props.openSnackbar({ message: "El artefacto ha sido borrado con éxito", severity: "success" });
                 props.updateList();
             }
             else {
-                props.openSnackbar({ message: "Hubo un error al borrar el artefacto", severity: "error" });
+                handleErrorMessage(
+                  response.data,
+                  "Hubo un error al borrar el artefacto",
+                  props.openSnackbar,
+                  undefined
+                );
             }
         }
         catch {

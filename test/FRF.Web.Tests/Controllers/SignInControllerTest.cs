@@ -72,7 +72,7 @@ namespace FRF.Web.Tests.Controllers
             var response = await _classUnderTest.SignIn(signInDto);
 
             // Assert
-            Assert.IsType<UnauthorizedResult>(response);
+            Assert.IsType<UnauthorizedObjectResult>(response);
             _signInService.Verify(mock => mock.SignInAsync(It.IsAny<UserSignIn>()), Times.Once);
             _userService.Verify(mock => mock.GetUserPublicProfileAsync(It.IsAny<string>()), Times.Never);
         }
@@ -92,7 +92,7 @@ namespace FRF.Web.Tests.Controllers
             var result = await _classUnderTest.SignIn(signInDto);
 
             // Assert
-            var internalServerError = Assert.IsType<StatusCodeResult>(result);
+            var internalServerError = Assert.IsType<ObjectResult>(result);
             Assert.Equal(500, internalServerError.StatusCode);
             _signInService.Verify(mock => mock.SignInAsync(It.IsAny<UserSignIn>()), Times.Once);
             _userService.Verify(mock => mock.GetUserPublicProfileAsync(It.IsAny<string>()), Times.Never);

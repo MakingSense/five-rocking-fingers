@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import Setting from '../../interfaces/Setting';
 import ArtifactService from '../../services/ArtifactService';
 import { useArtifact } from '../../commons/useArtifact';
+import { handleErrorMessage } from '../../commons/Helpers';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -44,8 +45,12 @@ const Confirmation = (props: { showNewArtifactDialog: boolean, closeNewArtifactD
                 setOpenSnackbar(true);
                 updateList();
             } else {
-                setSnackbarSettings({ message: "Hubo un error al crear el artefacto", severity: "error" });
-                setOpenSnackbar(true);
+                handleErrorMessage(
+                    response.data,
+                    "Hubo un error al crear el artefacto",
+                    setSnackbarSettings,
+                    setOpenSnackbar
+                );
             }
         }
         catch (error) {

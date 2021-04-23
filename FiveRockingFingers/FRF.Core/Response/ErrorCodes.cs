@@ -8,13 +8,16 @@
         public const int CategoryNotExists = 3;
         public const int ProjectNotExists = 4;
         public const int ProviderNotExists = 5;
-        public const int ArtifactFromAnotherProject= 6;
+        public const int ArtifactFromAnotherProject = 6;
+        public const int InvalidStartDateForProject = 7;
 
         // Relation errors
         public const int RelationAlreadyExisted = 10;
-        public const int RelationNotValid = 11;
-        public const int RelationNotExists = 12;
-        public const int RelationCycleDetected = 13;
+        public const int RelationNotValidDifferentBaseArtifact = 11;
+        public const int RelationNotValidRepeated = 12;
+        public const int RelationNotValidDifferentType = 13;
+        public const int RelationNotExists = 14;
+        public const int RelationCycleDetected = 15;
 
         // User errors
         public const int InvalidCredentials = 20;

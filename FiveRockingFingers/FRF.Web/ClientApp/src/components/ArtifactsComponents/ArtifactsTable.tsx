@@ -11,6 +11,7 @@ import ArtifactsTotalPrice from './ArtifactsTotalPrice';
 import EditArtifactDialog from './EditArtifactDialog';
 import ArtifactRelation from '../../interfaces/ArtifactRelation';
 import { ArtifactContext, ArtifactContextProvider } from '../../commons/ArtifactContext';
+import { handleErrorMessage } from '../../commons/Helpers';
 
 const ArtifactsTable = (props: { projectId: number}) => {
     const [artifacts, setArtifacts] = React.useState<Artifact[]>([]);
@@ -32,6 +33,14 @@ const ArtifactsTable = (props: { projectId: number}) => {
           if(response.status === 200){
             setPrice(response.data.toFixed(2));
           }
+          else{
+            handleErrorMessage(
+                response.data,
+                "Hubo un error al obtener el costo",
+                manageOpenSnackbar,
+                undefined
+              );
+          }
         } catch {
           setPrice('');
         }
@@ -52,16 +61,21 @@ const ArtifactsTable = (props: { projectId: number}) => {
     const getArtifacts = async () => {
         try {
             const response = await ArtifactService.getAllByProjectId(projectId);
-            if (response.status == 200) {
+            if (response.status === 200) {
                 setArtifacts(response.data);
                 getTotalPrice();
             }
             else {
-                manageOpenSnackbar({ message: "Hubo un error al cargar los artifacts", severity: "error" });
+                handleErrorMessage(
+                    response.data,
+                    "Hubo un error al cargar los artefactos",
+                    manageOpenSnackbar,
+                    undefined
+                );
             }
         }
         catch {
-            manageOpenSnackbar({ message: "Hubo un error al cargar los artifacts", severity: "error" });
+            manageOpenSnackbar({ message: "Hubo un error al cargar los artefactos", severity: "error" });
         }
     }
 
