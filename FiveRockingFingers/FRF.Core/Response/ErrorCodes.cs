@@ -10,6 +10,7 @@
         public const int ProviderNotExists = 5;
         public const int ArtifactFromAnotherProject = 6;
         public const int InvalidStartDateForProject = 7;
+        public const int ModuleNotExist = 8;
 
         // Relation errors
         public const int RelationAlreadyExisted = 10;
