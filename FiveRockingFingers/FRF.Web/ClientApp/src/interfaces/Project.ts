@@ -9,6 +9,7 @@ export default interface Project {
     budget: number;
     createdDate: Date;
     modifiedDate: Date;
+    startDate: Date | null;
     projectCategories: ProjectCategory[];
     users: UserProfile[];
 }

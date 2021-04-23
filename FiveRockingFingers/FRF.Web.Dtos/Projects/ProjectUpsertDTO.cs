@@ -15,8 +15,8 @@ namespace FRF.Web.Dtos.Projects
         [Required]
         [Range(1, 1000000000000, ErrorMessage = "Budget have to be greater than {1}")]
         public int? Budget { get; set; }
+        public DateTime? StartDate { get; set; }
         public IList<ProjectCategoryDTO> ProjectCategories { get; set; }
-        [Required, MinLength(1)]
         public IList<UserProfileUpsertDTO> Users { get; set; }
     }
 }

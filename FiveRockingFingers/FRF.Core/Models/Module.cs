@@ -2,14 +2,13 @@
 
 namespace FRF.Core.Models
 {
-    public class Category
+    public class Module
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        #nullable enable
-        public string? Description { get; set; }
-#nullable disable
-        public IList<ProjectCategory> ProjectCategories { get; set; }
+        public string Description { get; set; }
+        public int SuggestedCost { get; set; }
         public IList<CategoryModule> CategoryModules { get; set; }
+        public IList<ProjectModule> ProjectModules { get; set; }
     }
 }
