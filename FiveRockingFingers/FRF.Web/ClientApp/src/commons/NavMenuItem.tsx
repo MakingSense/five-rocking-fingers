@@ -21,7 +21,11 @@ const NavMenuItem = (props: { project: Project }) => {
                     </Link>
                 </MenuItem>
                 
-                <MenuItem>Equipo</MenuItem>
+                <MenuItem>
+                    <Link to={`/projects/${props.project.id}/resources`}>
+                        Equipo
+                    </Link>
+                </MenuItem>
                 <MenuItem>Presupuesto</MenuItem>
             </SubMenu>
         </div >
