@@ -20,6 +20,7 @@ namespace FRF.DataAccess
         public DbSet<ProjectResource> ProjectResources { get; set; }
         public DbSet<Module> Modules { get; set; }
         public DbSet<ProjectModule> ProjectModules { get; set; }
+        public DbSet<CategoryModule> CategoriesModules { get; set; }
 
         public DataAccessContext(DbContextOptions<DataAccessContext> options, IConfiguration configuration) : base(options)
         {
@@ -37,6 +38,7 @@ namespace FRF.DataAccess
             builder.Entity<ProjectResource>().HasKey(pr => new { pr.Id});
             builder.Entity<Module>().HasKey(m => new { m.Id});
             builder.Entity<ProjectModule>().HasKey(pm => new { pm.Id});
+            builder.Entity<CategoryModule>().HasKey(cm => new { cm.CategoryId, cm.ModuleId});
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

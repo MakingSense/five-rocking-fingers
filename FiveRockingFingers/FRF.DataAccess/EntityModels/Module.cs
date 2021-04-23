@@ -8,6 +8,7 @@ namespace FRF.DataAccess.EntityModels
         public string Name { get; set; }
         public string Description { get; set; }
         public int SuggestedCost { get; set; }
+        public IList<CategoryModule> CategoryModules { get; set; }
         public IList<ProjectModule> ProjectModules { get; set; } 
 
     }
