@@ -34,7 +34,7 @@ namespace FRF.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SaveAsync(ResourceInsertDTO resource)
+        public async Task<IActionResult> SaveAsync(ResourceUpsertDTO resource)
         {
             var resourceToSave = _mapper.Map<Resource>(resource);
             var response = await _resourcesService.SaveAsync(resourceToSave);
@@ -44,10 +44,11 @@ namespace FRF.Web.Controllers
             return Ok(savedResource);
         }
 
-        [HttpPut]
-        public async Task<IActionResult> UpdateAsync(ResourceUpdateDTO resource)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateAsync(int id, ResourceUpsertDTO resource)
         {
             var resourceToUpdate = _mapper.Map<Resource>(resource);
+            resourceToUpdate.Id = id;
             var response = await _resourcesService.UpdateAsync(resourceToUpdate);
             switch (response.Success)
             {

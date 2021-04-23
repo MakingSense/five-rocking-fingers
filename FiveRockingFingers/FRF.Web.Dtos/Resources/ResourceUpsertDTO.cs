@@ -2,7 +2,7 @@
 
 namespace FRF.Web.Dtos.Resources
 {
-    public class ResourceInsertDTO
+    public class ResourceUpsertDTO
     {
         [Required]
         public string RoleName { get; set; }

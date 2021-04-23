@@ -49,8 +49,7 @@ namespace FRF.Web.Dtos
             CreateMap<ArtifactsRelationUpdateDTO, ArtifactsRelation>();
             CreateMap<Provider, ProviderDTO>();
             CreateMap<Resource, ResourceDTO>();
-            CreateMap<ResourceInsertDTO, Resource>();
-            CreateMap<ResourceUpdateDTO, Resource>();
+            CreateMap<ResourceUpsertDTO, Resource>();
         }
     }
 }

@@ -80,7 +80,7 @@ namespace FRF.Web.Tests.Controllers
                 .ReturnsAsync(new ServiceResponse<Resource>(resource));
 
             // Act
-            var response = await _classUnderTest.SaveAsync(It.IsAny<ResourceInsertDTO>());
+            var response = await _classUnderTest.SaveAsync(It.IsAny<ResourceUpsertDTO>());
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(response);
@@ -104,7 +104,7 @@ namespace FRF.Web.Tests.Controllers
                     "Mock Name repeated message.")));
 
             // Act
-            var response = await _classUnderTest.SaveAsync(It.IsAny<ResourceInsertDTO>());
+            var response = await _classUnderTest.SaveAsync(It.IsAny<ResourceUpsertDTO>());
 
             // Assert
             var notFoundResult = Assert.IsType<BadRequestObjectResult>(response);
@@ -120,14 +120,15 @@ namespace FRF.Web.Tests.Controllers
             // Arrange
             const int ResourceId = 1;
             var resource = CreateResource(ResourceId);
-            var updatedResourceDTO = CreateResourceUpdateDto(resource);
+            var updatedResourceDTO = CreateResourceUpsertDto(resource);
             var updatedResource = _mapper.Map<Resource>(updatedResourceDTO);
+            updatedResource.Id = ResourceId;
             _resourcesServices
                 .Setup(mock => mock.UpdateAsync(It.IsAny<Resource>()))
                 .ReturnsAsync(new ServiceResponse<Resource>(updatedResource));
 
             // Act
-            var response = await _classUnderTest.UpdateAsync(updatedResourceDTO);
+            var response = await _classUnderTest.UpdateAsync(ResourceId, updatedResourceDTO);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(response);
@@ -145,13 +146,16 @@ namespace FRF.Web.Tests.Controllers
         public async Task UpdateAsync_WhenResourceIsNotFound_ReturnsNotFound()
         {
             // Arrange
+            const int ResourceId = 1;
+            var resource = CreateResource(ResourceId);
+            var updatedResourceDTO = CreateResourceUpsertDto(resource);
             _resourcesServices
                 .Setup(mock => mock.UpdateAsync(It.IsAny<Resource>()))
                 .ReturnsAsync(new ServiceResponse<Resource>(new Error(ErrorCodes.ResourceNotExist,
                     "Mock Not Found message.")));
 
             // Act
-            var response = await _classUnderTest.UpdateAsync(It.IsAny<ResourceUpdateDTO>());
+            var response = await _classUnderTest.UpdateAsync(ResourceId,updatedResourceDTO);
 
             // Assert
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(response);
@@ -165,13 +169,16 @@ namespace FRF.Web.Tests.Controllers
         public async Task UpdateAsync_WhenIsRoleNameRepeated_ReturnsBadRequest()
         {
             // Arrange
+            const int ResourceId = 1;
+            var resource = CreateResource(ResourceId);
+            var updatedResourceDTO = CreateResourceUpsertDto(resource);
             _resourcesServices
                 .Setup(mock => mock.UpdateAsync(It.IsAny<Resource>()))
                 .ReturnsAsync(new ServiceResponse<Resource>(new Error(ErrorCodes.ResourceNameRepeated,
                     "Mock Name repeated message.")));
 
             // Act
-            var response = await _classUnderTest.UpdateAsync(It.IsAny<ResourceUpdateDTO>());
+            var response = await _classUnderTest.UpdateAsync(ResourceId,updatedResourceDTO);
 
             // Assert
             var notFoundResult = Assert.IsType<BadRequestObjectResult>(response);
@@ -233,12 +240,11 @@ namespace FRF.Web.Tests.Controllers
             return resource;
         }
 
-        private ResourceUpdateDTO CreateResourceUpdateDto(Resource resource)
+        private ResourceUpsertDTO CreateResourceUpsertDto(Resource resource)
         {
-            var updateResource = new ResourceUpdateDTO
+            var updateResource = new ResourceUpsertDTO
             {
                 Description = resource.Description,
-                Id = resource.Id,
                 RoleName = "Updated Role Name",
                 SalaryPerMonth = resource.SalaryPerMonth,
                 WorkloadCapacity = resource.WorkloadCapacity
