@@ -10,6 +10,7 @@ import AwsArtifactService from '../../services/AwsArtifactService';
 import { useSettingsCreator } from './useSettingsCreator';
 import ArtifactType from '../../interfaces/ArtifactType';
 import { usePricingDimensionsValidator } from './usePricingDimensionsValidator';
+import { useArtifact } from '../../commons/useArtifact';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -35,12 +36,13 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, artifactType: ArtifactType | null, handleNextStep: Function, handlePreviousStep: Function, settingsList: Setting[], setSettingsList: Function, settingsMap: { [key: string]: number[] }, setSettingsMap: Function, awsSettingsList: KeyValueStringPair[], settings: object, setSettings: Function, setAwsPricingTerm: Function, setSnackbarSettings: Function, setOpenSnackbar: Function }) => {
+const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, handleNextStep: Function, handlePreviousStep: Function, setSnackbarSettings: Function, setOpenSnackbar: Function }) => {
 
     const classes = useStyles();
     const { handleSubmit } = useForm();
-    const { showNewArtifactDialog, closeNewArtifactDialog, artifactType, awsSettingsList } = props;
+    const { showNewArtifactDialog, closeNewArtifactDialog } = props;
 
+    const { artifactType, awsSettingsList, settingsList, setSettings } = useArtifact();
     const { createPricingTermSettings } = useSettingsCreator();
     const { areValidPricingDimensions } = usePricingDimensionsValidator();
 
@@ -78,7 +80,7 @@ const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewAr
     //Create the artifact after submit
     const handleConfirm = async () => {
         if (artifactType === null) return;
-        props.setSettings({ settings: createSettings(artifactType.name) });
+        setSettings({ settings: createSettings(artifactType.name) });
         props.handleNextStep();
     }
 
@@ -86,8 +88,8 @@ const AwsPricingDimension = (props: { showNewArtifactDialog: boolean, closeNewAr
         let settingFinalObject: object = {};
         let settingsObject: { [key: string]: string } = {};
 
-        for (let i = 0; i < props.settingsList.length; i++) {
-            settingsObject[props.settingsList[i].name] = props.settingsList[i].value;
+        for (let i = 0; i < settingsList.length; i++) {
+            settingsObject[settingsList[i].name] = settingsList[i].value;
         }
         Object.assign(settingFinalObject, settingsObject, createPricingTermSettings(serviceCode, awsPricingDimensionList));
 
