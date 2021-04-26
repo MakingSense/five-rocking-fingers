@@ -9,6 +9,8 @@ import ArtifactService from '../../services/ArtifactService';
 import ProjectService from '../../services/ProjectService';
 import ArtifactsTotalPrice from './ArtifactsTotalPrice';
 import EditArtifactDialog from './EditArtifactDialog';
+import ArtifactRelation from '../../interfaces/ArtifactRelation';
+import { ArtifactContext, ArtifactContextProvider } from '../../commons/ArtifactContext';
 import { handleErrorMessage } from '../../commons/Helpers';
 
 const ArtifactsTable = (props: { projectId: number}) => {
@@ -150,28 +152,30 @@ const ArtifactsTable = (props: { projectId: number}) => {
                 open={openSnackbar}
                 setOpen={setOpenSnackbar}
             />
-            <NewArtifactDialog
-                showNewArtifactDialog={showNewArtifactDialog}
-                closeNewArtifactDialog={closeNewArtifactDialog}
-                projectId={projectId}
-                updateList={getArtifacts}
-                setOpenSnackbar={setOpenSnackbar}
-                setSnackbarSettings={setSnackbarSettings}
-            />
-            { artifactToEdit ?
-                <EditArtifactDialog
-                    showEditArtifactDialog={showEditArtifactDialog}
-                    closeEditArtifactDialog={closeEditArtifactDialog}
+            <ArtifactContextProvider>
+                <NewArtifactDialog
+                    showNewArtifactDialog={showNewArtifactDialog}
+                    closeNewArtifactDialog={closeNewArtifactDialog}
+                    projectId={projectId}
+                    updateList={getArtifacts}
                     setOpenSnackbar={setOpenSnackbar}
                     setSnackbarSettings={setSnackbarSettings}
-                    artifactToEdit={artifactToEdit}
-                    updateArtifacts={getArtifacts}
-                    manageOpenSnackbar={manageOpenSnackbar}
-                    setSettingTypes={setSettingTypes}
-                    settingTypes={settingTypes}
-                /> :
-                null
-            }
+                />
+                { artifactToEdit ?
+                    <EditArtifactDialog
+                        showEditArtifactDialog={showEditArtifactDialog}
+                        closeEditArtifactDialog={closeEditArtifactDialog}
+                        setOpenSnackbar={setOpenSnackbar}
+                        setSnackbarSettings={setSnackbarSettings}
+                        artifactToEdit={artifactToEdit}
+                        updateArtifacts={getArtifacts}
+                        manageOpenSnackbar={manageOpenSnackbar}
+                        setSettingTypes={setSettingTypes}
+                        settingTypes={settingTypes}
+                    /> :
+                    null
+                }
+            </ArtifactContextProvider>
         </React.Fragment>
     );
 };

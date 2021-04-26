@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { PROVIDERS } from '../../Constants';
 import Typography from '@material-ui/core/Typography';
+import { useArtifact } from '../../commons/useArtifact';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -22,16 +23,18 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const ProviderForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, handleNextStep: Function, setProvider: Function, provider: string|null }) => {
+const ProviderForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, handleNextStep: Function }) => {
 
     const classes = useStyles();
 
     const { handleSubmit, errors, control } = useForm();
     const { showNewArtifactDialog, closeNewArtifactDialog } = props;
 
+    const { provider, setProvider } = useArtifact();
+
 
     const handleConfirmProvider = async (data: { provider: string }) => {
-        props.setProvider(data.provider);
+        setProvider(data.provider);
         props.handleNextStep();
     }
 
@@ -67,7 +70,7 @@ const ProviderForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactD
                             name="provider"
                             rules={{ required: true }}
                             control={control}
-                            defaultValue={props.provider}
+                            defaultValue={provider}
                         />
                         <FormHelperText>Requerido*</FormHelperText>
                     </FormControl>
