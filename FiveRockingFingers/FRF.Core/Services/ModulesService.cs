@@ -31,8 +31,8 @@ namespace FRF.Core.Services
                 return new ServiceResponse<Models.Module>(new Error(ErrorCodes.ModuleNotExist,
                     $"There is not Module with Id = {id}"));
 
-            var Modules = _mapper.Map<Models.Module>(response);
-            return new ServiceResponse<Models.Module>(Modules);
+            var modules = _mapper.Map<Models.Module>(response);
+            return new ServiceResponse<Models.Module>(modules);
         }
 
         public async Task<ServiceResponse<IList<Models.Module>>> GetAllByCategoryIdAsync(int id)
@@ -71,34 +71,26 @@ namespace FRF.Core.Services
 
         public async Task<ServiceResponse<Models.Module>> DeleteAsync(int id)
         {
-            var ModulesToDelete = await _dataContext.Modules.FirstOrDefaultAsync(r => r.Id == id);
-            if (ModulesToDelete == null)
+            var modulesToDelete = await _dataContext.Modules.FirstOrDefaultAsync(r => r.Id == id);
+            if (modulesToDelete == null)
                 return new ServiceResponse<Models.Module>(new Error(ErrorCodes.ModuleNotExist,
                     $"There is not module with Id = {id}"));
-            _dataContext.Modules.Remove(ModulesToDelete);
+            _dataContext.Modules.Remove(modulesToDelete);
             await _dataContext.SaveChangesAsync();
 
-            var deletedModules = _mapper.Map<Models.Module>(ModulesToDelete);
+            var deletedModules = _mapper.Map<Models.Module>(modulesToDelete);
             return new ServiceResponse<Models.Module>(deletedModules);
         }
 
         public async Task<ServiceResponse<Models.Module>> SaveAsync(Models.Module module)
         {
-            var ModulesToSave = _mapper.Map<Module>(module);
-            await _dataContext.Modules.AddAsync(ModulesToSave);
+            var modulesToSave = _mapper.Map<Module>(module);
+            await _dataContext.Modules.AddAsync(modulesToSave);
             await _dataContext.SaveChangesAsync();
 
-            var newModules = await _dataContext.Modules.FirstOrDefaultAsync(r => r.Id == ModulesToSave.Id);
+            var newModules = await _dataContext.Modules.FirstOrDefaultAsync(r => r.Id == modulesToSave.Id);
             return new ServiceResponse<Models.Module>(_mapper.Map<Models.Module>(newModules));
         }
-
-        /*
-        private async Task<bool> IsRoleNameRepeated(Models.Module module, bool isUpdate)
-        {
-            return isUpdate
-                ? await _dataContext.module.AnyAsync(r => r.Id != module.Id && r.RoleName == module.RoleName)
-                : await _dataContext.module.AnyAsync(r => r.RoleName == module.RoleName);
-        }
-    */
+        
     }
 }
