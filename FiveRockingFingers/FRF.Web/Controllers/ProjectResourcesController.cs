@@ -57,7 +57,7 @@ namespace FRF.Web.Controllers
 
             var response = await _projectResourcesService.SaveAsync(projectResource);
 
-            if (!response.Success && (response.Error.Code == ErrorCodes.ProjectNotExists || response.Error.Code == ErrorCodes.ResourceNotExists))
+            if (!response.Success && (response.Error.Code == ErrorCodes.ProjectNotExists || response.Error.Code == ErrorCodes.ResourceNotExist))
                 return NotFound(response.Error);
 
             if (!response.Success && (response.Error.Code == ErrorCodes.InvalidBeginDateForProjectResource || response.Error.Code == ErrorCodes.InvalidEndDateForProjectResource))
@@ -77,7 +77,7 @@ namespace FRF.Web.Controllers
 
             var response = await _projectResourcesService.UpdateAsync(projectResource);
 
-            if (!response.Success && (response.Error.Code == ErrorCodes.ProjectNotExists || response.Error.Code == ErrorCodes.ResourceNotExists))
+            if (!response.Success && (response.Error.Code == ErrorCodes.ProjectNotExists || response.Error.Code == ErrorCodes.ResourceNotExist))
                 return NotFound(response.Error);
 
             if (!response.Success && (response.Error.Code == ErrorCodes.InvalidBeginDateForProjectResource || response.Error.Code == ErrorCodes.InvalidEndDateForProjectResource))
