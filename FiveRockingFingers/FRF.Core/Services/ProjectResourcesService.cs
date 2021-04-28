@@ -24,7 +24,7 @@ namespace FRF.Core.Services
 
         public async Task<ServiceResponse<ProjectResource>> GetAsync(int id)
         {
-            var projectResource = await _dataContext.ProjectResources.SingleOrDefaultAsync(pr => pr.Id == id);
+            var projectResource = await _dataContext.ProjectResources.FirstOrDefaultAsync(pr => pr.Id == id);
 
             if (projectResource == null)
                 return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.ProjectResourceNotExists, $"There is no project resource with Id = {id}"));
@@ -49,13 +49,13 @@ namespace FRF.Core.Services
 
         public async Task<ServiceResponse<ProjectResource>> SaveAsync(ProjectResource projectResource)
         {
-            var project = await _dataContext.Projects.SingleOrDefaultAsync(p => p.Id == projectResource.ProjectId);
+            var project = await _dataContext.Projects.FirstOrDefaultAsync(p => p.Id == projectResource.ProjectId);
 
             if (project == null)
                 return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.ProjectNotExists, $"There is no project with Id = {projectResource.ProjectId}"));
 
             if (!await _dataContext.Resources.AnyAsync(r => r.Id == projectResource.ResourceId))
-                return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.ResourceNotExists, $"There is no resource with Id = {projectResource.ResourceId}"));
+                return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.ResourceNotExist, $"There is no resource with Id = {projectResource.ResourceId}"));
 
             if (!IsStartDateValid(project.StartDate, projectResource.BeginDate))
                 return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.InvalidBeginDateForProjectResource, $"The begin date of the project resource cannot be before the start date of the project"));
@@ -82,13 +82,13 @@ namespace FRF.Core.Services
             if(!projectResourseResponse.Success)
                 return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.ProjectResourceNotExists, $"There is no project resource with Id = {projectResource.ProjectId}"));
 
-            var project = await _dataContext.Projects.SingleOrDefaultAsync(p => p.Id == projectResource.ProjectId);
+            var project = await _dataContext.Projects.FirstOrDefaultAsync(p => p.Id == projectResource.ProjectId);
 
             if (project == null)
                 return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.ProjectNotExists, $"There is no project with Id = {projectResource.ProjectId}"));
 
             if (!await _dataContext.Resources.AnyAsync(r => r.Id == projectResource.ResourceId))
-                return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.ResourceNotExists, $"There is no resource with Id = {projectResource.ResourceId}"));
+                return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.ResourceNotExist, $"There is no resource with Id = {projectResource.ResourceId}"));
 
             if (!IsStartDateValid(project.StartDate, projectResource.BeginDate))
                 return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.InvalidBeginDateForProjectResource, $"The begin date of the project resource cannot be before the start date of the project"));
@@ -96,7 +96,7 @@ namespace FRF.Core.Services
             if (!IsEndDateValid(project.StartDate, projectResource.BeginDate, projectResource.EndDate))
                 return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.InvalidEndDateForProjectResource, $"The end date of the project resource cannot be before the begin date or the start date of the project"));
 
-            var result = await _dataContext.ProjectResources.SingleAsync(pr => pr.Id == projectResource.Id);
+            var result = await _dataContext.ProjectResources.FirstOrDefaultAsync(pr => pr.Id == projectResource.Id);
             result.BeginDate = projectResource.BeginDate;
             result.EndDate = projectResource.EndDate;
             result.DedicatedHours = projectResource.DedicatedHours;
@@ -110,7 +110,7 @@ namespace FRF.Core.Services
 
         public async Task<ServiceResponse<ProjectResource>> DeleteAsync(int id)
         {
-            var projectResourceToDelete = await _dataContext.ProjectResources.SingleOrDefaultAsync(pr => pr.Id == id);
+            var projectResourceToDelete = await _dataContext.ProjectResources.FirstOrDefaultAsync(pr => pr.Id == id);
 
             if(projectResourceToDelete == null)
                 return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.ProjectResourceNotExists, $"There is no project resource with Id = {id}"));

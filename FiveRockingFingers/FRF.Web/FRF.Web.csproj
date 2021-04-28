@@ -38,6 +38,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\src\commons\ArtifactContext.tsx" />
+    <None Remove="ClientApp\src\commons\SettingsEntries.tsx" />
     <None Remove="ClientApp\src\components\ArtifactsComponents\EditArtifact.tsx" />
     <None Remove="ClientApp\src\components\ArtifactsComponents\EditArtifactConfirmation.tsx" />
     <None Remove="ClientApp\src\components\ArtifactsComponents\EditArtifactDialog.tsx" />

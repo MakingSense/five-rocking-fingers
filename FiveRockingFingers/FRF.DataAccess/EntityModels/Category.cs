@@ -15,5 +15,6 @@ namespace FRF.DataAccess.EntityModels
         public string? Description { get; set; }
         #nullable disable
         public IList<ProjectCategory> ProjectCategories { get; set; }
+        public IList<CategoryModule> CategoryModules { get; set; }
     }
 }

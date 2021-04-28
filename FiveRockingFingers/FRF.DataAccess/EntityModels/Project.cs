@@ -20,5 +20,6 @@ namespace FRF.DataAccess.EntityModels
         public IList<ProjectCategory> ProjectCategories { get; set; }
         public ICollection<UsersByProject> UsersByProject { get; set; }
         public IList<ProjectResource> ProjectResource { get; set; } 
+        public IList<ProjectModule> ProjectModules { get; set; } 
     }
 }

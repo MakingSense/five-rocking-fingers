@@ -235,7 +235,7 @@ namespace FRF.Core.Tests.Services
             Assert.IsType<ServiceResponse<ProjectResource>>(result);
             Assert.False(result.Success);
             Assert.NotNull(result.Error);
-            Assert.Equal(ErrorCodes.ResourceNotExists, result.Error.Code);
+            Assert.Equal(ErrorCodes.ResourceNotExist, result.Error.Code);
         }
 
         [Fact]
@@ -374,7 +374,7 @@ namespace FRF.Core.Tests.Services
             Assert.IsType<ServiceResponse<ProjectResource>>(result);
             Assert.False(result.Success);
             Assert.NotNull(result.Error);
-            Assert.Equal(ErrorCodes.ResourceNotExists, result.Error.Code);
+            Assert.Equal(ErrorCodes.ResourceNotExist, result.Error.Code);
         }
 
         [Fact]

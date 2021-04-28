@@ -16,5 +16,6 @@ namespace FRF.Core.Models
         public IList<ProjectCategory> ProjectCategories { get; set; }
         public ICollection<UsersProfile> UsersByProject { get; set; }
         public IList<ProjectResource> ProjectResource { get; set; }
+        public IList<ProjectModule> ProjectModules { get; set; }
     }
 }
