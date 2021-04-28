@@ -24,7 +24,7 @@ namespace FRF.Core.Services
 
         public async Task<ServiceResponse<ProjectModule>> GetAsync(int id)
         {
-            var projectModule = await _dataContext.ProjectModules.SingleOrDefaultAsync(pm => pm.Id == id);
+            var projectModule = await _dataContext.ProjectModules.FirstOrDefaultAsync(pm => pm.Id == id);
 
             if (projectModule == null)
                 return new ServiceResponse<ProjectModule>(new Error(ErrorCodes.ProjectModuleNotExists, $"There is no project resource with Id = {id}"));
@@ -49,7 +49,7 @@ namespace FRF.Core.Services
 
         public async Task<ServiceResponse<ProjectModule>> SaveAsync(ProjectModule projectModule)
         {
-            var project = await _dataContext.Projects.SingleOrDefaultAsync(p => p.Id == projectModule.ProjectId);
+            var project = await _dataContext.Projects.FirstOrDefaultAsync(p => p.Id == projectModule.ProjectId);
 
             if (project == null)
                 return new ServiceResponse<ProjectModule>(new Error(ErrorCodes.ProjectNotExists, $"There is no project with Id = {projectModule.ProjectId}"));
