@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using FRF.Web.Dtos.ProjectModules;
 
 namespace FRF.Web.Dtos.Modules
 {
@@ -12,5 +13,6 @@ namespace FRF.Web.Dtos.Modules
         [Required]
         public int SuggestedCost { get; set; }
         public IList<CategoryModuleDTO> CategoryModules { get; set; }
+        public IList<ProjectModuleUpsertDTO> ProjectModules { get; set; }
     }
 }

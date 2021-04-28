@@ -34,6 +34,15 @@ namespace FRF.Web.Controllers
             return Ok(module);
         }
 
+        [HttpGet()]
+        public async Task<IActionResult> GetAllAsync()
+        {
+            var response = await _modulesService.GetAllAsync();
+
+            var modules = _mapper.Map<IList<ModuleDTO>>(response.Value);
+            return Ok(modules);
+        }
+
         [HttpGet("~/api/categories/{categoryId}/modules")]
         public async Task<IActionResult> GetAllByCategoryIdAsync(int categoryId)
         {

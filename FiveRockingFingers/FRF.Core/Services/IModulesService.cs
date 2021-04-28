@@ -8,6 +8,7 @@ namespace FRF.Core.Services
     public interface IModulesService
     {
         Task<ServiceResponse<Module>> GetAsync(int id);
+        Task<ServiceResponse<IList<Module>>> GetAllAsync();
         Task<ServiceResponse<IList<Module>>> GetAllByCategoryIdAsync(int id);
         Task<ServiceResponse<Module>> UpdateAsync(Module module);
         Task<ServiceResponse<Module>> DeleteAsync(int id);

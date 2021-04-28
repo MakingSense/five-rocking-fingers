@@ -2,6 +2,7 @@
 using FRF.Core.Models;
 using FRF.Web.Dtos.Artifacts;
 using FRF.Web.Dtos.Modules;
+using FRF.Web.Dtos.ProjectModules;
 using FRF.Web.Dtos.Projects;
 using FRF.Web.Dtos.Resources;
 using FRF.Web.Dtos.Users;
@@ -51,6 +52,8 @@ namespace FRF.Web.Dtos
             CreateMap<Provider, ProviderDTO>();
             CreateMap<Resource, ResourceDTO>();
             CreateMap<ResourceUpsertDTO, Resource>();
+            CreateMap<ProjectModule, ProjectModuleDTO>();
+            CreateMap<ProjectModuleUpsertDTO, ProjectModule>();
             CreateMap<ModuleUpsertDTO, Module>();
             CreateMap<Module, ModuleDTO>();
             CreateMap<CategoryModule, CategoryModuleDTO>().ReverseMap();
