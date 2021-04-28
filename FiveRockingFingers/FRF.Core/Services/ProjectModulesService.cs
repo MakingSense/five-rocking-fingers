@@ -79,7 +79,7 @@ namespace FRF.Core.Services
             if (!projectModuleResponse.Success)
                 return new ServiceResponse<ProjectModule>(new Error(ErrorCodes.ProjectModuleNotExists, $"There is no project module with Id = {projectModule.ProjectId}"));
 
-            var project = await _dataContext.Projects.SingleOrDefaultAsync(p => p.Id == projectModule.ProjectId);
+            var project = await _dataContext.Projects.FirstOrDefaultAsync(p => p.Id == projectModule.ProjectId);
 
             if (project == null)
                 return new ServiceResponse<ProjectModule>(new Error(ErrorCodes.ProjectNotExists, $"There is no project with Id = {projectModule.ProjectId}"));
@@ -103,7 +103,7 @@ namespace FRF.Core.Services
 
         public async Task<ServiceResponse<ProjectModule>> DeleteAsync(int id)
         {
-            var projectModuleToDelete = await _dataContext.ProjectModules.SingleOrDefaultAsync(pm => pm.Id == id);
+            var projectModuleToDelete = await _dataContext.ProjectModules.FirstOrDefaultAsync(pm => pm.Id == id);
 
             if (projectModuleToDelete == null)
                 return new ServiceResponse<ProjectModule>(new Error(ErrorCodes.ProjectModuleNotExists, $"There is no project module with Id = {id}"));
