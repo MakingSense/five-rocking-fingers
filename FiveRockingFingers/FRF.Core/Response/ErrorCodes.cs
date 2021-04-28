@@ -33,5 +33,9 @@
 
         //Resources errors
         public const int ResourceNameRepeated = 50;
+
+        public const int ProjectModuleNotExists = 100;
+        public const int ModuleNotExists = 101;
+        public const int ModuleCostInvalid = 102;
     }
 }
