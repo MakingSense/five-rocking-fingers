@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import Typography from '@material-ui/core/Typography';
 import Artifact from '../../interfaces/Artifact';
 import ArtifactService from '../../services/ArtifactService';
+import { useArtifact } from '../../commons/useArtifact';
 import { handleErrorMessage } from '../../commons/Helpers';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -29,12 +30,12 @@ const EditArtifactConfirmation = (props: {
     setOpenSnackbar: Function,
     setSnackbarSettings: Function,
     updateArtifacts: Function,
-    settingTypes: { [key: string]: string },
     originalSettingTypes: { [key: string]: string }
 }) => {
 
     const classes = useStyles();
     const { handleSubmit } = useForm();
+    const { settingTypes } = useArtifact();
 
     const [namesOfSettingsTypeChange, setNamesOfSettingsTypeChange] = React.useState<string[]>([]);
 
@@ -42,12 +43,12 @@ const EditArtifactConfirmation = (props: {
     React.useEffect(() => {
         let changedSettingsList: string[] = [];
         Object.keys(props.originalSettingTypes).forEach(key => {
-            if (props.settingTypes[key] && props.originalSettingTypes[key] !== props.settingTypes[key]) {
+            if (settingTypes[key] && props.originalSettingTypes[key] !== settingTypes[key]) {
                 changedSettingsList.push(key);
             }
         });
         setNamesOfSettingsTypeChange(changedSettingsList);
-    }, [props.settingTypes, props.originalSettingTypes]);
+    }, [settingTypes, props.originalSettingTypes]);
 
     //Create the artifact after submit
     const handleConfirm = async () => {
