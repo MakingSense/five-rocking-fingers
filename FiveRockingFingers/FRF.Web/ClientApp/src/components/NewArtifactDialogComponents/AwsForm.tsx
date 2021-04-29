@@ -3,7 +3,8 @@ import Typography from '@material-ui/core/Typography';
 import Autocomplete from '@material-ui/lab/Autocomplete/Autocomplete';
 import * as React from 'react';
 import ArtifactType from '../../interfaces/ArtifactType';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
+import { useArtifact } from '../../commons/useArtifact';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -30,7 +31,7 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-const AwsForm = (props: { name: string | null, showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, projectId: number, updateList: Function, setArtifactType: Function, handleNextStep: Function, handlePreviousStep: Function, setName: Function, getArtifactTypes: Function }) => {
+const AwsForm = (props: { showNewArtifactDialog: boolean, closeNewArtifactDialog: Function, projectId: number, updateList: Function, handleNextStep: Function, handlePreviousStep: Function, getArtifactTypes: Function }) => {
     const classes = useStyles();
     const [formError, setFormError] = React.useState(false);
     const [selectedArtifactType, setSelectedArtifactType] = React.useState<ArtifactType | null>(null);
@@ -38,6 +39,7 @@ const AwsForm = (props: { name: string | null, showNewArtifactDialog: boolean, c
     const [artifactTypes, setArtifactTypes] = React.useState([] as ArtifactType[]);
     const { showNewArtifactDialog, closeNewArtifactDialog } = props;
     const { handleSubmit, register, control, errors } = useForm();
+    const { name, setName, setArtifactType } = useArtifact();
 
     React.useEffect(() => {
         (async () => {
@@ -52,8 +54,8 @@ const AwsForm = (props: { name: string | null, showNewArtifactDialog: boolean, c
             setFormError(true);
             return;
         }
-        props.setArtifactType(selectedArtifactType);
-        props.setName(data.name);
+        setArtifactType(selectedArtifactType);
+        setName(data.name);
         props.handleNextStep();
     }
 
@@ -118,7 +120,7 @@ const AwsForm = (props: { name: string | null, showNewArtifactDialog: boolean, c
                     variant="outlined"
                     className={classes.inputF}
                     fullWidth
-                    defaultValue={props.name}
+                    defaultValue={name}
                 />          
                 <FormHelperText error={formError}>Requerido*</FormHelperText>
             </FormControl>            
