@@ -143,6 +143,5 @@ namespace FRF.Core.Services
 
             return mappedCategoryModules;
         }
-        
     }
 }

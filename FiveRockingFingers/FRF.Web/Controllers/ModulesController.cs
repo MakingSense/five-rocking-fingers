@@ -34,7 +34,7 @@ namespace FRF.Web.Controllers
             return Ok(module);
         }
 
-        [HttpGet()]
+        [HttpGet]
         public async Task<IActionResult> GetAllAsync()
         {
             var response = await _modulesService.GetAllAsync();
