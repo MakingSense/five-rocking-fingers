@@ -24,7 +24,7 @@ namespace FRF.Core.Services
 
         public async Task<ServiceResponse<ProjectResource>> GetAsync(int id)
         {
-            var projectResource = await _dataContext.ProjectResources.FirstOrDefaultAsync(pr => pr.Id == id);
+            var projectResource = await _dataContext.ProjectResources.Include(pr => pr.Resource).FirstOrDefaultAsync(pr => pr.Id == id);
 
             if (projectResource == null)
                 return new ServiceResponse<ProjectResource>(new Error(ErrorCodes.ProjectResourceNotExists, $"There is no project resource with Id = {id}"));
@@ -39,6 +39,7 @@ namespace FRF.Core.Services
                 return new ServiceResponse<List<ProjectResource>>(new Error(ErrorCodes.ProjectNotExists, $"There is no project with Id = {projectId}"));
 
             var projectResources = await _dataContext.ProjectResources
+                .Include(pr => pr.Resource)
                 .Where(pr => pr.ProjectId == projectId)
                 .ToListAsync();
 
