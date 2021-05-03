@@ -3,6 +3,7 @@ using FRF.Core.Models;
 using FRF.Core.Response;
 using FRF.DataAccess;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace FRF.Core.Services
@@ -16,6 +17,18 @@ namespace FRF.Core.Services
         {
             _dataContext = dataContext;
             _mapper = mapper;
+        }
+
+        public async Task<ServiceResponse<List<Resource>>> GetAllAsync()
+        {
+            var response = await _dataContext.Resources
+                .Include(r => r.ProjectResource)
+                .ThenInclude(pr => pr.Project)
+                .ToListAsync();
+
+            var resources = _mapper.Map<List<Resource>>(response);
+
+            return new ServiceResponse<List<Resource>>(resources);
         }
 
         public async Task<ServiceResponse<Resource>> GetAsync(int id)
