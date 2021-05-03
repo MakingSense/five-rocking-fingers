@@ -4,6 +4,7 @@ using FRF.Core.Services;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 using Resource = FRF.Core.Models.Resource;
@@ -24,6 +25,39 @@ namespace FRF.Core.Tests.Services
             _dataAccess.Database.EnsureDeleted();
             _dataAccess.Database.EnsureCreated();
             _classUnderTest = new ResourcesService(_dataAccess, _mapper);
+        }
+
+        [Fact]
+        public async Task GetAllAsync_ReturnsResources()
+        {
+            // Arrange
+            var resource = CreateAndSaveResource();
+
+            // Act
+            var result = await _classUnderTest.GetAllAsync();
+
+            // Assert
+            Assert.IsType<ServiceResponse<List<Resource>>>(result);
+            Assert.True(result.Success);
+            var resultValue = Assert.Single(result.Value);
+
+            Assert.Equal(resource.RoleName, resultValue.RoleName);
+            Assert.Equal(resource.Description, resultValue.Description);
+            Assert.Equal(resource.SalaryPerMonth, resultValue.SalaryPerMonth);
+            Assert.Equal(resource.WorkloadCapacity, resultValue.WorkloadCapacity);
+            Assert.Equal(resource.Id, resultValue.Id);
+        }
+
+        [Fact]
+        public async Task GetAllAsync_ReturnsEmptyList()
+        {
+            // Act
+            var result = await _classUnderTest.GetAllAsync();
+
+            // Assert
+            Assert.IsType<ServiceResponse<List<Resource>>>(result);
+            Assert.True(result.Success);
+            Assert.Empty(result.Value);
         }
 
         [Fact]
