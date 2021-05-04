@@ -1,11 +1,8 @@
-﻿import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@material-ui/core';
-import { createMuiTheme, createStyles, makeStyles, Theme, ThemeProvider } from '@material-ui/core/styles';
+﻿import { DialogContent, TextField } from '@material-ui/core';
+import { createMuiTheme, createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import * as React from 'react';
 import Resource from '../../interfaces/Resource';
-import ArtifactRelation from '../../interfaces/ArtifactRelation';
-import { handleErrorMessage } from '../../commons/Helpers';
-import { useArtifact } from '../../commons/useArtifact';
-import { Controller, FormProvider, SubmitHandler, useForm, useFormContext } from 'react-hook-form';
+import { Controller, useForm, useFormContext } from 'react-hook-form';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -41,16 +38,6 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const theme = createMuiTheme({
-    overrides: {
-        MuiDialogContent: {
-            root: {
-                padding: "0px 5px 0px 5px"
-            },
-        },
-    },
-});
-
 const ResourceForm = (props: {
     resource: Resource,
     setResource: Function
@@ -59,7 +46,6 @@ const ResourceForm = (props: {
     const { resource, setResource } = props;
 
     const classes = useStyles();
-    const methods = useForm();
     const roleName = 'roleName';
     const description = 'description';
     const salaryPerMonth = 'salaryPerMonth';
