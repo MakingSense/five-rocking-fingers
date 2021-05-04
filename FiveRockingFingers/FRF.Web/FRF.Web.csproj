@@ -44,6 +44,14 @@
     <None Remove="ClientApp\src\components\ArtifactsComponents\EditArtifactConfirmation.tsx" />
     <None Remove="ClientApp\src\components\ArtifactsComponents\EditArtifactDialog.tsx" />
     <None Remove="ClientApp\src\components\NewArtifactDialogComponents\useSettingsCreator.ts" />
+    <None Remove="ClientApp\src\components\ResourcesComponents\ConfirmationDialog.tsx" />
+    <None Remove="ClientApp\src\components\ResourcesComponents\EditResourceDialog.tsx" />
+    <None Remove="ClientApp\src\components\ResourcesComponents\NewResourceDialog.tsx" />
+    <None Remove="ClientApp\src\components\ResourcesComponents\ResourceForm.tsx" />
+    <None Remove="ClientApp\src\components\ResourcesComponents\ResourcesTable.tsx" />
+    <None Remove="ClientApp\src\components\ResourcesComponents\ResourcesTableRow.tsx" />
+    <None Remove="ClientApp\src\interfaces\Resource.ts" />
+    <None Remove="ClientApp\src\services\ResourceService.ts" />
   </ItemGroup>
 
   <ItemGroup>
