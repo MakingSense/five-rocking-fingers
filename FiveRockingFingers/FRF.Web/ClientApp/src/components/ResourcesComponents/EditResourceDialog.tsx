@@ -7,40 +7,6 @@ import { handleErrorMessage } from '../../commons/Helpers';
 import ResourceService from '../../services/ResourceService';
 import { FormProvider, useForm, useFormContext } from 'react-hook-form';
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        container: {
-            display: 'flex',
-            flexWrap: 'wrap',
-        },
-        formControl: {
-            margin: theme.spacing(1),
-            width: '100%'
-        },
-        inputF: {
-            padding: 2,
-            marginTop: 10
-        },
-        select: {
-            marginBottom: 24,
-            marginRight: 0,
-            marginLeft: 0,
-            marginTop: 12,
-            "& .MuiSelect-outlined": {
-                paddingBottom: 13
-            }
-        },
-        dialog: {
-            "& .MuiDialogContent": {
-                padding: 0
-            }
-        },
-        error: {
-            color: 'red'
-        }
-    }),
-);
-
 const theme = createMuiTheme({
     overrides: {
         MuiDialogContent: {

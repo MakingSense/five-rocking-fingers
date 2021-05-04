@@ -7,7 +7,6 @@ import SnackbarSettings from '../../interfaces/SnackbarSettings';
 import ResourceService from '../../services/ResourceService';
 import EditResourceDialog from './EditResourceDialog';
 import NewResourceDialog from './NewResourceDialog';
-import { ArtifactContext, ArtifactContextProvider } from '../../commons/ArtifactContext';
 import { handleErrorMessage } from '../../commons/Helpers';
 
 const ResourcesTable = () => {
@@ -108,27 +107,25 @@ const ResourcesTable = () => {
                 open={openSnackbar}
                 setOpen={setOpenSnackbar}
             />
-            <ArtifactContextProvider>
-                <NewResourceDialog
-                    showNewResourceDialog={showNewResourceDialog}
-                    closeNewResourceDialog={closeNewResourceDialog}
-                    updateList={getResources}
+            <NewResourceDialog
+                showNewResourceDialog={showNewResourceDialog}
+                closeNewResourceDialog={closeNewResourceDialog}
+                updateList={getResources}
+                setOpenSnackbar={setOpenSnackbar}
+                setSnackbarSettings={setSnackbarSettings}
+            />
+            {resourceToEdit ?
+                <EditResourceDialog
+                    showEditResourceDialog={showEditResourceDialog}
+                    closeEditResourceDialog={closeEditResourceDialog}
                     setOpenSnackbar={setOpenSnackbar}
                     setSnackbarSettings={setSnackbarSettings}
-                />
-                {resourceToEdit ?
-                    <EditResourceDialog
-                        showEditResourceDialog={showEditResourceDialog}
-                        closeEditResourceDialog={closeEditResourceDialog}
-                        setOpenSnackbar={setOpenSnackbar}
-                        setSnackbarSettings={setSnackbarSettings}
-                        resourceToEdit={resourceToEdit}
-                        updateResources={getResources}
-                        manageOpenSnackbar={manageOpenSnackbar}
-                    /> :
-                    null
-                }
-            </ArtifactContextProvider>
+                    resourceToEdit={resourceToEdit}
+                    updateResources={getResources}
+                    manageOpenSnackbar={manageOpenSnackbar}
+                /> :
+                null
+            }
         </React.Fragment>
     );
 };
