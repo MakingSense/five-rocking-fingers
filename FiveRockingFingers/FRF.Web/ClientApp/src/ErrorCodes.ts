@@ -5,6 +5,7 @@ export const CATEGORY_NOT_EXISTS: number = 3;
 export const PROJECT_NOT_EXISTS: number = 4;
 export const PROVIDER_NOT_EXISTS: number = 5;
 export const ARTIFACT_FROM_ANOTHER_PROJECT: number = 6;
+export const PROJECT_RESOURCE_NOT_EXISTS: number = 9;
 
 // Relation errors
 export const RELATION_AL_READY_EXISTED: number = 10;
@@ -24,3 +25,7 @@ export const AMAZON_API_ERROR: number = 30;
 
 //Artifacts errors
 export const INVALID_ARTIFACT_SETTINGS: number = 40;
+
+//ProjectResources errors
+export const INVALID_BEGINDATE_FOR_PROJECT_RESOURCE: number = 51;
+export const INVALID_ENDDATE_FOR_PROJECT_RESOURCE: number = 52;
