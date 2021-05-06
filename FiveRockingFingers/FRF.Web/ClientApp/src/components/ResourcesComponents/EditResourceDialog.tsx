@@ -1,11 +1,11 @@
-﻿import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@material-ui/core';
+﻿import { Button, Dialog, DialogActions, DialogTitle } from '@material-ui/core';
 import { createMuiTheme, createStyles, makeStyles, Theme, ThemeProvider } from '@material-ui/core/styles';
 import * as React from 'react';
+import Resource from '../../interfaces/Resource';
 import ResourceForm from './ResourceForm';
+import { handleErrorMessage } from '../../commons/Helpers';
 import ResourceService from '../../services/ResourceService';
 import { FormProvider, useForm, useFormContext } from 'react-hook-form';
-import { handleErrorMessage } from '../../commons/Helpers';
-import Resource from '../../interfaces/Resource';
 
 const theme = createMuiTheme({
     overrides: {
@@ -17,36 +17,36 @@ const theme = createMuiTheme({
     },
 });
 
-const NewResourceDialog = (props: {
-    showNewResourceDialog: boolean,
-    closeNewResourceDialog: Function,
-    updateList: Function,
+const EditResourceDialog = (props: {
+    resourceToEdit: Resource,
+    showEditResourceDialog: boolean,
+    closeEditResourceDialog: Function,
     setOpenSnackbar: Function,
-    setSnackbarSettings: Function
+    setSnackbarSettings: Function,
+    updateResources: Function,
+    manageOpenSnackbar: Function
 }) => {
 
-    const { showNewResourceDialog, closeNewResourceDialog, updateList, setOpenSnackbar, setSnackbarSettings } = props;
+    const { resourceToEdit, showEditResourceDialog, closeEditResourceDialog, setOpenSnackbar, setSnackbarSettings, updateResources, manageOpenSnackbar } = props;
     const methods = useForm();
     const { handleSubmit } = methods;
 
-    const closeDialog = () => {
-        closeNewResourceDialog();
-    }
+    const [resource, setResource] = React.useState<Resource>(resourceToEdit);
 
-    const [resource, setResource] = React.useState<Resource>({
-        roleName: "",
-        description: "",
-        salaryPerMonth: 0,
-        workloadCapacity: 0
-    });
+    const closeDialog = () => {
+        closeEditResourceDialog();
+    }
 
     const handleConfirm = async () => {
         try {
-            const response = await ResourceService.save(resource);
+            if (!resource.id) {
+                return;
+            }
+            const response = await ResourceService.update(resource.id, resource);
             if (response.status === 200) {
                 setSnackbarSettings({ message: "El recurso ha sido creado con éxito", severity: "success" });
                 setOpenSnackbar(true);
-                updateList();
+                updateResources();
             } else {
                 handleErrorMessage(
                     response.data,
@@ -68,7 +68,7 @@ const NewResourceDialog = (props: {
     }
 
     return (
-        <Dialog open={showNewResourceDialog}>
+        <Dialog open={showEditResourceDialog}>
             <FormProvider {...methods}>
                 <ThemeProvider theme={theme}>
                     <DialogTitle >Formulario de creación de recursos</DialogTitle>
@@ -86,4 +86,4 @@ const NewResourceDialog = (props: {
     );
 }
 
-export default NewResourceDialog;
+export default EditResourceDialog;
