@@ -179,7 +179,7 @@ const NewResourceDialog = (props: { projectId: number, open: boolean, handleClos
                                                     shrink: true,
                                                 }}
                                                 helperText={!isDateAfterNow(beginDate) ? "La fecha no puede ser anterior a hoy" :
-                                                invalidBeginDate ? "Formato de fecha invalido!" : null}
+                                                invalidBeginDate ? "Formato de fecha invalido!" : ""}
                                                 disabled={!haveBeginDate}
                                             />
                                         }
@@ -224,7 +224,7 @@ const NewResourceDialog = (props: { projectId: number, open: boolean, handleClos
                                                 helperText={
                                                     !isDateAfterNow(beginDate) ? "La fecha no puede ser anterior a hoy" : 
                                                     invalidEndDate ? "Formato de fecha invalido!" : 
-                                                    !isDateBefore(beginDate, endDate)? "La fecha no puede ser anterior a la fecha de inicio":null}
+                                                    !isDateBefore(beginDate, endDate)? "La fecha no puede ser anterior a la fecha de inicio":""}
                                                 disabled={!haveEndDate}
                                             />
                                         }
