@@ -8,6 +8,7 @@ import Home from '../components/Home';
 import ManageProjects from '../components/ManageProjects';
 import ManageProjectResources from '../components/ProjectResourcesComponents/ManageProjectResources';
 import ArtiactsRelation from '../components/NewArtifactRelationComponents/ArtifactsRelation';
+import ResourcesTable from '../components/ResourcesComponents/ResourcesTable';;
 
 
 const Routes = () => (
@@ -20,6 +21,7 @@ const Routes = () => (
         <PrivateRoute exact path='/projects/:projectId/resources/' component={ManageProjectResources} />
         <PrivateRoute exact path='/projects/:projectId/artifacts/' component={ArtifactsDetails} />
         <PrivateRoute exact path='/projects/:projectId/artifacts/:artifactId' component={ArtiactsRelation} />
+        <PrivateRoute exact path='/resources' component={ResourcesTable} />
     </Switch>
 )
 
