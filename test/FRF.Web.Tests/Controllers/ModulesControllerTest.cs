@@ -322,6 +322,7 @@ namespace FRF.Web.Tests.Controllers
                     }
                 }
             };
+            module.CategoryModules[0].Module = module;
             return module;
         }
 

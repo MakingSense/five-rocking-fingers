@@ -12,7 +12,6 @@ namespace FRF.Web.Dtos.Modules
         public string Description { get; set; }
         [Required]
         public int SuggestedCost { get; set; }
-        public IList<CategoryModuleDTO> CategoryModules { get; set; }
-        public IList<ProjectModuleUpsertDTO> ProjectModules { get; set; }
+        public IList<CategoryModuleUpsertDTO> CategoryModules { get; set; }
     }
 }

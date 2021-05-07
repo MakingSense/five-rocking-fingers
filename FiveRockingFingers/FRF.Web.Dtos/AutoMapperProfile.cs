@@ -53,10 +53,11 @@ namespace FRF.Web.Dtos
             CreateMap<Resource, ResourceDTO>();
             CreateMap<ResourceUpsertDTO, Resource>();
             CreateMap<ProjectModule, ProjectModuleDTO>();
-            CreateMap<ProjectModuleUpsertDTO, ProjectModule>();
             CreateMap<ModuleUpsertDTO, Module>();
             CreateMap<Module, ModuleDTO>();
             CreateMap<CategoryModule, CategoryModuleDTO>().ReverseMap();
+            CreateMap<CategoryModuleUpsertDTO, CategoryModule>();
+            CreateMap<CategoryUpsertDTO, Category>();
         }
     }
 }
