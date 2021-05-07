@@ -92,7 +92,7 @@ namespace FRF.Web
 			services.AddTransient<IBudgetService, BudgetService>();
 			services.AddTransient<ISettingsValidator, SettingsValidator>();
             services.AddTransient<IResourcesService, ResourcesService>();
-
+            services.AddTransient<IModulesService, ModuleService>();
 
 
 			services.AddSwaggerGen(c =>
