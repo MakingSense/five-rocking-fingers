@@ -1,6 +1,6 @@
 ﻿import { AppBar, Box, makeStyles, Toolbar, Typography } from '@material-ui/core';
 import * as React from 'react';
-import { LinkProps as RouterLinkProps, NavLink } from 'react-router-dom';
+import { LinkProps as RouterLinkProps, NavLink, Link } from 'react-router-dom';
 import HomeOutlinedIcon from '@material-ui/icons/HomeOutlined';
 import { Omit } from '@material-ui/types';
 
@@ -21,6 +21,17 @@ const useStyles = makeStyles(theme => ({
     },
     appBar: {
         backgroundColor: "#1d1d1d"
+    },
+    navItem: {
+        display: 'flex',
+        alignItems: 'flex-end',
+        color: 'white',
+        margin: '10px',
+        textDecoration: 'none',
+        '&:hover': {
+            textDecoration: 'none',
+            color: 'white'
+        }
     }
 }));
 
@@ -51,7 +62,14 @@ const Navbar: React.FC<navBarProps> = (props) => {
             <Box display="flex" alignItems="flex-end">
               {userName}
             </Box>
-          </Typography>
+            </Typography>
+            <Typography variant="subtitle1" className={classes.navItem}>
+                <Box display="flex" alignItems="flex-end">
+                    <Link className={classes.navItem} to={`/resources`}>
+                        Recursos
+                </Link>
+                </Box>
+            </Typography>
           <Box display="flex" alignItems="flex-end">
             {logoutComponent}
           </Box>
