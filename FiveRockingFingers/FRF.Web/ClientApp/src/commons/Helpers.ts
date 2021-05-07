@@ -1,10 +1,12 @@
+import { formatISO, isValid, parseISO } from 'date-fns';
+import format from 'date-fns/format';
 import * as React from 'react';
 import * as Errors from '../ErrorCodes';
 
 interface IErrorResponse {
     code: number;
     message: string;
-  } 
+}
 
 export function handleErrorMessage(responseData: IErrorResponse, baseErrorMessage: string, setSnackbarSettings: Function, setOpenSnackbar: Function | undefined) {
     if (setOpenSnackbar === undefined) setOpenSnackbar = () => { };
@@ -73,6 +75,18 @@ export function handleErrorMessage(responseData: IErrorResponse, baseErrorMessag
             setSnackbarSettings({ message: `${baseErrorMessage}:\ El nombre del recurso ya existe`, severity: "error" });
             setOpenSnackbar(true);
             break;
+        case Errors.PROJECT_RESOURCE_NOT_EXISTS:
+            setSnackbarSettings({ message: `${baseErrorMessage}:\ Al menos uno de los recursos no esta asignado al proyecto`, severity: "error" });
+            setOpenSnackbar(true);
+            break;
+        case Errors.INVALID_BEGINDATE_FOR_PROJECT_RESOURCE:
+            setSnackbarSettings({ message: `${baseErrorMessage}:\ La fecha de inicio no puede ser anterior a la fecha de inicio del proyecto`, severity: "error" });
+            setOpenSnackbar(true);
+            break;
+        case Errors.INVALID_ENDDATE_FOR_PROJECT_RESOURCE:
+            setSnackbarSettings({ message: `${baseErrorMessage}:\ La fecha de finalizacion no puede ser anterior a la fecha de inicio del proyecto`, severity: "error" });
+            setOpenSnackbar(true);
+            break;
         case null:
             setSnackbarSettings({ message: `El artefacto no existe o no tienes autorizacion al mismo 🔒`, severity: "error" });
             setOpenSnackbar(true);
@@ -82,4 +96,27 @@ export function handleErrorMessage(responseData: IErrorResponse, baseErrorMessag
             setOpenSnackbar(true);
             break;
     }
+}
+
+export function ToFormatedDate(date: Date): string {
+    let stringDate = date.toString();
+    let result = format(Date.parse(stringDate), 'dd/MM/yyyy');
+    return result;
+}
+
+export function tryExtractDate(value: string) {
+    let eventDate = new Date(value as string);
+    if (isValid(eventDate)) {
+        let date = eventDate.toISOString().slice(0, 10);
+        return new Date(date);
+    }
+    return null;
+}
+
+export function isDateAfterNow(value: Date) {
+    return formatISO(value, { representation: 'date' }) >= formatISO(new Date(), { representation: 'date' });
+}
+
+export function isDateBefore(beginDate: Date, endDate: Date) {
+    return formatISO(endDate, { representation: 'date' }) >= formatISO(beginDate, { representation: 'date' });
 }
