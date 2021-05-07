@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const ModuleForm = (props: {
+const ModulesForm = (props: {
     module: Module,
     setModule: Function
 }) => {
