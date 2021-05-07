@@ -67,6 +67,14 @@ export function handleErrorMessage(responseData: IErrorResponse, baseErrorMessag
             setSnackbarSettings({ message: `${baseErrorMessage}:\ Al menos una de las categorias no existe`, severity: "error" });
             setOpenSnackbar(true);
             break;
+        case Errors.RESOURCE_NOT_EXISTS:
+            setSnackbarSettings({ message: `${baseErrorMessage}:\ El recurso no existe`, severity: "error" });
+            setOpenSnackbar(true);
+            break;
+        case Errors.RESOURCE_NAME_REPEATED:
+            setSnackbarSettings({ message: `${baseErrorMessage}:\ El nombre del recurso ya existe`, severity: "error" });
+            setOpenSnackbar(true);
+            break;
         case Errors.PROJECT_RESOURCE_NOT_EXISTS:
             setSnackbarSettings({ message: `${baseErrorMessage}:\ Al menos uno de los recursos no esta asignado al proyecto`, severity: "error" });
             setOpenSnackbar(true);
