@@ -91,6 +91,9 @@ namespace FRF.Web
 			services.AddTransient<IArtifactsProviderService, AwsArtifactsProviderService>();
 			services.AddTransient<IBudgetService, BudgetService>();
 			services.AddTransient<ISettingsValidator, SettingsValidator>();
+            		services.AddTransient<IResourcesService, ResourcesService>();
+			services.AddTransient<IProjectResourcesService, ProjectResourcesService>();
+
             services.AddTransient<IResourcesService, ResourcesService>();
             services.AddTransient<IModulesService, ModuleService>();
 
