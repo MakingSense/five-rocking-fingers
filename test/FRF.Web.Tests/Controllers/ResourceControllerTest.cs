@@ -6,6 +6,7 @@ using FRF.Web.Controllers;
 using FRF.Web.Dtos.Resources;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -22,6 +23,38 @@ namespace FRF.Web.Tests.Controllers
             _resourcesServices = new Mock<IResourcesService>();
             _classUnderTest = new ResourcesController(_resourcesServices.Object,
                 _mapper);
+        }
+
+        [Fact]
+        public async Task GetAllAsync_ReturnsOkAndResources()
+        {
+            // Arrange
+            const int ResourceId = 1;
+
+            var resource = CreateResource(ResourceId);
+
+            var resources = new List<Resource>()
+            {
+                resource
+            };
+
+            _resourcesServices
+                .Setup(mock => mock.GetAllAsync())
+                .ReturnsAsync(new ServiceResponse<List<Resource>>(resources));
+
+            // Act
+            var response = await _classUnderTest.GetAllAsync();
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(response);
+            var returnValue = Assert.IsType<List<ResourceDTO>>(okResult.Value);
+
+            Assert.Equal(ResourceId, returnValue[0].Id);
+            Assert.Equal(resource.RoleName, returnValue[0].RoleName);
+            Assert.Equal(resource.Description, returnValue[0].Description);
+            Assert.Equal(resource.SalaryPerMonth, returnValue[0].SalaryPerMonth);
+            Assert.Equal(resource.WorkloadCapacity, returnValue[0].WorkloadCapacity);
+            _resourcesServices.Verify(mock => mock.GetAllAsync(), Times.Once);
         }
 
         [Fact]

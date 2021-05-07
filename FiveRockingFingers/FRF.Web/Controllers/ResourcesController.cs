@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using AutoMapper;
 using FRF.Core.Models;
 using FRF.Core.Response;
@@ -21,6 +22,16 @@ namespace FRF.Web.Controllers
         {
             _resourcesService = resourcesService;
             _mapper = mapper;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllAsync()
+        {
+            var response = await _resourcesService.GetAllAsync();
+
+            var resources = _mapper.Map<IList<ResourceDTO>>(response.Value);
+
+            return Ok(resources);
         }
 
         [HttpGet("{id}")]
