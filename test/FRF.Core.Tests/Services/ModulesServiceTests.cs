@@ -188,11 +188,19 @@ namespace FRF.Core.Tests.Services
         public async Task SaveAsync_ReturnsSavedModule()
         {
             // Arrange
+            var category = CreateCategory();
             var resource = new Module
             {
                 Description = "Mock Description",
                 Name = "Mock role name",
                 SuggestedCost = 1000000,
+                CategoryModules = new List<Core.Models.CategoryModule>
+                {
+                    new Core.Models.CategoryModule
+                    {
+                        Category = category
+                    }
+                }
             };
 
             // Act
@@ -210,6 +218,7 @@ namespace FRF.Core.Tests.Services
 
         private Module CreateAndSaveModule()
         {
+            var category = CreateCategory();
             var rnd = new Random();
             var id = rnd.Next();
             var resource = new DataAccess.EntityModels.Module()
@@ -218,6 +227,13 @@ namespace FRF.Core.Tests.Services
                 Name = $"Mock Role name {id}",
                 Description = "Mock Description",
                 SuggestedCost = 99999,
+                CategoryModules = new List<DataAccess.EntityModels.CategoryModule>
+                {
+                    new DataAccess.EntityModels.CategoryModule
+                    {
+                        Category = _mapper.Map<DataAccess.EntityModels.Category>(category)
+                    }
+                }
             };
             _dataAccess.Modules.Add(resource);
             _dataAccess.SaveChanges();
@@ -260,6 +276,7 @@ namespace FRF.Core.Tests.Services
                 Name = resource.Name,
                 Description = resource.Description,
                 SuggestedCost = 1000000,
+                CategoryModules = resource.CategoryModules
             };
         }
 
