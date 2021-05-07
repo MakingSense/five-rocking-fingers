@@ -81,7 +81,7 @@ const ResourceForm = (props: {
                     name={'roleName'}
                     rules={{
                         validate: {
-                            isValid: value => value.trim() != ""
+                            isValid: value => value.trim() !== ""
                         },
                         required: true }}
                     render={({ onChange }) => (
@@ -99,7 +99,7 @@ const ResourceForm = (props: {
                             autoComplete='off'
                             {...register('roleName', {
                                 validate: {
-                                    isValid: value => value.trim() != ""
+                                    isValid: value => value.trim() !== ""
                                 },
                                 required: true
                             })}
@@ -113,7 +113,7 @@ const ResourceForm = (props: {
                     name={'description'}
                     rules={{
                         validate: {
-                            isValid: value => value.trim() != ""
+                            isValid: value => value.trim() !== ""
                         },
                         required: true }}
                     render={({ onChange }) => (
@@ -131,7 +131,7 @@ const ResourceForm = (props: {
                             autoComplete='off'
                             {...register('roleName', {
                                 validate: {
-                                    isValid: value => value.trim() != ""
+                                    isValid: value => value.trim() !== ""
                                 },
                                 required: true
                             })}
@@ -145,7 +145,7 @@ const ResourceForm = (props: {
                     name={'salaryPerMonth'}
                     rules={{
                         validate: {
-                            isValid: value => value.trim() != "",
+                            isValid: value => value.trim() !== "",
                             positive: value => parseInt(value, 10) > 0
                         },
                         required: true }}
@@ -165,7 +165,7 @@ const ResourceForm = (props: {
                             type="number"
                             {...register('roleName', {
                                 validate: {
-                                    isValid: value => value.trim() != "",
+                                    isValid: value => value.trim() !== "",
                                     positive: value => parseInt(value, 10) > 0
                                 },
                                 required: true
@@ -180,7 +180,7 @@ const ResourceForm = (props: {
                     name={'workloadCapacity'}
                     rules={{
                         validate: {
-                            isValid: value => value.trim() != "",
+                            isValid: value => value.trim() !== "",
                             positive: value => parseInt(value, 10) > 0
                         },
                         required: true }}
@@ -200,7 +200,7 @@ const ResourceForm = (props: {
                             type="number"
                             {...register('roleName', {
                                 validate: {
-                                    isValid: value => value.trim() != "",
+                                    isValid: value => value.trim() !== "",
                                     positive: value => parseInt(value, 10) > 0
                                 },
                                 required: true
