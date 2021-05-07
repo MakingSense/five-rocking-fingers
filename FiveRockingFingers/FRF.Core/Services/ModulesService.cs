@@ -74,12 +74,15 @@ namespace FRF.Core.Services
             if (originalModules == null)
                 return new ServiceResponse<Models.Module>(new Error(ErrorCodes.ModuleNotExist,
                     $"There is not module with Id = {module.Id}"));
-            var mappedCategoryModules = await GetCategoryList(module.CategoryModules);
-            if (mappedCategoryModules == null)
-                return new ServiceResponse<Models.Module>(new Error(ErrorCodes.CategoryNotExists,
-                    "At least one of the selected categories doesn't exist"));
+            if(module.CategoryModules.Any())
+            {
+                var mappedCategoryModules = await GetCategoryList(module.CategoryModules);
+                if (mappedCategoryModules == null)
+                    return new ServiceResponse<Models.Module>(new Error(ErrorCodes.CategoryNotExists,
+                        "At least one of the selected categories doesn't exist"));
 
-            originalModules.CategoryModules = mappedCategoryModules;
+                originalModules.CategoryModules = mappedCategoryModules;
+            }
             originalModules.Name = module.Name;
             originalModules.Description = module.Description;
             originalModules.SuggestedCost = module.SuggestedCost;
