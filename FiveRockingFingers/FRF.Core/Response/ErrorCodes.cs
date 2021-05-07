@@ -11,6 +11,8 @@
         public const int ArtifactFromAnotherProject = 6;
         public const int InvalidStartDateForProject = 7;
         public const int ResourceNotExist = 8;
+        public const int ProjectResourceNotExists = 9;
+        public const int ModuleNotExist = 10;
 
         // Relation errors
         public const int RelationAlreadyExisted = 10;
@@ -34,8 +36,13 @@
         //Resources errors
         public const int ResourceNameRepeated = 50;
 
-        public const int ProjectModuleNotExists = 100;
-        public const int ModuleNotExists = 101;
-        public const int ModuleCostInvalid = 102;
+        //ProjectResourcecs errors
+        public const int InvalidBeginDateForProjectResource = 51;
+        public const int InvalidEndDateForProjectResource = 52;
+
+	//ProjectModules errors
+        public const int ProjectModuleNotExists = 60;
+        public const int ModuleNotExists = 61;
+        public const int ModuleCostInvalid = 62;
     }
 }
