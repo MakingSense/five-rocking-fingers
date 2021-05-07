@@ -27,7 +27,7 @@ const ResourcesTableRow = (props: { resource: Resource, openSnackbar: Function, 
                 <td>
                     <Button
                         className="mx-3"
-                        style={{ minHeight: "32px", width: "20%" }}
+                        style={{ minHeight: "32px", width: "35%" }}
                         color="danger"
                         onClick={deleteButtonClick}
                     >
@@ -36,7 +36,7 @@ const ResourcesTableRow = (props: { resource: Resource, openSnackbar: Function, 
 
                     <Button
                         className="mx-3"
-                        style={{ minHeight: "32px", width: "20%" }}
+                        style={{ minHeight: "32px", width: "35%" }}
                         color="warning"
                         onClick={handleModifyResourceClick}
                     >
