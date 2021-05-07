@@ -105,12 +105,15 @@ namespace FRF.Core.Services
         public async Task<ServiceResponse<Models.Module>> SaveAsync(Models.Module module)
         {
             var modulesToSave = _mapper.Map<Module>(module);
-            var mappedCategoryModules = await GetCategoryList(module.CategoryModules);
-            if (mappedCategoryModules == null)
-                return new ServiceResponse<Models.Module>(new Error(ErrorCodes.CategoryNotExists,
-                    "At least one of the selected categories doesn't exist"));
+            if(module.CategoryModules.Any())
+            {
+                var mappedCategoryModules = await GetCategoryList(module.CategoryModules);
+                if (mappedCategoryModules == null)
+                    return new ServiceResponse<Models.Module>(new Error(ErrorCodes.CategoryNotExists,
+                        "At least one of the selected categories doesn't exist"));
 
-            modulesToSave.CategoryModules = mappedCategoryModules;
+                modulesToSave.CategoryModules = mappedCategoryModules;
+            }
 
             await _dataContext.Modules.AddAsync(modulesToSave);
             await _dataContext.SaveChangesAsync();
