@@ -66,7 +66,7 @@ const Navbar: React.FC<navBarProps> = (props) => {
             <Typography variant="subtitle1" className={classes.navItem}>
                 <Box display="flex" alignItems="flex-end">
                     <Link className={classes.navItem} to={`/resources`}>
-                        Recursos
+                        Módulos
                 </Link>
                 </Box>
             </Typography>

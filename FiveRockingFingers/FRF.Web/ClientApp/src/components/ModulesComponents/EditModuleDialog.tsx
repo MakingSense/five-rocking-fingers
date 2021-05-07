@@ -71,7 +71,7 @@ const EditModuleDialog = (props: {
         <Dialog open={showEditModuleDialog}>
             <FormProvider {...methods}>
                 <ThemeProvider theme={theme}>
-                    <DialogTitle >Formulario de creación de recursos</DialogTitle>
+                    <DialogTitle >Formulario de creación de módulos</DialogTitle>
                     <ModulesForm
                         module={Module}
                         setModule={setModule}
