@@ -39,5 +39,10 @@
         //ProjectResourcecs errors
         public const int InvalidBeginDateForProjectResource = 51;
         public const int InvalidEndDateForProjectResource = 52;
+
+	//ProjectModules errors
+        public const int ProjectModuleNotExists = 60;
+        public const int ModuleNotExists = 61;
+        public const int ModuleCostInvalid = 62;
     }
 }
