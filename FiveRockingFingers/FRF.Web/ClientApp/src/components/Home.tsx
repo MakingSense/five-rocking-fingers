@@ -48,7 +48,7 @@ const Home = () => {
         <Typography align='center' variant='body2'>Quieres crear un nuevo proyecto?</Typography>
         <Typography align='center' variant='body2'>has click en el siguiente boton:</Typography>
         
-          <Button style={{marginTop:'35px'}} color="success" component={Link} to='/administrarProyectos'>Administrar Proyectos</Button>
+          <Button style={{marginTop:'35px'}} color="success" tag={Link} to='/administrarProyectos'>Administrar Proyectos</Button>
         </Grid>
         <Grid item xs={12} alignContent='center' style={{marginLeft:'74vh', marginBottom:'33vh'}}>
           
