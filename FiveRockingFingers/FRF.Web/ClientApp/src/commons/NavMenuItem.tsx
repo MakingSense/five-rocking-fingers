@@ -7,20 +7,21 @@ import { Box } from '@material-ui/core';
 const NavMenuItem = (props: { project: Project }) => {
     return (
         <div>
-            <SubMenu title={`Proyecto: ${props.project.name}`}>
-		<Box><MenuItem active={false}>
+            <SubMenu title={`Proyecto: ${props.project.name}`} >
+                <Box><MenuItem active={false}>
+                <Link to={`/projects/${props.project.id}`} />
                     <p>{`Creador: ${props.project.owner}`}</p>
                     <p>{`Cliente: ${props.project.client}`}</p>
                     <p>{`Presupuesto: $${props.project.budget}`}</p>
                     <p>{`Fecha Inicio: ${props.project.createdDate}`}</p>
                 </MenuItem></Box>
-                
+
                 <MenuItem>
                     <Link to={`/projects/${props.project.id}/artifacts`}>
                         Artefactos
                     </Link>
                 </MenuItem>
-                
+
                 <MenuItem>Equipo</MenuItem>
                 <MenuItem>Presupuesto</MenuItem>
             </SubMenu>
