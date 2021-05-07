@@ -77,10 +77,9 @@ const ModulesTable = () => {
             <Table striped bordered hover responsive>
                 <thead>
                     <tr>
-                        <th>Nombre del rol</th>
+                        <th>Nombre del módulo</th>
                         <th>Descripción</th>
-                        <th>Salario mensual</th>
-                        <th>Capacidad de trabajo</th>
+                        <th>Costo sugerido</th>
                         <th >
                             <Button className="mx-3" style={{ minHeight: "32px", width: "19vh" }} color="success" onClick={openNewModuleDialog}>Nuevo recurso</Button>
                         </th>

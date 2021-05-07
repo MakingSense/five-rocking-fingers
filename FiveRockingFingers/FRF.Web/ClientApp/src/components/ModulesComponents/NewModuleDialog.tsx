@@ -72,7 +72,7 @@ const NewModuleDialog = (props: {
                 <ThemeProvider theme={theme}>
                     <DialogTitle >Formulario de creación de recursos</DialogTitle>
                     <ModulesForm
-                        Module={Module}
+                        module={Module}
                         setModule={setModule}
                     />
                     <DialogActions>
