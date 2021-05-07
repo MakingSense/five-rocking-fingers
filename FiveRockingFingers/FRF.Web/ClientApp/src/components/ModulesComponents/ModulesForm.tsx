@@ -3,6 +3,9 @@ import { createMuiTheme, createStyles, makeStyles, Theme } from '@material-ui/co
 import * as React from 'react';
 import Module from '../../interfaces/Module';
 import { Controller, useForm, useFormContext } from 'react-hook-form';
+import Category from '../../interfaces/Category';
+import CategoryService from '../../services/CategoryService';
+import ManageCategories from '../ManageProjectsComponents/ManageCategories';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -51,7 +54,21 @@ const ModulesForm = (props: {
     const suggestedCost = 'suggestedCost';
     const { control, register, errors } = useFormContext();
 
+    const [categories, setCategories] = React.useState([] as Category[]);
+    const [selectedCategories, setSelectedCategories] = React.useState([] as Category[]);
 
+    const getCategoryList = async () => {
+        try {
+            const response = await CategoryService.getAll();
+            if (response.status === 200) setCategories(response.data);
+        } catch {
+            setCategories([]);
+        }
+    }
+
+    React.useEffect(() => {
+        getCategoryList();
+    }, [])
     const handleInput = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         let { name, value } = event.target;
         let ModuleChanged = { ...module };
@@ -172,6 +189,7 @@ const ModulesForm = (props: {
                         />
                     )}
                 />
+                <ManageCategories categories={categories} selectedCategories={selectedCategories} setSelectedCategories={setSelectedCategories} />
             </DialogContent>
         </>
     );
