@@ -65,6 +65,14 @@ export function handleErrorMessage(responseData: IErrorResponse, baseErrorMessag
             setSnackbarSettings({ message: `${baseErrorMessage}:\ Al menos una de las categorias no existe`, severity: "error" });
             setOpenSnackbar(true);
             break;
+        case Errors.RESOURCE_NOT_EXISTS:
+            setSnackbarSettings({ message: `${baseErrorMessage}:\ El recurso no existe`, severity: "error" });
+            setOpenSnackbar(true);
+            break;
+        case Errors.RESOURCE_NAME_REPEATED:
+            setSnackbarSettings({ message: `${baseErrorMessage}:\ El nombre del recurso ya existe`, severity: "error" });
+            setOpenSnackbar(true);
+            break;
         case null:
             setSnackbarSettings({ message: `El artefacto no existe o no tienes autorizacion al mismo 🔒`, severity: "error" });
             setOpenSnackbar(true);
