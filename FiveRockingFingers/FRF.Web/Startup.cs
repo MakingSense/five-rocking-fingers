@@ -94,6 +94,8 @@ namespace FRF.Web
             		services.AddTransient<IResourcesService, ResourcesService>();
 			services.AddTransient<IProjectResourcesService, ProjectResourcesService>();
 
+            services.AddTransient<IResourcesService, ResourcesService>();
+            services.AddTransient<IModulesService, ModuleService>();
 
 
 			services.AddSwaggerGen(c =>

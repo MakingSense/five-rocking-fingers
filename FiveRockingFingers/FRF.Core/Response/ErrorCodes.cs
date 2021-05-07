@@ -12,6 +12,7 @@
         public const int InvalidStartDateForProject = 7;
         public const int ResourceNotExist = 8;
         public const int ProjectResourceNotExists = 9;
+        public const int ModuleNotExist = 10;
 
         // Relation errors
         public const int RelationAlreadyExisted = 10;
