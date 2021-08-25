@@ -1,10 +1,6 @@
 name: NodeJS with Grunt
 
 on:
-  push:
-    branches: [ Release_0.1 ]
-  pull_request:
-    branches: [ Release_0.1 ]
   workflow_dispatch:
 
 jobs:
